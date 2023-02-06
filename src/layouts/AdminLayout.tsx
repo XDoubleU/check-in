@@ -5,13 +5,20 @@ import Navigation from "@/components/Navigation"
 type AdminLayoutProps = {
   children: ReactNode,
   title: string,
-  isSuperUser: boolean
+  isSuperUser: boolean,
+  showNav: boolean
 }
 
-export default function AdminLayout({children, title, isSuperUser}: AdminLayoutProps){
+export default function AdminLayout({children, title, isSuperUser, showNav}: AdminLayoutProps){
   return (
     <BaseLayout title={title}>
-      <Navigation isSuperUser={isSuperUser}/>
+      {
+        showNav ? (
+          <Navigation isSuperUser={isSuperUser}/>
+        ) : (
+          <></>
+        )
+      }
 
       <div className="container content">
         {children}

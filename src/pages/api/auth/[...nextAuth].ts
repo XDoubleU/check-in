@@ -2,12 +2,15 @@ import NextAuth from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { compare, hash } from "bcrypt"
+import { compareSync } from "bcrypt"
 
 // Instantiate Prisma Client
 const prisma = new PrismaClient()
 
 export default NextAuth({
+  session: {
+    strategy: "jwt"
+  },
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -15,19 +18,52 @@ export default NextAuth({
         username: { label: "Username", type: "text", placeholder: "username" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
-  
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
+      async authorize(credentials) {
+        if (credentials === undefined) {
           return null
+        }
+
+        try {
+          const user = await prisma.user.findFirst({
+            where: {
+              username: credentials.username
+            }
+          })
+
+          if (user === null) {
+            return null
+          }
+
+          if (!compareSync(credentials.password, user.passwordHash)) {
+            return null
+          }
+
+          return user
+        }
+        catch (err: unknown) {
+          throw new Error("Authorize error: ", (err as Error))
         }
       }
     })
   ],
+  pages: {
+    signIn: "../../auth/signin",
+    signOut: "../../auth/signout"
+  },
+  callbacks: {
+    async session({ session, token }) {
+      session.user = {
+        id: token.user.id ?? "",
+        username: token.user.username ?? ""
+      }
+      return Promise.resolve(session)
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.user = user
+      }
+      return Promise.resolve(token)
+    }
+  },
   adapter: PrismaAdapter(prisma),
 })

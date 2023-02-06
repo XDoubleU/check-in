@@ -7,3 +7,7 @@
 ## Edit schema?
 1. `npx prisma generate`
 2. `npx prisma migrate dev` or `npx prisma db push` (ONLY FOR PROTOTYPING)
+
+## Other
+1. `npx prisma db seed` seed database
+2. `npm run cli createadmin` create admin
