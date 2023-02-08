@@ -1,0 +1,33 @@
+.btnCheckIn{
+  border-radius: 100%;
+  height: 35rem;
+  width: 35rem;
+  font-size: 5rem;
+}
+
+.btnCheckIn:disabled, .btnCheckIn[disabled]{
+  background-color: #0cf041;
+  --bs-btn-bg: #0cf041;
+  color: white;
+  --bs-btn-color: white;
+  --bs-btn-hover-bg: #08cf36;
+  --bs-btn-hover-color: white;
+  --bs-btn-active-bg: #08cf36;
+  --bs-btn-active-color: white;
+  --bs-btn-focus-shadow-rgb: 12, 240, 65;
+  border-color: #0cf041;
+  --bs-btn-hover-border-color: #0cf041;
+  opacity: 1;
+}
+
+.modalContent{
+  display: flex;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.btnSchool{
+  width: 80%;
+  font-size: 5rem;
+  margin-bottom: 2rem;
+}

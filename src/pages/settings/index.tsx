@@ -2,7 +2,7 @@ import LoadingLayout from "@/layouts/LoadingLayout"
 import { useSession } from "next-auth/react"
 import Router from "next/router"
 
-export default function Home() {
+export default function SettingsHome() {
   const {data, status} = useSession({
     required: true
   })
@@ -12,10 +12,10 @@ export default function Home() {
   }
 
   if (data.user.isAdmin) {
-    Router.push("/settings")
+    Router.push("/settings/locations")
   } else {
-    Router.push("/check-in")
+    Router.push(`/settings/locations/${data.user.locationId}`)
   }
-
+  
   return <LoadingLayout/>
 }
