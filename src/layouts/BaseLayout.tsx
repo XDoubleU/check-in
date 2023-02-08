@@ -33,7 +33,6 @@ export default function BaseLayout({children, title, showLinks, showNav, isAdmin
     </Container>
 
     <br/>
-    <br/>
 
     <footer className="text-center">
       <br/>

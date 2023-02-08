@@ -18,3 +18,11 @@
       text-align: center;
   }
 }
+
+.min-vh-51{
+  min-height: 51vh;
+}
+
+.min-vh-80{
+  min-height: 80vh;
+}

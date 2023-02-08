@@ -1,18 +1,16 @@
-import { MouseEventHandler } from "react"
 import { Pagination } from "react-bootstrap"
 
 type CustomPaginationProps = {
   current: number,
   total: number,
-  pageSize: number,
-  onClick: MouseEventHandler<HTMLElement>
+  pageSize: number
 }
 
-export default function CustomPagination({current, total, pageSize, onClick}: CustomPaginationProps) {
+export default function CustomPagination({current, total, pageSize}: CustomPaginationProps) {
   const pages = []
   for (let number = 1; number <= Math.ceil(total/pageSize); number++) {
     pages.push(
-      <Pagination.Item key={number} active={number === current} onClick={onClick}>
+      <Pagination.Item key={number} active={number === current} href={`?page=${number}`}>
         {number}
       </Pagination.Item>,
     )

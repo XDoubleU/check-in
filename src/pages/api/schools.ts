@@ -7,6 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const pageInt = page === undefined || Array.isArray(page) ? 1 : parseInt(page)
     const pageSizeInt = pageSize === undefined || Array.isArray(pageSize) ? 4 : parseInt(pageSize)
 
+    const pageSkip = (pageInt - 1) >= 0 ? (pageInt - 1) : 0
     const schools = await prisma.school.findMany({
       where: {
         id: {
@@ -17,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         id: "asc"
       },
       take: pageSizeInt,
-      skip: (pageInt - 1) * pageSizeInt
+      skip: pageSkip * pageSizeInt
     })
 
     res.status(200).json(schools)

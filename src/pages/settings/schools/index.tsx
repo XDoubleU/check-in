@@ -5,23 +5,22 @@ import SchoolCard from "@/components/SchoolCard"
 import AdminLayout from "@/layouts/AdminLayout"
 import LoadingLayout from "@/layouts/LoadingLayout"
 import { School } from "@prisma/client"
+import { GetServerSidePropsContext } from "next"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/router"
-import { FormEvent, MouseEvent, useEffect, useState } from "react"
+import { FormEvent, useState } from "react"
 import { Col, Form, Modal } from "react-bootstrap"
 
-const PAGE_SIZE = 4
-
-
 type SchoolListProps = {
-  totalSchools: number
+  schools: School[],
+  totalSchools: number,
+  pageSize: number,
+  currentPage: number
 }
 
-export default function SchoolList({totalSchools}: SchoolListProps) {
+export default function SchoolList({schools, totalSchools, pageSize, currentPage}: SchoolListProps) {
   const router = useRouter()
 
-  const [schools, setSchools] = useState(new Array<School>())
-  const [currentPage, setCurrentPage] = useState(1)
   const [addInfo, setAddInfo] = useState({ name: "" })
   const [showAdd, setShowAdd] = useState(false)
   const handleCloseAdd = () => setShowAdd(false)
@@ -30,22 +29,6 @@ export default function SchoolList({totalSchools}: SchoolListProps) {
   const {data, status} = useSession({
     required: true
   })
-  
-  useEffect(() => {
-    fetch("/api/schools")
-      .then((res) => res.json())
-      .then((data) => setSchools(data))
-  }, [])
-
-  const changePage = async (event: MouseEvent<HTMLElement>) => {
-    const clickedPage = event.target as HTMLElement
-    const value = parseInt(clickedPage.innerHTML.split("<")[0])
-
-    const response = await fetch(`/api/schools?page=${value}&pageSize=${PAGE_SIZE}`)
-
-    setSchools(await response.json())
-    setCurrentPage(value)
-  }
 
   const handleAdd = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -101,23 +84,28 @@ export default function SchoolList({totalSchools}: SchoolListProps) {
 
       <br/>
 
-      {
-        (schools === undefined || schools.length == 0) ? "Nothing to see here." : ""
-      }
+      <div className="min-vh-51">
+        {
+          (schools === undefined || schools.length == 0) ? "Nothing to see here." : ""
+        }
 
-      {
-        schools.map((school) => {
-          return <SchoolCard id={school.id} key={school.id} title={school.name} />
-        })
-      }
+        {
+          schools.map((school) => {
+            return <SchoolCard id={school.id} key={school.id} title={school.name} />
+          })
+        }
+      </div>
 
-      <CustomPagination current={currentPage} total={totalSchools} pageSize={PAGE_SIZE} onClick={changePage} />
+      <CustomPagination current={currentPage} total={totalSchools} pageSize={pageSize} />
       
     </AdminLayout>
   )  
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const pageSize = 4
+  let currentPage = parseInt(context.query.page as string ?? "1")
+
   const totalSchools = await prisma.school.count({
     where: {
       id: {
@@ -126,9 +114,22 @@ export async function getServerSideProps() {
     }
   })
 
+  const totalPages = Math.ceil(totalSchools/pageSize)
+  if ( currentPage > totalPages ) {
+    currentPage--
+    context.query.page = currentPage.toString()
+  }
+
+  console.log(currentPage)
+  const response = await fetch(`${process.env.NEXTAUTH_URL}/api/schools?page=${currentPage}&pageSize=${pageSize}`)
+  const schools = await response.json()
+
   return {
     props: {
-      totalSchools
+      schools,
+      totalSchools,
+      pageSize,
+      currentPage
     }
   }
 }

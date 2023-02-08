@@ -51,7 +51,7 @@ function UpdateModal({id, name}: ModalProps) {
           <br/>
           <Form onSubmit={handleUpdate}>
             <Form.Group className="mb-3">
-              <Form.Label>Username</Form.Label>
+              <Form.Label>Name</Form.Label>
               <Form.Control type="text" placeholder="Name" value={updateInfo.name} onChange={({ target}) => setUpdateInfo({ ...updateInfo, name: target.value })}></Form.Control>
             </Form.Group>
             <CustomButton type="button" style={{"float": "left"}}>Cancel</CustomButton>
