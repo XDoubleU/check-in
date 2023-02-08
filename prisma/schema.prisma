@@ -15,22 +15,22 @@ model User {
   username      String    @unique
   passwordHash  String
   isAdmin       Boolean
-  location      Location?
+  location      Location? 
 }
 
 model CheckIn {
   id          String    @id @default(uuid())
-  location    Location  @relation(fields: [locationId], references: [id])
+  location    Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
   locationId  String
   capacity    Int
   datetime    DateTime  @default(now())
-  school      School    @relation(fields: [schoolId], references: [id])
-  schoolId    Int 
+  school      School    @relation(fields: [schoolId], references: [id], onDelete: SetDefault)
+  schoolId    Int       @default(1) 
 }
 
 model Location {
   id            String    @id @default(uuid())
-  user          User      @relation(fields: [userId], references: [id])
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String    @unique
   name          String
   capacity      Int

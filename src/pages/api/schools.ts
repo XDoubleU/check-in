@@ -1,9 +1,21 @@
 import { prisma } from "@/common/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
 
+//TODO: cleaner ?
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
-    const { page, pageSize } = req.query
+    const { page, pageSize, all } = req.query
+
+    if (Boolean(all) === true) {
+      const schools = await prisma.school.findMany({
+        orderBy: {
+          name: "asc"
+        }
+      })
+  
+      res.status(200).json(schools)
+    }
+
     const pageInt = page === undefined || Array.isArray(page) ? 1 : parseInt(page)
     const pageSizeInt = pageSize === undefined || Array.isArray(pageSize) ? 4 : parseInt(pageSize)
 
@@ -15,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       },
       orderBy: {
-        id: "asc"
+        name: "asc"
       },
       take: pageSizeInt,
       skip: pageSkip * pageSizeInt
@@ -47,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json(school)
   }
-  else if (req.method === "PUT") {
+  else if (req.method === "PATCH") {
     const { id, name } = req.body
 
     const school = await prisma.school.findFirst({

@@ -1,7 +1,7 @@
 import { prisma } from "@/common/prisma"
 import CustomButton from "@/components/CustomButton"
-import CustomPagination from "@/components/CustomPagination"
-import SchoolCard from "@/components/SchoolCard"
+import CustomPagination, { CustomPaginationProps } from "@/components/CustomPagination"
+import SchoolCard from "@/components/cards/SchoolCard"
 import AdminLayout from "@/layouts/AdminLayout"
 import LoadingLayout from "@/layouts/LoadingLayout"
 import { School } from "@prisma/client"
@@ -13,12 +13,10 @@ import { Col, Form, Modal } from "react-bootstrap"
 
 type SchoolListProps = {
   schools: School[],
-  totalSchools: number,
-  pageSize: number,
-  currentPage: number
+  pagination: CustomPaginationProps
 }
 
-export default function SchoolList({schools, totalSchools, pageSize, currentPage}: SchoolListProps) {
+export default function SchoolList({schools, pagination}: SchoolListProps) {
   const router = useRouter()
 
   const [addInfo, setAddInfo] = useState({ name: "" })
@@ -57,20 +55,18 @@ export default function SchoolList({schools, totalSchools, pageSize, currentPage
   }
 
   return (
-    <AdminLayout title="Schools" isAdmin={data.user.isAdmin}>
-      <h1>Schools</h1>
-      <br/>
-      
+    <AdminLayout title="Schools" user={data.user}>
       <Modal show={showAdd} onHide={handleCloseAdd}>
         <Modal.Body>
-        <Modal.Title>Add school</Modal.Title>
-        <br/>
+          <Modal.Title>Add school</Modal.Title>
+          <br/>
           <Form onSubmit={handleAdd}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control type="text" placeholder="Name" value={addInfo.name} onChange={({ target}) => setAddInfo({ ...addInfo, name: target.value })}></Form.Control>
             </Form.Group>
-            <CustomButton type="button" style={{"float": "left"}}>Cancel</CustomButton>
+            <br/>
+            <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseAdd}>Cancel</CustomButton>
             <CustomButton type="submit" style={{"float": "right"}}>Add</CustomButton>
           </Form>
         </Modal.Body>
@@ -91,12 +87,12 @@ export default function SchoolList({schools, totalSchools, pageSize, currentPage
 
         {
           schools.map((school) => {
-            return <SchoolCard id={school.id} key={school.id} title={school.name} />
+            return <SchoolCard id={school.id} key={school.id} name={school.name} />
           })
         }
       </div>
 
-      <CustomPagination current={currentPage} total={totalSchools} pageSize={pageSize} />
+      <CustomPagination current={pagination.current} total={pagination.total} pageSize={pagination.pageSize} />
       
     </AdminLayout>
   )  
@@ -120,16 +116,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     context.query.page = currentPage.toString()
   }
 
-  console.log(currentPage)
   const response = await fetch(`${process.env.NEXTAUTH_URL}/api/schools?page=${currentPage}&pageSize=${pageSize}`)
   const schools = await response.json()
 
   return {
     props: {
       schools,
-      totalSchools,
-      pageSize,
-      currentPage
+      pagination: {
+        total: totalSchools,
+        current: currentPage,
+        pageSize
+      }
     }
   }
 }

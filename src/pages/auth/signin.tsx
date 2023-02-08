@@ -6,12 +6,12 @@ import { Col, Form } from "react-bootstrap"
 import CustomButton from "@/components/CustomButton"
 
 export default function SignIn(){
-  const [userInfo, setUserInfo] = useState({ username: "", password: ""})
+  const [userInfo, setUserInfo] = useState({ username: "", password: "", rememberMe: false})
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
 
     await signIn("credentials", {
-      email: userInfo.username,
+      username: userInfo.username,
       password: userInfo.password,
       callbackUrl: `${window.location.origin}`
     })
@@ -26,11 +26,11 @@ export default function SignIn(){
         <Form className={styles.customForm} onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
             <Form.Label>Username</Form.Label>
-            <Form.Control type="text" placeholder="Username" value={userInfo.username} onChange={({ target}) => setUserInfo({ ...userInfo, username: target.value })}></Form.Control>
+            <Form.Control type="text" placeholder="Username" value={userInfo.username} onChange={({ target}) => setUserInfo({ ...userInfo, username: target.value })} required ></Form.Control>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Password" value={userInfo.password} onChange={({ target}) => setUserInfo({ ...userInfo, password: target.value })}></Form.Control>
+            <Form.Control type="password" placeholder="Password" value={userInfo.password} onChange={({ target}) => setUserInfo({ ...userInfo, password: target.value })} required></Form.Control>
           </Form.Group>
           
           <CustomButton type="submit">Sign In</CustomButton>

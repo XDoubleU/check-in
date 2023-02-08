@@ -14,7 +14,7 @@ export default function SettingsHome() {
   if (data.user.isAdmin) {
     Router.push("/settings/locations")
   } else {
-    Router.push("/settings/locations")
+    Router.push(`/settings/locations/${data.user.locationId}`)
   }
   
   return <LoadingLayout/>

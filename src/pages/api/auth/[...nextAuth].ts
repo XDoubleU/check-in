@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { compareSync } from "bcrypt"
+import { User } from "next-auth/core/types"
 
 // Instantiate Prisma Client
 const prisma = new PrismaClient()
@@ -37,8 +38,23 @@ export const authOptions: NextAuthOptions = {
           if (!compareSync(credentials.password, user.passwordHash)) {
             return null
           }
+          
+          const sessionUser : User = user
+          if (!sessionUser.isAdmin) {
+            const location = await prisma.location.findFirst({
+              where: {
+                userId: sessionUser.id
+              }
+            })
 
-          return user
+            if (location === null) {
+              return null
+            }
+            
+            sessionUser.locationId = location.id
+          }
+
+          return sessionUser
         }
         catch (err: unknown) {
           throw new Error("Authorize error: ", (err as Error))
@@ -54,7 +70,8 @@ export const authOptions: NextAuthOptions = {
       session.user = {
         id: token.user.id ?? "",
         username: token.user.username ?? "",
-        isAdmin: token.user.isAdmin ?? false
+        isAdmin: token.user.isAdmin ?? false,
+        locationId: token.user.locationId
       }
       return Promise.resolve(session)
     },

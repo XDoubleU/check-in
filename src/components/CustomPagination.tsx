@@ -1,6 +1,6 @@
 import { Pagination } from "react-bootstrap"
 
-type CustomPaginationProps = {
+export type CustomPaginationProps = {
   current: number,
   total: number,
   pageSize: number

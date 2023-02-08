@@ -37,7 +37,7 @@ program.command("createadmin")
       return
     }
 
-    const passwordHash = hashSync(promptResponse.password, 10)
+    const passwordHash = hashSync(promptResponse.password, 12)
     const result = await prisma.user.create({
       data: {
         username: promptResponse.username,

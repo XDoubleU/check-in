@@ -2,16 +2,17 @@ import { ReactNode } from "react"
 import Head from "next/head"
 import Navigation from "@/components/Navigation"
 import { Container } from "react-bootstrap"
+import { User } from "next-auth/core/types"
 
 type BaseLayoutProps = {
   children: ReactNode,
   title?: string,
   showLinks?: boolean,
   showNav?: boolean,
-  isAdmin?: boolean
+  user?: User
 }
 
-export default function BaseLayout({children, title, showLinks, showNav, isAdmin}: BaseLayoutProps){
+export default function BaseLayout({children, title, showLinks, showNav, user}: BaseLayoutProps){
   const fullTitle = title ? `${title} - Check-In` : "Check-In"
   
   return (
@@ -21,8 +22,8 @@ export default function BaseLayout({children, title, showLinks, showNav, isAdmin
     </Head>
 
     {
-      showNav ? (
-        <Navigation isAdmin={isAdmin ?? false}/>
+      showNav && user !== undefined ? (
+        <Navigation user={user} />
       ) : (
         <></>
       )

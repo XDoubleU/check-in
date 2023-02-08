@@ -1,9 +1,8 @@
-import CheckInLayout from "@/layouts/CheckInLayout"
 import LoadingLayout from "@/layouts/LoadingLayout"
 import { useSession } from "next-auth/react"
 import Router from "next/router"
 
-export default function CheckIn() {
+export default function Home() {
   const {data, status} = useSession({
     required: true
   })
@@ -14,8 +13,9 @@ export default function CheckIn() {
 
   if (data.user.isAdmin) {
     Router.push("/settings")
-    return <LoadingLayout/>
+  } else {
+    Router.push("/check-in")
   }
 
-  return <CheckInLayout/>
+  return <LoadingLayout/>
 }

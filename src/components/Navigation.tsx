@@ -1,19 +1,21 @@
+import { User } from "next-auth/core/types"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/router"
 import { MouseEventHandler } from "react"
 import { Container, Nav, Navbar } from "react-bootstrap"
 
 type NavigationProps = {
-  isAdmin: boolean
+  user: User
 }
 
 type NavItemProps = {
   children: string,
   href?: string,
-  onClick?: MouseEventHandler<HTMLAnchorElement>
+  onClick?: MouseEventHandler<HTMLAnchorElement>,
+  active?: boolean
 }
 
-function NavItem({children, href, onClick}: NavItemProps) {
+function NavItem({children, href, onClick, active}: NavItemProps) {
   const router = useRouter()
   
   if (onClick !== undefined) {
@@ -30,13 +32,13 @@ function NavItem({children, href, onClick}: NavItemProps) {
 
   const selected = router.pathname.includes(href.toLowerCase())
   return (
-    <Nav.Link className={`nav-link ${selected ? "active" : ""}`} href={href}>
+    <Nav.Link className={`nav-link ${selected || active ? "active" : ""}`} href={href}>
       {children}
     </Nav.Link>
   )
 }
 
-export default function Navigation({isAdmin}: NavigationProps){
+export default function Navigation({user}: NavigationProps){
   return (
     <Navbar expand="lg" bg="primary" variant="dark">
       <Container>
@@ -45,8 +47,8 @@ export default function Navigation({isAdmin}: NavigationProps){
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto mb-2 mb-lg-0">
             {
-              !isAdmin ? (
-                <NavItem href="#" >My location</NavItem>
+              !user.isAdmin ? (
+                <NavItem active={true} href={`/settings/locations/${user.locationId}`} >My location</NavItem>
               ) : (
                 <>
                   <NavItem href="/settings/locations">Locations</NavItem>
