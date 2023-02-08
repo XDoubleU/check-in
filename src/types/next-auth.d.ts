@@ -7,12 +7,14 @@ declare module "next-auth" {
     user: {
       id: string;
       username: string;
+      isAdmin: boolean;
     };
   }
 
   interface User {
     id: string;
     username: string;
+    isAdmin: boolean;
   }
 }
 
@@ -21,6 +23,7 @@ declare module "next-auth/jwt" {
     user: {
       id?: string;
       username?: string;
+      isAdmin?: boolean
     };
   }
 }

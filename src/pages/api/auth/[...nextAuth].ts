@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { PrismaClient } from "@prisma/client"
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -7,7 +7,7 @@ import { compareSync } from "bcrypt"
 // Instantiate Prisma Client
 const prisma = new PrismaClient()
 
-export default NextAuth({
+export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt"
   },
@@ -47,14 +47,14 @@ export default NextAuth({
     })
   ],
   pages: {
-    signIn: "../../auth/signin",
-    signOut: "../../auth/signout"
+    signIn: "../../auth/signin"
   },
   callbacks: {
     async session({ session, token }) {
       session.user = {
         id: token.user.id ?? "",
-        username: token.user.username ?? ""
+        username: token.user.username ?? "",
+        isAdmin: token.user.isAdmin ?? false
       }
       return Promise.resolve(session)
     },
@@ -66,4 +66,6 @@ export default NextAuth({
     }
   },
   adapter: PrismaAdapter(prisma),
-})
+}
+
+export default NextAuth(authOptions)

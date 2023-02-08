@@ -1,12 +1,14 @@
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.css"
 import "@/styles/globals.css"
+import "@/styles/scss/global.scss"
 
 import type { AppProps } from "next/app"
 import Head from "next/head"
 import { useEffect } from "react"
 import localFont from "@next/font/local"
 import { SessionProvider } from "next-auth/react"
+import NextNProgress from "nextjs-progressbar"
 
 const brandon = localFont({
   src: [
@@ -36,6 +38,7 @@ export default function App({ Component, pageProps: {session, ...pageProps} }: A
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <SessionProvider session={session}>
+        <NextNProgress color="red" />
         <Component {...pageProps} />
       </SessionProvider>
     </main>
