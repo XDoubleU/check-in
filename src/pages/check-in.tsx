@@ -6,7 +6,7 @@ import { Container, Form } from "react-bootstrap"
 import { GetServerSidePropsContext } from "next"
 import BaseLayout from "@/layouts/BaseLayout"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
+import { authOptions } from "./api/auth/[...nextauth]"
 import { Location, School } from "@prisma/client"
 import CustomButton from "@/components/CustomButton"
 
