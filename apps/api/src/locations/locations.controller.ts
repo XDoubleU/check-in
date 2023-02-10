@@ -15,7 +15,7 @@ export class LocationsController {
 
   @Get()
   async getAll(@Query("page") pageQ?: number): Promise<GetAllPaginatedLocationDto> {
-    const pageSize = 4
+    const pageSize = 3
     const page = pageQ ?? 1
     const count = await this.locationsService.getTotalCount()
     const locations = await this.locationsService.getAll(page, pageSize)

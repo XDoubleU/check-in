@@ -1,4 +1,3 @@
-import { prisma } from "@/common/prisma"
 import CustomButton from "@/components/CustomButton"
 import CustomPagination, { CustomPaginationProps } from "@/components/CustomPagination"
 import SchoolCard from "@/components/cards/SchoolCard"
@@ -99,33 +98,16 @@ export default function SchoolList({schools, pagination}: SchoolListProps) {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const pageSize = 4
-  let currentPage = parseInt(context.query.page as string ?? "1")
-
-  const totalSchools = await prisma.school.count({
-    where: {
-      id: {
-        not: 1
-      }
-    }
-  })
-
-  const totalPages = Math.ceil(totalSchools/pageSize)
-  if ( currentPage > totalPages ) {
-    currentPage--
-    context.query.page = currentPage.toString()
-  }
-
-  const response = await fetch(`${process.env.NEXTAUTH_URL}/api/schools?page=${currentPage}&pageSize=${pageSize}`)
-  const schools = await response.json()
+  const currentPage = parseInt(context.query.page as string ?? "1")
+  const response = await fetch(`${process.env.API_URL}/schools?page=${currentPage}`)
+  const jsonResponse = await response.json()
 
   return {
     props: {
-      schools,
+      schools: jsonResponse.schools,
       pagination: {
-        total: totalSchools,
-        current: currentPage,
-        pageSize
+        total: jsonResponse.totalPages,
+        current: jsonResponse.page
       }
     }
   }

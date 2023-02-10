@@ -1,0 +1,16 @@
+{
+  "name": "database",
+  "dependencies": {
+    "@prisma/client": "latest"
+  },
+  "devDependencies": {
+    "prisma": "latest"
+  },
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed"
+  },
+  "main": "./index.ts",
+  "types": "./index.ts"
+}

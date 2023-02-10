@@ -40,3 +40,5 @@ next-env.d.ts
 sentry.properties
 
 dist
+
+.turbo

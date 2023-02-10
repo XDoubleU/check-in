@@ -1,4 +1,3 @@
-import { prisma } from "@/common/prisma"
 import CustomButton from "@/components/CustomButton"
 import CustomPagination, { CustomPaginationProps } from "@/components/CustomPagination"
 import LocationCard from "@/components/cards/LocationCard"
@@ -151,27 +150,16 @@ export default function LocationList({locations, pagination}: LocationListProps)
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const pageSize = 3
-  let currentPage = parseInt(context.query.page as string ?? "1")
-
-  const totalLocations = await prisma.location.count()
-
-  const totalPages = Math.ceil(totalLocations/pageSize)
-  if ( currentPage > totalPages ) {
-    currentPage--
-    context.query.page = currentPage.toString()
-  }
-
-  const response = await fetch(`${process.env.NEXTAUTH_URL}/api/locations?page=${currentPage}&pageSize=${pageSize}`)
-  const locations = await response.json()
+  const currentPage = parseInt(context.query.page as string ?? "1")
+  const response = await fetch(`${process.env.API_URL}/locations?page=${currentPage}`)
+  const jsonResponse = await response.json()
 
   return {
     props: {
-      locations,
+      locations: jsonResponse.locations,
       pagination: {
-        total: totalLocations,
-        current: currentPage,
-        pageSize
+        total: jsonResponse.totalPages,
+        current: jsonResponse.page
       }
     }
   }

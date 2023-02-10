@@ -1,30 +1,6 @@
 version: '3'
 
 services:
-  api:
-    build:
-      context: ./api
-    volumes:
-      - .:/api
-    ports:
-      - "8000:3000"
-    environment:
-      - "DATABASE_URL=postgres://postgres@localhost/postgres"
-    depends_on:
-      - db
-  
-  web-client:
-    build:
-      context: ./web-client
-    volumes:
-      - .:/web-client
-    ports:
-      - "3000:3000"
-    environment:
-      - "API_URL=http://localhost:8000"
-    depends_on:
-      - api
-
   db:
     image: postgres:13
     volumes:

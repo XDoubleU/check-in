@@ -14,3 +14,5 @@ Below commands work only on api
 ## Other
 1. `npx prisma db seed` seed database
 2. `npm run cli createadmin` create admin
+
+## TODO: Turbo things
