@@ -1,5 +1,5 @@
 {
-  "name": "check-in-front",
+  "name": "check-in-web-client",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -7,11 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "next lint --fix",
-    "cli": "ts-node --compiler-options {\"\"\"module\"\"\":\"\"\"CommonJS\"\"\"} cli/index.ts"
-  },
-  "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "lint:fix": "next lint --fix"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.5",

@@ -2,8 +2,10 @@ TODO
 
 ## How to run?
 
-1. `docker-compose up -d` for running the db
-2. `npm run dev` for running the app
+1. `docker-compose up -d --build` for running the db, api and web-client
+2. Go to `http://localhost:3000` for the web-client and  `http://localhost:8000` for the api
+
+Below commands work only on api
 
 ## Edit schema?
 1. `npx prisma generate`

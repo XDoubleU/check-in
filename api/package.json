@@ -1,5 +1,5 @@
 {
-  "name": "check-in-back",
+  "name": "check-in-api",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -16,6 +16,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "cli": "ts-node --compiler-options {\"\"\"module\"\"\":\"\"\"CommonJS\"\"\"} cli/index.ts"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",

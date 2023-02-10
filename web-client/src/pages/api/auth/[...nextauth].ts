@@ -25,6 +25,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          // API call
           const user = await prisma.user.findFirst({
             where: {
               username: credentials.username
@@ -41,6 +42,7 @@ export const authOptions: NextAuthOptions = {
           
           const sessionUser : User = user
           if (!sessionUser.isAdmin) {
+            // API call
             const location = await prisma.location.findFirst({
               where: {
                 userId: sessionUser.id
