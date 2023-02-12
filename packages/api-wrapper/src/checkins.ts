@@ -1,5 +1,4 @@
-import { CheckIn } from "database"
-import { CreateCheckInDto } from "dtos"
+import { CheckIn, CreateCheckInDto } from "types"
 
 const CHECKIN_URL = `${process.env.API_URL}/checkins`
 
@@ -11,6 +10,9 @@ export async function createCheckIn(locationId: string, schoolId: number): Promi
 
   const response = await fetch(CHECKIN_URL, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(data)
   })
 

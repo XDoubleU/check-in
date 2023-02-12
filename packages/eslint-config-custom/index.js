@@ -12,7 +12,7 @@ module.exports = {
     "node": true,
     "jest": true
   },
-  ignorePatterns: [".eslintrc.js", "*.config.*"],
+  ignorePatterns: [".eslintrc.js", "*.config.*", "**/build/**", "**test**"],
   rules: {
     "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/no-explicit-any": "error",

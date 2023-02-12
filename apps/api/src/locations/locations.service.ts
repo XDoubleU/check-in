@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { Location, User } from "database"
+import { Location, User } from "types"
 import { PrismaService } from "../prisma.service"
 
 @Injectable()
@@ -13,6 +13,9 @@ export class LocationsService extends PrismaService {
       orderBy: {
         name: "asc"
       },
+      include: {
+        user: true
+      },
       take: pageSize,
       skip: (page - 1) * pageSize
     })
@@ -22,6 +25,9 @@ export class LocationsService extends PrismaService {
     return await this.location.findFirst({
       where: {
         id: id
+      },
+      include: {
+        user: true
       }
     })
   }
@@ -30,6 +36,9 @@ export class LocationsService extends PrismaService {
     return await this.location.findFirst({
       where: {
         name: name
+      },
+      include: {
+        user: true
       }
     })
   }
@@ -40,6 +49,9 @@ export class LocationsService extends PrismaService {
         name: name,
         capacity: capacity, 
         userId: user.id
+      },
+      include: {
+        user: true
       }
     })
   }
@@ -52,6 +64,9 @@ export class LocationsService extends PrismaService {
       data: {
         name: name,
         capacity: capacity
+      },
+      include: {
+        user: true
       }
     })
   }
@@ -60,6 +75,9 @@ export class LocationsService extends PrismaService {
     return await this.location.delete({
       where: {
         id: location.id
+      },
+      include: {
+        user: true
       }
     })
   }

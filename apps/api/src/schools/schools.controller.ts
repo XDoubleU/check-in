@@ -1,16 +1,15 @@
 import { BadRequestException, Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
-import { School } from "database"
 import { SchoolsService } from "./schools.service"
-import { CreateSchoolDto, GetAllPaginatedSchoolDto, UpdateSchoolDto } from "dtos"
+import { CreateSchoolDto, GetAllPaginatedSchoolDto, School, UpdateSchoolDto } from "types"
 
 @Controller("schools")
 export class SchoolsController {
   constructor(private readonly schoolsService: SchoolsService) {}
 
   @Get()
-  async getAll(@Query("page") pageQ?: number): Promise<GetAllPaginatedSchoolDto> {
-    const pageSize = 4
-    const page = pageQ ?? 1
+  async getAll(@Query("page") queryPage?: number, @Query("pageSize") queryPageSize?: number): Promise<GetAllPaginatedSchoolDto> {
+    const pageSize = queryPageSize ?? 4
+    const page = queryPage ?? 1
     const count = await this.schoolsService.getTotalCount()
     const schools = await this.schoolsService.getAll(page, pageSize)
 

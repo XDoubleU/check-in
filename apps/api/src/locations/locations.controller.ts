@@ -1,8 +1,7 @@
 import { BadRequestException, Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
 import { LocationsService } from "./locations.service"
 import { UsersService } from "../users/users.service"
-import { CreateLocationDto, GetAllPaginatedLocationDto, UpdateLocationDto } from "dtos"
-import { Location } from "database"
+import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto } from "types"
 
 @Controller("locations")
 export class LocationsController {

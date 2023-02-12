@@ -7,14 +7,18 @@ TODO
 
 Below commands work only on api
 
+## Building
+3. Build: `turbo build`
+
+## Linting
+1. Linting: `turbo lint` and `turbo lint:fix`
+
 ## Edit schema?
-1. `npx prisma generate`
-2. `npx prisma migrate dev` or `npx prisma db push` (ONLY FOR PROTOTYPING)
+1. `turbo db:generate`
+2. `npx prisma migrate dev` ((ONLY FOR PROTOTYPING) `turbo db:push`)
+
+## Seeding database
+1. `turbo db:seed`
 
 ## Other
-1. `npx prisma db seed` seed database
-2. `npm run cli createadmin` create admin
-
-## TODO: Turbo things
-1. Linting: `turbo lint` and `turbo lint:fix`
-2. Build: `turbo build`
+1. `npm run cli createadmin` create admin

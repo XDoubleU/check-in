@@ -1,5 +1,7 @@
 {
   "name": "database",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "dependencies": {
     "@prisma/client": "latest"
   },
@@ -7,10 +9,9 @@
     "prisma": "latest"
   },
   "scripts": {
+    "build": "tsc",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed"
-  },
-  "main": "./index.ts",
-  "types": "./index.ts"
+  }
 }

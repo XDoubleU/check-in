@@ -1,9 +1,8 @@
 import { BadRequestException, Body, Controller, NotFoundException, Post } from "@nestjs/common"
-import { CheckIn } from "database"
 import { CheckInsService } from "./checkins.service"
 import { LocationsService } from "../locations/locations.service"
 import { SchoolsService } from "../schools/schools.service"
-import { CreateCheckInDto } from "dtos"
+import { CheckIn, CreateCheckInDto } from "types"
 
 @Controller("checkins")
 export class CheckInsController {

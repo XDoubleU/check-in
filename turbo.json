@@ -18,9 +18,8 @@
   },
   "globalEnv": [
     "NEXTAUTH_URL",
-    "API_URL"
-  ],
-  "globalDependencies": [
-    ".env"
+    "NEXTAUTH_SECRET",
+    "API_URL",
+    "DATABASE_URL"
   ]
 }

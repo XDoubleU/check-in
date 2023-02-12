@@ -15,7 +15,6 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "incremental": true,
     "composite": true,
     "isolatedModules": true,
 

@@ -1,0 +1,19 @@
+$theme-colors: (
+  'primary': #ff2600,
+  'secondary': #833bec,
+  'success': #1ce1ac,
+  'info': #ff7d50,
+  'warning': #ffbe0b,
+  'danger': #ff2600,
+  'light': #c0ccda,
+  'dark': #001738,
+);
+
+$component-active-bg: #ff2600;
+
+$pagination-active-bg: #ff2600;
+$pagination-color: #ff2600;
+$pagination-hover-color: #ff2600;
+$pagination-focus-color: #ff2600;
+
+@import 'bootstrap/scss/bootstrap.scss';

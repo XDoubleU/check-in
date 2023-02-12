@@ -1,5 +1,5 @@
 {
-  "name": "api-wrapper",
+  "name": "types",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "scripts": {
@@ -8,11 +8,11 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "types": "*"
+    "class-validator": "^0.14.0",
+    "database": "*"
   },
   "devDependencies": {
     "eslint-config-custom": "*",
-    "tsconfig": "*",
-    "@types/node": "^18.13.0"
+    "tsconfig": "*"
   }
 }
