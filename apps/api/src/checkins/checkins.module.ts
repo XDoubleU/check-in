@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common"
-import { CheckInsService } from "src/checkins/checkins.service"
 import { CheckInsController } from "./checkins.controller"
-import { SchoolsModule } from "src/schools/schools.module"
-import { LocationsModule } from "src/locations/locations.module"
+import { LocationsModule } from "../locations/locations.module"
+import { SchoolsModule } from "../schools/schools.module"
+import { CheckInsService } from "./checkins.service"
 
 @Module({
   imports: [SchoolsModule, LocationsModule],

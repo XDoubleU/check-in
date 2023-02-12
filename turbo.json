@@ -5,6 +5,7 @@
       "dependsOn": ["^build"]
     },
     "lint": {},
+    "lint:fix": {},
     "db:generate": {
       "cache": false
     },
@@ -14,5 +15,12 @@
     "db:seed": {
       "cache": false
     }
-  }
+  },
+  "globalEnv": [
+    "NEXTAUTH_URL",
+    "API_URL"
+  ],
+  "globalDependencies": [
+    ".env"
+  ]
 }

@@ -1,8 +1,8 @@
 import { FormEventHandler, useState } from "react"
 import { signIn } from "next-auth/react"
-import BaseLayout from "@/layouts/BaseLayout"
 import styles from "./signin.module.css"
 import { Col, Form } from "react-bootstrap"
+import BaseLayout from "@/layouts/BaseLayout"
 import CustomButton from "@/components/CustomButton"
 
 export default function SignIn(){

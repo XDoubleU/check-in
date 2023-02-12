@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import BaseLayout from "./BaseLayout"
+import BaseLayout from "@/layouts/BaseLayout"
 import { User } from "next-auth/core/types"
 
 type AdminLayoutProps = {

@@ -1,8 +1,8 @@
 import { ReactNode } from "react"
 import Head from "next/head"
-import Navigation from "@/components/Navigation"
 import { Container } from "react-bootstrap"
 import { User } from "next-auth/core/types"
+import Navigation from "@/components/Navigation"
 
 type BaseLayoutProps = {
   children: ReactNode,

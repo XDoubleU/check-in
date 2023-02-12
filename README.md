@@ -16,3 +16,5 @@ Below commands work only on api
 2. `npm run cli createadmin` create admin
 
 ## TODO: Turbo things
+1. Linting: `turbo lint` and `turbo lint:fix`
+2. Build: `turbo build`

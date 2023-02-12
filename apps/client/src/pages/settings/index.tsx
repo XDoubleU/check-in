@@ -1,6 +1,6 @@
-import LoadingLayout from "@/layouts/LoadingLayout"
 import { useSession } from "next-auth/react"
 import Router from "next/router"
+import LoadingLayout from "@/layouts/LoadingLayout"
 
 export default function SettingsHome() {
   const {data, status} = useSession({

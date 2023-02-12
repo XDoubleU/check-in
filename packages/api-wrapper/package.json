@@ -1,0 +1,15 @@
+{
+  "name": "api-wrapper",
+  "scripts": {
+    "lint": "eslint && tsc --noEmit",
+    "lint:fix": "eslint --fix"
+  },
+  "dependencies": {
+    "dtos": "*"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "*",
+    "tsconfig": "*",
+    "@types/node": "^18.13.0"
+  }
+}

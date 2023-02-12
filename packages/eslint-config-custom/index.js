@@ -1,15 +1,19 @@
-{
-  "plugins": ["@typescript-eslint/eslint-plugin"],
-  "extends": [
+module.exports = {
+  parser: "@typescript-eslint/parser",
+  plugins: [
+    "@typescript-eslint"
+  ],
+  extends: [
+    "turbo",
     "plugin:@typescript-eslint/recommended"
   ],
-  "root": true,
-  "env": {
+  root: true,
+  env: {
     "node": true,
     "jest": true
   },
-  "ignorePatterns": [".eslintrc.json"],
-  "rules": {
+  ignorePatterns: [".eslintrc.js", "*.config.*"],
+  rules: {
     "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/explicit-function-return-type": "error",

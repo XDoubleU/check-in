@@ -1,9 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import * as request from "supertest"
-import { AppModule } from "../src/modules/app.module"
+import request from "supertest"
+import { AppModule } from "../src/app.module"
 
-describe("AppController (e2e)", () => {
+describe("CheckInsController (e2e)", () => {
   let app: INestApplication
 
   beforeEach(async () => {
@@ -15,9 +15,15 @@ describe("AppController (e2e)", () => {
     await app.init()
   })
 
-  it("/ (GET)", () => {
+  it("/ (POST)", () => {
+    /*const data: CreateCheckInDto = {
+      locationId: "1",
+      schoolId: 1
+    }*/
+
     return request(app.getHttpServer())
-      .get("/")
+      .post("/")
+      //.send(data)
       .expect(200)
       .expect("Hello World!")
   })

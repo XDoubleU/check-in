@@ -1,9 +1,9 @@
 import { BadRequestException, Body, Controller, NotFoundException, Post } from "@nestjs/common"
-import { CheckIn } from "@prisma/client"
-import { CheckInsService } from "src/checkins/checkins.service"
-import { LocationsService } from "src/locations/locations.service"
-import { SchoolsService } from "src/schools/schools.service"
-import { CreateCheckInDto } from "./dto/create-checkin.dto"
+import { CheckIn } from "database"
+import { CheckInsService } from "./checkins.service"
+import { LocationsService } from "../locations/locations.service"
+import { SchoolsService } from "../schools/schools.service"
+import { CreateCheckInDto } from "dtos"
 
 @Controller("checkins")
 export class CheckInsController {

@@ -1,7 +1,7 @@
 import { useRouter } from "next/router"
 import { FormEvent, useState } from "react"
 import { Form, Modal } from "react-bootstrap"
-import CustomButton from "../CustomButton"
+import CustomButton from "@/components/CustomButton"
 
 type DeleteModalProps = {
   id: string | number,

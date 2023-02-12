@@ -1,9 +1,7 @@
 import { BadRequestException, Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
-import { School } from "@prisma/client"
-import { SchoolsService } from "src/schools/schools.service"
-import { CreateSchoolDto } from "./dto/create-school.dto"
-import { GetAllPaginatedSchoolDto } from "./dto/getallpaginated-schools.dto"
-import { UpdateSchoolDto } from "./dto/update-school.dto"
+import { School } from "database"
+import { SchoolsService } from "./schools.service"
+import { CreateSchoolDto, GetAllPaginatedSchoolDto, UpdateSchoolDto } from "dtos"
 
 @Controller("schools")
 export class SchoolsController {

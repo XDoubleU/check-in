@@ -11,6 +11,7 @@ const nextConfig = {
   sassOptions: {
     includePaths: ["./styles"],
   },
+  distDir: ".next"
 }
 
 module.exports = nextConfig

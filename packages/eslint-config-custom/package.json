@@ -1,0 +1,9 @@
+{
+  "name": "eslint-config-custom",
+  "main": "index.js",
+  "dependencies": {
+    "eslint": "latest",
+    "eslint-config-turbo": "latest",
+    "@typescript-eslint/eslint-plugin": "latest"
+  }
+}

@@ -1,12 +1,12 @@
-import CustomButton from "@/components/CustomButton"
-import { LocationUpdateModal } from "@/components/cards/LocationCard"
-import AdminLayout from "@/layouts/AdminLayout"
-import LoadingLayout from "@/layouts/LoadingLayout"
-import { LocationWithUser } from "@/types/prisma"
-import { Location } from "@prisma/client"
 import { GetServerSidePropsContext } from "next"
 import { useSession } from "next-auth/react"
 import { Col } from "react-bootstrap"
+import LoadingLayout from "../../../layouts/LoadingLayout"
+import AdminLayout from "../../../layouts/AdminLayout"
+import { LocationUpdateModal } from "../../../components/cards/LocationCard"
+import CustomButton from "../../../components/CustomButton"
+import { Location } from "database"
+import { LocationWithUser } from "../../../types/prisma"
 
 type LocationDetailProps = {
   location: Location

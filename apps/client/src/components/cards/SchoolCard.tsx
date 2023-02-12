@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Card, Form } from "react-bootstrap"
-import DeleteModal from "../modals/DeleteModal"
-import UpdateModal from "../modals/UpdateModal"
+import UpdateModal from "@/components/modals/UpdateModal"
+import DeleteModal from "@/components/modals/DeleteModal"
 
 type SchoolCardProps = {
   id: number,

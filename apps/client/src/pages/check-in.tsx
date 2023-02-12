@@ -4,10 +4,10 @@ import { SyntheticEvent, useState } from "react"
 import styles from "./check-in.module.css"
 import { Container, Form } from "react-bootstrap"
 import { GetServerSidePropsContext } from "next"
-import BaseLayout from "@/layouts/BaseLayout"
 import { getServerSession } from "next-auth"
-import { authOptions } from "./api/auth/[...nextauth]"
+import { authOptions } from "@/pages/api/auth/[...nextauth]"
 import { Location, School } from "@prisma/client"
+import BaseLayout from "@/layouts/BaseLayout"
 import CustomButton from "@/components/CustomButton"
 
 type CheckInProps = {
