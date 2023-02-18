@@ -2,66 +2,89 @@ import CustomButton from "@/components/CustomButton"
 import CustomPagination, { CustomPaginationProps } from "@/components/CustomPagination"
 import SchoolCard from "@/components/cards/SchoolCard"
 import AdminLayout from "@/layouts/AdminLayout"
-import LoadingLayout from "@/layouts/LoadingLayout"
 import { School } from "types"
 import { createSchool, getAllSchools } from "api-wrapper"
-import { GetServerSidePropsContext } from "next"
-import { useSession } from "next-auth/react"
 import { useRouter } from "next/router"
-import { FormEvent, useState } from "react"
+import { FormEvent, useCallback, useEffect, useState } from "react"
 import { Col, Form, Modal } from "react-bootstrap"
 
-type SchoolListProps = {
+type SchoolList = {
   schools: School[],
   pagination: CustomPaginationProps
 }
 
-export default function SchoolList({schools, pagination}: SchoolListProps) {
+export default function SchoolList() {
   const router = useRouter()
 
-  const [addInfo, setAddInfo] = useState({ name: "" })
-  const [showAdd, setShowAdd] = useState(false)
-  const handleCloseAdd = () => setShowAdd(false)
-  const handleShowAdd = () => setShowAdd(true)
-
-  const {data, status} = useSession({
-    required: true
+  const [schoolList, setSchoolList] = useState<SchoolList>({
+    schools: [],
+    pagination: {
+      current: 0,
+      total: 0
+    }
   })
+  const [createInfo, setCreateInfo] = useState({ name: "" })
+  const [showCreate, setShowCreate] = useState(false)
+  const handleCloseCreate = () => setShowCreate(false)
+  const handleShowCreate = () => setShowCreate(true)
+  const onCloseCreate = useCallback(() => {
+    return !showCreate 
+  }, [showCreate])
 
-  const handleAdd = async (event: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if(!router.isReady) return
+    const page = router.query.page ? parseInt(router.query.page as string) : undefined
+    getAllSchools(page)
+      .then(data => {
+        if (!data) {
+          router.push("/signin")
+          return
+        }
+
+        setSchoolList({
+          schools: data.schools,
+          pagination: {
+            current: data.page,
+            total: data.totalPages
+          }
+        })
+      })
+  }, [onCloseCreate, router])
+
+  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     
-    await createSchool(addInfo.name)
-    router.replace(router.asPath)
-    addInfo.name = ""
-    handleCloseAdd()
-  }
+    const response = await createSchool(createInfo.name)
 
-  if (status == "loading") {
-    return <LoadingLayout/>
+    if (response) {
+      createInfo.name = ""
+      handleCloseCreate()
+    } else{
+      console.log("ERROR")
+    }
   }
 
   return (
-    <AdminLayout title="Schools" user={data.user}>
-      <Modal show={showAdd} onHide={handleCloseAdd}>
+    <AdminLayout title="Schools">
+      <Modal show={showCreate} onHide={handleCloseCreate}>
         <Modal.Body>
-          <Modal.Title>Add school</Modal.Title>
+          <Modal.Title>Create school</Modal.Title>
           <br/>
-          <Form onSubmit={handleAdd}>
+          <Form onSubmit={handleCreate}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
-              <Form.Control type="text" placeholder="Name" value={addInfo.name} onChange={({ target}) => setAddInfo({ ...addInfo, name: target.value })}></Form.Control>
+              <Form.Control type="text" placeholder="Name" value={createInfo.name} onChange={({ target}) => setCreateInfo({ ...createInfo, name: target.value })}></Form.Control>
             </Form.Group>
             <br/>
-            <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseAdd}>Cancel</CustomButton>
-            <CustomButton type="submit" style={{"float": "right"}}>Add</CustomButton>
+            <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseCreate}>Cancel</CustomButton>
+            <CustomButton type="submit" style={{"float": "right"}}>Create</CustomButton>
           </Form>
         </Modal.Body>
       </Modal>
 
       <Col size={2}>
-        <CustomButton onClick={handleShowAdd}>
-          Add
+        <CustomButton onClick={handleShowCreate}>
+          Create
         </CustomButton>
       </Col>
 
@@ -69,32 +92,21 @@ export default function SchoolList({schools, pagination}: SchoolListProps) {
 
       <div className="min-vh-51">
         {
-          (schools === undefined || schools.length == 0) ? "Nothing to see here." : ""
+          (schoolList.schools.length == 0) ? "Nothing to see here." : ""
         }
 
         {
-          schools.map((school) => {
+          schoolList.schools.map((school) => {
             return <SchoolCard id={school.id} key={school.id} name={school.name} />
           })
         }
       </div>
 
-      <CustomPagination current={pagination.current} total={pagination.total} pageSize={pagination.pageSize} />
+      <CustomPagination
+        current={schoolList.pagination.current} 
+        total={schoolList.pagination.total} 
+      />
       
     </AdminLayout>
   )  
-}
-
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const paginatedSchools = await getAllSchools(parseInt(context.query.page as string))
-
-  return {
-    props: {
-      schools: paginatedSchools.schools,
-      pagination: {
-        total: paginatedSchools.totalPages,
-        current: paginatedSchools.page
-      }
-    }
-  }
 }

@@ -1,15 +1,13 @@
-import { Body, Controller, Get, Post, Req, UnauthorizedException, UseGuards } from "@nestjs/common"
-import { AuthService, Tokens } from "./auth.service"
-import { LoginDto } from "types"
+import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from "@nestjs/common"
+import { AuthService } from "./auth.service"
+import { SignInDto } from "types"
 import { RefreshTokenGuard } from "./guards/refreshToken.guard"
 import { UsersService } from "../users/users.service"
-import { Request } from "express"
+import { Request, Response } from "express"
 import { JwtPayload } from "./strategies/accessToken.strategy"
-import { JwtPayloadWithRefresh } from "./strategies/refreshToken.strategy"
 import { Public } from "./decorators/public.decorator"
 
-export type AccessTokenRequest = Request & { user: JwtPayload }
-export type RefreshTokenRequest = Request & { user: JwtPayloadWithRefresh }
+export type TokenRequest = Request & { user: JwtPayload }
 
 @Controller("auth")
 export class AuthController {
@@ -19,24 +17,33 @@ export class AuthController {
   ) {}
   
   @Public()
-  @Post("login")
-  async login(@Body() loginDto: LoginDto): Promise<Tokens> {
-    const result = await this.authService.login(loginDto.username, loginDto.password)
-    if (result === null) {
+  @Post("signin")
+  async signin(@Body() signinDto: SignInDto, @Res({ passthrough: true }) res: Response): Promise<void> {
+    const tokens = await this.authService.signin(signinDto.username, signinDto.password)
+    if (tokens === null) {
       throw new UnauthorizedException("Invalid credentials")
     }
-    return result
+
+    this.authService.setTokensAsCookies(tokens, res)
+    res.status(200)
+  }
+
+  @Get("signout")
+  async signout(@Res({ passthrough: true }) res: Response): Promise<void> {
+    res.clearCookie("accessToken")
+    res.clearCookie("refreshToken")
   }
 
   @Public()
   @UseGuards(RefreshTokenGuard)
   @Get("refresh")
-  async refreshTokens(@Req() req: RefreshTokenRequest): Promise<Tokens> {
+  async refreshTokens(@Req() req: TokenRequest, @Res({ passthrough: true }) res: Response): Promise<void> {
     const user = await this.usersService.getById(req.user.sub)
     if (user === null) {
       throw new UnauthorizedException("Invalid refreshtoken")
     }
 
-    return await this.authService.refreshTokens(user)
+    const tokens = await this.authService.refreshTokens(user)
+    this.authService.setTokensAsCookies(tokens, res)
   }
 }

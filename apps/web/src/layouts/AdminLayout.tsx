@@ -1,16 +1,14 @@
 import { ReactNode } from "react"
 import BaseLayout from "@/layouts/BaseLayout"
-import { User } from "next-auth/core/types"
 
 type AdminLayoutProps = {
   children: ReactNode,
-  title: string,
-  user: User
+  title: string
 }
 
-export default function AdminLayout({children, title, user}: AdminLayoutProps){
+export default function AdminLayout({children, title}: AdminLayoutProps){
   return (
-    <BaseLayout title={title} showLinks={true} showNav={true} user={user} >
+    <BaseLayout title={title} showLinks={true} showNav={true} >
       <h1>{title}</h1>
       <br/>
 

@@ -1,20 +1,24 @@
 import { FormEventHandler, useState } from "react"
-import { signIn } from "next-auth/react"
 import styles from "./signin.module.css"
 import { Col, Form } from "react-bootstrap"
 import BaseLayout from "@/layouts/BaseLayout"
 import CustomButton from "@/components/CustomButton"
+import { signin } from "api-wrapper"
+import Router from "next/router"
+
+// TODO: implement remember me
 
 export default function SignIn(){
   const [userInfo, setUserInfo] = useState({ username: "", password: "", rememberMe: false})
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
 
-    await signIn("credentials", {
-      username: userInfo.username,
-      password: userInfo.password,
-      callbackUrl: `${window.location.origin}`
-    })
+    const response = await signin(userInfo.username, userInfo.password)
+    if (response === null) {
+      Router.push("/")
+    } else {
+      console.log(response)
+    }
   }
 
   return (

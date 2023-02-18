@@ -11,15 +11,15 @@ export class LocationsController {
   ) {}
 
   @Get()
-  async getAll(@Query("page") pageQ?: number): Promise<GetAllPaginatedLocationDto> {
+  async getAll(@Query("page") queryPage?: string): Promise<GetAllPaginatedLocationDto> {
     const pageSize = 3
-    const page = pageQ ?? 1
+    const page = queryPage ? parseInt(queryPage) : 1
     const count = await this.locationsService.getTotalCount()
     const locations = await this.locationsService.getAll(page, pageSize)
 
     return {
       page: page,
-      totalPages: count/pageSize,
+      totalPages: Math.ceil(count/pageSize),
       locations: locations
     }
   }
@@ -61,7 +61,19 @@ export class LocationsController {
 
   @Patch(":id")
   async update(@Param("id") id: string, @Body() updateLocationDto: UpdateLocationDto): Promise<Location> {
-    // TODO: check if user.username and location.name are already used
+    if (updateLocationDto.name) {
+      const existingLocation = await this.locationsService.getByName(updateLocationDto.name)
+      if (existingLocation) {
+        throw new ConflictException()
+      }
+    }
+
+    if (updateLocationDto.username) {
+      const existingUser = await this.usersService.getByUserName(updateLocationDto.username)
+      if (existingUser) {
+        throw new ConflictException()
+      }
+    }
     
     let location = await this.locationsService.getById(id)
     if (location === null) {

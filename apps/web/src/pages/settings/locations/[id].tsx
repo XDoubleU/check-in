@@ -1,28 +1,33 @@
-import { GetServerSidePropsContext } from "next"
-import { useSession } from "next-auth/react"
 import { Col } from "react-bootstrap"
-import LoadingLayout from "@/layouts/LoadingLayout"
 import AdminLayout from "@/layouts/AdminLayout"
 import { LocationUpdateModal } from "@/components/cards/LocationCard"
 import CustomButton from "@/components/CustomButton"
 import { Location } from "types"
 import { getLocation } from "api-wrapper"
+import { useEffect, useState } from "react"
+import Router from "next/router"
+import LoadingLayout from "@/layouts/LoadingLayout"
 
-type LocationDetailProps = {
-  location: Location
-}
+export default function LocationDetail() {
+  const [location, updateLocation] = useState<Location>()
 
-export default function LocationDetail({location}: LocationDetailProps) {
-  const {data, status} = useSession({
-    required: true
-  })
+  useEffect(() => {
+    getLocation(Router.query.id as string)
+      .then(data => {
+        if (data) {
+          updateLocation(data)
+        } else {
+          console.log("ERROR")
+        }
+      })
+  }, [])
 
-  if (status == "loading") {
+  if (location === undefined) {
     return <LoadingLayout/>
   }
 
   return (
-    <AdminLayout title={location.name} user={data.user}>
+    <AdminLayout title={location.name}>
       <Col size={2}>
         <LocationUpdateModal
           id={location.id}
@@ -42,14 +47,4 @@ export default function LocationDetail({location}: LocationDetailProps) {
 
     </AdminLayout>
   )  
-}
-
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const location = getLocation(context.query.id as string)
-
-  return {
-    props: {
-      location
-    }
-  }
 }

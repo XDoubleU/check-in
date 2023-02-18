@@ -1,21 +1,32 @@
-import { useSession } from "next-auth/react"
-import Router from "next/router"
 import LoadingLayout from "@/layouts/LoadingLayout"
+import { getUserInfo } from "api-wrapper"
+import Router from "next/router"
+import { useEffect, useState } from "react"
+import { User } from "types"
 
 export default function SettingsHome() {
-  const {data, status} = useSession({
-    required: true
+  const [userInfo, setUserInfo] = useState<User | undefined>(undefined)
+
+  useEffect(() => {
+    getUserInfo()
+      .then(data => {
+        if (data === null) {
+          Router.push("/signin")
+        } else {
+          setUserInfo(data)
+        }
+      })
   })
 
-  if (status == "loading") {
+  if (userInfo === undefined) {
     return <LoadingLayout/>
   }
 
-  if (data.user.isAdmin) {
+  if (userInfo.isAdmin) {
     Router.push("/settings/locations")
   } else {
-    Router.push(`/settings/locations/${data.user.locationId}`)
+    Router.push(`/settings/locations/${userInfo.locationId}`)
   }
-  
+
   return <LoadingLayout/>
 }

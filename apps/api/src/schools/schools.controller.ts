@@ -7,15 +7,15 @@ export class SchoolsController {
   constructor(private readonly schoolsService: SchoolsService) {}
 
   @Get()
-  async getAll(@Query("page") queryPage?: number, @Query("pageSize") queryPageSize?: number): Promise<GetAllPaginatedSchoolDto> {
+  async getAll(@Query("page") queryPage?: string, @Query("pageSize") queryPageSize?: number): Promise<GetAllPaginatedSchoolDto> {
     const pageSize = queryPageSize ?? 4
-    const page = queryPage ?? 1
+    const page = queryPage ? parseInt(queryPage) : 1
     const count = await this.schoolsService.getTotalCount()
     const schools = await this.schoolsService.getAll(page, pageSize)
 
     return {
       page: page,
-      totalPages: count/pageSize,
+      totalPages: Math.ceil(count/pageSize),
       schools: schools
     }
   }

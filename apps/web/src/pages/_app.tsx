@@ -7,7 +7,6 @@ import type { AppProps } from "next/app"
 import Head from "next/head"
 import { useEffect } from "react"
 import localFont from "@next/font/local"
-import { SessionProvider } from "next-auth/react"
 import NextNProgress from "nextjs-progressbar"
 
 const brandon = localFont({
@@ -37,10 +36,8 @@ export default function App({ Component, pageProps: {session, ...pageProps} }: A
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <SessionProvider session={session}>
-        <NextNProgress color="red" />
-        <Component {...pageProps} />
-      </SessionProvider>
+      <NextNProgress color="red" />
+      <Component {...pageProps} />
     </main>
   )
 }

@@ -2,124 +2,122 @@ import CustomButton from "@/components/CustomButton"
 import CustomPagination, { CustomPaginationProps } from "@/components/CustomPagination"
 import LocationCard from "@/components/cards/LocationCard"
 import AdminLayout from "@/layouts/AdminLayout"
-import LoadingLayout from "@/layouts/LoadingLayout"
 import { Location } from "types"
-import { GetServerSidePropsContext } from "next"
-import { useSession } from "next-auth/react"
-import Router, { useRouter } from "next/router"
-import { FormEvent, useEffect, useState } from "react"
+import { useRouter } from "next/router"
+import { FormEvent, useCallback, useEffect, useState } from "react"
 import { Col, Form, Modal } from "react-bootstrap"
-import { getAllLocations } from "api-wrapper"
+import { createLocation, getAllLocations } from "api-wrapper"
 
-type LocationListProps = {
+type LocationList = {
   locations: Location[],
   pagination: CustomPaginationProps
 }
 
-export default function LocationList({locations, pagination}: LocationListProps) {
+export default function LocationList() {
   const router = useRouter()
 
-  const [addInfo, setAddInfo] = useState({
+  const [locationList, setLocationList] = useState<LocationList>({
+    locations: [],
+    pagination: {
+      current: 0,
+      total: 0
+    }
+  })
+  const [createInfo, setCreateInfo] = useState({
     name: "",
     capacity: 20,
     username: "",
     password: "",
     repeatPassword: ""
   })
-  const [addFormError, setAddFormError] = useState("")
-  const [showAdd, setShowAdd] = useState(false)
-  const handleCloseAdd = () => setShowAdd(false)
-  const handleShowAdd = () => setShowAdd(true)
-
-  const {data, status} = useSession({
-    required: true
-  })
+  const [showCreate, setShowCreate] = useState(false)
+  const handleCloseCreate = () => setShowCreate(false)
+  const handleShowCreate = () => setShowCreate(true)
+  const onCloseCreate = useCallback(() => {
+    return !showCreate 
+  }, [showCreate])
 
   useEffect(() => {
-    if (addInfo.password !== addInfo.repeatPassword) {
-      setAddFormError("Passwords don't match.")
-    } else {
-      setAddFormError("")
-    }
-  }, [addInfo])
+    if(!router.isReady) return
+    const page = router.query.page ? parseInt(router.query.page as string) : undefined
+    getAllLocations(page)
+      .then(data => {
+        if (!data) {
+          router.push("/signin")
+          return
+        }
 
-  const handleAdd = async (event: FormEvent<HTMLFormElement>) => {
+        setLocationList({
+          locations: data.locations,
+          pagination: {
+            current: data.page,
+            total: data.totalPages
+          }
+        })
+      })
+  }, [onCloseCreate, router])
+
+  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const data = {
-      username: addInfo.username,
-      password: addInfo.password,
-      name: addInfo.name,
-      capacity: addInfo.capacity
+    const response = await createLocation(
+      createInfo.name,
+      createInfo.capacity,
+      createInfo.username,
+      createInfo.password
+    )
+
+    if (response) {
+      createInfo.name = ""
+      createInfo.capacity = 20
+      createInfo.username = ""
+      createInfo.password = ""
+      createInfo.repeatPassword = ""
+      handleCloseCreate()
+    } else {
+      console.log("ERROR")
     }
-
-    const response = await fetch("/api/locations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data)
-    })
-
-    if (response.status < 300) {
-      router.replace(router.asPath)
-      addInfo.name = ""
-      addInfo.capacity = 20
-      addInfo.username = ""
-      addInfo.password = ""
-      addInfo.repeatPassword = ""
-      handleCloseAdd()
-    }
-  }
-
-  if (status == "loading") {
-    return <LoadingLayout/>
-  }
-
-  if (!data.user.isAdmin) {
-    Router.push(`/settings/locations/${data.user.locationId}`)
-    return <LoadingLayout/>
   }
 
   return (
-    <AdminLayout title="Locations" user={data.user}>
-      <Modal show={showAdd} onHide={handleCloseAdd}>
+    <AdminLayout title="Locations">
+      <Modal show={showCreate} onHide={handleCloseCreate}>
         <Modal.Body>
-          <Modal.Title>Add location</Modal.Title>
+          <Modal.Title>Create location</Modal.Title>
           <br/>
-          <Form onSubmit={handleAdd}>
+          <Form onSubmit={handleCreate}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
-              <Form.Control type="text" placeholder="Name" value={addInfo.name} onChange={({ target}) => setAddInfo({ ...addInfo, name: target.value })}></Form.Control>
+              <Form.Control type="text" placeholder="Name" value={createInfo.name} onChange={({ target}) => setCreateInfo({ ...createInfo, name: target.value })}></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Capacity</Form.Label>
-              <Form.Control type="number" value={addInfo.capacity} onChange={({ target}) => setAddInfo({ ...addInfo, capacity: parseInt(target.value) })}></Form.Control>
+              <Form.Control type="number" value={createInfo.capacity} onChange={({ target}) => setCreateInfo({ ...createInfo, capacity: parseInt(target.value) })}></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Username</Form.Label>
-              <Form.Control type="text" placeholder="Username" value={addInfo.username} onChange={({ target}) => setAddInfo({ ...addInfo, username: target.value })}></Form.Control>
+              <Form.Control type="text" placeholder="Username" value={createInfo.username} onChange={({ target}) => setCreateInfo({ ...createInfo, username: target.value })}></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="Password" value={addInfo.password} onChange={({ target}) => setAddInfo({ ...addInfo, password: target.value })}></Form.Control>
+              <Form.Control type="password" placeholder="Password" value={createInfo.password} onChange={({ target}) => setCreateInfo({ ...createInfo, password: target.value })}></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Repeat password</Form.Label>
-              <Form.Control type="password" placeholder="Repeat password" value={addInfo.repeatPassword} onChange={({ target}) => setAddInfo({ ...addInfo, repeatPassword: target.value })} ></Form.Control>
+              <Form.Control type="password" placeholder="Repeat password" value={createInfo.repeatPassword} onChange={({ target}) => setCreateInfo({ ...createInfo, repeatPassword: target.value })} ></Form.Control>
               <Form.Text className="text-danger">
-                {addFormError}
+                TODO: error
               </Form.Text>
             </Form.Group>
             <br/>
-            <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseAdd}>Cancel</CustomButton>
-            <CustomButton type="submit" style={{"float": "right"}}>Add</CustomButton>
+            <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseCreate}>Cancel</CustomButton>
+            <CustomButton type="submit" style={{"float": "right"}}>Create</CustomButton>
           </Form>
         </Modal.Body>
       </Modal>
 
       <Col size={2}>
-        <CustomButton onClick={handleShowAdd}>
+        <CustomButton onClick={handleShowCreate}>
           Add
         </CustomButton>
       </Col>
@@ -128,11 +126,11 @@ export default function LocationList({locations, pagination}: LocationListProps)
 
       <div className="min-vh-51">
         {
-          (locations === undefined || locations.length == 0) ? "Nothing to see here." : ""
+          (locationList.locations.length == 0) ? "Nothing to see here." : ""
         }
 
         {
-          locations.map((location) => {
+          locationList.locations.map((location) => {
             return <LocationCard
               id={location.id}
               key={location.id}
@@ -143,22 +141,11 @@ export default function LocationList({locations, pagination}: LocationListProps)
         }
       </div>
 
-      <CustomPagination current={pagination.current} total={pagination.total} pageSize={pagination.pageSize} />
+      <CustomPagination
+        current={locationList.pagination.current} 
+        total={locationList.pagination.total} 
+      />
       
     </AdminLayout>
   )  
-}
-
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const paginatedLocations = await getAllLocations(parseInt(context.query.page as string))
-
-  return {
-    props: {
-      locations: paginatedLocations.locations,
-      pagination: {
-        total: paginatedLocations.totalPages,
-        current: paginatedLocations.page
-      }
-    }
-  }
 }

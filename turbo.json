@@ -1,13 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
-    "NEXTAUTH_URL",
+    "NODE_ENV",
+    "DATABASE_URL",
+    "WEB_URL",
     "JWT_ACCESS_SECRET",
     "JWT_ACCESS_EXPIRATION",
     "JWT_REFRESH_SECRET",
     "JWT_REFRESH_EXPIRATION",
-    "API_URL",
-    "DATABASE_URL"
+    "NEXT_PUBLIC_API_URL"
   ],
   "pipeline": {
     "build": {

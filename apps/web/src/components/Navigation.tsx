@@ -1,12 +1,8 @@
-import { User } from "next-auth/core/types"
-import { signOut } from "next-auth/react"
-import { useRouter } from "next/router"
-import { MouseEventHandler } from "react"
+import { getUserInfo, signOut } from "api-wrapper"
+import Router, { useRouter } from "next/router"
+import { MouseEventHandler, useEffect, useState } from "react"
 import { Container, Nav, Navbar } from "react-bootstrap"
-
-type NavigationProps = {
-  user: User
-}
+import { User } from "types"
 
 type NavItemProps = {
   children: string,
@@ -38,7 +34,26 @@ function NavItem({children, href, onClick, active}: NavItemProps) {
   )
 }
 
-export default function Navigation({user}: NavigationProps){
+export default function Navigation(){
+  const [userInfo, setUserInfo] = useState<User | undefined>(undefined)
+
+  useEffect(() => {
+    getUserInfo()
+      .then(data => {
+        if (data === null) {
+          Router.push("/signin")
+        } else {
+          setUserInfo(data)
+        }
+      })
+  }, [])
+
+
+  const signOutHandler = () => {
+    signOut()
+    Router.push("/signin")
+  }
+
   return (
     <Navbar expand="lg" bg="primary" variant="dark">
       <Container>
@@ -47,8 +62,8 @@ export default function Navigation({user}: NavigationProps){
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto mb-2 mb-lg-0">
             {
-              !user.isAdmin ? (
-                <NavItem active={true} href={`/settings/locations/${user.locationId}`} >My location</NavItem>
+              userInfo && !userInfo.isAdmin ? (
+                <NavItem active={true} href={`/settings/locations/${userInfo.locationId}`} >My location</NavItem>
               ) : (
                 <>
                   <NavItem href="/settings/locations">Locations</NavItem>
@@ -58,7 +73,7 @@ export default function Navigation({user}: NavigationProps){
             }
           </Nav>
           <Nav className="ms-auto mb-2 mb-lg-0">
-            <NavItem onClick={() => signOut()}>Log out</NavItem>
+            <NavItem onClick={signOutHandler}>Sign out</NavItem>
           </Nav>
         </Navbar.Collapse>
       </Container>

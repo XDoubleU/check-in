@@ -3,9 +3,6 @@ import Modal from "react-bootstrap/Modal"
 import { SyntheticEvent, useState } from "react"
 import styles from "./check-in.module.css"
 import { Container, Form } from "react-bootstrap"
-import { GetServerSidePropsContext } from "next"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/pages/api/auth/[...nextauth]"
 import { Location, School } from "types"
 import BaseLayout from "@/layouts/BaseLayout"
 import CustomButton from "@/components/CustomButton"
@@ -15,6 +12,8 @@ type CheckInProps = {
   location: Location,
   available: number
 }
+
+// TODO
 
 export default function CheckIn({ location, available }: CheckInProps){
   const [count, setCount] = useState(available)
@@ -26,6 +25,10 @@ export default function CheckIn({ location, available }: CheckInProps){
 
   const loadSchools = async () => {
     const paginatedSchools = await getAllSchools(undefined, +Infinity)
+    if (paginatedSchools === null) {
+      throw new Error()
+    }
+
     setSchools(paginatedSchools.schools)
     handleShow()
   }
@@ -94,19 +97,8 @@ export default function CheckIn({ location, available }: CheckInProps){
   )   
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const session = await getServerSession(context.req, context.res, authOptions)
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    }
-  }
-
-  const location = await getLocation(session.user.locationId as string)
+export async function getServerSideProps() {
+  const location = await getLocation("random balabla")
   //TODO: websocket
   const available = 3
 

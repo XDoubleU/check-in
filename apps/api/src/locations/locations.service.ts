@@ -32,6 +32,17 @@ export class LocationsService extends PrismaService {
     })
   }
 
+  async getByUserId(userId: string): Promise<Location | null> {
+    return await this.location.findFirst({
+      where: {
+        userId: userId
+      },
+      include: {
+        user: true
+      }
+    })
+  }
+
   async getByName(name: string): Promise<Location | null> {
     return await this.location.findFirst({
       where: {

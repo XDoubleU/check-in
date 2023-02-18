@@ -25,6 +25,7 @@ COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
 
 RUN npx turbo db:generate
+ARG NEXT_PUBLIC_API_URL
 RUN npx turbo build --filter=web...
 
 FROM node:alpine AS runner

@@ -11,7 +11,6 @@ export class CheckInsController {
     private readonly locationsService: LocationsService,
     private readonly schoolsService: SchoolsService
   ) {}
-  // TODO: get available places using server sent events
 
   @Post()
   async create(@Body() createCheckInDto: CreateCheckInDto): Promise<CheckIn> {

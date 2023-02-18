@@ -1,13 +1,9 @@
 import { Injectable } from "@nestjs/common"
 import { UsersService } from "../users/users.service"
-import { User } from "types"
+import { Tokens, User } from "types"
 import { compareSync } from "bcrypt"
 import { JwtService } from "@nestjs/jwt"
-
-export type Tokens = {
-  accessToken: string,
-  refreshToken: string
-}
+import { Response } from "express"
 
 @Injectable()
 export class AuthService {
@@ -16,7 +12,7 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async login(username: string, pass: string): Promise<Tokens | null> {
+  async signin(username: string, pass: string): Promise<Tokens | null> {
     const user = await this.usersService.getByUserName(username)
     if (user && compareSync(pass, user.passwordHash)) {
       return await this.getTokens(user)
@@ -28,12 +24,30 @@ export class AuthService {
     return this.getTokens(user)
   }
 
+  setTokensAsCookies(tokens: Tokens, res: Response): void {
+    const accessTokenExpires = parseInt((this.jwtService.decode(tokens.accessToken) as {[key: string]: string})["exp"])
+    const refreshTokenExpires = parseInt((this.jwtService.decode(tokens.refreshToken) as {[key: string]: string})["exp"])
+
+    res.cookie("accessToken", tokens.accessToken, {
+      expires: new Date(accessTokenExpires * 1000),
+      sameSite: "strict",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production"
+    })
+    res.cookie("refreshToken", tokens.refreshToken, {
+      expires: new Date(refreshTokenExpires * 1000),
+      sameSite: "strict",
+      httpOnly: true,
+      path: "/auth/refresh",
+      secure: process.env.NODE_ENV === "production" 
+    })
+  }
+
   private async getTokens(user: User): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: user.id,
-          username: user.username
+          sub: user.id
         },
         {
           secret: process.env.JWT_ACCESS_SECRET,
@@ -42,8 +56,7 @@ export class AuthService {
       ),
       this.jwtService.signAsync(
         {
-          sub: user.id,
-          username: user.username,
+          sub: user.id
         },
         {
           secret: process.env.JWT_REFRESH_SECRET,

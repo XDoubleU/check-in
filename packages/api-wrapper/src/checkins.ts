@@ -1,20 +1,24 @@
 import { CheckIn, CreateCheckInDto } from "types"
+import { fetchHandler } from "./fetchHandler"
 
-const CHECKIN_URL = `${process.env.API_URL}/checkins`
+const CHECKIN_URL = `${process.env.NEXT_PUBLIC_API_URL}/checkins`
 
-export async function createCheckIn(locationId: string, schoolId: number): Promise<CheckIn> {
+export async function createCheckIn(locationId: string, schoolId: number): Promise<CheckIn | null> {
   const data: CreateCheckInDto = {
     locationId,
     schoolId
   }
 
-  const response = await fetch(CHECKIN_URL, {
+  const response = await fetchHandler(CHECKIN_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data)
   })
+  if (!response){
+    return null
+  }
 
   return (await response.json()) as CheckIn
 }

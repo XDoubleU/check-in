@@ -1,6 +1,4 @@
-import { URLSearchParams } from "url"
-
-// TODO: test this
+// TODO: unittest this
 export default class Query {  
   urlSearchParams : URLSearchParams
 
@@ -23,6 +21,12 @@ export default class Query {
   }
 
   public toString(): string {
-    return this.urlSearchParams.toString()
+    const result = this.urlSearchParams.toString()
+
+    if (result.length > 0){
+      return `?${result}`
+    }
+
+    return result
   }
 }
