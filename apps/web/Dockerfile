@@ -28,6 +28,7 @@ RUN npx turbo db:generate
 RUN npx turbo build --filter=web...
 
 FROM node:alpine AS runner
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY --from=installer /app .
 WORKDIR /app/apps/web/

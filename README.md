@@ -22,3 +22,9 @@ Below commands work only on api
 
 ## Other
 1. `npm run cli createadmin` create admin
+
+
+## Commands in Docker
+1. `docker-compose exec api npx turbo [cmd]`
+2. Provide arguments to pass after '--': `docker-compose exec api npx turbo [cmd] -- [args]`
+3. Create admin: `docker-compose exec api npx turbo cli -- createadmin -u username -p password`

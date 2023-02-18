@@ -5,6 +5,8 @@ export default class Query {
   urlSearchParams : URLSearchParams
 
   constructor(data: { [key: string]: number | string | undefined }) {
+    this.urlSearchParams = new URLSearchParams()
+
     for (const key of Object.keys(data)){
       if (data[key] === undefined || data[key] === null) {
         continue

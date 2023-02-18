@@ -28,6 +28,7 @@ RUN npx turbo db:generate
 RUN npx turbo build --filter=api...
 
 FROM node:alpine AS runner
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY --from=installer /app .
 CMD [ "node", "apps/api/dist/src/main.js" ]

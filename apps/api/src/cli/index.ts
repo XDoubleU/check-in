@@ -12,19 +12,33 @@ program
 
 program.command("createadmin")
   .description("Creates an admin user")
-  .action(async () => {
-    const promptResponse = await prompts([
-      {
-        type: "text",
-        name: "username",
-        message: "Username?"
-      },
-      {
-        type: "password",
-        name: "password",
-        message: "Password?"
+  .option("-u, --username <string>", "username")
+  .option("-p, --password <string>", "password")
+  .action(async (options) => {
+    let promptResponse = {
+      username: "",
+      password: ""
+    }
+
+    if (options.username !== undefined && options.password !== undefined){
+      promptResponse = {
+        username: options.username,
+        password: options.password
       }
-    ])
+    } else {
+      promptResponse = await prompts([
+        {
+          type: "text",
+          name: "username",
+          message: "Username?"
+        },
+        {
+          type: "password",
+          name: "password",
+          message: "Password?"
+        }
+      ])
+    }
 
     const existingUser = await prisma.user.findUnique({
       where: {
