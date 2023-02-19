@@ -15,7 +15,7 @@
     "@prisma/client": "^4.9.0",
     "@sentry/nextjs": "^7.38.0",
     "@types/prompts": "^2.4.2",
-    "@types/react": "18.0.27",
+    "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
     "api-wrapper": "*",
     "bcrypt": "^5.1.0",
