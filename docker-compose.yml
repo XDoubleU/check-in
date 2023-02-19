@@ -1,6 +1,38 @@
 version: '3'
 
 services:
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    volumes:
+      - .:/api
+    ports:
+      - "8000:3000"
+    environment:
+      - "NODE_ENV=development"
+      - "WEB_URL=http://localhost:3000"
+      - "DATABASE_URL=postgres://postgres@db/postgres"
+      - "JWT_ACCESS_SECRET=fc93bc077815e646705c4993eb7642cc"
+      - "JWT_ACCESS_EXPIRATION=1h"
+      - "JWT_REFRESH_SECRET=e06c73ba1be985ccfc01515e3c5c0613"
+      - "JWT_REFRESH_EXPIRATION=7d"
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+      args:
+        - "NEXT_PUBLIC_API_URL=http://localhost:8000" 
+    volumes:
+      - .:/web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
   db:
     image: postgres:13
     volumes:

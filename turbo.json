@@ -1,0 +1,30 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "WEB_URL",
+    "JWT_ACCESS_SECRET",
+    "JWT_ACCESS_EXPIRATION",
+    "JWT_REFRESH_SECRET",
+    "JWT_REFRESH_EXPIRATION",
+    "NEXT_PUBLIC_API_URL"
+  ],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {},
+    "lint:fix": {},
+    "db:generate": {
+      "cache": false
+    },
+    "db:push": {
+      "cache": false
+    },
+    "db:seed": {
+      "cache": false
+    },
+    "cli": {}
+  }
+}
