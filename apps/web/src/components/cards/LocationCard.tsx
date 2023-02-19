@@ -67,7 +67,7 @@ export function LocationUpdateModal({id, name, capacity, username}: LocationUpda
   )
 }
 
-export default function LocationCard({id, name, capacity, username}: LocationCardProps) {
+export default function LocationCard({id, name, normalizedName, capacity, username}: LocationCardProps) {
   const handleDelete = async () => {
     await deleteLocation(id)
   }
@@ -78,7 +78,7 @@ export default function LocationCard({id, name, capacity, username}: LocationCar
         <Card.Body>
           <div className="d-flex flex-row">
             <div>
-              <Card.Title><Link href={`/settings/locations/${id}`}>{name}</Link> (normalizedName)</Card.Title>
+              <Card.Title><Link href={`/settings/locations/${id}`}>{name}</Link> ({normalizedName})</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">{capacity}</Card.Subtitle>
             </div>
             <div className="ms-auto">

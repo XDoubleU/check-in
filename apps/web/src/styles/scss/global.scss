@@ -16,4 +16,20 @@ $pagination-color: #ff2600;
 $pagination-hover-color: #ff2600;
 $pagination-focus-color: #ff2600;
 
+@font-face {
+  font-family: "Brandon";
+  font-style: normal;
+  font-weight: 400;
+  src: url(../../../public/fonts/brandon_reg.otf);
+}
+
+@font-face {
+  font-family: "Brandon";
+  font-style: bold;
+  font-weight: bold;
+  src: url(../../../public/fonts/brandon_bld.otf);
+}
+
+$font-family-base: Brandon;
+
 @import 'bootstrap/scss/bootstrap.scss';

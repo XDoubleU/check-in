@@ -6,23 +6,7 @@ import "@/styles/scss/global.scss"
 import type { AppProps } from "next/app"
 import Head from "next/head"
 import { useEffect } from "react"
-import localFont from "@next/font/local"
 import NextNProgress from "nextjs-progressbar"
-
-const brandon = localFont({
-  src: [
-    {
-      path: "../../public/fonts/brandon_bld.otf",
-      weight: "bold",
-      style: "bold"
-    },
-    {
-      path: "../../public/fonts/brandon_reg.otf",
-      weight: "400",
-      style: "normal"
-    }
-  ]
-})
 
 
 export default function App({ Component, pageProps: {session, ...pageProps} }: AppProps) {
@@ -31,7 +15,7 @@ export default function App({ Component, pageProps: {session, ...pageProps} }: A
   }, [])
 
   return (
-    <main className={brandon.className}>
+    <main>
       <Head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
