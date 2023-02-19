@@ -5,14 +5,28 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . && tsc --noEmit",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "jest",
+    "test:cov": "jest --coverage"
   },
   "dependencies": {
+    "@types/jest": "^29.4.0",
+    "jest": "^29.4.3",
     "types": "*"
   },
   "devDependencies": {
+    "@types/node": "^18.14.0",
     "eslint-config-custom": "*",
-    "tsconfig": "*",
-    "@types/node": "^18.14.0"
+    "ts-jest": "^29.0.5",
+    "tsconfig": "*"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**.ts"],
+    "collectCoverageFrom": ["src/**/*.ts"],
+    "coveragePathIgnorePatterns": [
+      "index.ts"
+    ]    
   }
 }

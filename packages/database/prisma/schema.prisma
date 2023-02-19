@@ -33,7 +33,7 @@ model Location {
   id            String    @id @default(uuid())
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String    @unique
-  name          String
+  name          String    @unique
   capacity      Int
   checkIns      CheckIn[]
 }

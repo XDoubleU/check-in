@@ -1,4 +1,3 @@
-// TODO: unittest this
 export default class Query {  
   urlSearchParams : URLSearchParams
 
@@ -6,7 +5,7 @@ export default class Query {
     this.urlSearchParams = new URLSearchParams()
 
     for (const key of Object.keys(data)){
-      if (data[key] === undefined || data[key] === null) {
+      if (data[key] === undefined) {
         continue
       }
 
