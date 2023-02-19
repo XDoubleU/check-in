@@ -6,13 +6,8 @@
 version: 2
 updates:
   - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/web-client" # Location of package manifests
-    schedule:
-      interval: "weekly"
-      day: "saturday"
-
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/api" # Location of package manifests
+    directory: "/" # Location of package manifests
+    versioning-strategy: increase
     schedule:
       interval: "weekly"
       day: "saturday"
