@@ -1,31 +1,31 @@
 import LoadingLayout from "@/layouts/LoadingLayout"
-import { getUserInfo } from "api-wrapper"
+import { getMyUser } from "api-wrapper"
 import Router from "next/router"
 import { useEffect, useState } from "react"
 import { User } from "types"
 
 export default function SettingsHome() {
-  const [userInfo, setUserInfo] = useState<User | undefined>(undefined)
+  const [user, setUser] = useState<User>()
 
   useEffect(() => {
-    getUserInfo()
+    getMyUser()
       .then(data => {
         if (data === null) {
           Router.push("/signin")
         } else {
-          setUserInfo(data)
+          setUser(data)
         }
       })
   })
 
-  if (userInfo === undefined) {
+  if (user === undefined) {
     return <LoadingLayout/>
   }
 
-  if (userInfo.isAdmin) {
+  if (user.isAdmin) {
     Router.push("/settings/locations")
   } else {
-    Router.push(`/settings/locations/${userInfo.locationId}`)
+    Router.push(`/settings/locations/${user.locationId}`)
   }
 
   return <LoadingLayout/>

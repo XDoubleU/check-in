@@ -1,27 +1,40 @@
 import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
-import { SyntheticEvent, useState } from "react"
+import { SyntheticEvent, useEffect, useState } from "react"
 import styles from "./check-in.module.css"
 import { Container, Form } from "react-bootstrap"
 import { Location, School } from "types"
 import BaseLayout from "@/layouts/BaseLayout"
 import CustomButton from "@/components/CustomButton"
-import { createCheckIn, getAllSchools, getLocation } from "api-wrapper"
-
-type CheckInProps = {
-  location: Location,
-  available: number
-}
+import { createCheckIn, getAllSchools, getMyLocation } from "api-wrapper"
+import LoadingLayout from "@/layouts/LoadingLayout"
 
 // TODO
 
-export default function CheckIn({ location, available }: CheckInProps){
-  const [count, setCount] = useState(available)
+export default function CheckIn(){
+  const [location, setLocation] = useState<Location>()
   const [schools, setSchools] = useState(new Array<School>())
   const [isDisabled, setDisabled] = useState(false)
   const [showSchools, setShowSchools] = useState(false)
   const handleClose = () => setShowSchools(false)
   const handleShow = () => setShowSchools(true)
+
+  useEffect(() => {
+    getMyLocation()
+      .then(data => {
+        if(data) {
+          setLocation(data)
+        } else {
+          console.log("ERROR")
+        }
+      })
+    
+    
+  }, [])
+
+  if (!location) {
+    return <LoadingLayout/>
+  }
 
   const loadSchools = async () => {
     const paginatedSchools = await getAllSchools(undefined, +Infinity)
@@ -39,7 +52,6 @@ export default function CheckIn({ location, available }: CheckInProps){
     const pickedSchool = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement
     await createCheckIn(location.id, parseInt(pickedSchool.value))
 
-    setCount(count - 1)
     handleClose()
 
     setTimeout( () => {
@@ -79,11 +91,11 @@ export default function CheckIn({ location, available }: CheckInProps){
         <h1 className="bold" style={{"fontSize": "5rem"}}>Welkom bij {location.name}!</h1>
           <br/>
           {
-            (count <= 0) ? (
+            (location.available <= 0) ? (
               <Button className={`${styles.btnCheckIn} bold text-white`}>VOLZET</Button>
             ) : (
               <>
-                <h2>Nog <span id="count" className="bold">{count}</span> plekken vrij</h2>
+                <h2>Nog <span id="count" className="bold">{location.available}</span> plekken vrij</h2>
                 <br/>
                 <Button className={`${styles.btnCheckIn} bold text-white`} onClick={loadSchools} disabled={isDisabled}>
                   CHECK-IN
@@ -95,17 +107,4 @@ export default function CheckIn({ location, available }: CheckInProps){
       </div>
     </BaseLayout>
   )   
-}
-
-export async function getServerSideProps() {
-  const location = await getLocation("random balabla")
-  //TODO: websocket
-  const available = 3
-
-  return {
-    props: {
-      location,
-      available
-    }
-  }
 }

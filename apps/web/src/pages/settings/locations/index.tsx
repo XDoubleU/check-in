@@ -118,7 +118,7 @@ export default function LocationList() {
 
       <Col size={2}>
         <CustomButton onClick={handleShowCreate}>
-          Add
+          Create
         </CustomButton>
       </Col>
 
@@ -135,6 +135,7 @@ export default function LocationList() {
               id={location.id}
               key={location.id}
               name={location.name}
+              normalizedName={location.normalizedName}
               capacity={location.capacity}
               username={location.user.username} />
           })

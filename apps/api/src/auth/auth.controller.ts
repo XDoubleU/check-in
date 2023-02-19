@@ -31,7 +31,9 @@ export class AuthController {
   @Get("signout")
   async signout(@Res({ passthrough: true }) res: Response): Promise<void> {
     res.clearCookie("accessToken")
-    res.clearCookie("refreshToken")
+    res.clearCookie("refreshToken", {
+      path: "/auth/refresh"
+    })
   }
 
   @Public()

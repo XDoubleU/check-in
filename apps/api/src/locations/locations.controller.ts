@@ -1,7 +1,8 @@
-import { BadRequestException, Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
+import { BadRequestException, Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, Req } from "@nestjs/common"
 import { LocationsService } from "./locations.service"
 import { UsersService } from "../users/users.service"
 import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto } from "types"
+import { TokenRequest } from "../auth/auth.controller"
 
 @Controller("locations")
 export class LocationsController {
@@ -22,6 +23,21 @@ export class LocationsController {
       totalPages: Math.ceil(count/pageSize),
       locations: locations
     }
+  }
+
+  @Get("me")
+  async getMyLocation(@Req() req: TokenRequest): Promise<Location> {
+    const user = await this.usersService.getById(req.user.sub)
+    if (!user || !user.locationId) {
+      throw new NotFoundException()
+    }
+    
+    const location = await this.locationsService.getById(user.locationId)
+    if (!location) {
+      throw new NotFoundException()
+    }
+
+    return location
   }
 
   @Get(":id")
@@ -46,7 +62,7 @@ export class LocationsController {
       throw new ConflictException("User with this username already exists")
     }
 
-    const user = await this.usersService.create(createLocationDto.name, createLocationDto.password)
+    const user = await this.usersService.create(createLocationDto.username, createLocationDto.password)
     if (user === null) {
       throw new BadRequestException()
     }
@@ -80,7 +96,7 @@ export class LocationsController {
       throw new NotFoundException("Location not found")
     }
 
-    let user = await this.usersService.getById(location.userId)
+    let user = await this.usersService.getById(location.user.id)
     if (user === null) {
       throw new NotFoundException("User not found")
     }
@@ -105,7 +121,7 @@ export class LocationsController {
       throw new NotFoundException("Location not found")
     }
 
-    let user = await this.usersService.getById(location.userId)
+    let user = await this.usersService.getById(location.user.id)
     if (user === null) {
       throw new NotFoundException("User not found")
     }

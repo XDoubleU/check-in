@@ -17,6 +17,15 @@ export async function getAllLocations(page?: number): Promise<GetAllPaginatedLoc
   return (await response.json()) as GetAllPaginatedLocationDto
 }
 
+export async function getMyLocation(): Promise<Location | null> {
+  const response = await fetchHandler(`${LOCATIONS_URL}/me`)
+  if (!response) {
+    return null
+  }
+
+  return (await response.json()) as Location
+}
+
 export async function getLocation(id: string): Promise<Location | null> {
   const response = await fetchHandler(`${LOCATIONS_URL}/${id}`)
   if (!response) {

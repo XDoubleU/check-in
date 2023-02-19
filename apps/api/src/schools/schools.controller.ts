@@ -36,8 +36,8 @@ export class SchoolsController {
   }
 
   @Patch(":id")
-  async update(@Param("id") id: number, @Body() updateSchoolDto: UpdateSchoolDto): Promise<School> {
-    let school = await this.schoolsService.getById(id)
+  async update(@Param("id") id: string, @Body() updateSchoolDto: UpdateSchoolDto): Promise<School> {
+    let school = await this.schoolsService.getById(parseInt(id))
     if (school === null) {
       throw new NotFoundException("School not found")
     }
@@ -51,8 +51,8 @@ export class SchoolsController {
   }
 
   @Delete(":id")
-  async delete(@Param("id") id: number): Promise<School> {
-    let school = await this.schoolsService.getById(id)
+  async delete(@Param("id") id: string): Promise<School> {
+    let school = await this.schoolsService.getById(parseInt(id))
     if (school === null) {
       throw new NotFoundException("School not found")
     }

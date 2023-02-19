@@ -5,14 +5,17 @@ import UpdateModal from "@/components/modals/UpdateModal"
 import DeleteModal from "@/components/modals/DeleteModal"
 import { deleteLocation, updateLocation } from "api-wrapper"
 
+type LocationUpdateProps = Omit<LocationCardProps, "normalizedName">
+
 type LocationCardProps = {
   id: string, 
   name: string,
+  normalizedName: string,
   capacity: number,
   username: string
 }
 
-export function LocationUpdateModal({id, name, capacity, username}: LocationCardProps) {
+export function LocationUpdateModal({id, name, capacity, username}: LocationUpdateProps) {
   const [updateInfo, setUpdateInfo] = useState({
     id: id,
     name: name,
@@ -75,7 +78,7 @@ export default function LocationCard({id, name, capacity, username}: LocationCar
         <Card.Body>
           <div className="d-flex flex-row">
             <div>
-              <Card.Title><Link href={`/settings/locations/${id}`}>{name}</Link> (TODO: Normalized name)</Card.Title>
+              <Card.Title><Link href={`/settings/locations/${id}`}>{name}</Link> (normalizedName)</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">{capacity}</Card.Subtitle>
             </div>
             <div className="ms-auto">

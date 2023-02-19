@@ -1,4 +1,4 @@
-import { getUserInfo, signOut } from "api-wrapper"
+import { getMyUser, signOut } from "api-wrapper"
 import Router, { useRouter } from "next/router"
 import { MouseEventHandler, useEffect, useState } from "react"
 import { Container, Nav, Navbar } from "react-bootstrap"
@@ -35,15 +35,15 @@ function NavItem({children, href, onClick, active}: NavItemProps) {
 }
 
 export default function Navigation(){
-  const [userInfo, setUserInfo] = useState<User | undefined>(undefined)
+  const [user, setUser] = useState<User | undefined>(undefined)
 
   useEffect(() => {
-    getUserInfo()
+    getMyUser()
       .then(data => {
         if (data === null) {
           Router.push("/signin")
         } else {
-          setUserInfo(data)
+          setUser(data)
         }
       })
   }, [])
@@ -62,8 +62,8 @@ export default function Navigation(){
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto mb-2 mb-lg-0">
             {
-              userInfo && !userInfo.isAdmin ? (
-                <NavItem active={true} href={`/settings/locations/${userInfo.locationId}`} >My location</NavItem>
+              user && !user.isAdmin ? (
+                <NavItem active={true} href={`/settings/locations/${user.locationId}`} >My location</NavItem>
               ) : (
                 <>
                   <NavItem href="/settings/locations">Locations</NavItem>

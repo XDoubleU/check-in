@@ -1,7 +1,9 @@
-import { Location as BaseLocation, User as BaseUser } from "database"
+import { Location as dbLocation, User as dbUser } from "database"
 
 export type { CheckIn, School, User as UserWithPasswordHash } from "database"
 
-export type Location = BaseLocation & { user: User }
+export type BaseLocation = Omit<dbLocation, "userId"> & { user: User }
 
-export type User = Omit<BaseUser, "passwordHash"> & {locationId?: string}
+export type Location = BaseLocation & { normalizedName: string, available: number }
+
+export type User = Omit<dbUser, "passwordHash"> & { locationId?: string }
