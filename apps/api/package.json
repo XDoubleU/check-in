@@ -48,7 +48,7 @@
     "@types/passport-local": "^1.0.35",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.52.0",
-    "@typescript-eslint/parser": "^5.52.0",
+    "@typescript-eslint/parser": "^5.53.0",
     "eslint-config-custom": "*",
     "jest": "29.4.3",
     "source-map-support": "^0.5.20",
