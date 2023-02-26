@@ -4,12 +4,14 @@ import { CreateCheckInDto, Location, School, User } from "types"
 import { LocationsService } from "../src/locations/locations.service"
 import { UsersService } from "../src/users/users.service"
 import { SchoolsService } from "../src/schools/schools.service"
-import { clearDatabase, getAccessToken, getApp } from "./shared"
+import { clearDatabase, getAccessToken, getAdminAccessToken, getApp } from "./shared"
 
 
 describe("CheckInsController (e2e)", () => {
   let app: INestApplication
+
   let accessToken: string
+  let adminAccessToken: string
 
   let locationsService: LocationsService
   let usersService: UsersService
@@ -21,7 +23,6 @@ describe("CheckInsController (e2e)", () => {
   
   beforeAll(async () => {
     app = await getApp()
-    accessToken = await getAccessToken(app)
 
     locationsService = app.get<LocationsService>(LocationsService)
     usersService = app.get<UsersService>(UsersService)
@@ -31,38 +32,27 @@ describe("CheckInsController (e2e)", () => {
   })
 
   beforeEach(async () => {
+    // AccessTokens
+    const getAccessTokenObject = await getAccessToken(app)
+    accessToken = getAccessTokenObject.accessToken
+    adminAccessToken = await getAdminAccessToken(app)
+
     // UsersService
-    let tempUser = await usersService.getByUserName("TestUser")
-    if (!tempUser){
-      tempUser = await usersService.create("TestUser", "testpassword")
-      if (!tempUser) throw new Error()
-    }
-    user = tempUser
+    user = await usersService.create("TestUser", "testpassword")
 
     // LocationsService
-    let tempLocation = await locationsService.getByName("TestLocation")
-    if (!tempLocation){
-      tempLocation = await locationsService.create("TestLocation", 10, user)
-      if (!tempLocation) throw new Error()
-    }
-    location = tempLocation
+    location = await locationsService.create("TestLocation", 10, user)
 
     // SchoolsService
-    let tempSchool = await schoolsService.getByName("TestSchool")
-    if (!tempSchool){
-      tempSchool = await schoolsService.create("TestSchool")
-      if (!tempSchool) throw new Error()
-    }
-    school = tempSchool
+    school = await schoolsService.create("TestSchool")
   })
 
-  afterAll(async () => {
-    clearDatabase(app)
+  afterEach(async () => {
+    await clearDatabase(app)
   })
 
   describe("/checkins (POST)", () => {
-    // TODO: test role access
-    it("creates a new CheckIn (200)", async () => {
+    it("creates a new CheckIn (201)", async () => {
       const data: CreateCheckInDto = {
         locationId: location.id,
         schoolId: school.id
@@ -109,6 +99,19 @@ describe("CheckInsController (e2e)", () => {
         .expect(404)
       
       expect(response.body.message).toBe("School not found")
+    })
+
+    it("returns Forbidden (403)", async () => {
+      const data: CreateCheckInDto = {
+        locationId: location.id,
+        schoolId: school.id
+      }
+  
+      return await request(app.getHttpServer())
+        .post("/checkins")
+        .set("Cookie", [`accessToken=${adminAccessToken}`])
+        .send(data)
+        .expect(403)
     })
   })
 })

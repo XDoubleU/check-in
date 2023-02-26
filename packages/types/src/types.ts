@@ -4,7 +4,7 @@ export type { CheckIn, School, User as UserWithPasswordHash } from "database"
 
 export { Role } from "database"
 
-export type BaseLocation = Omit<dbLocation, "userId"> & { user: User }
+export type BaseLocation = Omit<dbLocation, "userId"> & { user: Omit<dbUser, "passwordHash"|"roles"> }
 
 export type BaseUser = Omit<dbUser, "passwordHash"> & { location: { id: string } | null }
 
