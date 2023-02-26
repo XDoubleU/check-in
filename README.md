@@ -15,7 +15,7 @@ Below commands work only on api
 
 ## Edit schema?
 1. `turbo db:generate`
-2. `npx prisma migrate dev` ((ONLY FOR PROTOTYPING) `turbo db:push`)
+2. Create migrations: `turbo db:migrate-dev -- --name [NAME]` (run with docker-compose)
 
 ## Seeding database
 1. `turbo db:seed`
@@ -28,3 +28,9 @@ Below commands work only on api
 1. `docker-compose exec api npx turbo [cmd]`
 2. Provide arguments to pass after '--': `docker-compose exec api npx turbo [cmd] -- [args]`
 3. Create admin: `docker-compose exec api npx turbo cli -- createadmin -u username -p password`
+
+## Run tests
+1. Start docker: `docker-compose up -d --build`
+2. Migrate database schema: `docker-compose exec api npx turbo db:test`
+3. Run tests on api: `docker-compose exec api npx turbo test`
+4. Run tests on web: `docker-compose exec web npx turbo test`

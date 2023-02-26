@@ -16,15 +16,22 @@
     },
     "lint": {},
     "lint:fix": {},
-    "test": {},
-    "test:cov": {},
+    "test": {
+      "cache": false
+    },
+    "test:cov": {
+      "cache": false
+    },
+    "db:test": {
+      "cache": false
+    },
     "db:generate": {
       "cache": false
     },
-    "db:push": {
+    "db:migrate-dev": {
       "cache": false
     },
-    "db:seed": {
+    "db:migrate-prod": {
       "cache": false
     },
     "cli": {}

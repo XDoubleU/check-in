@@ -23,7 +23,7 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "testMatch": ["**/tests/**.ts"],
+    "testMatch": ["**/tests/*.test.ts"],
     "collectCoverageFrom": ["src/**/*.ts"],
     "coveragePathIgnorePatterns": [
       "index.ts"

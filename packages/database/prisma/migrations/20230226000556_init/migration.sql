@@ -1,9 +1,12 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('User', 'Admin');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
-    "isAdmin" BOOLEAN NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'User',
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -42,6 +45,9 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Location_userId_key" ON "Location"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Location_name_key" ON "Location"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "School_name_key" ON "School"("name");

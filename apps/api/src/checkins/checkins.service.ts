@@ -14,7 +14,7 @@ export class CheckInsService extends PrismaService {
     super()
   }
 
-  async create(location: Location, school: School): Promise<CheckIn | null> {
+  async create(location: Location, school: School): Promise<CheckIn> {
     const checkIn = await this.checkIn.create({
       data: {
         locationId: location.id,
@@ -23,11 +23,7 @@ export class CheckInsService extends PrismaService {
       }
     })
 
-    const updatedLocation = await this.locationsService.getById(location.id)
-    if (!updatedLocation) {
-      return null
-    }
-
+    const updatedLocation = await this.locationsService.getById(location.id) as Location
     this.sseService.addLocationUpdate(updatedLocation)
 
     return checkIn

@@ -2,7 +2,7 @@ import LoadingLayout from "@/layouts/LoadingLayout"
 import { getMyUser } from "api-wrapper"
 import Router from "next/router"
 import { useEffect, useState } from "react"
-import { User } from "types"
+import { Role, User } from "types"
 
 export default function Home() {
   const [user, setUser] = useState<User>()
@@ -22,7 +22,7 @@ export default function Home() {
     return <LoadingLayout/>
   }
 
-  if (user.isAdmin) {
+  if (user.role === Role.Admin) {
     Router.push("/settings")
   } else {
     Router.push("/check-in")

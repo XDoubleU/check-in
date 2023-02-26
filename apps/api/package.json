@@ -10,8 +10,8 @@
     "start:prod": "node dist/main",
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
-    "test": "jest",
-    "test:cov": "jest --coverage",
+    "test": "jest --runInBand",
+    "test:cov": "jest --coverage --runInBand",
     "cli": "node dist/src/cli/index.js"
   },
   "dependencies": {
@@ -60,10 +60,13 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "testMatch": ["**/tests/**.ts"],
+    "testMatch": ["**/tests/*.test.ts"],
     "collectCoverageFrom": ["src/**/*.ts"],
     "coveragePathIgnorePatterns": [
-      "main.ts"
+      "main.ts",
+      "prisma.service.ts",
+      "cli",
+      ".module.ts"
     ]    
   }
 }

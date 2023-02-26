@@ -13,7 +13,20 @@ export class LocationsService extends PrismaService {
     return await this.location.count()
   }
   
-  async getAll(page: number, pageSize: number): Promise<Location[]> {
+  async getAll(): Promise<Location[]> {
+    const locations = await this.location.findMany({
+      select: {
+        id: true,
+        name: true,
+        capacity: true,
+        user: true
+      }
+    })
+
+    return this.computeLocations(locations)
+  }
+
+  async getAllPaged(page: number, pageSize: number): Promise<Location[]> {
     const locations = await this.location.findMany({
       orderBy: {
         name: "asc"

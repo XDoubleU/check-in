@@ -2,6 +2,7 @@ import { Command } from "commander"
 import prompts from "prompts"
 import { hashSync } from "bcrypt"
 import { PrismaClient } from "@prisma/client"
+import { Role } from "types"
 
 const prisma = new PrismaClient()
 const program = new Command()
@@ -46,7 +47,7 @@ program.command("createadmin")
       }
     })
 
-    if (existingUser !== null) {
+    if (existingUser) {
       console.log("This username is already used")
       return
     }
@@ -56,11 +57,11 @@ program.command("createadmin")
       data: {
         username: promptResponse.username,
         passwordHash: passwordHash,
-        isAdmin: true
+        role: Role.Admin
       }
     })
 
-    if (result === null || result === undefined) {
+    if (!result) {
       console.log("Something went wrong")
       return
     }
