@@ -57,7 +57,7 @@ program.command("createadmin")
       data: {
         username: promptResponse.username,
         passwordHash: passwordHash,
-        role: Role.Admin
+        roles: [Role.Admin]
       }
     })
 

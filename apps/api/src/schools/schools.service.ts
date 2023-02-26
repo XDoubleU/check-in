@@ -23,10 +23,14 @@ export class SchoolsService extends PrismaService {
     })
     
     function countCheckIns(school: School): number {
+      if (school.id === 1) {
+        return 0
+      }
+
       return checkins.reduce((total,x) => (x.schoolId === school.id ? total+1 : total), 0)
     }
     
-    schools.sort((schoolA, schoolB) => (countCheckIns(schoolA) > countCheckIns(schoolB)) ? 1 : -1)
+    schools.sort((schoolA, schoolB) => (countCheckIns(schoolA) < countCheckIns(schoolB)) ? 1 : -1)
 
     return schools
   }

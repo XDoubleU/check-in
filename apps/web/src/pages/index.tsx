@@ -22,7 +22,7 @@ export default function Home() {
     return <LoadingLayout/>
   }
 
-  if (user.role === Role.Admin) {
+  if (user.roles.includes(Role.Admin)) {
     Router.push("/settings")
   } else {
     Router.push("/check-in")

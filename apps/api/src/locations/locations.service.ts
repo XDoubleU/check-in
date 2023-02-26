@@ -19,7 +19,12 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
 
@@ -35,7 +40,12 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       },
       take: pageSize,
       skip: (page - 1) * pageSize
@@ -53,7 +63,12 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
 
@@ -73,7 +88,12 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
 
@@ -93,7 +113,12 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
 
@@ -104,7 +129,7 @@ export class LocationsService extends PrismaService {
     return this.computeLocation(location)
   }
 
-  async create(name: string, capacity: number, user: User): Promise<Location | null> {
+  async create(name: string, capacity: number, user: User): Promise<Location> {
     const location = await this.location.create({
       data: {
         name: name,
@@ -115,18 +140,19 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
-
-    if (!location) {
-      return null
-    }
 
     return this.computeLocation(location)
   }
 
-  async update(location: Location, name?: string, capacity?: number): Promise<Location | null> {
+  async update(location: Location, name?: string, capacity?: number): Promise<Location> {
     const result = await this.location.update({
       where: {
         id: location.id
@@ -139,13 +165,14 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
-
-    if (!result) {
-      return null
-    }
 
     const computedLocation = await this.computeLocation(result)
     this.sseService.addLocationUpdate(computedLocation)
@@ -161,7 +188,12 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
 

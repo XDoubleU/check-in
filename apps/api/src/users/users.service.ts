@@ -13,7 +13,7 @@ export class UsersService extends PrismaService {
       select: {
         id: true,
         username: true,
-        role: true,
+        roles: true,
         location: {
           select: {
             id: true
@@ -37,7 +37,7 @@ export class UsersService extends PrismaService {
       select: {
         id: true,
         username: true,
-        role: true,
+        roles: true,
         location: {
           select: {
             id: true
@@ -67,7 +67,7 @@ export class UsersService extends PrismaService {
     return compareSync(password, user.passwordHash)
   }
 
-  async create(username: string, password: string): Promise<User | null> {
+  async create(username: string, password: string): Promise<User> {
     const passwordHash = hashSync(password, 12)
 
     return await this.user.create({
@@ -78,7 +78,7 @@ export class UsersService extends PrismaService {
     })
   }
 
-  async update(user: User, username?: string, password?: string): Promise<User | null> {
+  async update(user: User, username?: string, password?: string): Promise<User> {
     const passwordHash = password === undefined ? undefined : hashSync(password, 12)
 
     return await this.user.update({
@@ -104,7 +104,7 @@ export class UsersService extends PrismaService {
     return {
       id: user.id,
       username: user.username,
-      role: user.role,
+      roles: user.roles,
       locationId: user.location?.id
     }
   }

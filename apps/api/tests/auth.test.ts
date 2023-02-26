@@ -30,18 +30,10 @@ describe("AuthController (e2e)", () => {
 
   beforeEach(async () => {
     // UsersService
-    let tempUser = await usersService.getByUserName("TestUser")
-    if (!tempUser){
-      tempUser = await usersService.create("TestUser", "testpassword")
-      if (!tempUser) throw new Error()
-    }
-    user = tempUser
+    user = await usersService.create("TestUser", "testpassword")
 
     // LocationsService
-    if (!await locationsService.getByName("TestLocation")){
-      const location = await locationsService.create("TestLocation", 10, user)
-      if (!location) throw new Error()
-    }
+    await locationsService.create("TestLocation", 10, user)
     user = await usersService.getById(user.id) as User
 
     // AuthService
@@ -50,8 +42,8 @@ describe("AuthController (e2e)", () => {
     refreshToken = tokens.refreshToken
   })
 
-  afterAll(async () => {
-    clearDatabase(app)
+  afterEach(async () => {
+    await clearDatabase(app)
   })
 
   describe("/auth/signin (POST)", () => {

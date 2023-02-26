@@ -19,14 +19,5 @@
     "eslint-config-custom": "*",
     "ts-jest": "^29.0.5",
     "tsconfig": "*"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "testMatch": ["**/tests/*.test.ts"],
-    "collectCoverageFrom": ["src/**/*.ts"],
-    "coveragePathIgnorePatterns": [
-      "index.ts"
-    ]    
   }
 }

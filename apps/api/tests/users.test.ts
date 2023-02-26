@@ -29,26 +29,18 @@ describe("UsersController (e2e)", () => {
 
   beforeEach(async () => {
     // UsersService
-    let tempUser = await usersService.getByUserName("TestUser")
-    if (!tempUser){
-      tempUser = await usersService.create("TestUser", "testpassword")
-      if (!tempUser) throw new Error()
-    }
-    user = tempUser
+    user = await usersService.create("TestUser", "testpassword")
 
     // LocationsService
-    if (!await locationsService.getByName("TestLocation")){
-      const location = await locationsService.create("TestLocation", 10, user)
-      if (!location) throw new Error()
-    }
+    await locationsService.create("TestLocation", 10, user)
     user = await usersService.getById(user.id) as User
 
     // AuthService
     accessToken = (await authService.getTokens(user)).accessToken
   })
 
-  afterAll(async () => {
-    clearDatabase(app)
+  afterEach(async () => {
+    await clearDatabase(app)
   })
 
   describe("/users/me (GET)", () => {
@@ -60,7 +52,7 @@ describe("UsersController (e2e)", () => {
       
       expect(response.body.id).toBe(user.id)
       expect(response.body.username).toBe(user.username)
-      expect(response.body.role).toBe(user.role)
+      expect(response.body.roles).toStrictEqual(user.roles)
       expect(response.body.passwordHash).toBeUndefined()
       expect(response.body.locationId).toBe(user.locationId)
     })
