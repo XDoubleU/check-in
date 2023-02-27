@@ -1,0 +1,34 @@
+name: Lint & Test
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest  
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+      - run: turbo lint:report
+        continue-on-error: true
+      - uses: ataylorme/eslint-annotate-action@v2
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          report-json: "eslint_report.json"
+          
+  test:
+    # TODO: add test reporting
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: docker-compose up -d --build
+    - run: docker-compose exec api npx turbo db:test
+    - run: docker-compose exec api npx turbo test
+    - run: docker-compose exec web npx turbo test
+    - run: docker-compose down
+      if: always()
+      
