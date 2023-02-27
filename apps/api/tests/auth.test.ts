@@ -3,7 +3,7 @@ import request from "supertest"
 import { SignInDto, User } from "types"
 import { LocationsService } from "../src/locations/locations.service"
 import { UsersService } from "../src/users/users.service"
-import { clearDatabase, getApp } from "./shared"
+import { clearDatabase, ErrorResponse, getApp, RequestHeaders } from "./shared"
 import { AuthService } from "../src/auth/auth.service"
 
 
@@ -34,7 +34,10 @@ describe("AuthController (e2e)", () => {
 
     // LocationsService
     await locationsService.create("TestLocation", 10, user)
-    user = await usersService.getById(user.id) as User
+    const tempUser = await usersService.getById(user.id)
+    if (tempUser) {
+      user = tempUser
+    }
 
     // AuthService
     const tokens = (await authService.getTokens(user))
@@ -58,8 +61,9 @@ describe("AuthController (e2e)", () => {
         .send(data)
         .expect(200)
       
-      expect(response.headers["set-cookie"][0]).toContain("accessToken")
-      expect(response.headers["set-cookie"][1]).toContain("refreshToken")
+      const responseHeaders = response.headers as RequestHeaders
+      expect(responseHeaders["set-cookie"][0]).toContain("accessToken")
+      expect(responseHeaders["set-cookie"][1]).toContain("refreshToken")
     })
 
     it("returns Invalid credentials (401)", async () => {
@@ -73,7 +77,8 @@ describe("AuthController (e2e)", () => {
         .send(data)
         .expect(401)
       
-      expect(response.body.message).toBe("Invalid credentials")
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Invalid credentials")
     })
   })
 
@@ -84,8 +89,9 @@ describe("AuthController (e2e)", () => {
         .set("Cookie", [`accessToken=${accessToken}`])
         .expect(200)
       
-      expect(response.headers["set-cookie"][0]).toContain("accessToken=;")
-      expect(response.headers["set-cookie"][1]).toContain("refreshToken=;")
+      const responseHeaders = response.headers as RequestHeaders
+      expect(responseHeaders["set-cookie"][0]).toContain("accessToken=;")
+      expect(responseHeaders["set-cookie"][1]).toContain("refreshToken=;")
     })
 
     it("returns unauthorized (401)", async () => {      
@@ -102,8 +108,9 @@ describe("AuthController (e2e)", () => {
         .set("Cookie", [`refreshToken=${refreshToken}`])
         .expect(200)
       
-      expect(response.headers["set-cookie"][0]).toContain("accessToken")
-      expect(response.headers["set-cookie"][1]).toContain("refreshToken")
+      const responseHeaders = response.headers as RequestHeaders
+      expect(responseHeaders["set-cookie"][0]).toContain("accessToken")
+      expect(responseHeaders["set-cookie"][1]).toContain("refreshToken")
     })
 
     it("returns unauthorized (401)", async () => {

@@ -8,7 +8,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react"
 import { Col, Form, Modal } from "react-bootstrap"
 import { createLocation, getAllLocations } from "api-wrapper"
 
-type LocationList = {
+interface LocationList {
   locations: Location[],
   pagination: CustomPaginationProps
 }
@@ -40,10 +40,10 @@ export default function LocationList() {
   useEffect(() => {
     if(!router.isReady) return
     const page = router.query.page ? parseInt(router.query.page as string) : undefined
-    getAllLocations(page)
-      .then(data => {
+    void getAllLocations(page)
+      .then(async (data) => {
         if (!data) {
-          router.push("/signin")
+          await router.push("/signin")
           return
         }
 
@@ -85,7 +85,7 @@ export default function LocationList() {
         <Modal.Body>
           <Modal.Title>Create location</Modal.Title>
           <br/>
-          <Form onSubmit={handleCreate}>
+          <Form onSubmit={() => handleCreate}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control type="text" placeholder="Name" value={createInfo.name} onChange={({ target}) => setCreateInfo({ ...createInfo, name: target.value })}></Form.Control>

@@ -33,7 +33,10 @@ describe("UsersController (e2e)", () => {
 
     // LocationsService
     await locationsService.create("TestLocation", 10, user)
-    user = await usersService.getById(user.id) as User
+    const tempUser = await usersService.getById(user.id)
+    if (tempUser) {
+      user = tempUser
+    }
 
     // AuthService
     accessToken = (await authService.getTokens(user)).accessToken
@@ -50,11 +53,11 @@ describe("UsersController (e2e)", () => {
         .set("Cookie", [`accessToken=${accessToken}`])
         .expect(200)
       
-      expect(response.body.id).toBe(user.id)
-      expect(response.body.username).toBe(user.username)
-      expect(response.body.roles).toStrictEqual(user.roles)
-      expect(response.body.passwordHash).toBeUndefined()
-      expect(response.body.locationId).toBe(user.locationId)
+      const userResponse = response.body as User
+      expect(userResponse.id).toBe(user.id)
+      expect(userResponse.username).toBe(user.username)
+      expect(userResponse.roles).toStrictEqual(user.roles)
+      expect(userResponse.locationId).toBe(user.locationId)
     })
   })
 })

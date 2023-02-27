@@ -4,7 +4,7 @@ import { Request } from "express"
 import { Injectable } from "@nestjs/common"
 import { JwtPayload } from "./accessToken.strategy"
 import { UsersService } from "../../users/users.service"
-import { User } from "types"
+import { Tokens, User } from "types"
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
@@ -14,7 +14,8 @@ export class RefreshTokenStrategy extends PassportStrategy(
   constructor(private readonly usersService: UsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([(request: Request): string | null => {
-        const refreshToken = request.cookies["refreshToken"]
+        const cookies = request.cookies as Tokens
+        const refreshToken = cookies.refreshToken
         if (!refreshToken) {
           return null
         }
@@ -26,7 +27,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
     })
   }
 
-  async validate(payload: JwtPayload): Promise<User> {
-    return await this.usersService.getById(payload.sub) as User
+  async validate(payload: JwtPayload): Promise<User | null> {
+    return await this.usersService.getById(payload.sub)
   }
 }

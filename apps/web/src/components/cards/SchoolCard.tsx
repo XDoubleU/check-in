@@ -4,7 +4,7 @@ import UpdateModal from "@/components/modals/UpdateModal"
 import DeleteModal from "@/components/modals/DeleteModal"
 import { deleteSchool, updateSchool } from "api-wrapper"
 
-type SchoolCardProps = {
+interface SchoolCardProps {
   id: number,
   name: string
 }

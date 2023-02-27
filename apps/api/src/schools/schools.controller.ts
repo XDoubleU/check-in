@@ -11,7 +11,7 @@ export class SchoolsController {
   @Roles(Role.User)
   @Get("all")
   async getAll(@ReqUser() user: User): Promise<School[]> {
-    return await this.schoolsService.getAll(user.locationId as string)
+    return await this.schoolsService.getAll(user.locationId)
   }
 
   @Roles(Role.Admin)
@@ -43,7 +43,6 @@ export class SchoolsController {
   @Roles(Role.Admin)
   @Patch(":id")
   async update(@Param("id") id: string, @Body() updateSchoolDto: UpdateSchoolDto): Promise<School> {
-    // TODO: test role access
     const school = await this.schoolsService.getById(parseInt(id))
     if (!school || parseInt(id) === 1) {
       throw new NotFoundException("School not found")
@@ -60,7 +59,6 @@ export class SchoolsController {
   @Roles(Role.Admin)
   @Delete(":id")
   async delete(@Param("id") id: string): Promise<School> {
-    // TODO: test role access
     const school = await this.schoolsService.getById(parseInt(id))
     if (!school || parseInt(id) === 1) {
       throw new NotFoundException("School not found")

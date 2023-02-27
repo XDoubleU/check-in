@@ -1,7 +1,7 @@
 import { CheckIn, CreateCheckInDto } from "types"
 import { fetchHandler } from "./fetchHandler"
 
-const CHECKIN_URL = `${process.env.NEXT_PUBLIC_API_URL}/checkins`
+const CHECKIN_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/checkins`
 
 export async function createCheckIn(locationId: string, schoolId: number): Promise<CheckIn | null> {
   const data: CreateCheckInDto = {

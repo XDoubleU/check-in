@@ -100,7 +100,7 @@ export class UsersService extends PrismaService {
     })
   }
 
-  private async computeUser(user: BaseUser): Promise<User> {
+  private computeUser(user: BaseUser): User {
     return {
       id: user.id,
       username: user.username,

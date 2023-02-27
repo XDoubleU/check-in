@@ -5,7 +5,9 @@ module.exports = {
   ],
   extends: [
     "turbo",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/strict"
   ],
   root: true,
   env: {

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
+import { BadRequestException, Body, ConflictException, Controller, Delete, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
 import { LocationsService } from "./locations.service"
 import { UsersService } from "../users/users.service"
 import { CreateLocationDto, GetAllPaginatedLocationDto, Location, Role, UpdateLocationDto, User } from "types"
@@ -30,8 +30,16 @@ export class LocationsController {
   @Roles(Role.User)
   @Get("me")
   async getMyLocation(@ReqUser() user: User): Promise<Location> {
-    // TODO: test role access
-    return await this.locationsService.getById(user.locationId as string) as Location
+    if (!user.locationId) {
+      throw new BadRequestException()
+    }
+
+    const location = await this.locationsService.getById(user.locationId)
+    if (!location) {
+      throw new NotFoundException("Location not found")
+    }
+
+    return location
   }
 
   @Get(":id")
@@ -82,7 +90,11 @@ export class LocationsController {
       }
     }
 
-    const user = await this.usersService.getById(location.user.id) as User
+    const user = await this.usersService.getById(location.user.id)
+    if (!user) {
+      throw new InternalServerErrorException("User from location couldn't be fetched")
+    }
+
     await this.usersService.update(user, updateLocationDto.username, updateLocationDto.password)
 
     return await this.locationsService.update(location, updateLocationDto.name, updateLocationDto.capacity)
@@ -91,26 +103,18 @@ export class LocationsController {
   @Roles(Role.Admin)
   @Delete(":id")
   async delete(@Param("id") id: string): Promise<Location> {
-    // TODO: test role access
     let location = await this.locationsService.getById(id)
     if (!location) {
       throw new NotFoundException("Location not found")
     }
 
-    let user = await this.usersService.getById(location.user.id)
+    const user = await this.usersService.getById(location.user.id)
     if (!user) {
-      throw new NotFoundException("User not found")
+      throw new InternalServerErrorException("User from location couldn't be fetched")
     }
 
     location = await this.locationsService.delete(location)
-    if (!location) {
-      throw new BadRequestException()
-    }
-    
-    user = await this.usersService.delete(user)
-    if (!user) {
-      throw new BadRequestException()
-    }
+    await this.usersService.delete(user)
 
     return location
   }

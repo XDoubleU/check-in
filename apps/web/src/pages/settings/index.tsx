@@ -8,10 +8,10 @@ export default function SettingsHome() {
   const [user, setUser] = useState<User>()
 
   useEffect(() => {
-    getMyUser()
-      .then(data => {
+    void getMyUser()
+      .then(async (data) => {
         if (data === null) {
-          Router.push("/signin")
+          await Router.push("/signin")
         } else {
           setUser(data)
         }
@@ -22,10 +22,10 @@ export default function SettingsHome() {
     return <LoadingLayout/>
   }
 
-  if (user.roles.includes(Role.Admin)) {
-    Router.push("/settings/locations")
+  if (user.roles.includes(Role.Admin) || !user.locationId) {
+    void Router.push("/settings/locations")
   } else {
-    Router.push(`/settings/locations/${user.locationId}`)
+    void Router.push(`/settings/locations/${user.locationId}`)
   }
 
   return <LoadingLayout/>

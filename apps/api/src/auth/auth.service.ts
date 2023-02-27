@@ -13,7 +13,11 @@ export class AuthService {
 
   async signin(username: string, password: string): Promise<Tokens | null> {
     if (await this.usersService.checkPassword(username, password)) {
-      const user = await this.usersService.getByUserName(username) as User
+      const user = await this.usersService.getByUserName(username)
+      if (!user) {
+        return null
+      }
+
       return await this.getTokens(user)
     }
     return null
@@ -24,8 +28,8 @@ export class AuthService {
   }
 
   setTokensAsCookies(tokens: Tokens, res: Response): void {
-    const accessTokenExpires = parseInt((this.jwtService.decode(tokens.accessToken) as {[key: string]: string})["exp"])
-    const refreshTokenExpires = parseInt((this.jwtService.decode(tokens.refreshToken) as {[key: string]: string})["exp"])
+    const accessTokenExpires = parseInt((this.jwtService.decode(tokens.accessToken) as Record<string, string>).exp)
+    const refreshTokenExpires = parseInt((this.jwtService.decode(tokens.refreshToken) as Record<string, string>).exp)
 
     res.cookie("accessToken", tokens.accessToken, {
       expires: new Date(accessTokenExpires * 1000),

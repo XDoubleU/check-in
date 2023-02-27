@@ -1,7 +1,7 @@
 import { SignInDto } from "types"
 import { fetchHandler } from "./fetchHandler"
 
-const AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`
+const AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/auth`
 
 export async function signin(username: string, password: string): Promise<string | null> {
   const data: SignInDto = {

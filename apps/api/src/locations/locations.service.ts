@@ -79,31 +79,6 @@ export class LocationsService extends PrismaService {
     return this.computeLocation(location)
   }
 
-  async getByUserId(userId: string): Promise<Location | null> {
-    const location = await this.location.findFirst({
-      where: {
-        userId: userId
-      },
-      select: {
-        id: true,
-        name: true,
-        capacity: true,
-        user: {
-          select: {
-            id: true,
-            username: true
-          }
-        }
-      }
-    })
-
-    if (!location) {
-      return null
-    }
-
-    return this.computeLocation(location)
-  }
-
   async getByName(name: string): Promise<Location | null> {
     const location = await this.location.findFirst({
       where: {
@@ -179,7 +154,7 @@ export class LocationsService extends PrismaService {
     return computedLocation
   }
 
-  async delete(location: Location): Promise<Location | null> {
+  async delete(location: Location): Promise<Location> {
     const result = await this.location.delete({
       where: {
         id: location.id
@@ -196,10 +171,6 @@ export class LocationsService extends PrismaService {
         }
       }
     })
-
-    if (!result) {
-      return null
-    }
 
     return this.computeLocation(result)
   }

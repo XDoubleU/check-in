@@ -10,9 +10,17 @@ import { SchoolsService } from "../src/schools/schools.service"
 import { CheckInsService } from "../src/checkins/checkins.service"
 import { hashSync } from "bcrypt"
 
-type GetAccessTokenReturn = {
+interface GetAccessTokenReturn {
   accessToken: string,
-  user: User
+  user: Omit<User, "locationId"> & { locationId: string }
+}
+
+export interface RequestHeaders {
+  "set-cookie": string
+}
+
+export interface ErrorResponse {
+  message: string
 }
 
 export async function getApp(): Promise<INestApplication> {
@@ -48,19 +56,29 @@ export async function getAdminAccessToken(app: INestApplication): Promise<string
 export async function getAccessToken(app: INestApplication): Promise<GetAccessTokenReturn> {
   const usersService = app.get<UsersService>(UsersService)
   const locationsService = app.get<LocationsService>(LocationsService)
+  const authService = app.get<AuthService>(AuthService)
 
   let user = await usersService.getByUserName("AuthUser")
   if (!user) {
-    user = await usersService.create("AuthUser", "AuthUserPassword") as User
+    user = await usersService.create("AuthUser", "AuthUserPassword") 
   }
   await locationsService.create("AuthUserLocation", 10, user)
-  user = await usersService.getById(user.id) as User
+  user = await usersService.getById(user.id)
 
-  const authService = app.get<AuthService>(AuthService)
+  if (!user) {
+    throw new Error("User is undefined")
+  }
+
+  const { locationId, ...oldUser } = user
+  if (!locationId) {
+    throw new Error("user.locationId is undefined")
+  }
+
+  const newUser = { locationId, ...oldUser }
 
   return {
     accessToken: (await authService.getTokens(user)).accessToken,
-    user
+    user: newUser
   }
 }
 

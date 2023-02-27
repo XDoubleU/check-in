@@ -3,7 +3,7 @@ import Head from "next/head"
 import { Container } from "react-bootstrap"
 import Navigation from "@/components/Navigation"
 
-type BaseLayoutProps = {
+interface BaseLayoutProps {
   children: ReactNode,
   title?: string,
   showLinks?: boolean,

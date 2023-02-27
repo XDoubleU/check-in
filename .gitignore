@@ -40,7 +40,6 @@ next-env.d.ts
 sentry.properties
 
 dist
-
 .turbo
-
 coverage
+eslint_report.json

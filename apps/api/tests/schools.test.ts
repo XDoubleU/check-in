@@ -1,8 +1,8 @@
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { CreateSchoolDto, Location, School, UpdateSchoolDto, User } from "types"
+import { CreateSchoolDto, GetAllPaginatedSchoolDto, School, UpdateSchoolDto, User } from "types"
 import { SchoolsService } from "../src/schools/schools.service"
-import { clearDatabase, getAccessToken, getAdminAccessToken, getApp } from "./shared"
+import { clearDatabase, ErrorResponse, getAccessToken, getAdminAccessToken, getApp } from "./shared"
 import { CheckInsService } from "../src/checkins/checkins.service"
 import { LocationsService } from "../src/locations/locations.service"
 
@@ -11,7 +11,7 @@ describe("SchoolsController (e2e)", () => {
   let app: INestApplication
 
   let accessToken: string
-  let authUser: User
+  let authUser: Omit<User, "locationId"> & { locationId: string }
   let adminAccessToken: string
 
   let schoolsService: SchoolsService
@@ -53,8 +53,16 @@ describe("SchoolsController (e2e)", () => {
 
   describe("/schools/all (GET)", () => {
     it("gets all Schools (200)", async () => {
-      const location = await locationsService.getById(authUser.locationId as string) as Location
-      const andere = await schoolsService.getById(1) as School
+      const location = await locationsService.getById(authUser.locationId)
+      if (!location) {
+        throw new Error("Location is undefined")
+      }
+
+      const andere = await schoolsService.getById(1)
+      if (!andere) {
+        throw new Error("andere is undefined")
+      }
+
       const school = schools[5]
 
       for (let i = 0; i < 10; i++) {
@@ -70,9 +78,10 @@ describe("SchoolsController (e2e)", () => {
         .set("Cookie", [`accessToken=${accessToken}`])
         .expect(200)
 
-      expect(response.body).toBeInstanceOf(Array<School>)
-      expect(response.body[response.body.length - 1]).toStrictEqual(andere)
-      expect(response.body[0]).toStrictEqual(school)
+      const schoolsResponse = response.body as School[]
+      expect(schoolsResponse).toBeInstanceOf(Array<School>)
+      expect(schoolsResponse[schoolsResponse.length - 1]).toStrictEqual(andere)
+      expect(schoolsResponse[0]).toStrictEqual(school)
     })
 
     it("returns Forbidden (403)", async () => {
@@ -90,9 +99,10 @@ describe("SchoolsController (e2e)", () => {
         .set("Cookie", [`accessToken=${adminAccessToken}`])
         .expect(200)
 
-      expect(response.body.page).toBe(defaultPage)
-      expect(response.body.totalPages).toBe(Math.ceil(schools.length / defaultPageSize))
-      expect(response.body.schools).toBeInstanceOf(Array<School>)
+      const paginatedSchoolsResponse = response.body as GetAllPaginatedSchoolDto
+      expect(paginatedSchoolsResponse.page).toBe(defaultPage)
+      expect(paginatedSchoolsResponse.totalPages).toBe(Math.ceil(schools.length / defaultPageSize))
+      expect(paginatedSchoolsResponse.schools).toBeInstanceOf(Array<School>)
     })
 
     it("gets certain page of all Schools (200)", async () => {
@@ -104,9 +114,10 @@ describe("SchoolsController (e2e)", () => {
         .set("Cookie", [`accessToken=${adminAccessToken}`])
         .expect(200)
       
-      expect(response.body.page).toBe(page)
-      expect(response.body.totalPages).toBe(Math.ceil(schools.length / defaultPageSize))
-      expect(response.body.schools).toBeInstanceOf(Array<School>)
+      const paginatedSchoolsResponse = response.body as GetAllPaginatedSchoolDto
+      expect(paginatedSchoolsResponse.page).toBe(page)
+      expect(paginatedSchoolsResponse.totalPages).toBe(Math.ceil(schools.length / defaultPageSize))
+      expect(paginatedSchoolsResponse.schools).toBeInstanceOf(Array<School>)
     })
 
     it("returns Forbidden (403)", async () => {
@@ -129,8 +140,9 @@ describe("SchoolsController (e2e)", () => {
         .send(data)
         .expect(201)
       
-      expect(response.body.id).toBeDefined()
-      expect(response.body.name).toBe(data.name)
+      const schoolResponse = response.body as School
+      expect(schoolResponse.id).toBeDefined()
+      expect(schoolResponse.name).toBe(data.name)
     })
 
     it("returns School with this name already exists (409)", async () => {
@@ -144,7 +156,8 @@ describe("SchoolsController (e2e)", () => {
         .send(data)
         .expect(409)
       
-      expect(response.body.message).toBe("School with this name already exists")
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("School with this name already exists")
     })
 
     it("returns Forbidden (403)", async () => {
@@ -169,12 +182,13 @@ describe("SchoolsController (e2e)", () => {
   
       const response = await request(app.getHttpServer())
         .patch(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${adminAccessToken}`])
         .send(data)
         .expect(200)
       
-      expect(response.body.id).toBe(id)
-      expect(response.body.name).toBe(data.name)
+      const schoolResponse = response.body as School
+      expect(schoolResponse.id).toBe(id)
+      expect(schoolResponse.name).toBe(data.name)
     })
 
     it("returns School with this name already exists (409)", async () => {
@@ -185,11 +199,12 @@ describe("SchoolsController (e2e)", () => {
   
       const response = await request(app.getHttpServer())
         .patch(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${adminAccessToken}`])
         .send(data)
         .expect(409)
       
-      expect(response.body.message).toBe("School with this name already exists")
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("School with this name already exists")
     })
 
     it("returns School not found (404)", async () => {
@@ -200,11 +215,25 @@ describe("SchoolsController (e2e)", () => {
   
       const response = await request(app.getHttpServer())
         .patch(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${adminAccessToken}`])
         .send(data)
         .expect(404)
       
-      expect(response.body.message).toBe("School not found")
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("School not found")
+    })
+
+    it("returns Forbidden (403)", async () => {
+      const id = schools[1].id
+      const data: UpdateSchoolDto = {
+        name: "NewSchool2"
+      }
+  
+      return await request(app.getHttpServer())
+        .patch(`/schools/${id}`)
+        .set("Cookie", [`accessToken=${accessToken}`])
+        .send(data)
+        .expect(403)
     })
   })
 
@@ -214,10 +243,11 @@ describe("SchoolsController (e2e)", () => {
   
       const response = await request(app.getHttpServer())
         .delete(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${adminAccessToken}`])
         .expect(200)
       
-      expect(response.body.id).toBe(id)
+      const schoolResponse = response.body as School
+      expect(schoolResponse.id).toBe(id)
     })
 
     it("returns School not found (404)", async () => {
@@ -225,10 +255,20 @@ describe("SchoolsController (e2e)", () => {
   
       const response = await request(app.getHttpServer())
         .delete(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${adminAccessToken}`])
         .expect(404)
       
-      expect(response.body.message).toBe("School not found")
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("School not found")
+    })
+
+    it("returns Forbidden (403)", async () => {
+      const id = schools[1].id
+  
+      return await request(app.getHttpServer())
+        .delete(`/schools/${id}`)
+        .set("Cookie", [`accessToken=${accessToken}`])
+        .expect(403)
     })
   })
 })
