@@ -12,7 +12,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
-      - run: turbo lint:report
+      - run: pnpm lint:report
         continue-on-error: true
       - uses: ataylorme/eslint-annotate-action@v2
         with:
@@ -20,15 +20,21 @@ jobs:
           report-json: "eslint_report.json"
           
   test:
-    # TODO: add test reporting
     needs: [lint]
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
     - uses: actions/checkout@v3
-    - run: docker-compose up -d --build
-    - run: docker-compose exec api npx turbo db:test
-    - run: docker-compose exec api npx turbo test
-    - run: docker-compose exec web npx turbo test
-    - run: docker-compose down
-      if: always()
+    - run: pnpm test
       
