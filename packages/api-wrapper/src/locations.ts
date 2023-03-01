@@ -2,14 +2,14 @@ import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocation
 import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
 
-const LOCATIONS_URL = `${process.env.NEXT_PUBLIC_API_URL}/locations`
+const LOCATIONS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/locations`
 
 export async function getAllLocations(page?: number): Promise<GetAllPaginatedLocationDto | null> {
   const query = new Query({
     page
   })
 
-  const response = await fetchHandler(LOCATIONS_URL + query)
+  const response = await fetchHandler(`${LOCATIONS_URL}${query.toString()}`)
   if (!response) {
     return null
   }

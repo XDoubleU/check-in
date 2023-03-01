@@ -12,8 +12,8 @@ export default function LocationDetail() {
   const [location, updateLocation] = useState<Location>()
 
   useEffect(() => {
-    getLocation(Router.query.id as string)
-      .then(data => {
+    void getLocation(Router.query.id as string)
+      .then((data) => {
         if (data) {
           updateLocation(data)
         } else {

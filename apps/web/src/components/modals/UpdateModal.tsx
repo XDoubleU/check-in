@@ -3,7 +3,7 @@ import { FormEvent, ReactElement, useState } from "react"
 import { Form, Modal } from "react-bootstrap"
 import CustomButton from "@/components/CustomButton"
 
-type UpdateModalProps = {
+interface UpdateModalProps {
   children: ReactElement | ReactElement[],
   handler: () => Promise<void>
 }
@@ -17,9 +17,9 @@ export default function UpdateModal({children, handler}: UpdateModalProps) {
   const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    handler()
+    await handler()
     
-    router.replace(router.asPath)
+    await router.replace(router.asPath)
     handleCloseUpdate()
   }
 
@@ -29,7 +29,7 @@ export default function UpdateModal({children, handler}: UpdateModalProps) {
         <Modal.Body>
           <Modal.Title>Update school</Modal.Title>
           <br/>
-          <Form onSubmit={handleUpdate}>
+          <Form onSubmit={() => handleUpdate}>
             {children}
             <br/>
             <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseUpdate}>Cancel</CustomButton>

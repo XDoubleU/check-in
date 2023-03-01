@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import { Module } from "@nestjs/common"
 import { LocationsController } from "./locations.controller"
 import { LocationsService } from "./locations.service"

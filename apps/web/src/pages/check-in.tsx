@@ -20,7 +20,7 @@ export default function CheckIn(){
   const handleShow = () => setShowSchools(true)
 
   useEffect(() => {
-    getMyLocation()
+    void getMyLocation()
       .then(data => {
         if(data) {
           setLocation(data)
@@ -71,7 +71,7 @@ export default function CheckIn(){
             <h1 className="bold" style={{"fontSize": "4rem"}}>KIES JE SCHOOL:</h1>
             <h2 style={{"fontSize": "3rem"}}>(scroll voor meer opties)</h2>
             <br/>
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={() => handleSubmit}>
               {
                 schools.map((school) => {
                   return (
@@ -97,7 +97,7 @@ export default function CheckIn(){
               <>
                 <h2>Nog <span id="count" className="bold">{location.available}</span> plekken vrij</h2>
                 <br/>
-                <Button className={`${styles.btnCheckIn} bold text-white`} onClick={loadSchools} disabled={isDisabled}>
+                <Button className={`${styles.btnCheckIn} bold text-white`} onClick={() => loadSchools} disabled={isDisabled}>
                   CHECK-IN
                 </Button>
               </>

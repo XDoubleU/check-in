@@ -5,7 +5,7 @@ import { ReqUser } from "../auth/decorators/user.decorator"
 @Controller("users")
 export class UsersController {
   @Get("me")
-  async getUserInfo(@ReqUser() user: User): Promise<User> {
+  getUserInfo(@ReqUser() user: User): User {
     return user
   }
 }

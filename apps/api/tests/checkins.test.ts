@@ -1,10 +1,10 @@
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { CreateCheckInDto, Location, School, User } from "types"
+import { CheckIn, CreateCheckInDto, Location, School, User } from "types"
 import { LocationsService } from "../src/locations/locations.service"
 import { UsersService } from "../src/users/users.service"
 import { SchoolsService } from "../src/schools/schools.service"
-import { clearDatabase, getAccessToken, getAdminAccessToken, getApp } from "./shared"
+import { clearDatabase, ErrorResponse, getAccessToken, getAdminAccessToken, getApp } from "./shared"
 
 
 describe("CheckInsController (e2e)", () => {
@@ -64,11 +64,12 @@ describe("CheckInsController (e2e)", () => {
         .send(data)
         .expect(201)
       
-      expect(response.body.id).toBeDefined()
-      expect(response.body.locationId).toBe(location.id)
-      expect(response.body.capacity).toBe(location.capacity)
-      expect(response.body.datetime).toBeDefined()
-      expect(response.body.schoolId).toBe(school.id)
+      const responseCheckIn = response.body as CheckIn
+      expect(responseCheckIn.id).toBeDefined()
+      expect(responseCheckIn.locationId).toBe(location.id)
+      expect(responseCheckIn.capacity).toBe(location.capacity)
+      expect(responseCheckIn.datetime).toBeDefined()
+      expect(responseCheckIn.schoolId).toBe(school.id)
     })
 
     it("returns Location not found (404)", async () => {
@@ -83,7 +84,8 @@ describe("CheckInsController (e2e)", () => {
         .send(data)
         .expect(404)
       
-      expect(response.body.message).toBe("Location not found")
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Location not found")
     })
 
     it("returns School not found (404)", async () => {
@@ -98,7 +100,8 @@ describe("CheckInsController (e2e)", () => {
         .send(data)
         .expect(404)
       
-      expect(response.body.message).toBe("School not found")
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("School not found")
     })
 
     it("returns Forbidden (403)", async () => {

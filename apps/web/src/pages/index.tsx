@@ -8,10 +8,10 @@ export default function Home() {
   const [user, setUser] = useState<User>()
 
   useEffect(() => {
-    getMyUser()
-      .then(data => {
+    void getMyUser()
+      .then(async (data) => {
         if (data === null) {
-          Router.push("/signin")
+          await Router.push("/signin")
         } else {
           setUser(data)
         }
@@ -23,9 +23,9 @@ export default function Home() {
   }
 
   if (user.roles.includes(Role.Admin)) {
-    Router.push("/settings")
+    void Router.push("/settings")
   } else {
-    Router.push("/check-in")
+    void Router.push("/check-in")
   }
 
   return <LoadingLayout/>

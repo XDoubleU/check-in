@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import { Module } from "@nestjs/common"
 import { CheckInsModule } from "./checkins/checkins.module"
 import { LocationsModule } from "./locations/locations.module"

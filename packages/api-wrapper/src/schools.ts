@@ -2,7 +2,7 @@ import { CreateSchoolDto, GetAllPaginatedSchoolDto, School, UpdateSchoolDto } fr
 import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
 
-const SCHOOLS_URL = `${process.env.NEXT_PUBLIC_API_URL}/schools`
+const SCHOOLS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/schools`
 
 export async function getAllSchools(page?: number, pageSize?: number): Promise<GetAllPaginatedSchoolDto | null> {
   const query = new Query({
@@ -10,7 +10,7 @@ export async function getAllSchools(page?: number, pageSize?: number): Promise<G
     pageSize
   })
 
-  const response = await fetchHandler(SCHOOLS_URL + query)
+  const response = await fetchHandler(`${SCHOOLS_URL}${query.toString()}`)
   if (!response) {
     return null
   }

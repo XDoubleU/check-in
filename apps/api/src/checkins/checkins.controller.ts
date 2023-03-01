@@ -1,4 +1,4 @@
-import { Body, Controller, NotFoundException, Post } from "@nestjs/common"
+import { Body, Controller, InternalServerErrorException, NotFoundException, Post } from "@nestjs/common"
 import { CheckInsService } from "./checkins.service"
 import { LocationsService } from "../locations/locations.service"
 import { SchoolsService } from "../schools/schools.service"
@@ -26,6 +26,11 @@ export class CheckInsController {
       throw new NotFoundException("School not found")
     }
     
-    return await this.checkInsService.create(location, school)
+    const checkin = await this.checkInsService.create(location, school)
+    if (!checkin) {
+      throw new InternalServerErrorException("Could not create CheckIn")
+    }
+
+    return checkin
   }
 }

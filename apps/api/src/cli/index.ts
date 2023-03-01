@@ -15,13 +15,13 @@ program.command("createadmin")
   .description("Creates an admin user")
   .option("-u, --username <string>", "username")
   .option("-p, --password <string>", "password")
-  .action(async (options) => {
+  .action(async (options: { username?: string, password?: string }) => {
     let promptResponse = {
       username: "",
       password: ""
     }
 
-    if (options.username !== undefined && options.password !== undefined){
+    if (options.username && options.password){
       promptResponse = {
         username: options.username,
         password: options.password
@@ -53,18 +53,13 @@ program.command("createadmin")
     }
 
     const passwordHash = hashSync(promptResponse.password, 12)
-    const result = await prisma.user.create({
+    await prisma.user.create({
       data: {
         username: promptResponse.username,
         passwordHash: passwordHash,
         roles: [Role.Admin]
       }
     })
-
-    if (!result) {
-      console.log("Something went wrong")
-      return
-    }
 
     console.log("Admin added")
     process.exit(0)

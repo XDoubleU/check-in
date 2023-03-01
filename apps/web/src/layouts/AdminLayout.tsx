@@ -1,7 +1,7 @@
 import { ReactNode } from "react"
 import BaseLayout from "@/layouts/BaseLayout"
 
-type AdminLayoutProps = {
+interface AdminLayoutProps {
   children: ReactNode,
   title: string
 }

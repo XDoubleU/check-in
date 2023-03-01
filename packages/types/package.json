@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . && tsc --noEmit",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "lint:report": "eslint . --output-file eslint_report.json --format json src"
   },
   "dependencies": {
     "class-validator": "^0.14.0",

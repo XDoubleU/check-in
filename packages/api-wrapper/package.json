@@ -6,6 +6,7 @@
     "build": "tsc",
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
+    "lint:report": "eslint . --output-file eslint_report.json --format json src",
     "test": "jest",
     "test:cov": "jest --coverage"
   },

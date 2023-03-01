@@ -7,7 +7,7 @@ import { deleteLocation, updateLocation } from "api-wrapper"
 
 type LocationUpdateProps = Omit<LocationCardProps, "normalizedName">
 
-type LocationCardProps = {
+interface LocationCardProps {
   id: string, 
   name: string,
   normalizedName: string,

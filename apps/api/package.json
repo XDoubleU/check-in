@@ -10,6 +10,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
+    "lint:report": "eslint . --output-file eslint_report.json --format json src",
     "test": "jest --runInBand",
     "test:cov": "jest --coverage --runInBand",
     "cli": "node dist/src/cli/index.js"
