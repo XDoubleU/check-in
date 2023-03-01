@@ -1,8 +1,8 @@
-import { Location as dbLocation, User as dbUser } from "database"
+import { Location as dbLocation, User as dbUser } from "prisma-database"
 
-export type { CheckIn, School, User as UserWithPasswordHash } from "database"
+export type { CheckIn, School, User as UserWithPasswordHash } from "prisma-database"
 
-export { Role } from "database"
+export { Role } from "prisma-database"
 
 export type BaseLocation = Omit<dbLocation, "userId"> & { user: Omit<dbUser, "passwordHash"|"roles"> }
 

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { UsersService } from "../users/users.service"
-import { Tokens, User } from "types"
+import { Tokens, User } from "types-custom"
 import { JwtService } from "@nestjs/jwt"
 import { Response } from "express"
 

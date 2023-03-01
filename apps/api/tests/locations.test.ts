@@ -1,6 +1,6 @@
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto, User } from "types"
+import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto, User } from "types-custom"
 import { clearDatabase, ErrorResponse, getAccessToken, getAdminAccessToken, getApp } from "./shared"
 import { LocationsService } from "../src/locations/locations.service"
 import { UsersService } from "../src/users/users.service"

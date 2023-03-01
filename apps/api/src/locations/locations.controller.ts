@@ -1,7 +1,7 @@
 import { BadRequestException, Body, ConflictException, Controller, Delete, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
 import { LocationsService } from "./locations.service"
 import { UsersService } from "../users/users.service"
-import { CreateLocationDto, GetAllPaginatedLocationDto, Location, Role, UpdateLocationDto, User } from "types"
+import { CreateLocationDto, GetAllPaginatedLocationDto, Location, Role, UpdateLocationDto, User } from "types-custom"
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { Roles } from "../auth/decorators/roles.decorator"
 

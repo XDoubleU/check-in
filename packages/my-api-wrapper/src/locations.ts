@@ -1,4 +1,4 @@
-import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto } from "types"
+import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto } from "types-custom"
 import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
 

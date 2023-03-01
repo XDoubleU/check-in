@@ -1,4 +1,4 @@
-import { CheckIn, CreateCheckInDto } from "types"
+import { CheckIn, CreateCheckInDto } from "types-custom"
 import { fetchHandler } from "./fetchHandler"
 
 const CHECKIN_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/checkins`

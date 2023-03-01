@@ -1,8 +1,8 @@
 import LoadingLayout from "@/layouts/LoadingLayout"
-import { getMyUser } from "api-wrapper"
+import { getMyUser } from "my-api-wrapper"
 import Router from "next/router"
 import { useEffect, useState } from "react"
-import { Role, User } from "types"
+import { Role, User } from "types-custom"
 
 export default function Home() {
   const [user, setUser] = useState<User>()

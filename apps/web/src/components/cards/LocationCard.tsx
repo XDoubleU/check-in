@@ -3,7 +3,7 @@ import { Card, Form } from "react-bootstrap"
 import Link from "next/link"
 import UpdateModal from "@/components/modals/UpdateModal"
 import DeleteModal from "@/components/modals/DeleteModal"
-import { deleteLocation, updateLocation } from "api-wrapper"
+import { deleteLocation, updateLocation } from "my-api-wrapper"
 
 type LocationUpdateProps = Omit<LocationCardProps, "normalizedName">
 

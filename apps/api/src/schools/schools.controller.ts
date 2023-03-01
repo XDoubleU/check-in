@@ -1,6 +1,6 @@
 import { Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
 import { SchoolsService } from "./schools.service"
-import { CreateSchoolDto, GetAllPaginatedSchoolDto, Role, School, UpdateSchoolDto, User } from "types"
+import { CreateSchoolDto, GetAllPaginatedSchoolDto, Role, School, UpdateSchoolDto, User } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { ReqUser } from "../auth/decorators/user.decorator"
 

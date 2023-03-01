@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Card, Form } from "react-bootstrap"
 import UpdateModal from "@/components/modals/UpdateModal"
 import DeleteModal from "@/components/modals/DeleteModal"
-import { deleteSchool, updateSchool } from "api-wrapper"
+import { deleteSchool, updateSchool } from "my-api-wrapper"
 
 interface SchoolCardProps {
   id: number,

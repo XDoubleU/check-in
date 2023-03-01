@@ -1,6 +1,6 @@
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { CheckIn, CreateCheckInDto, Location, School, User } from "types"
+import { CheckIn, CreateCheckInDto, Location, School, User } from "types-custom"
 import { LocationsService } from "../src/locations/locations.service"
 import { UsersService } from "../src/users/users.service"
 import { SchoolsService } from "../src/schools/schools.service"
