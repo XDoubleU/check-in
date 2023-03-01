@@ -7,7 +7,6 @@ async function main() {
     where: { name: "Andere" },
     update: {},
     create: {
-      id: 1,
       name: "Andere"
     }
   })

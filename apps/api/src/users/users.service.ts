@@ -1,19 +1,19 @@
 import { Injectable } from "@nestjs/common"
-import { User, UserWithPasswordHash } from "types"
-import { hashSync } from "bcrypt"
+import { BaseUser, User } from "types"
+import { compareSync, hashSync } from "bcrypt"
 import { PrismaService } from "../prisma.service"
 
 @Injectable()
 export class UsersService extends PrismaService {
   async getById(id: string): Promise<User | null> {
-    return await this.user.findFirst({
+    const user = await this.user.findFirst({
       where: {
         id: id
       },
       select: {
         id: true,
         username: true,
-        isAdmin: true,
+        role: true,
         location: {
           select: {
             id: true
@@ -21,14 +21,50 @@ export class UsersService extends PrismaService {
         }
       }
     })
+
+    if (!user) {
+      return null
+    }
+
+    return this.computeUser(user)
   }
 
-  async getByUserName(username: string): Promise<UserWithPasswordHash | null> {
-    return await this.user.findFirst({
+  async getByUserName(username: string): Promise<User | null> {
+    const user = await this.user.findFirst({
+      where: {
+        username: username
+      },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        location: {
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    if (!user) {
+      return null
+    }
+
+    return this.computeUser(user)
+  }
+
+  async checkPassword(username: string, password: string): Promise<boolean> {
+    const user = await this.user.findFirst({
       where: {
         username: username
       }
     })
+
+    if (!user) {
+      return false
+    }
+
+    return compareSync(password, user.passwordHash)
   }
 
   async create(username: string, password: string): Promise<User | null> {
@@ -62,5 +98,14 @@ export class UsersService extends PrismaService {
         id: user.id
       }
     })
+  }
+
+  private async computeUser(user: BaseUser): Promise<User> {
+    return {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      locationId: user.location?.id
+    }
   }
 }

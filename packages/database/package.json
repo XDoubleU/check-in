@@ -10,9 +10,10 @@
   },
   "scripts": {
     "build": "tsc",
+    "db:test": "prisma migrate reset --force",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:seed": "prisma db seed"
+    "db:migrate-dev": "prisma migrate dev",
+    "db:migrate-prod": "prisma migrate deploy"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
