@@ -2,7 +2,7 @@ import { Body, Controller, InternalServerErrorException, NotFoundException, Post
 import { CheckInsService } from "./checkins.service"
 import { LocationsService } from "../locations/locations.service"
 import { SchoolsService } from "../schools/schools.service"
-import { CheckIn, CreateCheckInDto, Role } from "types"
+import { CheckIn, CreateCheckInDto, Role } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
 
 @Controller("checkins")

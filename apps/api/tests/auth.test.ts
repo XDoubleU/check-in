@@ -1,6 +1,6 @@
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { SignInDto, User } from "types"
+import { SignInDto, User } from "types-custom"
 import { LocationsService } from "../src/locations/locations.service"
 import { UsersService } from "../src/users/users.service"
 import { clearDatabase, ErrorResponse, getApp, RequestHeaders } from "./shared"

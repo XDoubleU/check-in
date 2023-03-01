@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { BaseLocation, CheckIn, Location, User } from "types"
+import { BaseLocation, CheckIn, Location, User } from "types-custom"
 import { PrismaService } from "../prisma.service"
 import { SseService } from "../sse/sse.service"
 
@@ -236,9 +236,7 @@ export class LocationsService extends PrismaService {
 
     const result: Location[] = []
     locations.forEach((location) => {
-      const checkIns = checkInsToday.filter(checkIn => {
-        return checkIn.locationId === location.id
-      })
+      const checkIns = checkInsToday.filter(checkIn => { return checkIn.locationId === location.id })
       result.push(this.transformLocation(location, checkIns))
     })
 

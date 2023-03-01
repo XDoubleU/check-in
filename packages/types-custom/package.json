@@ -1,5 +1,5 @@
 {
-  "name": "types",
+  "name": "types-custom",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "scripts": {
@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "class-validator": "^0.14.0",
-    "database": "*"
+    "prisma-database": "*"
   },
   "devDependencies": {
     "eslint-config-custom": "*",
-    "tsconfig": "*"
+    "tsconfig-custom": "*"
   }
 }

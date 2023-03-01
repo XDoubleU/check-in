@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { BaseUser, User } from "types"
+import { BaseUser, User } from "types-custom"
 import { compareSync, hashSync } from "bcrypt"
 import { PrismaService } from "../prisma.service"
 

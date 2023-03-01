@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Res, UnauthorizedException, UseGuards } from "@nestjs/common"
 import { AuthService } from "./auth.service"
-import { SignInDto, User } from "types"
+import { SignInDto, User } from "types-custom"
 import { RefreshTokenGuard } from "./guards/refreshToken.guard"
 import { Response } from "express"
 import { Public } from "./decorators/public.decorator"

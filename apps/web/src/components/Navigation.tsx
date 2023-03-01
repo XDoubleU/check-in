@@ -1,8 +1,8 @@
-import { getMyUser, signOut } from "api-wrapper"
+import { getMyUser, signOut } from "my-api-wrapper"
 import Router, { useRouter } from "next/router"
 import { MouseEventHandler, useEffect, useState } from "react"
 import { Container, Nav, Navbar } from "react-bootstrap"
-import { Role, User } from "types"
+import { Role, User } from "types-custom"
 
 interface NavItemProps {
   children: string,

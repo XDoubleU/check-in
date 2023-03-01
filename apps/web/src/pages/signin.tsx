@@ -3,7 +3,7 @@ import styles from "./signin.module.css"
 import { Col, Form } from "react-bootstrap"
 import BaseLayout from "@/layouts/BaseLayout"
 import CustomButton from "@/components/CustomButton"
-import { signin } from "api-wrapper"
+import { signin } from "my-api-wrapper"
 import Router from "next/router"
 
 // TODO: implement remember me

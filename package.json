@@ -1,9 +1,22 @@
 {
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev": "dotenv -- turbo dev",
+    "build": "turbo build",
+    "prod": "turbo prod",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
+    "lint:report": "turbo lint:report",
+    "test": "dotenv -- turbo test",
+    "test:cov": "dotenv -- turbo test:cov",
+    "test:report": "dotenv -- turbo test:report",
+    "db:generate": "dotenv -- turbo db:generate",
+    "db:migrate-dev": "dotenv -- turbo db:migrate-dev",
+    "db:migrate-prod": "dotenv -- turbo db:migrate-prod",
+    "cli": "dotenv -- turbo cli"
+  },
   "dependencies": {
-    "turbo": "^1.8.2"
+    "dotenv-cli": "^7.0.0",
+    "turbo": "^1.8.3"
   }
 }

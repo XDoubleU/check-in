@@ -2,25 +2,35 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
     "NODE_ENV",
-    "DATABASE_URL",
+    "PORT",
     "WEB_URL",
+    "API_PORT",
+    "NEXT_PUBLIC_API_URL",
+    "DATABASE_URL",
     "JWT_ACCESS_SECRET",
     "JWT_ACCESS_EXPIRATION",
     "JWT_REFRESH_SECRET",
-    "JWT_REFRESH_EXPIRATION",
-    "NEXT_PUBLIC_API_URL"
+    "JWT_REFRESH_EXPIRATION"
   ],
   "pipeline": {
+    "dev": {},
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["db:generate", "^build"]
     },
+    "prod": {},
     "lint": {},
     "lint:fix": {},
     "lint:report": {},
     "test": {
+      "dependsOn": ["db:generate", "db:test", "build"],
       "cache": false
     },
     "test:cov": {
+      "dependsOn": ["db:generate", "db:test", "build"],
+      "cache": false
+    },
+    "test:report": {
+      "dependsOn": ["db:generate", "db:test", "build"],
       "cache": false
     },
     "db:test": {

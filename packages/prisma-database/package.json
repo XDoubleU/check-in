@@ -1,12 +1,14 @@
 {
-  "name": "database",
+  "name": "prisma-database",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@prisma/client": "latest"
+    "@prisma/client": "^4.11.0"
   },
   "devDependencies": {
-    "prisma": "latest"
+    "prisma": "^4.11.0",
+    "tsconfig-custom": "*",
+    "@types/node": "^18.14.2"
   },
   "scripts": {
     "build": "tsc",

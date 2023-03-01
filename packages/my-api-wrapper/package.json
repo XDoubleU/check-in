@@ -1,5 +1,5 @@
 {
-  "name": "api-wrapper",
+  "name": "my-api-wrapper",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "scripts": {
@@ -13,11 +13,11 @@
   "dependencies": {
     "@types/jest": "^29.4.0",
     "jest": "^29.4.3",
-    "types": "*"
+    "types-custom": "*"
   },
   "devDependencies": {
-    "@types/node": "^18.14.1",
+    "@types/node": "^18.14.2",
     "eslint-config-custom": "*",
-    "tsconfig": "*"
+    "tsconfig-custom": "*"
   }
 }

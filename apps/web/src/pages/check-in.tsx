@@ -3,10 +3,10 @@ import Modal from "react-bootstrap/Modal"
 import { SyntheticEvent, useEffect, useState } from "react"
 import styles from "./check-in.module.css"
 import { Container, Form } from "react-bootstrap"
-import { Location, School } from "types"
+import { Location, School } from "types-custom"
 import BaseLayout from "@/layouts/BaseLayout"
 import CustomButton from "@/components/CustomButton"
-import { createCheckIn, getAllSchools, getMyLocation } from "api-wrapper"
+import { createCheckIn, getAllSchools, getMyLocation } from "my-api-wrapper"
 import LoadingLayout from "@/layouts/LoadingLayout"
 
 // TODO

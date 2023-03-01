@@ -1,8 +1,8 @@
 import { Command } from "commander"
 import prompts from "prompts"
 import { hashSync } from "bcrypt"
-import { PrismaClient } from "@prisma/client"
-import { Role } from "types"
+import { PrismaClient } from "prisma-database"
+import { Role } from "types-custom"
 
 const prisma = new PrismaClient()
 const program = new Command()

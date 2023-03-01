@@ -1,6 +1,6 @@
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { CreateSchoolDto, GetAllPaginatedSchoolDto, School, UpdateSchoolDto, User } from "types"
+import { CreateSchoolDto, GetAllPaginatedSchoolDto, School, UpdateSchoolDto, User } from "types-custom"
 import { SchoolsService } from "../src/schools/schools.service"
 import { clearDatabase, ErrorResponse, getAccessToken, getAdminAccessToken, getApp } from "./shared"
 import { CheckInsService } from "../src/checkins/checkins.service"

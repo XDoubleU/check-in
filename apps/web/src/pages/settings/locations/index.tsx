@@ -2,11 +2,11 @@ import CustomButton from "@/components/CustomButton"
 import CustomPagination, { CustomPaginationProps } from "@/components/CustomPagination"
 import LocationCard from "@/components/cards/LocationCard"
 import AdminLayout from "@/layouts/AdminLayout"
-import { Location } from "types"
+import { Location } from "types-custom"
 import { useRouter } from "next/router"
 import { FormEvent, useCallback, useEffect, useState } from "react"
 import { Col, Form, Modal } from "react-bootstrap"
-import { createLocation, getAllLocations } from "api-wrapper"
+import { createLocation, getAllLocations } from "my-api-wrapper"
 
 interface LocationList {
   locations: Location[],

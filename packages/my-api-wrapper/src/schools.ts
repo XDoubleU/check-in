@@ -1,4 +1,4 @@
-import { CreateSchoolDto, GetAllPaginatedSchoolDto, School, UpdateSchoolDto } from "types"
+import { CreateSchoolDto, GetAllPaginatedSchoolDto, School, UpdateSchoolDto } from "types-custom"
 import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
 

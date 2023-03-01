@@ -1,6 +1,6 @@
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { User } from "types"
+import { User } from "types-custom"
 import { LocationsService } from "../src/locations/locations.service"
 import { UsersService } from "../src/users/users.service"
 import { clearDatabase, getApp } from "./shared"

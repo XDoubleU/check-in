@@ -1,0 +1,4 @@
+{
+  "name": "tsconfig-custom",
+  "files": ["base.json", "nextjs.json"]
+}
