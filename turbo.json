@@ -2,27 +2,53 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
     "NODE_ENV",
-    "DATABASE_URL",
+    "PORT",
     "WEB_URL",
+    "API_PORT",
+    "NEXT_PUBLIC_API_URL",
+    "DATABASE_URL",
     "JWT_ACCESS_SECRET",
     "JWT_ACCESS_EXPIRATION",
     "JWT_REFRESH_SECRET",
-    "JWT_REFRESH_EXPIRATION",
-    "NEXT_PUBLIC_API_URL"
+    "JWT_REFRESH_EXPIRATION"
   ],
   "pipeline": {
+    "dev": {},
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^db:generate", "^build"]
     },
-    "lint": {},
-    "lint:fix": {},
+    "prod": {},
+    "lint": {
+      "dependsOn": ["^db:generate", "^lint"]
+    },
+    "lint:fix": {
+      "dependsOn": ["^db:generate", "^lint:fix"]
+    },
+    "lint:report": {
+      "dependsOn": ["^db:generate", "^lint:report"]
+    },
+    "test": {
+      "dependsOn": ["^db:generate", "^db:test", "^build"],
+      "cache": false
+    },
+    "test:cov": {
+      "dependsOn": ["^db:generate", "^db:test", "^build"],
+      "cache": false
+    },
+    "test:report": {
+      "dependsOn": ["^db:generate", "^db:test", "^build"],
+      "cache": false
+    },
+    "db:test": {
+      "cache": false
+    },
     "db:generate": {
       "cache": false
     },
-    "db:push": {
+    "db:migrate-dev": {
       "cache": false
     },
-    "db:seed": {
+    "db:migrate-prod": {
       "cache": false
     },
     "cli": {}

@@ -2,13 +2,13 @@ import CustomButton from "@/components/CustomButton"
 import CustomPagination, { CustomPaginationProps } from "@/components/CustomPagination"
 import SchoolCard from "@/components/cards/SchoolCard"
 import AdminLayout from "@/layouts/AdminLayout"
-import { School } from "types"
-import { createSchool, getAllSchools } from "api-wrapper"
+import { School } from "types-custom"
+import { createSchool, getAllSchools } from "my-api-wrapper"
 import { useRouter } from "next/router"
 import { FormEvent, useCallback, useEffect, useState } from "react"
 import { Col, Form, Modal } from "react-bootstrap"
 
-type SchoolList = {
+interface SchoolList {
   schools: School[],
   pagination: CustomPaginationProps
 }
@@ -34,10 +34,10 @@ export default function SchoolList() {
   useEffect(() => {
     if(!router.isReady) return
     const page = router.query.page ? parseInt(router.query.page as string) : undefined
-    getAllSchools(page)
-      .then(data => {
+    void getAllSchools(page)
+      .then(async (data) => {
         if (!data) {
-          router.push("/signin")
+          await router.push("/signin")
           return
         }
 
@@ -70,7 +70,7 @@ export default function SchoolList() {
         <Modal.Body>
           <Modal.Title>Create school</Modal.Title>
           <br/>
-          <Form onSubmit={handleCreate}>
+          <Form onSubmit={() => handleCreate}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control type="text" placeholder="Name" value={createInfo.name} onChange={({ target}) => setCreateInfo({ ...createInfo, name: target.value })}></Form.Control>

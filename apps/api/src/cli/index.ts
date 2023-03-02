@@ -1,7 +1,8 @@
 import { Command } from "commander"
 import prompts from "prompts"
 import { hashSync } from "bcrypt"
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "prisma-database"
+import { Role } from "types-custom"
 
 const prisma = new PrismaClient()
 const program = new Command()
@@ -14,13 +15,13 @@ program.command("createadmin")
   .description("Creates an admin user")
   .option("-u, --username <string>", "username")
   .option("-p, --password <string>", "password")
-  .action(async (options) => {
+  .action(async (options: { username?: string, password?: string }) => {
     let promptResponse = {
       username: "",
       password: ""
     }
 
-    if (options.username !== undefined && options.password !== undefined){
+    if (options.username && options.password){
       promptResponse = {
         username: options.username,
         password: options.password
@@ -46,24 +47,19 @@ program.command("createadmin")
       }
     })
 
-    if (existingUser !== null) {
+    if (existingUser) {
       console.log("This username is already used")
       return
     }
 
     const passwordHash = hashSync(promptResponse.password, 12)
-    const result = await prisma.user.create({
+    await prisma.user.create({
       data: {
         username: promptResponse.username,
         passwordHash: passwordHash,
-        isAdmin: true
+        roles: [Role.Admin]
       }
     })
-
-    if (result === null || result === undefined) {
-      console.log("Something went wrong")
-      return
-    }
 
     console.log("Admin added")
     process.exit(0)

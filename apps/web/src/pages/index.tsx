@@ -1,17 +1,17 @@
 import LoadingLayout from "@/layouts/LoadingLayout"
-import { getMyUser } from "api-wrapper"
+import { getMyUser } from "my-api-wrapper"
 import Router from "next/router"
 import { useEffect, useState } from "react"
-import { User } from "types"
+import { Role, User } from "types-custom"
 
 export default function Home() {
   const [user, setUser] = useState<User>()
 
   useEffect(() => {
-    getMyUser()
-      .then(data => {
+    void getMyUser()
+      .then(async (data) => {
         if (data === null) {
-          Router.push("/signin")
+          await Router.push("/signin")
         } else {
           setUser(data)
         }
@@ -22,10 +22,10 @@ export default function Home() {
     return <LoadingLayout/>
   }
 
-  if (user.isAdmin) {
-    Router.push("/settings")
+  if (user.roles.includes(Role.Admin)) {
+    void Router.push("/settings")
   } else {
-    Router.push("/check-in")
+    void Router.push("/check-in")
   }
 
   return <LoadingLayout/>

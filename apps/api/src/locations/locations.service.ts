@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { BaseLocation, CheckIn, Location, User } from "types"
+import { BaseLocation, CheckIn, Location, User } from "types-custom"
 import { PrismaService } from "../prisma.service"
 import { SseService } from "../sse/sse.service"
 
@@ -13,7 +13,25 @@ export class LocationsService extends PrismaService {
     return await this.location.count()
   }
   
-  async getAll(page: number, pageSize: number): Promise<Location[]> {
+  async getAll(): Promise<Location[]> {
+    const locations = await this.location.findMany({
+      select: {
+        id: true,
+        name: true,
+        capacity: true,
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
+      }
+    })
+
+    return this.computeLocations(locations)
+  }
+
+  async getAllPaged(page: number, pageSize: number): Promise<Location[]> {
     const locations = await this.location.findMany({
       orderBy: {
         name: "asc"
@@ -22,7 +40,12 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       },
       take: pageSize,
       skip: (page - 1) * pageSize
@@ -40,27 +63,12 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
-      }
-    })
-
-    if (!location) {
-      return null
-    }
-
-    return this.computeLocation(location)
-  }
-
-  async getByUserId(userId: string): Promise<Location | null> {
-    const location = await this.location.findFirst({
-      where: {
-        userId: userId
-      },
-      select: {
-        id: true,
-        name: true,
-        capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
 
@@ -80,7 +88,12 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
 
@@ -91,7 +104,7 @@ export class LocationsService extends PrismaService {
     return this.computeLocation(location)
   }
 
-  async create(name: string, capacity: number, user: User): Promise<Location | null> {
+  async create(name: string, capacity: number, user: User): Promise<Location> {
     const location = await this.location.create({
       data: {
         name: name,
@@ -102,18 +115,19 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
-
-    if (!location) {
-      return null
-    }
 
     return this.computeLocation(location)
   }
 
-  async update(location: Location, name?: string, capacity?: number): Promise<Location | null> {
+  async update(location: Location, name?: string, capacity?: number): Promise<Location> {
     const result = await this.location.update({
       where: {
         id: location.id
@@ -126,20 +140,21 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
-
-    if (!result) {
-      return null
-    }
 
     const computedLocation = await this.computeLocation(result)
     this.sseService.addLocationUpdate(computedLocation)
     return computedLocation
   }
 
-  async delete(location: Location): Promise<Location | null> {
+  async delete(location: Location): Promise<Location> {
     const result = await this.location.delete({
       where: {
         id: location.id
@@ -148,13 +163,14 @@ export class LocationsService extends PrismaService {
         id: true,
         name: true,
         capacity: true,
-        user: true
+        user: {
+          select: {
+            id: true,
+            username: true
+          }
+        }
       }
     })
-
-    if (!result) {
-      return null
-    }
 
     return this.computeLocation(result)
   }
@@ -220,9 +236,7 @@ export class LocationsService extends PrismaService {
 
     const result: Location[] = []
     locations.forEach((location) => {
-      const checkIns = checkInsToday.filter(checkIn => {
-        return checkIn.locationId === location.id
-      })
+      const checkIns = checkInsToday.filter(checkIn => { return checkIn.locationId === location.id })
       result.push(this.transformLocation(location, checkIns))
     })
 

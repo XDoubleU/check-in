@@ -1,8 +1,9 @@
-import { BadRequestException, Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, Req } from "@nestjs/common"
+import { BadRequestException, Body, ConflictException, Controller, Delete, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
 import { LocationsService } from "./locations.service"
 import { UsersService } from "../users/users.service"
-import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto } from "types"
-import { TokenRequest } from "../auth/auth.controller"
+import { CreateLocationDto, GetAllPaginatedLocationDto, Location, Role, UpdateLocationDto, User } from "types-custom"
+import { ReqUser } from "../auth/decorators/user.decorator"
+import { Roles } from "../auth/decorators/roles.decorator"
 
 @Controller("locations")
 export class LocationsController {
@@ -11,12 +12,13 @@ export class LocationsController {
     private readonly usersService: UsersService
   ) {}
 
+  @Roles(Role.Admin)
   @Get()
   async getAll(@Query("page") queryPage?: string): Promise<GetAllPaginatedLocationDto> {
     const pageSize = 3
     const page = queryPage ? parseInt(queryPage) : 1
     const count = await this.locationsService.getTotalCount()
-    const locations = await this.locationsService.getAll(page, pageSize)
+    const locations = await this.locationsService.getAllPaged(page, pageSize)
 
     return {
       page: page,
@@ -25,116 +27,94 @@ export class LocationsController {
     }
   }
 
+  @Roles(Role.User)
   @Get("me")
-  async getMyLocation(@Req() req: TokenRequest): Promise<Location> {
-    const user = await this.usersService.getById(req.user.sub)
-    if (!user || !user.locationId) {
-      throw new NotFoundException()
+  async getMyLocation(@ReqUser() user: User): Promise<Location> {
+    if (!user.locationId) {
+      throw new BadRequestException()
     }
-    
+
     const location = await this.locationsService.getById(user.locationId)
     if (!location) {
-      throw new NotFoundException()
+      throw new NotFoundException("Location not found")
     }
 
     return location
   }
 
   @Get(":id")
-  async get(@Param("id") id: string): Promise<Location> {
+  async get(@ReqUser() user: User, @Param("id") id: string): Promise<Location> {
     const location = await this.locationsService.getById(id)
-    if (location === null) {
+    if (!location || (!user.roles.includes(Role.Admin) && location.user.id !== user.id)) {
       throw new NotFoundException("Location not found")
     }
 
     return location
   }
 
+  @Roles(Role.Admin)
   @Post()
   async create(@Body() createLocationDto: CreateLocationDto): Promise <Location> {
     const existingLocation = await this.locationsService.getByName(createLocationDto.name)
-    if (existingLocation !== null) {
+    if (existingLocation) {
       throw new ConflictException("Location with this name already exists")
     }
 
     const existingUser = await this.usersService.getByUserName(createLocationDto.username)
-    if (existingUser !== null) {
+    if (existingUser) {
       throw new ConflictException("User with this username already exists")
     }
 
     const user = await this.usersService.create(createLocationDto.username, createLocationDto.password)
-    if (user === null) {
-      throw new BadRequestException()
-    }
-
-    const location = await this.locationsService.create(createLocationDto.name, createLocationDto.capacity, user)
-    if (location === null) {
-      throw new BadRequestException()
-    }
-
-    return location
+    return await this.locationsService.create(createLocationDto.name, createLocationDto.capacity, user)
   }
 
   @Patch(":id")
-  async update(@Param("id") id: string, @Body() updateLocationDto: UpdateLocationDto): Promise<Location> {
+  async update(@ReqUser() reqUser: User, @Param("id") id: string, @Body() updateLocationDto: UpdateLocationDto): Promise<Location> {
+    const location = await this.locationsService.getById(id)
+    if (!location || (!reqUser.roles.includes(Role.Admin) && location.user.id !== reqUser.id)) {
+      throw new NotFoundException("Location not found")
+    }
+    
     if (updateLocationDto.name) {
       const existingLocation = await this.locationsService.getByName(updateLocationDto.name)
       if (existingLocation) {
-        throw new ConflictException()
+        throw new ConflictException("Location with this name already exists")
       }
     }
 
     if (updateLocationDto.username) {
       const existingUser = await this.usersService.getByUserName(updateLocationDto.username)
       if (existingUser) {
-        throw new ConflictException()
+        throw new ConflictException("User with this username already exists")
       }
     }
-    
-    let location = await this.locationsService.getById(id)
-    if (location === null) {
-      throw new NotFoundException("Location not found")
+
+    const user = await this.usersService.getById(location.user.id)
+    if (!user) {
+      throw new InternalServerErrorException("User from location couldn't be fetched")
     }
 
-    let user = await this.usersService.getById(location.user.id)
-    if (user === null) {
-      throw new NotFoundException("User not found")
-    }
+    await this.usersService.update(user, updateLocationDto.username, updateLocationDto.password)
 
-    user = await this.usersService.update(user, updateLocationDto.username, updateLocationDto.password)
-    if (user === null) {
-      throw new BadRequestException()
-    }
-
-    location = await this.locationsService.update(location, updateLocationDto.name, updateLocationDto.capacity)
-    if (location === null) {
-      throw new BadRequestException()
-    }
-
-    return location
+    return await this.locationsService.update(location, updateLocationDto.name, updateLocationDto.capacity)
   }
 
+  @Roles(Role.Admin)
   @Delete(":id")
   async delete(@Param("id") id: string): Promise<Location> {
     let location = await this.locationsService.getById(id)
-    if (location === null) {
+    if (!location) {
       throw new NotFoundException("Location not found")
     }
 
-    let user = await this.usersService.getById(location.user.id)
-    if (user === null) {
-      throw new NotFoundException("User not found")
+    const user = await this.usersService.getById(location.user.id)
+    if (!user) {
+      throw new InternalServerErrorException("User from location couldn't be fetched")
     }
 
     location = await this.locationsService.delete(location)
-    if (location === null) {
-      throw new BadRequestException()
-    }
-    
-    user = await this.usersService.delete(user)
-    if (user === null) {
-      throw new BadRequestException()
-    }
+    await this.usersService.delete(user)
 
     return location
   }

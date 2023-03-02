@@ -5,14 +5,16 @@ module.exports = {
   ],
   extends: [
     "turbo",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:@typescript-eslint/strict"
   ],
   root: true,
   env: {
     "node": true,
     "jest": true
   },
-  ignorePatterns: [".eslintrc.js", "*.config.*", "**/dist/**", "**test**"],
+  ignorePatterns: [".eslintrc.js", "*.config.*", "**/dist/**", "**/coverage/**"],
   rules: {
     "@typescript-eslint/no-unused-vars": [
       "error",

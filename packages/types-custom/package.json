@@ -1,0 +1,19 @@
+{
+  "name": "types-custom",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . && tsc --noEmit",
+    "lint:fix": "eslint . --fix",
+    "lint:report": "eslint . --output-file eslint_report.json --format json src"
+  },
+  "dependencies": {
+    "class-validator": "^0.14.0",
+    "prisma-database": "*"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "*",
+    "tsconfig-custom": "*"
+  }
+}

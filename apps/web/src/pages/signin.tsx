@@ -1,21 +1,21 @@
-import { FormEventHandler, useState } from "react"
+import { FormEvent, useState } from "react"
 import styles from "./signin.module.css"
 import { Col, Form } from "react-bootstrap"
 import BaseLayout from "@/layouts/BaseLayout"
 import CustomButton from "@/components/CustomButton"
-import { signin } from "api-wrapper"
+import { signin } from "my-api-wrapper"
 import Router from "next/router"
 
 // TODO: implement remember me
 
 export default function SignIn(){
   const [userInfo, setUserInfo] = useState({ username: "", password: "", rememberMe: false})
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const response = await signin(userInfo.username, userInfo.password)
     if (response === null) {
-      Router.push("/")
+      await Router.push("/")
     } else {
       console.log(response)
     }
@@ -27,7 +27,7 @@ export default function SignIn(){
         <h1 className="text-center">Sign In</h1>
         <br/>
 
-        <Form className={styles.customForm} onSubmit={handleSubmit}>
+        <Form className={styles.customForm} onSubmit={() => handleSubmit}>
           <Form.Group className="mb-3">
             <Form.Label>Username</Form.Label>
             <Form.Control type="text" placeholder="Username" value={userInfo.username} onChange={({ target}) => setUserInfo({ ...userInfo, username: target.value })} required ></Form.Control>

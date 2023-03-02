@@ -1,21 +1,11 @@
-import { Controller, Get, NotFoundException, Req } from "@nestjs/common"
-import { UsersService } from "./users.service"
-import { TokenRequest } from "../auth/auth.controller"
-import { User } from "types"
+import { Controller, Get } from "@nestjs/common"
+import { User } from "types-custom"
+import { ReqUser } from "../auth/decorators/user.decorator"
 
 @Controller("users")
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService
-  ) {}
-
   @Get("me")
-  async getUserInfo(@Req() req: TokenRequest): Promise<User> {
-    const user = await this.usersService.getById(req.user.sub)
-    if (!user) {
-      throw new NotFoundException()
-    }
-    
+  getUserInfo(@ReqUser() user: User): User {
     return user
   }
 }

@@ -3,7 +3,7 @@ import { FormEvent, useState } from "react"
 import { Form, Modal } from "react-bootstrap"
 import CustomButton from "@/components/CustomButton"
 
-type DeleteModalProps = {
+interface DeleteModalProps {
   name: string,
   handler: () => Promise<void>
 }
@@ -17,9 +17,9 @@ export default function DeleteModal({name, handler}: DeleteModalProps) {
   const handleDelete = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    handler()
+    await handler()
     
-    router.replace(router.asPath)
+    await router.replace(router.asPath)
     handleCloseDelete()
   }
 
@@ -32,7 +32,7 @@ export default function DeleteModal({name, handler}: DeleteModalProps) {
           Are you sure you want to delete &quot;{name}&quot;?
           <br/>
           <br/>
-          <Form onSubmit={handleDelete}>
+          <Form onSubmit={() => handleDelete}>
             <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseDelete}>Cancel</CustomButton>
             <CustomButton type="submit" style={{"float": "right"}}>Delete</CustomButton>
           </Form>

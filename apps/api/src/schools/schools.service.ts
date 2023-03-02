@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { School } from "types"
+import { School } from "types-custom"
 import { PrismaService } from "../prisma.service"
 
 @Injectable()
@@ -8,7 +8,34 @@ export class SchoolsService extends PrismaService {
     return await this.school.count()
   }
   
-  async getAll(page: number, pageSize: number): Promise<School[]> {
+  async getAll(locationId: string | undefined): Promise<School[]> {
+    const schools = await this.school.findMany()
+    if (!locationId) {
+      return schools
+    }
+
+    const checkins = await this.checkIn.findMany({
+      where: {
+        location: {
+          id: locationId
+        }
+      }
+    })
+    
+    function countCheckIns(school: School): number {
+      if (school.id === 1) {
+        return 0
+      }
+
+      return checkins.reduce((total,x) => (x.schoolId === school.id ? total+1 : total), 0)
+    }
+    
+    schools.sort((schoolA, schoolB) => (countCheckIns(schoolA) < countCheckIns(schoolB)) ? 1 : -1)
+
+    return schools
+  }
+
+  async getAllPaged(page: number, pageSize: number): Promise<School[]> {
     return await this.school.findMany({
       orderBy: {
         name: "asc"
@@ -34,7 +61,7 @@ export class SchoolsService extends PrismaService {
     })
   }
 
-  async create(name: string): Promise<School | null> {
+  async create(name: string): Promise<School> {
     return await this.school.create({
       data: {
         name: name
@@ -42,7 +69,7 @@ export class SchoolsService extends PrismaService {
     })
   }
 
-  async update(school: School, name: string): Promise<School | null> {
+  async update(school: School, name: string): Promise<School> {
     return await this.school.update({
       where: {
         id: school.id
@@ -53,7 +80,7 @@ export class SchoolsService extends PrismaService {
     })
   }
 
-  async delete(school: School): Promise<School | null> {
+  async delete(school: School): Promise<School> {
     return await this.school.delete({
       where: {
         id: school.id

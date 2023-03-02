@@ -1,10 +1,10 @@
-import { getMyUser, signOut } from "api-wrapper"
+import { getMyUser, signOut } from "my-api-wrapper"
 import Router, { useRouter } from "next/router"
 import { MouseEventHandler, useEffect, useState } from "react"
 import { Container, Nav, Navbar } from "react-bootstrap"
-import { User } from "types"
+import { Role, User } from "types-custom"
 
-type NavItemProps = {
+interface NavItemProps {
   children: string,
   href?: string,
   onClick?: MouseEventHandler<HTMLAnchorElement>,
@@ -38,10 +38,10 @@ export default function Navigation(){
   const [user, setUser] = useState<User | undefined>(undefined)
 
   useEffect(() => {
-    getMyUser()
-      .then(data => {
+    void getMyUser()
+      .then(async (data) => {
         if (data === null) {
-          Router.push("/signin")
+          await Router.push("/signin")
         } else {
           setUser(data)
         }
@@ -49,9 +49,9 @@ export default function Navigation(){
   }, [])
 
 
-  const signOutHandler = () => {
-    signOut()
-    Router.push("/signin")
+  const signOutHandler = async () => {
+    await signOut()
+    await Router.push("/signin")
   }
 
   return (
@@ -62,7 +62,7 @@ export default function Navigation(){
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto mb-2 mb-lg-0">
             {
-              user && !user.isAdmin ? (
+              user && !user.roles.includes(Role.Admin) && user.locationId ? (
                 <NavItem active={true} href={`/settings/locations/${user.locationId}`} >My location</NavItem>
               ) : (
                 <>
@@ -73,7 +73,7 @@ export default function Navigation(){
             }
           </Nav>
           <Nav className="ms-auto mb-2 mb-lg-0">
-            <NavItem onClick={signOutHandler}>Sign out</NavItem>
+            <NavItem onClick={() => signOutHandler}>Sign out</NavItem>
           </Nav>
         </Navbar.Collapse>
       </Container>

@@ -1,0 +1,13 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "testMatch": ["**/tests/*.test.ts"],
+  "collectCoverageFrom": ["src/**/*.ts"],
+  "coveragePathIgnorePatterns": [
+    "main.ts",
+    "prisma.service.ts",
+    "cli",
+    ".module.ts"
+  ],
+  "testTimeout": 10000
+}

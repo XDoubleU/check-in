@@ -1,7 +1,7 @@
 import { CSSProperties, MouseEventHandler } from "react"
 import { Button } from "react-bootstrap"
 
-type CustomButtonProps = {
+interface CustomButtonProps {
   children: string,
   type?: "button" | "submit" | "reset" | undefined,
   onClick?: MouseEventHandler<HTMLButtonElement>,
@@ -12,7 +12,7 @@ type CustomButtonProps = {
 
 export default function CustomButton({children, type, onClick, style, className, value}: CustomButtonProps) {
   return (
-    <Button className={`${className} text-white`} type={type} onClick={onClick} style={style} value={value}>
+    <Button className={`${className ?? ""} text-white`} type={type} onClick={onClick} style={style} value={value}>
       {children}
     </Button>
   )
