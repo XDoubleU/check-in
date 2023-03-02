@@ -12,6 +12,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 6.0.2
+      - run: pnpm install
       - run: pnpm lint:report
         continue-on-error: true
       - uses: ataylorme/eslint-annotate-action@v2
@@ -36,5 +40,12 @@ jobs:
           --health-retries 5
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: "16.x"
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 6.0.2
+    - run: pnpm install
     - run: pnpm test
       
