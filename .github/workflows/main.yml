@@ -16,12 +16,7 @@ jobs:
         with:
           version: 6.0.2
       - run: pnpm install
-      - run: pnpm lint:report
-        continue-on-error: true
-      - uses: ataylorme/eslint-annotate-action@v2
-        with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          report-json: "eslint_report.json"
+      - run: pnpm lint
           
   test:
     needs: [lint]
