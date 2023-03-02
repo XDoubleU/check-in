@@ -15,28 +15,28 @@
   "pipeline": {
     "dev": {},
     "build": {
-      "dependsOn": ["db:generate", "^build"]
+      "dependsOn": ["^db:generate", "^build"]
     },
     "prod": {},
     "lint": {
-      "dependsOn": ["db:generate", "^lint"]
+      "dependsOn": ["^db:generate", "^lint"]
     },
     "lint:fix": {
-      "dependsOn": ["db:generate", "^lint:fix"]
+      "dependsOn": ["^db:generate", "^lint:fix"]
     },
     "lint:report": {
-      "dependsOn": ["db:generate", "^lint:report"]
+      "dependsOn": ["^db:generate", "^lint:report"]
     },
     "test": {
-      "dependsOn": ["db:generate", "^db:test", "^build"],
+      "dependsOn": ["^db:generate", "^db:test", "^build"],
       "cache": false
     },
     "test:cov": {
-      "dependsOn": ["db:generate", "^db:test", "^build"],
+      "dependsOn": ["^db:generate", "^db:test", "^build"],
       "cache": false
     },
     "test:report": {
-      "dependsOn": ["db:generate", "^db:test", "^build"],
+      "dependsOn": ["^db:generate", "^db:test", "^build"],
       "cache": false
     },
     "db:test": {
