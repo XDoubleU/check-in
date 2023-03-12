@@ -1,63 +1,40 @@
-import { INestApplication } from "@nestjs/common"
+import { expect } from "chai"
 import request from "supertest"
 import { User } from "types-custom"
-import { LocationsService } from "../src/locations/locations.service"
-import { UsersService } from "../src/users/users.service"
-import { clearDatabase, getApp } from "./shared"
-import { AuthService } from "../src/auth/auth.service"
+import Fixture, { TokensAndUser } from "./fixture"
 
 
 describe("UsersController (e2e)", () => {
-  let app: INestApplication
-  let accessToken: string
+  let fixture: Fixture
 
-  let usersService: UsersService
-  let locationsService: LocationsService
-  let authService: AuthService
-
-  let user: User
+  let tokensAndUser: TokensAndUser
   
-  beforeAll(async () => {
-    app = await getApp()
-
-    usersService = app.get<UsersService>(UsersService)
-    locationsService = app.get<LocationsService>(LocationsService)
-    authService = app.get<AuthService>(AuthService)
-
-    await app.init()
+  before(() => {
+    fixture = new Fixture()
+    return fixture.init()
+      .then(() => fixture.seedDatabase())
+      .then(() => fixture.getTokens("User"))
+      .then((data) => tokensAndUser = data)
   })
 
-  beforeEach(async () => {
-    // UsersService
-    user = await usersService.create("TestUser", "testpassword")
-
-    // LocationsService
-    await locationsService.create("TestLocation", 10, user)
-    const tempUser = await usersService.getById(user.id)
-    if (tempUser) {
-      user = tempUser
-    }
-
-    // AuthService
-    accessToken = (await authService.getTokens(user)).accessToken
-  })
-
-  afterEach(async () => {
-    await clearDatabase(app)
+  after(() => {
+    return fixture.clearDatabase()
   })
 
   describe("/users/me (GET)", () => {
     it("gets info about logged in User (200)", async () => {  
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .get("/users/me")
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .expect(200)
       
       const userResponse = response.body as User
-      expect(userResponse.id).toBe(user.id)
-      expect(userResponse.username).toBe(user.username)
-      expect(userResponse.roles).toStrictEqual(user.roles)
-      expect(userResponse.locationId).toBe(user.locationId)
+      console.log(userResponse)
+      console.log(tokensAndUser.user)
+      expect(userResponse.id).to.be.equal(tokensAndUser.user.id)
+      expect(userResponse.username).to.be.equal(tokensAndUser.user.username)
+      expect(userResponse.roles).to.deep.equal(tokensAndUser.user.roles)
+      expect(userResponse.location?.id).to.be.equal(tokensAndUser.user.location?.id)
     })
   })
 })

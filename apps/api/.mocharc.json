@@ -1,0 +1,6 @@
+{
+  "ignore": [
+    "index.ts"
+  ],
+  "timeout": 20000
+}

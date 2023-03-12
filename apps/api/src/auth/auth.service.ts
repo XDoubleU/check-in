@@ -1,8 +1,10 @@
 import { Injectable } from "@nestjs/common"
 import { UsersService } from "../users/users.service"
-import { Tokens, User } from "types-custom"
+import { Tokens } from "types-custom"
 import { JwtService } from "@nestjs/jwt"
 import { Response } from "express"
+import { compareSync } from "bcrypt"
+import { UserEntity } from "mikro-orm-config"
 
 @Injectable()
 export class AuthService {
@@ -12,18 +14,19 @@ export class AuthService {
   ) {}
 
   async signin(username: string, password: string): Promise<Tokens | null> {
-    if (await this.usersService.checkPassword(username, password)) {
-      const user = await this.usersService.getByUserName(username)
-      if (!user) {
-        return null
-      }
-
-      return await this.getTokens(user)
+    const user = await this.usersService.getByUserName(username)
+    if (!user) {
+      return null
     }
-    return null
+
+    if (!compareSync(password, user.passwordHash)) {
+      return null
+    }
+    
+    return await this.getTokens(user)
   }
 
-  async refreshTokens(user: User): Promise<Tokens> {
+  async refreshTokens(user: UserEntity): Promise<Tokens> {
     return this.getTokens(user)
   }
 
@@ -46,7 +49,7 @@ export class AuthService {
     })
   }
 
-  async getTokens(user: User): Promise<Tokens> {
+  async getTokens(user: UserEntity): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {

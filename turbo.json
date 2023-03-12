@@ -15,40 +15,35 @@
   "pipeline": {
     "dev": {},
     "build": {
-      "dependsOn": ["^db:generate", "^build"]
+      "dependsOn": ["^build"]
     },
     "prod": {},
-    "lint": {
-      "dependsOn": ["^db:generate", "^lint"]
-    },
-    "lint:fix": {
-      "dependsOn": ["^db:generate", "^lint:fix"]
-    },
-    "lint:report": {
-      "dependsOn": ["^db:generate", "^lint:report"]
-    },
+    "lint": {},
+    "lint:fix": {},
+    "lint:report": {},
     "test": {
-      "dependsOn": ["^db:generate", "^db:test", "^build"],
+      "dependsOn": ["build"],
       "cache": false
     },
     "test:cov": {
-      "dependsOn": ["^db:generate", "^db:test", "^build"],
       "cache": false
     },
     "test:report": {
-      "dependsOn": ["^db:generate", "^db:test", "^build"],
       "cache": false
     },
-    "db:test": {
+    "db:seed": {
       "cache": false
     },
-    "db:generate": {
+    "db:migration-create": {
       "cache": false
     },
-    "db:migrate-dev": {
+    "db:migration-up": {
       "cache": false
     },
-    "db:migrate-prod": {
+    "db:migration-down": {
+      "cache": false
+    },
+    "db:migration-test": {
       "cache": false
     },
     "cli": {}

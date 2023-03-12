@@ -22,10 +22,10 @@ export default function SettingsHome() {
     return <LoadingLayout/>
   }
 
-  if (user.roles.includes(Role.Admin) || !user.locationId) {
+  if (user.roles.includes(Role.Admin) || !user.location?.id) {
     void Router.push("/settings/locations")
   } else {
-    void Router.push(`/settings/locations/${user.locationId}`)
+    void Router.push(`/settings/locations/${user.location.id}`)
   }
 
   return <LoadingLayout/>

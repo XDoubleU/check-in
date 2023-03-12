@@ -2,8 +2,10 @@ import { Body, Controller, InternalServerErrorException, NotFoundException, Post
 import { CheckInsService } from "./checkins.service"
 import { LocationsService } from "../locations/locations.service"
 import { SchoolsService } from "../schools/schools.service"
-import { CheckIn, CreateCheckInDto, Role } from "types-custom"
+import type { CreateCheckInDto } from "types-custom"
+import { Role } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
+import { CheckInEntity } from "mikro-orm-config"
 
 @Controller("checkins")
 export class CheckInsController {
@@ -15,7 +17,7 @@ export class CheckInsController {
 
   @Roles(Role.User)
   @Post()
-  async create(@Body() createCheckInDto: CreateCheckInDto): Promise<CheckIn> {
+  async create(@Body() createCheckInDto: CreateCheckInDto): Promise<CheckInEntity> {
     const location = await this.locationsService.getById(createCheckInDto.locationId)
     if (!location) {
       throw new NotFoundException("Location not found")

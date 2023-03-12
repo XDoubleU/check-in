@@ -62,8 +62,8 @@ export default function Navigation(){
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto mb-2 mb-lg-0">
             {
-              user && !user.roles.includes(Role.Admin) && user.locationId ? (
-                <NavItem active={true} href={`/settings/locations/${user.locationId}`} >My location</NavItem>
+              user && !user.roles.includes(Role.Admin) && user.location?.id ? (
+                <NavItem active={true} href={`/settings/locations/${user.location.id}`} >My location</NavItem>
               ) : (
                 <>
                   <NavItem href="/settings/locations">Locations</NavItem>

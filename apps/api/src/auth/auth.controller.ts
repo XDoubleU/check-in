@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Post, Res, UnauthorizedException, UseGuards } from "@nestjs/common"
 import { AuthService } from "./auth.service"
-import { SignInDto, User } from "types-custom"
 import { RefreshTokenGuard } from "./guards/refreshToken.guard"
-import { Response } from "express"
+import type { Response } from "express"
 import { Public } from "./decorators/public.decorator"
 import { ReqUser } from "./decorators/user.decorator"
+import type { SignInDto } from "types-custom"
+import { UserEntity } from "mikro-orm-config"
 
 @Controller("auth")
 export class AuthController {
@@ -35,7 +36,7 @@ export class AuthController {
   @Public()
   @UseGuards(RefreshTokenGuard)
   @Get("refresh")
-  async refreshTokens(@ReqUser() user: User, @Res({ passthrough: true }) res: Response): Promise<void> {
+  async refreshTokens(@ReqUser() user: UserEntity, @Res({ passthrough: true }) res: Response): Promise<void> {
     const tokens = await this.authService.refreshTokens(user)
     this.authService.setTokensAsCookies(tokens, res)
   }

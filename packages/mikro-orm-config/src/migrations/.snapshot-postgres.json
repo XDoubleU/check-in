@@ -1,0 +1,284 @@
+{
+  "namespaces": [
+    "public"
+  ],
+  "name": "public",
+  "tables": [
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        }
+      },
+      "name": "School",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "name"
+          ],
+          "composite": false,
+          "keyName": "School_name_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "School_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        },
+        "username": {
+          "name": "username",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        },
+        "roles": {
+          "name": "roles",
+          "type": "text[]",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'{user}'",
+          "enumItems": [
+            "user",
+            "admin"
+          ]
+        }
+      },
+      "name": "User",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "username"
+          ],
+          "composite": false,
+          "keyName": "User_username_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "User_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        }
+      },
+      "name": "Location",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "user_id"
+          ],
+          "composite": false,
+          "keyName": "Location_user_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "Location_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [
+        {
+          "name": "Location_capacity_check",
+          "expression": "capacity >= 0",
+          "definition": "check ((capacity >= 0))",
+          "columnName": "capacity"
+        }
+      ],
+      "foreignKeys": {
+        "Location_user_id_foreign": {
+          "constraintName": "Location_user_id_foreign",
+          "columnNames": [
+            "user_id"
+          ],
+          "localTableName": "public.Location",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.User",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false
+        },
+        "location_id": {
+          "name": "location_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        },
+        "school_id": {
+          "name": "school_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "1"
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false
+        }
+      },
+      "name": "CheckIn",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "CheckIn_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "CheckIn_location_id_foreign": {
+          "constraintName": "CheckIn_location_id_foreign",
+          "columnNames": [
+            "location_id"
+          ],
+          "localTableName": "public.CheckIn",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.Location",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "CheckIn_school_id_foreign": {
+          "constraintName": "CheckIn_school_id_foreign",
+          "columnNames": [
+            "school_id"
+          ],
+          "localTableName": "public.CheckIn",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.School",
+          "deleteRule": "set default",
+          "updateRule": "cascade"
+        }
+      }
+    }
+  ]
+}

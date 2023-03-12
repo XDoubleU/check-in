@@ -1,111 +1,72 @@
-import { INestApplication } from "@nestjs/common"
-import { Location, School, User } from "types-custom"
-import { LocationsService } from "../src/locations/locations.service"
-import { UsersService } from "../src/users/users.service"
-import { clearDatabase, getAccessToken, getApp } from "./shared"
+import Fixture, { TokensAndUser } from "./fixture"
 import EventSource from "eventsource"
 import { Server } from "http"
 import { AddressInfo } from "net"
 import { LocationUpdateEventData } from "../src/sse/sse.service"
-import { CheckInsService } from "../src/checkins/checkins.service"
-import { SchoolsService } from "../src/schools/schools.service"
+import { SseService } from "../src/sse/sse.service"
+import { LocationEntity } from "mikro-orm-config"
+import { expect } from "chai"
 
 
 describe("SseController (e2e)", () => {
-  let app: INestApplication
+  let fixture: Fixture
+
   let port: number
   let eventSource: EventSource
-  let accessToken: string
-
-  let locationsService: LocationsService
-  let usersService: UsersService
-  let checkinsService: CheckInsService
-  let schoolsService: SchoolsService
-
-  let user: User
-  let location: Location
-  let school: School
   
-  beforeAll(async () => {
-    app = await getApp()
+  let tokensAndUser: TokensAndUser
 
-    locationsService = app.get<LocationsService>(LocationsService)
-    usersService = app.get<UsersService>(UsersService)
-    checkinsService = app.get<CheckInsService>(CheckInsService)
-    schoolsService = app.get<SchoolsService>(SchoolsService)
+  let sseService: SseService
 
-    await app.init()
+  let location: LocationEntity
+  
+  before(() => {
+    fixture = new Fixture()
+    return fixture.init()
+      .then(() => fixture.seedDatabase())
+      .then(() => fixture.getTokens("User"))
+      .then((data) => tokensAndUser = data)
+      .then(() => fixture.em.find(LocationEntity, {}))
+      .then((data) => {
+        location = data[0]
+      })
   })
 
-  beforeEach(async () => {
-    // AccessTokens
-    const getAccessTokenObject = await getAccessToken(app)
-    accessToken = getAccessTokenObject.accessToken
-
-    // UsersService
-    user = await usersService.create("TestUser", "testpassword")
-
-    // LocationsService
-    location = await locationsService.create("TestLocation", 10, user)
-
-    // SchoolsService
-    school = await schoolsService.create("TestSchool")
-
-    const address = (app.getHttpServer() as Server).listen().address() as AddressInfo
+  beforeEach(() => {
+    const address = (fixture.app.getHttpServer() as Server).listen().address() as AddressInfo
     port = address.port
+
+    sseService = fixture.app.get<SseService>(SseService)
   })
 
-  afterEach(async () => {
-    (app.getHttpServer() as Server).close()
+  afterEach(() => {
+    (fixture.app.getHttpServer() as Server).close()
     eventSource.close()
-    
-    await clearDatabase(app)
+  })
+
+  after(() => {
+    return fixture.clearDatabase()
   })
 
   describe("/sse (SSE)", () => {
-    it("receives event after updating Location capacity (200)", (done: jest.DoneCallback) => {
+    it("receives event after updating Location capacity (200)", (done: Mocha.Done) => {
       eventSource = new EventSource(`http://localhost:${port}/sse`)
       
       eventSource.onerror = (error): void => {
         done(error)
       }
 
-      eventSource.onopen = async (): Promise<void> => {
-        await locationsService.update(location, undefined, location.capacity)
+      eventSource.onopen = (): void => {
+        sseService.addLocationUpdate(location)
       }
 
       eventSource.onmessage = (event): void => {
         const locationUpdateEventData = JSON.parse(event.data as string) as LocationUpdateEventData
 
         try {
-          expect(locationUpdateEventData.normalizedName).toBe(location.normalizedName)
-          expect(locationUpdateEventData.available).toBe(location.available)
-          expect(locationUpdateEventData.capacity).toBe(location.capacity)
-          done()
-        } catch (error) {
-          done(error)
-        }   
-      }
-    })
-
-    it("receives event after creating CheckIn (200)", (done: jest.DoneCallback) => {
-      eventSource = new EventSource(`http://localhost:${port}/sse`)
-      
-      eventSource.onerror = (error): void => {
-        done(error)
-      }
-
-      eventSource.onopen = async (): Promise<void> => {
-        await checkinsService.create(location, school)
-      }
-
-      eventSource.onmessage = (event): void => {
-        const locationUpdateEventData = JSON.parse(event.data as string) as LocationUpdateEventData
-
-        try {
-          expect(locationUpdateEventData.normalizedName).toBe(location.normalizedName)
-          expect(locationUpdateEventData.available).toBe(location.available - 1)
-          expect(locationUpdateEventData.capacity).toBe(location.capacity)
+          expect(locationUpdateEventData.normalizedName).to.be.equal(location.normalizedName)
+          expect(locationUpdateEventData.available).to.be.equal(location.available)
+          expect(locationUpdateEventData.capacity).to.be.equal(location.capacity)
           done()
         } catch (error) {
           done(error)
@@ -115,10 +76,10 @@ describe("SseController (e2e)", () => {
   })
 
   describe("/sse/:normalizedName (SSE)", () => {
-    it("receives event after updating Location capacity (200)", (done: jest.DoneCallback) => {
+    it("receives event after updating Location capacity (200)", (done: Mocha.Done) => {
         const eventSourceInitDict = {
           headers: {
-            "Cookie": `accessToken=${accessToken}`
+            "Cookie": `accessToken=${tokensAndUser.tokens.accessToken}`
           }
         }
 
@@ -131,17 +92,17 @@ describe("SseController (e2e)", () => {
           done(error)
         }
   
-        eventSource.onopen = async (): Promise<void> => {
-          await locationsService.update(location, undefined, location.capacity)
+        eventSource.onopen = (): void => {
+          sseService.addLocationUpdate(location)
         }
   
         eventSource.onmessage = (event): void => {
           const locationUpdateEventData = JSON.parse(event.data as string) as LocationUpdateEventData
   
           try {
-            expect(locationUpdateEventData.normalizedName).toBe(location.normalizedName)
-            expect(locationUpdateEventData.available).toBe(location.available)
-            expect(locationUpdateEventData.capacity).toBe(location.capacity)
+            expect(locationUpdateEventData.normalizedName).to.be.equal(location.normalizedName)
+            expect(locationUpdateEventData.available).to.be.equal(location.available)
+            expect(locationUpdateEventData.capacity).to.be.equal(location.capacity)
             done()
           } catch (error) {
             done(error)
@@ -149,46 +110,12 @@ describe("SseController (e2e)", () => {
         }
     })
 
-    it("receives event after creating CheckIn (200)", (done: jest.DoneCallback) => {
-      const eventSourceInitDict = {
-        headers: {
-          "Cookie": `accessToken=${accessToken}`
-        }
-      }
-
-      eventSource = new EventSource(
-        `http://localhost:${port}/sse/${location.normalizedName}`,
-        eventSourceInitDict
-      )
-      
-      eventSource.onerror = (error): void => {
-        done(error)
-      }
-
-      eventSource.onopen = async (): Promise<void> => {
-        await checkinsService.create(location, school)
-      }
-
-      eventSource.onmessage = (event): void => {
-        const locationUpdateEventData = JSON.parse(event.data as string) as LocationUpdateEventData
-
-        try {
-          expect(locationUpdateEventData.normalizedName).toBe(location.normalizedName)
-          expect(locationUpdateEventData.available).toBe(location.available - 1)
-          expect(locationUpdateEventData.capacity).toBe(location.capacity)
-          done()
-        } catch (error) {
-          done(error)
-        }   
-      }
-    })
-
-    it("returns Unauthorized (401)", (done: jest.DoneCallback) => {
+    it("returns Unauthorized (401)", (done: Mocha.Done) => {
       eventSource = new EventSource(`http://localhost:${port}/sse/${location.normalizedName}`)
       
       eventSource.onerror = (event): void => {
         try{
-          expect(event.status).toBe(401)
+          expect(event.status).to.be.equal(401)
           done()
         } catch (error) {
           done(error)

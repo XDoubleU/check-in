@@ -7,12 +7,14 @@
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
     "lint:report": "eslint . --output-file eslint_report.json --format json src",
-    "test": "jest",
-    "test:cov": "jest --coverage"
+    "test": "mocha '**/tests/*.test.js'",
+    "test:cov": "mocha '**/tests/*.test.js' --coverage"
   },
   "dependencies": {
-    "@types/jest": "^29.4.0",
-    "jest": "^29.4.3",
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
     "types-custom": "*"
   },
   "devDependencies": {

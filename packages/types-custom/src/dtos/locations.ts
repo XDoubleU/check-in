@@ -1,41 +1,21 @@
-import { IsNotEmpty, IsOptional } from "class-validator"
 import { Location } from "../types"
 
-export class CreateLocationDto {
-  @IsNotEmpty()
+export interface CreateLocationDto {
   name: string
-
-  @IsNotEmpty()
   capacity: number
-
-  @IsNotEmpty()
   username: string
-  
-  @IsNotEmpty()
   password: string
 }
 
-export class GetAllPaginatedLocationDto {
-  @IsNotEmpty()
+export interface GetAllPaginatedLocationDto {
   page: number
-
-  @IsNotEmpty()
   totalPages: number
-
-  @IsNotEmpty()
   locations: Location[]
 }
 
-export class UpdateLocationDto {
-  @IsOptional()
+export interface UpdateLocationDto {
   name?: string
-
-  @IsOptional()
   capacity?: number
-  
-  @IsOptional()
   username?: string
-  
-  @IsOptional()
   password?: string
 }

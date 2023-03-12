@@ -1,112 +1,96 @@
-import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto, User } from "types-custom"
-import { clearDatabase, ErrorResponse, getAccessToken, getAdminAccessToken, getApp } from "./shared"
-import { LocationsService } from "../src/locations/locations.service"
-import { UsersService } from "../src/users/users.service"
+import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto } from "types-custom"
+import Fixture, { ErrorResponse, TokensAndUser } from "./fixture"
+import { v4 } from "uuid"
+import { expect } from "chai"
+import { LocationEntity } from "mikro-orm-config"
 
 
 describe("LocationsController (e2e)", () => {
-  let app: INestApplication
+  let fixture: Fixture
 
-  let accessToken: string
-  let authUser: Omit<User, "locationId"> & { locationId: string }
-  let adminAccessToken: string
+  let tokensAndUser: TokensAndUser
+  let adminTokensAndUser: TokensAndUser
 
-  let locationsService: LocationsService
-  let usersService: UsersService
-
-  let locations: Location[]
+  let locations: LocationEntity[]
 
   const defaultPage = 1
   const defaultPageSize = 3
   
-  beforeAll(async () => {
-    app = await getApp()
-
-    locationsService = app.get<LocationsService>(LocationsService)
-    usersService = app.get<UsersService>(UsersService)
-
-    await app.init()
+  before(() => {
+    fixture = new Fixture()
+    return fixture.init()
+      .then(() => fixture.seedDatabase())
+      .then(() => fixture.getTokens("User"))
+      .then((data) => tokensAndUser = data)
+      .then(() => fixture.getTokens("Admin"))
+      .then((data) => adminTokensAndUser = data)
+      .then(() => fixture.em.find(LocationEntity, {}))
+      .then((data) => {
+        locations = data
+      })
   })
 
-  beforeEach(async () => {
-    // AccessTokens
-    const getAccessTokenObject = await getAccessToken(app)
-    accessToken = getAccessTokenObject.accessToken
-    authUser = getAccessTokenObject.user
-
-    adminAccessToken = await getAdminAccessToken(app)
-
-    // LocationsService
-    for (let i = 0; i < 20; i++){
-      const user = await usersService.create(`TestUser${i}`, "testpassword")
-      await locationsService.create(`TestLocation${i}`, 10, user)
-    }
-
-    locations = await locationsService.getAll()
-  })
-
-  afterEach(async () => {
-    await clearDatabase(app)
+  after(() => {
+    return fixture.clearDatabase()
   })
 
   describe("/locations (GET)", () => {
-    it("gets all Locations with default page (200)", async () => {
-      const response = await request(app.getHttpServer())
+    it("gets all Locations with default page size (200)", async () => {
+      const response = await request(fixture.app.getHttpServer())
         .get("/locations")
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
         .expect(200)
       
       const paginatedLocationsResponse = response.body as GetAllPaginatedLocationDto
-      expect(paginatedLocationsResponse.page).toBe(defaultPage)
-      expect(paginatedLocationsResponse.totalPages).toBe(Math.ceil(locations.length / defaultPageSize))
-      expect(paginatedLocationsResponse.locations).toBeInstanceOf(Array<Location>)
+      expect(paginatedLocationsResponse.page).to.be.equal(defaultPage)
+      expect(paginatedLocationsResponse.totalPages).to.be.equal(Math.ceil(locations.length / defaultPageSize))
+      expect(paginatedLocationsResponse.locations.length).to.be.equal(defaultPageSize)
     })
 
     it("gets certain page of all Locations (200)", async () => {
       const page = 2
 
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .get("/locations")
         .query({ page })
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
         .expect(200)
       
       const paginatedLocationsResponse = response.body as GetAllPaginatedLocationDto
-      expect(paginatedLocationsResponse.page).toBe(page)
-      expect(paginatedLocationsResponse.totalPages).toBe(Math.ceil(locations.length / defaultPageSize))
-      expect(paginatedLocationsResponse.locations).toBeInstanceOf(Array<Location>)
+      expect(paginatedLocationsResponse.page).to.be.equal(page)
+      expect(paginatedLocationsResponse.totalPages).to.be.equal(Math.ceil(locations.length / defaultPageSize))
+      expect(paginatedLocationsResponse.locations.length).to.be.equal(defaultPageSize)
     })
 
     it("returns Forbidden (403)", async () => {
-      return await request(app.getHttpServer())
+      return await request(fixture.app.getHttpServer())
         .get("/locations")
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .expect(403)
     })
   })
 
   describe("/locations/me (GET)", () => {
     it("get my Location (200)", async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .get("/locations/me")
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .expect(200)
 
       const locationResponse = response.body as Location
-      expect(locationResponse.id).toBe(authUser.locationId)
-      expect(locationResponse.name).toBeDefined()
-      expect(locationResponse.available).toBeDefined()
-      expect(locationResponse.capacity).toBeDefined()
-      expect(locationResponse.user.id).toBe(authUser.id)
-      expect(locationResponse.user.username).toBe(authUser.username)
+
+      expect(locationResponse.id).to.be.equal(tokensAndUser.user.location?.id)
+      expect(locationResponse.name).to.exist
+      expect(locationResponse.available).to.exist
+      expect(locationResponse.capacity).to.exist
+      expect(locationResponse.userId).to.be.equal(tokensAndUser.user.id)
     })
 
     it("returns Forbidden (403)", async () => {
-      return await request(app.getHttpServer())
+      return await request(fixture.app.getHttpServer())
         .get("/locations/me")
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
         .expect(403)
     })
   })
@@ -115,43 +99,41 @@ describe("LocationsController (e2e)", () => {
     it("get Location as Admin (200)", async () => {
       const location = locations[0]
       
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .get(`/locations/${location.id}`)
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .expect(200)
 
       const locationResponse = response.body as Location
-      expect(locationResponse.id).toBe(location.id)
-      expect(locationResponse.name).toBe(location.name)
-      expect(locationResponse.available).toBe(location.available)
-      expect(locationResponse.capacity).toBe(location.capacity)
-      expect(locationResponse.user.id).toBe(location.user.id)
-      expect(locationResponse.user.username).toBe(location.user.username)
+      expect(locationResponse.id).to.be.equal(location.id)
+      expect(locationResponse.name).to.be.equal(location.name)
+      expect(locationResponse.available).to.be.equal(location.available)
+      expect(locationResponse.capacity).to.be.equal(location.capacity)
+      expect(locationResponse.userId).to.be.equal(location.user.id)
     })
 
     it("get Location as User (200)", async () => {
-      const response = await request(app.getHttpServer())
-        .get(`/locations/${authUser.locationId}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+      const response = await request(fixture.app.getHttpServer())
+        .get(`/locations/${tokensAndUser.user.location?.id ?? 0}`)
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .expect(200)
 
       const locationResponse = response.body as Location
-      expect(locationResponse.id).toBe(authUser.locationId)
-      expect(locationResponse.name).toBeDefined()
-      expect(locationResponse.available).toBeDefined()
-      expect(locationResponse.capacity).toBeDefined()
-      expect(locationResponse.user.id).toBe(authUser.id)
-      expect(locationResponse.user.username).toBe(authUser.username)
+      expect(locationResponse.id).to.be.equal(tokensAndUser.user.location?.id)
+      expect(locationResponse.name).to.exist
+      expect(locationResponse.available).to.exist
+      expect(locationResponse.capacity).to.exist
+      expect(locationResponse.userId).to.be.equal(tokensAndUser.user.id)
     })
 
     it("returns Location not found because Location doesn't exist (404)", async () => {
-      const response = await request(app.getHttpServer())
-        .get("/locations/notfound")
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+      const response = await request(fixture.app.getHttpServer())
+        .get(`/locations/${v4()}`)
+        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
         .expect(404)
       
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe("Location not found")
+      expect(errorResponse.message).to.be.equal("Location not found")
     })
 
     it("returns Location not found because User doesn't own Location (404)", async () => {
@@ -160,74 +142,73 @@ describe("LocationsController (e2e)", () => {
         throw new Error("Location is undefined")
       }
 
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .get(`/locations/${location.id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .expect(404)
       
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe("Location not found")
+      expect(errorResponse.message).to.be.equal("Location not found")
     })
   })
 
   describe("/locations (POST)", () => {
     it("creates a new Location (201)", async () => {
       const data: CreateLocationDto = {
-        name: "TestLocation",
+        name: "NewTestLocation",
         capacity: 10,
-        username: "TestLocationUser",
+        username: "NewTestLocationUser",
         password: "testpassword"
       }
   
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .post("/locations")
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(201)
       
       const locationResponse = response.body as Location
-      expect(locationResponse.id).toBeDefined()
-      expect(locationResponse.name).toBe(data.name)
-      expect(locationResponse.available).toBe(data.capacity)
-      expect(locationResponse.capacity).toBe(data.capacity)
-      expect(locationResponse.user.id).toBeDefined()
-      expect(locationResponse.user.username).toBe(data.username)
+      expect(locationResponse.id).to.exist
+      expect(locationResponse.name).to.be.equal(data.name)
+      expect(locationResponse.available).to.be.equal(data.capacity)
+      expect(locationResponse.capacity).to.be.equal(data.capacity)
+      expect(locationResponse.userId).to.exist
     })
 
     it("returns Location with this name already exists (409)", async () => {
       const data: CreateLocationDto = {
         name: locations[0].name,
         capacity: 10,
-        username: "TestLocationUser",
+        username: "NewTestLocationUser",
         password: "testpassword"
       }
   
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .post("/locations")
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(409)
       
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe("Location with this name already exists")
+      expect(errorResponse.message).to.be.equal("Location with this name already exists")
     })
 
     it("returns User with this username already exists (409)", async () => {
       const data: CreateLocationDto = {
-        name: "TestLocation",
+        name: "NewTestLocation2",
         capacity: 10,
         username: locations[0].user.username,
         password: "testpassword"
       }
   
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .post("/locations")
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(409)
       
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe("User with this username already exists")
+      expect(errorResponse.message).to.be.equal("User with this username already exists")
     })
 
     it("returns Forbidden (403)", async () => {
@@ -238,9 +219,9 @@ describe("LocationsController (e2e)", () => {
         password: "testpassword"
       }
   
-      return await request(app.getHttpServer())
+      return await request(fixture.app.getHttpServer())
         .post("/locations")
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(403)
     })
@@ -248,62 +229,61 @@ describe("LocationsController (e2e)", () => {
 
   describe("/locations/:id (PATCH)", () => {
     it("updates a Location (200)", async () => {
-      const id = authUser.locationId
+      const id = tokensAndUser.user.location?.id ?? 0
       
       const data: UpdateLocationDto = {
-        name: "NewTestLocation",
-        username: "NewTestLocationUser"
+        name: "NewTestLocation2",
+        username: "NewTestLocationUser2"
       }
   
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .patch(`/locations/${id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(200)
       
       const locationResponse = response.body as Location
-      expect(locationResponse.id).toBeDefined()
-      expect(locationResponse.name).toBe(data.name)
-      expect(locationResponse.available).toBeDefined()
-      expect(locationResponse.capacity).toBeDefined()
-      expect(locationResponse.user.id).toBe(authUser.id)
-      expect(locationResponse.user.username).toBe(data.username)
+      expect(locationResponse.id).to.exist
+      expect(locationResponse.name).to.be.equal(data.name)
+      expect(locationResponse.available).to.exist
+      expect(locationResponse.capacity).to.exist
+      expect(locationResponse.userId).to.be.equal(tokensAndUser.user.id)
     })
 
     it("returns Location with this name already exists (409)", async () => {
-      const id = authUser.locationId
+      const id = tokensAndUser.user.location?.id ?? 0 
       
       const data: UpdateLocationDto = {
-        name: locations[0].name,
-        username: "NewTestLocationUser"
+        name: locations[1].name,
+        username: "NewTestLocationUser3"
       }
   
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .patch(`/locations/${id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(409)
       
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe("Location with this name already exists")
+      expect(errorResponse.message).to.be.equal("Location with this name already exists")
     })
 
     it("returns User with this username already exists (409)", async () => {
-      const id = authUser.locationId
+      const id = tokensAndUser.user.location?.id ?? 0
       
       const data: UpdateLocationDto = {
-        name: "NewTestLocation",
-        username: locations[0].user.username
+        name: "NewTestLocation3",
+        username: locations[1].user.username
       }
   
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .patch(`/locations/${id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(409)
       
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe("User with this username already exists")
+      expect(errorResponse.message).to.be.equal("User with this username already exists")
     })
 
     it("returns Location not found because User doesn't own Location (404)", async () => {
@@ -317,9 +297,9 @@ describe("LocationsController (e2e)", () => {
         username: "NewTestLocationUser"
       }
   
-      return await request(app.getHttpServer())
+      return await request(fixture.app.getHttpServer())
         .patch(`/locations/${location.id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(404)
     })
@@ -329,34 +309,32 @@ describe("LocationsController (e2e)", () => {
     it("deletes a Location (200)", async () => {
       const id = locations[0].id
   
-      const response = await request(app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .delete(`/locations/${id}`)
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
         .expect(200)
       
       const locationResponse = response.body as Location
-      expect(locationResponse.id).toBe(id)
+      expect(locationResponse.id).to.be.equal(id)
     })
 
     it("returns Location not found (404)", async () => {
-      const id = -1
-  
-      const response = await request(app.getHttpServer())
-        .delete(`/locations/${id}`)
-        .set("Cookie", [`accessToken=${adminAccessToken}`])
+      const response = await request(fixture.app.getHttpServer())
+        .delete(`/locations/${v4()}`)
+        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
         .expect(404)
       
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe("Location not found")
+      expect(errorResponse.message).to.be.equal("Location not found")
     })
 
-    it("returns Forbidden (403)", async () => {
+    it("returns Unauthorized (401)", async () => {
       const id = locations[0].id
   
-      await request(app.getHttpServer())
+      await request(fixture.app.getHttpServer())
         .delete(`/locations/${id}`)
-        .set("Cookie", [`accessToken=${accessToken}`])
-        .expect(403)
+        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .expect(401)
     })
   })
 })

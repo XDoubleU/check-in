@@ -1,8 +1,12 @@
 import { Body, ConflictException, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
 import { SchoolsService } from "./schools.service"
-import { CreateSchoolDto, GetAllPaginatedSchoolDto, Role, School, UpdateSchoolDto, User } from "types-custom"
+import type { CreateSchoolDto, GetAllPaginatedSchoolDto, UpdateSchoolDto } from "types-custom"
+import { Role } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { ReqUser } from "../auth/decorators/user.decorator"
+import { SchoolEntity, UserEntity } from "mikro-orm-config"
+
+type MikroGetAllPaginatedSchoolDto = Omit<GetAllPaginatedSchoolDto, "schools"> & { schools: SchoolEntity[] }
 
 @Controller("schools")
 export class SchoolsController {
@@ -10,13 +14,17 @@ export class SchoolsController {
 
   @Roles(Role.User)
   @Get("all")
-  async getAll(@ReqUser() user: User): Promise<School[]> {
-    return await this.schoolsService.getAll(user.locationId)
+  async getAll(@ReqUser() user: UserEntity): Promise<SchoolEntity[]> {
+    if (!user.location?.id) {
+      return []
+    }
+
+    return await this.schoolsService.getAll(user.location.id)
   }
 
   @Roles(Role.Admin)
   @Get()
-  async getAllPaged(@Query("page") queryPage?: string): Promise<GetAllPaginatedSchoolDto> {
+  async getAllPaged(@Query("page") queryPage?: string): Promise<MikroGetAllPaginatedSchoolDto> {
     const pageSize = 4
     const page = queryPage ? parseInt(queryPage) : 1
     const count = await this.schoolsService.getTotalCount()
@@ -31,7 +39,7 @@ export class SchoolsController {
 
   @Roles(Role.Admin)
   @Post()
-  async create(@Body() createSchoolDto: CreateSchoolDto): Promise <School> {
+  async create(@Body() createSchoolDto: CreateSchoolDto): Promise<SchoolEntity> {
     const existingSchool = await this.schoolsService.getByName(createSchoolDto.name)
     if (existingSchool) {
       throw new ConflictException("School with this name already exists")
@@ -42,7 +50,7 @@ export class SchoolsController {
 
   @Roles(Role.Admin)
   @Patch(":id")
-  async update(@Param("id") id: string, @Body() updateSchoolDto: UpdateSchoolDto): Promise<School> {
+  async update(@Param("id") id: string, @Body() updateSchoolDto: UpdateSchoolDto): Promise<SchoolEntity> {
     const school = await this.schoolsService.getById(parseInt(id))
     if (!school || parseInt(id) === 1) {
       throw new NotFoundException("School not found")
@@ -58,7 +66,7 @@ export class SchoolsController {
 
   @Roles(Role.Admin)
   @Delete(":id")
-  async delete(@Param("id") id: string): Promise<School> {
+  async delete(@Param("id") id: string): Promise<SchoolEntity> {
     const school = await this.schoolsService.getById(parseInt(id))
     if (!school || parseInt(id) === 1) {
       throw new NotFoundException("School not found")

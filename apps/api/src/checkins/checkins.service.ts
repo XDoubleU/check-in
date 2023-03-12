@@ -1,27 +1,22 @@
 import { Injectable } from "@nestjs/common"
-import { CheckIn, Location, School } from "types-custom"
-import { PrismaService } from "../prisma.service"
 import { SseService } from "../sse/sse.service"
 import { LocationsService } from "../locations/locations.service"
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
+import { CheckInEntity, LocationEntity, SchoolEntity } from "mikro-orm-config"
 
 @Injectable()
-export class CheckInsService extends PrismaService {
+export class CheckInsService {
   constructor(
+    @InjectRepository(CheckInEntity)
+    private readonly checkInsRepository: EntityRepository<CheckInEntity>,
     private readonly sseService: SseService,
     private readonly locationsService: LocationsService
-  ) 
-  {
-    super()
-  }
+  ) {}
 
-  async create(location: Location, school: School): Promise<CheckIn | null> {
-    const checkIn = await this.checkIn.create({
-      data: {
-        locationId: location.id,
-        capacity: location.capacity,
-        schoolId: school.id
-      }
-    })
+  async create(location: LocationEntity, school: SchoolEntity): Promise<CheckInEntity | null> {
+    const checkIn = new CheckInEntity(location, school)
+    await this.checkInsRepository.persistAndFlush(checkIn)
 
     const updatedLocation = await this.locationsService.getById(location.id)
     if (!updatedLocation){

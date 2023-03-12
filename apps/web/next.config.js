@@ -10,7 +10,8 @@ const nextConfig = {
   reactStrictMode: true,
   sassOptions: {
     includePaths: ["./styles"],
-  }
+  },
+  output: "standalone"
 }
 
 module.exports = nextConfig
