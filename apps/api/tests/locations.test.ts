@@ -33,6 +33,7 @@ describe("LocationsController (e2e)", () => {
 
   after(() => {
     return fixture.clearDatabase()
+      .then(() => fixture.app.close())
   })
 
   describe("/locations (GET)", () => {

@@ -4,8 +4,9 @@ import { AppModule } from "../src/app.module"
 import cookieParser from "cookie-parser"
 import { AuthService } from "../src/auth/auth.service"
 import { LocationEntity, SchoolEntity, UserEntity } from "mikro-orm-config"
-import { EntityManager, MikroORM } from "@mikro-orm/core"
+import { MikroORM } from "@mikro-orm/core"
 import { Role, Tokens } from "types-custom"
+import { EntityManager, PostgreSqlDriver } from "@mikro-orm/postgresql"
 
 export interface TokensAndUser {
   tokens: Tokens,
@@ -26,8 +27,6 @@ export default class Fixture {
 
 
   async init(): Promise<void> {
-    process.env.NODE_ENV = "test"
-
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile()
@@ -36,10 +35,10 @@ export default class Fixture {
     this.app.use(cookieParser())
     this.app.enableShutdownHooks()
 
-    const orm = this.app.get<MikroORM>(MikroORM)
-    this.em = orm.em.fork()
-
     await this.app.init()
+
+    const orm = this.app.get<MikroORM<PostgreSqlDriver>>(MikroORM)
+    this.em = orm.em.fork()
   }
 
   async seedDatabase(): Promise<void> {
@@ -85,12 +84,10 @@ export default class Fixture {
   async getTokens(username: string): Promise<TokensAndUser> {
     const authService = this.app.get<AuthService>(AuthService)
 
-    const user = await this.em.findOne(UserEntity, {
+    await this.em.find(LocationEntity, {})
+    const user = await this.em.findOneOrFail(UserEntity, {
       username: username
-    }, { populate: [ "location" ] })
-    if (!user) {
-      throw new Error("user is undefined")
-    }
+    })
 
     return {
       tokens: await authService.getTokens(user),

@@ -10,8 +10,7 @@ const config: Options = {
   metadataProvider: TsMorphMetadataProvider,
   cache: {
     enabled: false
-  },
-  debug: true
+  }
 }
 
 export default config

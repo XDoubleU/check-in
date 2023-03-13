@@ -32,24 +32,21 @@ describe("SchoolsController (e2e)", () => {
 
   after(() => {
     return fixture.clearDatabase()
+      .then(() => fixture.app.close())
   })
 
   describe("/schools/all (GET)", () => {
     it("gets all Schools (200)", async () => {
       const location = tokensAndUser.user.location
-      console.log(tokensAndUser.user)
+
       if (!location) {
         throw new Error("Location is undefined")
       }
 
-      const andere = await fixture.em.findOne(SchoolEntity, 1)
-      if (!andere) {
-        throw new Error("andere is undefined")
-      }
-
+      const andere = await fixture.em.findOneOrFail(SchoolEntity, 1)
       const school = schools[5]
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 5; i++) {
         const newCheckIn = new CheckInEntity(location, andere)
         await fixture.em.persistAndFlush(newCheckIn)
       }
@@ -65,9 +62,9 @@ describe("SchoolsController (e2e)", () => {
         .expect(200)
 
       const schoolsResponse = response.body as School[]
-      expect(schoolsResponse).to.be.a("Array<School>")
-      expect(schoolsResponse[schoolsResponse.length - 1]).to.deep.equal(andere)
-      expect(schoolsResponse[0]).to.deep.equal(school)
+      expect(schoolsResponse.length).to.be.equal(schools.length)
+      expect(schoolsResponse[schoolsResponse.length - 1].name).to.be.equal(andere.name)
+      expect(schoolsResponse[0].name).to.be.equal(school.name)
     })
 
     it("returns Forbidden (403)", async () => {

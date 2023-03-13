@@ -26,23 +26,11 @@ export class SchoolsService {
       let bLocationCheckIns = 0
 
       if (a.id !== 1) {
-        void a.checkIns.matching({
-          where: {
-            location: {
-              id: locationId
-            }
-          }
-        }).then(data => aLocationCheckIns = data.length)
+        aLocationCheckIns = a.checkIns.toArray().filter(checkIn => checkIn.location.id === locationId).length
       }
 
       if (b.id !== 1) {
-        void b.checkIns.matching({
-          where: {
-            location: {
-              id: locationId
-            }
-          }
-        }).then(data => bLocationCheckIns = data.length)
+        bLocationCheckIns = b.checkIns.toArray().filter(checkIn => checkIn.location.id === locationId).length
       }
 
       return (aLocationCheckIns < bLocationCheckIns) ? 1 : -1

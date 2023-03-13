@@ -43,7 +43,7 @@
     "db:migration-down": {
       "cache": false
     },
-    "db:migration-test": {
+    "db:test": {
       "cache": false
     },
     "cli": {}

@@ -13,7 +13,7 @@ export class SchoolEntity implements MikroSchoolInterface {
   @Unique()
   name: string
 
-  @OneToMany(() => CheckInEntity, checkIn => checkIn.school)
+  @OneToMany(() => CheckInEntity, checkIn => checkIn.school, { eager: true })
   checkIns = new Collection<CheckInEntity>(this)
 
   constructor(name: string) {

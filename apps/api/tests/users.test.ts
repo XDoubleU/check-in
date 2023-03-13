@@ -19,6 +19,7 @@ describe("UsersController (e2e)", () => {
 
   after(() => {
     return fixture.clearDatabase()
+      .then(() => fixture.app.close())
   })
 
   describe("/users/me (GET)", () => {
@@ -29,8 +30,6 @@ describe("UsersController (e2e)", () => {
         .expect(200)
       
       const userResponse = response.body as User
-      console.log(userResponse)
-      console.log(tokensAndUser.user)
       expect(userResponse.id).to.be.equal(tokensAndUser.user.id)
       expect(userResponse.username).to.be.equal(tokensAndUser.user.username)
       expect(userResponse.roles).to.deep.equal(tokensAndUser.user.roles)

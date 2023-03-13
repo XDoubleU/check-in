@@ -39,6 +39,7 @@ describe("CheckInsController (e2e)", () => {
 
   after(() => {
     return fixture.clearDatabase()
+      .then(() => fixture.app.close())
   })
 
   describe("/checkins (POST)", () => {

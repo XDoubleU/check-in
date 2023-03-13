@@ -8,7 +8,7 @@
     "db:migration-create": "npx mikro-orm migration:create",
     "db:migration-up": "npx mikro-orm migration:up",
     "db:migration-down": "npx mikro-orm migration:down",
-    "db:migration-test": "npx mikro-orm migration:fresh --seed"
+    "db:test": "npx mikro-orm migration:fresh --seed"
   },
   "mikro-orm": {
     "useTsNode": true,

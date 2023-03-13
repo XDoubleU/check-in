@@ -46,6 +46,7 @@ describe("SseController (e2e)", () => {
 
   after(() => {
     return fixture.clearDatabase()
+      .then(() => fixture.app.close())
   })
 
   describe("/sse (SSE)", () => {

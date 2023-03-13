@@ -19,6 +19,7 @@ describe("AuthController (e2e)", () => {
 
   after(() => {
     return fixture.clearDatabase()
+      .then(() => fixture.app.close())
   })
 
   describe("/auth/signin (POST)", () => {

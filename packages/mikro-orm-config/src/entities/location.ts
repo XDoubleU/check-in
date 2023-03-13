@@ -40,21 +40,12 @@ export class LocationEntity implements MikroLocationInterface {
   @Property({ persist: false })
   get available(): number {
     const [today, tomorrow] = this.getDates()
-    let checkInsToday: number = 0
 
-    void (this.checkIns as unknown as Collection<CheckInEntity>).matching({
-      where: {
-        createdAt: {
-          $gte: today,
-          $lt: tomorrow
-        }
-      }
-    })
-    .then(result => {
-      checkInsToday = result.length
+    const checkInsToday = this.checkIns.toArray().filter((checkIn) => {
+      return checkIn.createdAt >= today && checkIn.createdAt < tomorrow
     })
 
-    return this.capacity - checkInsToday
+    return this.capacity - checkInsToday.length
   }
 
   private getDates(): Date[] {

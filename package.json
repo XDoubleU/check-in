@@ -14,7 +14,7 @@
     "db:migration-create": "dotenv -- turbo db:migration-create",
     "db:migration-up": "dotenv -- turbo db:migration-up",
     "db:migration-down": "dotenv -- turbo db:migration-down",
-    "db:migration-test": "dotenv -- turbo db:migration-test",
+    "db:test": "dotenv -- turbo db:test",
     "cli": "dotenv -- turbo cli"
   },
   "dependencies": {

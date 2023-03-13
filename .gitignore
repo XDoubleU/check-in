@@ -42,4 +42,5 @@ sentry.properties
 dist
 .turbo
 coverage
+.nyc_output
 eslint_report.json

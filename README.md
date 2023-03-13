@@ -35,5 +35,5 @@ There are Docker-files present in both apps.
 ## Run tests
 
 1. Start database in docker: `docker-compose up -d`
-2. Setup database: `pnpm db:migrate-test`
+2. Setup database: `pnpm db:test`
 3. Run tests on: `pnpm test`
