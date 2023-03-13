@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  action:
     runs-on: ubuntu-latest
     services:
       postgres:
