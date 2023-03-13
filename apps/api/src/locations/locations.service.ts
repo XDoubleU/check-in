@@ -1,245 +1,66 @@
+import { EntityRepository, QueryOrder } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
-import { BaseLocation, CheckIn, Location, User } from "types-custom"
-import { PrismaService } from "../prisma.service"
+import { LocationEntity, UserEntity } from "mikro-orm-config"
 import { SseService } from "../sse/sse.service"
 
 @Injectable()
-export class LocationsService extends PrismaService {
-  constructor(private readonly sseService: SseService) {
-    super()
-  }
+export class LocationsService {
+  constructor(
+    @InjectRepository(LocationEntity)
+    private readonly locationsRepository: EntityRepository<LocationEntity>,
+    private readonly sseService: SseService
+  ) {}
 
   async getTotalCount(): Promise<number> {
-    return await this.location.count()
+    return await this.locationsRepository.count()
   }
   
-  async getAll(): Promise<Location[]> {
-    const locations = await this.location.findMany({
-      select: {
-        id: true,
-        name: true,
-        capacity: true,
-        user: {
-          select: {
-            id: true,
-            username: true
-          }
-        }
-      }
-    })
-
-    return this.computeLocations(locations)
+  async getAll(): Promise<LocationEntity[]> {
+    return await this.locationsRepository.findAll()
   }
 
-  async getAllPaged(page: number, pageSize: number): Promise<Location[]> {
-    const locations = await this.location.findMany({
+  async getAllPaged(page: number, pageSize: number): Promise<LocationEntity[]> {
+    return await this.locationsRepository.findAll({
       orderBy: {
-        name: "asc"
+        name: QueryOrder.ASC
       },
-      select: {
-        id: true,
-        name: true,
-        capacity: true,
-        user: {
-          select: {
-            id: true,
-            username: true
-          }
-        }
-      },
-      take: pageSize,
-      skip: (page - 1) * pageSize
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     })
-
-    return this.computeLocations(locations)
   }
 
-  async getById(id: string): Promise<Location | null> {
-    const location = await this.location.findFirst({
-      where: {
-        id: id
-      },
-      select: {
-        id: true,
-        name: true,
-        capacity: true,
-        user: {
-          select: {
-            id: true,
-            username: true
-          }
-        }
-      }
+  async getById(id: string): Promise<LocationEntity | null> {
+    return await this.locationsRepository.findOne({
+      id: id
     })
-
-    if (!location) {
-      return null
-    }
-
-    return this.computeLocation(location)
   }
 
-  async getByName(name: string): Promise<Location | null> {
-    const location = await this.location.findFirst({
-      where: {
-        name: name
-      },
-      select: {
-        id: true,
-        name: true,
-        capacity: true,
-        user: {
-          select: {
-            id: true,
-            username: true
-          }
-        }
-      }
+  async getByName(name: string): Promise<LocationEntity | null> {
+    return await this.locationsRepository.findOne({
+      name: name
     })
-
-    if (!location) {
-      return null
-    }
-
-    return this.computeLocation(location)
   }
 
-  async create(name: string, capacity: number, user: User): Promise<Location> {
-    const location = await this.location.create({
-      data: {
-        name: name,
-        capacity: capacity, 
-        userId: user.id
-      },
-      select: {
-        id: true,
-        name: true,
-        capacity: true,
-        user: {
-          select: {
-            id: true,
-            username: true
-          }
-        }
-      }
-    })
-
-    return this.computeLocation(location)
+  async create(name: string, capacity: number, user: UserEntity): Promise<LocationEntity> {
+    const location = new LocationEntity(name, capacity, user)
+    await this.locationsRepository.persistAndFlush(location)
+    return location
   }
 
-  async update(location: Location, name?: string, capacity?: number): Promise<Location> {
-    const result = await this.location.update({
-      where: {
-        id: location.id
-      },
-      data: {
-        name: name,
-        capacity: capacity
-      },
-      select: {
-        id: true,
-        name: true,
-        capacity: true,
-        user: {
-          select: {
-            id: true,
-            username: true
-          }
-        }
-      }
-    })
+  async update(location: LocationEntity, name?: string, capacity?: number): Promise<LocationEntity> {
+    location.name = name ?? location.name
+    location.capacity = capacity ?? location.capacity
 
-    const computedLocation = await this.computeLocation(result)
-    this.sseService.addLocationUpdate(computedLocation)
-    return computedLocation
+    await this.locationsRepository.flush()
+
+    this.sseService.addLocationUpdate(location)
+
+    return location
   }
 
-  async delete(location: Location): Promise<Location> {
-    const result = await this.location.delete({
-      where: {
-        id: location.id
-      },
-      select: {
-        id: true,
-        name: true,
-        capacity: true,
-        user: {
-          select: {
-            id: true,
-            username: true
-          }
-        }
-      }
-    })
-
-    return this.computeLocation(result)
-  }
-
-  private getDates(): Date[] {
-    const today = new Date()
-    today.setHours(0)
-    today.setMinutes(0)
-    today.setSeconds(0)
-
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-
-    return [today, tomorrow]
-  }
-
-  private transformLocation(location: BaseLocation, checkInsToday: CheckIn[]): Location {
-    const normalizedName = location.name
-                            .toLowerCase()
-                            .replace(" ", "-")
-                            .replace("[^A-Za-z0-9\-]+", "")
-
-    return {
-      id: location.id,
-      name: location.name,
-      normalizedName,
-      available: location.capacity - checkInsToday.length,
-      capacity: location.capacity,
-      user: location.user
-    }
-  }
-
-  private async computeLocation(location: BaseLocation): Promise<Location> {
-    const [today, tomorrow] = this.getDates()
-
-    const checkInsToday = await this.checkIn.findMany({
-      where: {
-        locationId: location.id,
-        datetime: {
-          gte: today,
-          lt:  tomorrow
-        }
-      }
-    })
-
-    return this.transformLocation(location, checkInsToday)
-  }
-
-  private async computeLocations(locations: BaseLocation[]): Promise<Location[]> {
-    const [today, tomorrow] = this.getDates()
-
-    const checkInsToday = await this.checkIn.findMany({
-      where: {
-        locationId: {
-          in: locations.map(location => location.id)
-        },
-        datetime: {
-          gte: today,
-          lt:  tomorrow
-        }
-      }
-    })
-
-    const result: Location[] = []
-    locations.forEach((location) => {
-      const checkIns = checkInsToday.filter(checkIn => { return checkIn.locationId === location.id })
-      result.push(this.transformLocation(location, checkIns))
-    })
-
-    return result
+  async delete(location: LocationEntity): Promise<LocationEntity> {
+    await this.locationsRepository.removeAndFlush(location)
+    return location
   }
 }

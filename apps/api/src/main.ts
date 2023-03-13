@@ -11,6 +11,7 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
   app.enableCors(corsOptions)
   app.use(cookieParser())
+  app.enableShutdownHooks()
   await app.listen(process.env.API_PORT ?? 8000)
 }
 void bootstrap()

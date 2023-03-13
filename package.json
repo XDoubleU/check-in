@@ -10,9 +10,11 @@
     "test": "dotenv -- turbo test",
     "test:cov": "dotenv -- turbo test:cov",
     "test:report": "dotenv -- turbo test:report",
-    "db:generate": "dotenv -- turbo db:generate",
-    "db:migrate-dev": "dotenv -- turbo db:migrate-dev",
-    "db:migrate-prod": "dotenv -- turbo db:migrate-prod",
+    "db:seed": "dotenv -- turbo db:seed",
+    "db:migration-create": "dotenv -- turbo db:migration-create",
+    "db:migration-up": "dotenv -- turbo db:migration-up",
+    "db:migration-down": "dotenv -- turbo db:migration-down",
+    "db:test": "dotenv -- turbo db:test",
     "cli": "dotenv -- turbo cli"
   },
   "dependencies": {

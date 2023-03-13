@@ -1,111 +1,41 @@
 import { Injectable } from "@nestjs/common"
-import { BaseUser, User } from "types-custom"
-import { compareSync, hashSync } from "bcrypt"
-import { PrismaService } from "../prisma.service"
+import { InjectRepository } from "@mikro-orm/nestjs"
+import { EntityRepository } from "@mikro-orm/core"
+import { UserEntity } from "mikro-orm-config"
 
 @Injectable()
-export class UsersService extends PrismaService {
-  async getById(id: string): Promise<User | null> {
-    const user = await this.user.findFirst({
-      where: {
-        id: id
-      },
-      select: {
-        id: true,
-        username: true,
-        roles: true,
-        location: {
-          select: {
-            id: true
-          }
-        }
-      }
-    })
+export class UsersService {
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: EntityRepository<UserEntity>
+  ) {}
 
-    if (!user) {
-      return null
-    }
-
-    return this.computeUser(user)
-  }
-
-  async getByUserName(username: string): Promise<User | null> {
-    const user = await this.user.findFirst({
-      where: {
-        username: username
-      },
-      select: {
-        id: true,
-        username: true,
-        roles: true,
-        location: {
-          select: {
-            id: true
-          }
-        }
-      }
-    })
-
-    if (!user) {
-      return null
-    }
-
-    return this.computeUser(user)
-  }
-
-  async checkPassword(username: string, password: string): Promise<boolean> {
-    const user = await this.user.findFirst({
-      where: {
-        username: username
-      }
-    })
-
-    if (!user) {
-      return false
-    }
-
-    return compareSync(password, user.passwordHash)
-  }
-
-  async create(username: string, password: string): Promise<User> {
-    const passwordHash = hashSync(password, 12)
-
-    return await this.user.create({
-      data: {
-        username: username,
-        passwordHash: passwordHash
-      }
+  async getById(id: string): Promise<UserEntity | null> {
+    return await this.usersRepository.findOne({
+      id: id
     })
   }
 
-  async update(user: User, username?: string, password?: string): Promise<User> {
-    const passwordHash = password === undefined ? undefined : hashSync(password, 12)
-
-    return await this.user.update({
-      where: {
-        id: user.id
-      },
-      data: {
-        username: username,
-        passwordHash: passwordHash
-      }
+  async getByUserName(username: string): Promise<UserEntity | null> {
+    return await this.usersRepository.findOne({
+      username: username
     })
   }
 
-  async delete(user: User): Promise<User | null> {
-    return await this.user.delete({
-      where: {
-        id: user.id
-      }
-    })
+  async create(username: string, password: string): Promise<UserEntity> {
+    const user = new UserEntity(username, password)
+    await this.usersRepository.persistAndFlush(user)
+    return user
   }
 
-  private computeUser(user: BaseUser): User {
-    return {
-      id: user.id,
-      username: user.username,
-      roles: user.roles,
-      locationId: user.location?.id
-    }
+  async update(user: UserEntity, username?: string, password?: string): Promise<UserEntity> {
+    user.update(username, password)
+    await this.usersRepository.flush()
+    return user
+  }
+
+  async delete(user: UserEntity): Promise<UserEntity | null> {
+    await this.usersRepository.removeAndFlush(user)
+    return user
   }
 }

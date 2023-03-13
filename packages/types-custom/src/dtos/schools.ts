@@ -1,23 +1,15 @@
-import { IsNotEmpty } from "class-validator"
 import { School } from "../types"
 
-export class CreateSchoolDto {
-  @IsNotEmpty()
+export interface CreateSchoolDto {
   name: string
 }
 
-export class GetAllPaginatedSchoolDto {
-  @IsNotEmpty()
+export interface GetAllPaginatedSchoolDto {
   page: number
-
-  @IsNotEmpty()
   totalPages: number
-
-  @IsNotEmpty()
   schools: School[]
 }
 
-export class UpdateSchoolDto {
-  @IsNotEmpty()
+export interface UpdateSchoolDto {
   name: string
 }

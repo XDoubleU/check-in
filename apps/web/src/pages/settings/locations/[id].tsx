@@ -32,7 +32,7 @@ export default function LocationDetail() {
         <LocationUpdateModal
           id={location.id}
           name={location.name}
-          username={location.user.username}
+          username={"TODO"}
           capacity={location.capacity}
         />
       </Col>

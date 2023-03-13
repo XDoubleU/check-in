@@ -1,7 +1,8 @@
+import { expect } from "chai"
 import Query from "../src/query"
 
 describe("Query class", () => {
-  test("All query parameters are undefined", () => {
+  it("All query parameters are undefined", () => {
     const page = undefined
     const search = undefined
   
@@ -10,10 +11,10 @@ describe("Query class", () => {
       search
     })
   
-    expect(query.toString()).toBe("")
+    expect(query.toString()).to.be.equal("")
   })
 
-  test("All query string parameters are empty strings", () => {
+  it("All query string parameters are empty strings", () => {
     const page = undefined
     const search = ""
   
@@ -22,10 +23,10 @@ describe("Query class", () => {
       search
     })
   
-    expect(query.toString()).toBe("")
+    expect(query.toString()).to.be.equal("")
   })
 
-  test("All query parameters have valid values", () => {
+  it("All query parameters have valid values", () => {
     const page = 5
     const search = "test"
   
@@ -34,7 +35,7 @@ describe("Query class", () => {
       search
     })
   
-    expect(query.toString()).toBe("?page=5&search=test")
+    expect(query.toString()).to.be.equal("?page=5&search=test")
   })
 })
 

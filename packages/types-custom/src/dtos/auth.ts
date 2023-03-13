@@ -1,17 +1,9 @@
-import { IsNotEmpty } from "class-validator"
-
-export class SignInDto {
-  @IsNotEmpty()
+export interface SignInDto {
   username: string
-
-  @IsNotEmpty()
   password: string
 }
 
-export class Tokens {
-  @IsNotEmpty()
+export interface Tokens {
   accessToken: string
-
-  @IsNotEmpty()
   refreshToken: string
 }

@@ -1,10 +1,14 @@
 import { Command } from "commander"
 import prompts from "prompts"
-import { hashSync } from "bcrypt"
-import { PrismaClient } from "prisma-database"
 import { Role } from "types-custom"
+import config, { CheckInEntity, LocationEntity, SchoolEntity, UserEntity } from "mikro-orm-config"
+import { MikroORM } from "@mikro-orm/core"
 
-const prisma = new PrismaClient()
+const mikroOptions = {
+  ...config,
+  entities: [ CheckInEntity, LocationEntity, SchoolEntity, UserEntity ]
+}
+
 const program = new Command()
 
 program
@@ -16,6 +20,8 @@ program.command("createadmin")
   .option("-u, --username <string>", "username")
   .option("-p, --password <string>", "password")
   .action(async (options: { username?: string, password?: string }) => {
+    const em = (await MikroORM.init(mikroOptions)).em
+
     let promptResponse = {
       username: "",
       password: ""
@@ -41,25 +47,15 @@ program.command("createadmin")
       ])
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        username: promptResponse.username
-      }
-    })
+    const existingUser = await em.findOne(UserEntity, { username: promptResponse.username })
 
     if (existingUser) {
       console.log("This username is already used")
       return
     }
 
-    const passwordHash = hashSync(promptResponse.password, 12)
-    await prisma.user.create({
-      data: {
-        username: promptResponse.username,
-        passwordHash: passwordHash,
-        roles: [Role.Admin]
-      }
-    })
+    const user = new UserEntity(promptResponse.username, promptResponse.password, Role.Admin)
+    await em.persistAndFlush(user)
 
     console.log("Admin added")
     process.exit(0)

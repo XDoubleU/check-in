@@ -24,8 +24,9 @@ There are Docker-files present in both apps.
 
 ## Edit schema?
 
-1. `pnpm db:generate`
-2. Create migrations: `pnpm db:migrate-dev -- --name [NAME]` (run with docker-compose)
+1. Create migrations: `pnpm db:migration-create`
+2. Apply migration: `pnpm db:migration-up`
+3. Undo migration: `pnpm db:migration-down`
 
 ## Other
 
@@ -33,6 +34,6 @@ There are Docker-files present in both apps.
 
 ## Run tests
 
-1. Start docker: `docker-compose up -d --build`
-2. Migrate database schema: `pnpm db:test`
+1. Start database in docker: `docker-compose up -d`
+2. Setup database: `pnpm db:test`
 3. Run tests on: `pnpm test`

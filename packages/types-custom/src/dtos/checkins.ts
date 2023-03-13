@@ -1,9 +1,4 @@
-import { IsNotEmpty } from "class-validator"
-
-export class CreateCheckInDto {
-  @IsNotEmpty()
+export interface CreateCheckInDto {
   locationId: string
-  
-  @IsNotEmpty()
   schoolId: number
 }

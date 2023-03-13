@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
+import { LocationEntity } from "mikro-orm-config"
 import { filter, map, Observable, Subject } from "rxjs"
-import { Location } from "types-custom"
 
 export interface LocationUpdateEventData {
   normalizedName: string,
@@ -16,7 +16,7 @@ export interface LocationUpdateEvent {
 export class SseService {
   private locationUpdates = new Subject<LocationUpdateEvent>()
 
-  addLocationUpdate(location: Location): void {
+  addLocationUpdate(location: LocationEntity): void {
     const newLocationUpdate: LocationUpdateEvent = {
       data: {
         normalizedName: location.normalizedName,

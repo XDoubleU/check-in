@@ -137,7 +137,7 @@ export default function LocationList() {
               name={location.name}
               normalizedName={location.normalizedName}
               capacity={location.capacity}
-              username={location.user.username} />
+              username={"TODO"} />
           })
         }
       </div>

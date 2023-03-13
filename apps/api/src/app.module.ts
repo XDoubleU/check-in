@@ -8,9 +8,21 @@ import { APP_GUARD } from "@nestjs/core"
 import { AccessTokenGuard } from "./auth/guards/accessToken.guard"
 import { UsersModule } from "./users/users.module"
 import { RolesGuard } from "./auth/guards/roles.guard"
+import config from "mikro-orm-config"
+import { MikroOrmModule } from "@mikro-orm/nestjs"
 
 @Module({
-  imports: [CheckInsModule, LocationsModule, SchoolsModule, AuthModule, UsersModule],
+  imports: [
+    MikroOrmModule.forRoot({
+      ...config,
+      autoLoadEntities: true
+    }),
+    CheckInsModule,
+    LocationsModule,
+    SchoolsModule,
+    AuthModule,
+    UsersModule
+  ],
   providers: [
     {
       provide: APP_GUARD,

@@ -6,11 +6,14 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "isolatedModules": true,
+    "strictNullChecks": true
   },
   "include": [
     "src",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

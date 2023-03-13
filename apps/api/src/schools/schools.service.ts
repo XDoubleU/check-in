@@ -1,90 +1,80 @@
+import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
-import { School } from "types-custom"
-import { PrismaService } from "../prisma.service"
+import { SchoolEntity } from "mikro-orm-config"
 
 @Injectable()
-export class SchoolsService extends PrismaService {
+export class SchoolsService {
+  constructor(
+    @InjectRepository(SchoolEntity)
+    private readonly schoolsRepository: EntityRepository<SchoolEntity>
+  ) {}
+
   async getTotalCount(): Promise<number> {
-    return await this.school.count()
+    return this.schoolsRepository.count()
   }
   
-  async getAll(locationId: string | undefined): Promise<School[]> {
-    const schools = await this.school.findMany()
+  async getAll(locationId?: string): Promise<SchoolEntity[]> {
+    const schools = await this.schoolsRepository.findAll()
+
     if (!locationId) {
       return schools
     }
 
-    const checkins = await this.checkIn.findMany({
-      where: {
-        location: {
-          id: locationId
-        }
-      }
-    })
-    
-    function countCheckIns(school: School): number {
-      if (school.id === 1) {
-        return 0
+    schools.sort((a, b) => {
+      let aLocationCheckIns = 0
+      let bLocationCheckIns = 0
+
+      if (a.id !== 1) {
+        aLocationCheckIns = a.checkIns.toArray().filter(checkIn => checkIn.location.id === locationId).length
       }
 
-      return checkins.reduce((total,x) => (x.schoolId === school.id ? total+1 : total), 0)
-    }
-    
-    schools.sort((schoolA, schoolB) => (countCheckIns(schoolA) < countCheckIns(schoolB)) ? 1 : -1)
+      if (b.id !== 1) {
+        bLocationCheckIns = b.checkIns.toArray().filter(checkIn => checkIn.location.id === locationId).length
+      }
+
+      return (aLocationCheckIns < bLocationCheckIns) ? 1 : -1
+    })
 
     return schools
   }
 
-  async getAllPaged(page: number, pageSize: number): Promise<School[]> {
-    return await this.school.findMany({
+  async getAllPaged(page: number, pageSize: number): Promise<SchoolEntity[]> {
+    return this.schoolsRepository.findAll({
       orderBy: {
         name: "asc"
       },
-      take: pageSize,
-      skip: (page - 1) * pageSize
+      limit: pageSize,
+      offset: (page - 1) * pageSize
     })
   }
 
-  async getById(id: number): Promise<School | null> {
-    return await this.school.findFirst({
-      where: {
-        id: id
-      }
+  async getById(id: number): Promise<SchoolEntity | null> {
+    return await this.schoolsRepository.findOne({
+      id: id
     })
   }
 
-  async getByName(name: string): Promise<School | null> {
-    return await this.school.findFirst({
-      where: {
-        name: name
-      }
+  async getByName(name: string): Promise<SchoolEntity | null> {
+    return await this.schoolsRepository.findOne({
+      name: name
     })
   }
 
-  async create(name: string): Promise<School> {
-    return await this.school.create({
-      data: {
-        name: name
-      }
-    })
+  async create(name: string): Promise<SchoolEntity> {
+    const school = new SchoolEntity(name)
+    await this.schoolsRepository.persistAndFlush(school)
+    return school
   }
 
-  async update(school: School, name: string): Promise<School> {
-    return await this.school.update({
-      where: {
-        id: school.id
-      },
-      data: {
-        name: name
-      }
-    })
+  async update(school: SchoolEntity, name: string): Promise<SchoolEntity> {
+    school.name = name
+    await this.schoolsRepository.flush()
+    return school
   }
 
-  async delete(school: School): Promise<School> {
-    return await this.school.delete({
-      where: {
-        id: school.id
-      }
-    })
+  async delete(school: SchoolEntity): Promise<SchoolEntity> {
+    await this.schoolsRepository.removeAndFlush(school)
+    return school
   }
 }
