@@ -22,6 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
+      - uses: falti/dotenv-action@v1.0.4
         with:
           node-version: "16.x"
       - uses: pnpm/action-setup@v2
