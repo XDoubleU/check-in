@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react"
+import { type FormEvent, useState } from "react"
 import styles from "./signin.module.css"
 import { Col, Form } from "react-bootstrap"
 import BaseLayout from "@/layouts/BaseLayout"

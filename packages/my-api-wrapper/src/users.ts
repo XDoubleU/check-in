@@ -1,4 +1,4 @@
-import { User } from "types-custom"
+import { type User } from "types-custom"
 import { fetchHandler } from "./fetchHandler"
 
 const USERS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/users`

@@ -1,6 +1,6 @@
 import request from "supertest"
-import { CreateSchoolDto, GetAllPaginatedSchoolDto, School, UpdateSchoolDto } from "types-custom"
-import Fixture, { ErrorResponse, TokensAndUser } from "./fixture"
+import { type CreateSchoolDto, type GetAllPaginatedSchoolDto, type School, type UpdateSchoolDto } from "types-custom"
+import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
 import { CheckInEntity, SchoolEntity } from "mikro-orm-config"
 import { expect } from "chai"
 

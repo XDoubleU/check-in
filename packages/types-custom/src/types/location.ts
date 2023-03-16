@@ -1,4 +1,4 @@
-import { CheckIn } from "./checkin"
+import { type CheckIn } from "./checkin"
 
 
 export interface Location {

@@ -1,6 +1,6 @@
 import request from "supertest"
-import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto } from "types-custom"
-import Fixture, { ErrorResponse, TokensAndUser } from "./fixture"
+import { type CreateLocationDto, type GetAllPaginatedLocationDto, type Location, type UpdateLocationDto } from "types-custom"
+import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
 import { v4 } from "uuid"
 import { expect } from "chai"
 import { LocationEntity } from "mikro-orm-config"

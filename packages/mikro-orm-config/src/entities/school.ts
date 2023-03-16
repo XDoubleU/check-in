@@ -1,5 +1,5 @@
 import { Collection, Entity, OneToMany, PrimaryKey, Property, Unique } from "@mikro-orm/core"
-import { School } from "types-custom"
+import { type School } from "types-custom"
 import { CheckInEntity } from "./checkin"
 
 type MikroSchoolInterface = Omit<School, "checkIns"> & { checkIns: Collection<CheckInEntity> }
@@ -7,16 +7,16 @@ type MikroSchoolInterface = Omit<School, "checkIns"> & { checkIns: Collection<Ch
 @Entity({ tableName: "School" })
 export class SchoolEntity implements MikroSchoolInterface {
   @PrimaryKey()
-  id: number
+  public id!: number
 
   @Property()
   @Unique()
-  name: string
+  public name: string
 
   @OneToMany(() => CheckInEntity, checkIn => checkIn.school, { eager: true })
-  checkIns = new Collection<CheckInEntity>(this)
+  public checkIns = new Collection<CheckInEntity>(this)
 
-  constructor(name: string) {
+  public constructor(name: string) {
     this.name = name
   }
 }

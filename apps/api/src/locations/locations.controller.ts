@@ -1,24 +1,27 @@
 import { BadRequestException, Body, ConflictException, Controller, Delete, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Query } from "@nestjs/common"
 import { LocationsService } from "./locations.service"
 import { UsersService } from "../users/users.service"
-import type { CreateLocationDto, GetAllPaginatedLocationDto, UpdateLocationDto } from "types-custom"
-import { Role } from "types-custom"
+import  { type GetAllPaginatedLocationDto } from "types-custom"
+import { Role , CreateLocationDto, UpdateLocationDto } from "types-custom"
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { Roles } from "../auth/decorators/roles.decorator"
-import { LocationEntity, UserEntity } from "mikro-orm-config"
+import { type LocationEntity, UserEntity } from "mikro-orm-config"
 
 type MikroGetAllPaginatedLocationDto = Omit<GetAllPaginatedLocationDto, "locations"> & { locations: LocationEntity[] }
 
 @Controller("locations")
 export class LocationsController {
-  constructor(
-    private readonly locationsService: LocationsService,
-    private readonly usersService: UsersService
-  ) {}
+  private readonly locationsService: LocationsService
+  private readonly usersService: UsersService
+
+  public constructor(locationsService: LocationsService, usersService: UsersService) {
+    this.locationsService = locationsService
+    this.usersService = usersService
+  }
 
   @Roles(Role.Admin)
   @Get()
-  async getAll(@Query("page") queryPage?: string): Promise<MikroGetAllPaginatedLocationDto> {
+  public async getAll(@Query("page") queryPage?: string): Promise<MikroGetAllPaginatedLocationDto> {
     const pageSize = 3
     const page = queryPage ? parseInt(queryPage) : 1
     const count = await this.locationsService.getTotalCount()
@@ -33,7 +36,7 @@ export class LocationsController {
 
   @Roles(Role.User)
   @Get("me")
-  async getMyLocation(@ReqUser() user: UserEntity): Promise<LocationEntity> {
+  public async getMyLocation(@ReqUser() user: UserEntity): Promise<LocationEntity> {
     if (!user.location?.id) {
       throw new BadRequestException()
     }
@@ -47,7 +50,7 @@ export class LocationsController {
   }
 
   @Get(":id")
-  async get(@ReqUser() user: UserEntity, @Param("id") id: string): Promise<LocationEntity> {
+  public async get(@ReqUser() user: UserEntity, @Param("id") id: string): Promise<LocationEntity> {
     const location = await this.locationsService.getById(id)
     if (!location || (!user.roles.includes(Role.Admin) && location.user.id !== user.id)) {
       throw new NotFoundException("Location not found")
@@ -58,7 +61,7 @@ export class LocationsController {
 
   @Roles(Role.Admin)
   @Post()
-  async create(@Body() createLocationDto: CreateLocationDto): Promise <LocationEntity> {
+  public async create(@Body() createLocationDto: CreateLocationDto): Promise <LocationEntity> {
     const existingLocation = await this.locationsService.getByName(createLocationDto.name)
     if (existingLocation) {
       throw new ConflictException("Location with this name already exists")
@@ -74,7 +77,7 @@ export class LocationsController {
   }
 
   @Patch(":id")
-  async update(@ReqUser() reqUser: UserEntity, @Param("id") id: string, @Body() updateLocationDto: UpdateLocationDto): Promise<LocationEntity> {
+  public async update(@ReqUser() reqUser: UserEntity, @Param("id") id: string, @Body() updateLocationDto: UpdateLocationDto): Promise<LocationEntity> {
     const location = await this.locationsService.getById(id)
     if (!location || (!reqUser.roles.includes(Role.Admin) && location.user.id !== reqUser.id)) {
       throw new NotFoundException("Location not found")
@@ -106,7 +109,7 @@ export class LocationsController {
 
   @Roles(Role.Admin)
   @Delete(":id")
-  async delete(@Param("id") id: string): Promise<LocationEntity> {
+  public async delete(@Param("id") id: string): Promise<LocationEntity> {
     let location = await this.locationsService.getById(id)
     if (!location) {
       throw new NotFoundException("Location not found")

@@ -1,4 +1,4 @@
-import { CSSProperties, MouseEventHandler } from "react"
+import { type CSSProperties, type MouseEventHandler } from "react"
 import { Button } from "react-bootstrap"
 
 interface CustomButtonProps {

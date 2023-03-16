@@ -1,6 +1,6 @@
 import request from "supertest"
-import { CheckIn, CreateCheckInDto } from "types-custom"
-import Fixture, { ErrorResponse, TokensAndUser } from "./fixture"
+import { type CheckIn, type CreateCheckInDto } from "types-custom"
+import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
 import { LocationEntity, SchoolEntity } from "mikro-orm-config"
 import { expect } from "chai"
 import { v4 } from "uuid"

@@ -1,4 +1,4 @@
-import { SignInDto } from "types-custom"
+import { type SignInDto } from "types-custom"
 import { fetchHandler } from "./fetchHandler"
 
 const AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/auth`

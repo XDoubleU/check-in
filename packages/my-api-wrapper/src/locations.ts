@@ -1,4 +1,4 @@
-import { CreateLocationDto, GetAllPaginatedLocationDto, Location, UpdateLocationDto } from "types-custom"
+import { type CreateLocationDto, type GetAllPaginatedLocationDto, type Location, type UpdateLocationDto } from "types-custom"
 import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
 
@@ -59,11 +59,22 @@ export async function createLocation(name: string, capacity: number, username: s
 }
 
 export async function updateLocation(id: string, name?: string, capacity?: number, username?: string, password?: string): Promise<Location | null> {
-  const data: UpdateLocationDto = {
-    name,
-    capacity,
-    username,
-    password
+  const data: UpdateLocationDto = {}
+
+  if (name) {
+    data.name = name
+  }
+
+  if (capacity) {
+    data.capacity = capacity
+  }
+
+  if (username) {
+    data.username = username
+  }
+
+  if (password) {
+    data.password = password
   }
 
   const response = await fetchHandler(`${LOCATIONS_URL}/${id}`, {

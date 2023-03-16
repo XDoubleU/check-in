@@ -1,11 +1,11 @@
 import CustomButton from "@/components/CustomButton"
-import CustomPagination, { CustomPaginationProps } from "@/components/CustomPagination"
+import CustomPagination, { type CustomPaginationProps } from "@/components/CustomPagination"
 import SchoolCard from "@/components/cards/SchoolCard"
 import AdminLayout from "@/layouts/AdminLayout"
-import { School } from "types-custom"
+import { type School } from "types-custom"
 import { createSchool, getAllSchools } from "my-api-wrapper"
 import { useRouter } from "next/router"
-import { FormEvent, useCallback, useEffect, useState } from "react"
+import { type FormEvent, useCallback, useEffect, useState } from "react"
 import { Col, Form, Modal } from "react-bootstrap"
 
 interface SchoolList {

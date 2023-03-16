@@ -1,5 +1,5 @@
 import { useRouter } from "next/router"
-import { FormEvent, ReactElement, useState } from "react"
+import { type FormEvent, type ReactElement, useState } from "react"
 import { Form, Modal } from "react-bootstrap"
 import CustomButton from "@/components/CustomButton"
 

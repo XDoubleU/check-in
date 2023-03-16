@@ -1,20 +1,20 @@
 import { EntityRepository } from "@mikro-orm/core"
-import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { SchoolEntity } from "mikro-orm-config"
 
 @Injectable()
 export class SchoolsService {
-  constructor(
-    @InjectRepository(SchoolEntity)
-    private readonly schoolsRepository: EntityRepository<SchoolEntity>
-  ) {}
+  private readonly schoolsRepository: EntityRepository<SchoolEntity>
 
-  async getTotalCount(): Promise<number> {
+  public constructor(schoolsRepository: EntityRepository<SchoolEntity>) {
+    this.schoolsRepository = schoolsRepository
+  }
+
+  public async getTotalCount(): Promise<number> {
     return this.schoolsRepository.count()
   }
   
-  async getAll(locationId?: string): Promise<SchoolEntity[]> {
+  public async getAll(locationId?: string): Promise<SchoolEntity[]> {
     const schools = await this.schoolsRepository.findAll()
 
     if (!locationId) {
@@ -39,7 +39,7 @@ export class SchoolsService {
     return schools
   }
 
-  async getAllPaged(page: number, pageSize: number): Promise<SchoolEntity[]> {
+  public async getAllPaged(page: number, pageSize: number): Promise<SchoolEntity[]> {
     return this.schoolsRepository.findAll({
       orderBy: {
         name: "asc"
@@ -49,31 +49,31 @@ export class SchoolsService {
     })
   }
 
-  async getById(id: number): Promise<SchoolEntity | null> {
+  public async getById(id: number): Promise<SchoolEntity | null> {
     return await this.schoolsRepository.findOne({
       id: id
     })
   }
 
-  async getByName(name: string): Promise<SchoolEntity | null> {
+  public async getByName(name: string): Promise<SchoolEntity | null> {
     return await this.schoolsRepository.findOne({
       name: name
     })
   }
 
-  async create(name: string): Promise<SchoolEntity> {
+  public async create(name: string): Promise<SchoolEntity> {
     const school = new SchoolEntity(name)
     await this.schoolsRepository.persistAndFlush(school)
     return school
   }
 
-  async update(school: SchoolEntity, name: string): Promise<SchoolEntity> {
+  public async update(school: SchoolEntity, name: string): Promise<SchoolEntity> {
     school.name = name
     await this.schoolsRepository.flush()
     return school
   }
 
-  async delete(school: SchoolEntity): Promise<SchoolEntity> {
+  public async delete(school: SchoolEntity): Promise<SchoolEntity> {
     await this.schoolsRepository.removeAndFlush(school)
     return school
   }

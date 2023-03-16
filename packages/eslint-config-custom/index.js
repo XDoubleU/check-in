@@ -1,7 +1,11 @@
+const { commonNamingConvention } = require("./shared");
+
 module.exports = {
+  root: true,
   parser: "@typescript-eslint/parser",
   plugins: [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "import"
   ],
   extends: [
     "turbo",
@@ -9,30 +13,43 @@ module.exports = {
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:@typescript-eslint/strict"
   ],
-  root: true,
-  env: {
-    "node": true,
-    "jest": true
-  },
-  ignorePatterns: [".eslintrc.js", "*.config.*", "**/dist/**", "**/coverage/**"],
+  ignorePatterns: [
+    ".eslintrc.js",
+    "**/dist/**",
+    "*.config.*"
+  ],
   rules: {
+    "@typescript-eslint/explicit-function-return-type": "error",
+    "@typescript-eslint/explicit-member-accessibility": "error",
+    "@typescript-eslint/member-ordering": "error",
+    "@typescript-eslint/no-require-imports": "error",
+    "@typescript-eslint/parameter-properties": "error",
+    "@typescript-eslint/prefer-readonly": "error",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
         "ignoreRestSiblings": true
       }
     ],
-    "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/explicit-function-return-type": "error",
-    "sort-imports": 
-    [
-      "warn", 
-      { 
-        "ignoreCase": true, 
-        "ignoreDeclarationSort": true 
+    "@typescript-eslint/naming-convention": [
+      "error",
+      ...commonNamingConvention
+    ],
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "fixStyle": "inline-type-imports"
       }
     ],
-    "semi": [2, "never"],
-    "quotes": [2, "double"]
+    "import/no-duplicates": [
+      "error", 
+      {
+        "prefer-inline": true
+      }
+    ],
+    "import/consistent-type-specifier-style": [
+      "error", 
+      "prefer-inline"
+    ]
   }
 }

@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common"
 import { PassportStrategy } from "@nestjs/passport"
-import { Request } from "express"
+import { type Request } from "express"
 import { ExtractJwt, Strategy } from "passport-jwt"
 import { UsersService } from "../../users/users.service"
-import { Tokens } from "types-custom"
-import { UserEntity } from "mikro-orm-config"
+import { type Tokens } from "types-custom"
+import { type UserEntity } from "mikro-orm-config"
 
 export interface JwtPayload {
   sub: string
@@ -12,7 +12,9 @@ export interface JwtPayload {
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, "jwt") {
-  constructor(private readonly usersService: UsersService) {
+  private readonly usersService: UsersService
+
+  public constructor(usersService: UsersService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([(request: Request): string | null => {
         const cookies = request.cookies as Tokens
@@ -25,9 +27,11 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, "jwt") {
       }]),
       secretOrKey: process.env.JWT_ACCESS_SECRET
     })
+
+    this.usersService = usersService
   }
 
-  async validate(payload: JwtPayload): Promise<UserEntity | null> {
+  public async validate(payload: JwtPayload): Promise<UserEntity | null> {
     return await this.usersService.getById(payload.sub)
   }
 }

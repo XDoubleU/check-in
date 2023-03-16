@@ -1,7 +1,7 @@
 import { expect } from "chai"
 import request from "supertest"
-import { User } from "types-custom"
-import Fixture, { TokensAndUser } from "./fixture"
+import { type User } from "types-custom"
+import Fixture, { type TokensAndUser } from "./fixture"
 
 
 describe("UsersController (e2e)", () => {

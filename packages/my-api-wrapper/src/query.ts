@@ -1,7 +1,7 @@
 export default class Query {  
-  urlSearchParams : URLSearchParams
+  private readonly urlSearchParams : URLSearchParams
 
-  constructor(data: Record<string, number | string | undefined>) {
+  public constructor(data: Record<string, number | string | undefined>) {
     this.urlSearchParams = new URLSearchParams()
 
     for (const key of Object.keys(data)){

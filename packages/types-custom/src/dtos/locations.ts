@@ -1,4 +1,4 @@
-import { Location } from "../types"
+import { type Location } from "../types"
 
 export interface CreateLocationDto {
   name: string

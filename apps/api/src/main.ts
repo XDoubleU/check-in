@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser"
 
 const corsOptions = {
   credentials: true,
-  origin: process.env.WEB_URL
+  origin: process.env.WEB_URL ?? ""
 }
 
 async function bootstrap(): Promise<void> {

@@ -18,9 +18,15 @@
       "dependsOn": ["^build"]
     },
     "prod": {},
-    "lint": {},
-    "lint:fix": {},
-    "lint:report": {},
+    "lint": {
+      "cache": false
+    },
+    "lint:fix": {
+      "cache": false
+    },
+    "lint:report": {
+      "cache": false
+    },
     "test": {
       "dependsOn": ["build"],
       "cache": false

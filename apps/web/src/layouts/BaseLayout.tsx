@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { type ReactNode } from "react"
 import Head from "next/head"
 import { Container } from "react-bootstrap"
 import Navigation from "@/components/Navigation"

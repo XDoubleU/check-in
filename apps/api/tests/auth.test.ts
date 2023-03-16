@@ -1,7 +1,7 @@
 import { expect } from "chai"
 import request from "supertest"
-import { SignInDto } from "types-custom"
-import Fixture, { ErrorResponse, RequestHeaders, TokensAndUser } from "./fixture"
+import { type SignInDto } from "types-custom"
+import Fixture, { type ErrorResponse, type RequestHeaders, type TokensAndUser } from "./fixture"
 
 
 describe("AuthController (e2e)", () => {
