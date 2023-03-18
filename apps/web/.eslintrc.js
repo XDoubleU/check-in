@@ -1,19 +1,10 @@
 module.exports = {
   extends: [
-    "next/core-web-vitals",
-    "custom"
+    "custom/nextjs.js",
   ],
   parserOptions: {
     project: "tsconfig.json",
     tsconfigRootDir: __dirname,
     sourceType: "module"
-  },
-  overrides: [
-    {
-      files: [ "*" ],
-      rules: {
-        "@typescript-eslint/explicit-function-return-type": "off",
-      }
-    }
-  ]
+  }
 }

@@ -1,10 +1,10 @@
+/* eslint-disable max-lines-per-function */
 import request from "supertest"
-import { CheckIn, CreateCheckInDto } from "types-custom"
-import Fixture, { ErrorResponse, TokensAndUser } from "./fixture"
+import { type CheckIn, type CreateCheckInDto } from "types-custom"
+import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
 import { LocationEntity, SchoolEntity } from "mikro-orm-config"
 import { expect } from "chai"
 import { v4 } from "uuid"
-
 
 describe("CheckInsController (e2e)", () => {
   let fixture: Fixture
@@ -14,15 +14,16 @@ describe("CheckInsController (e2e)", () => {
 
   let location: LocationEntity
   let school: SchoolEntity
-  
+
   before(() => {
     fixture = new Fixture()
-    return fixture.init()
+    return fixture
+      .init()
       .then(() => fixture.seedDatabase())
       .then(() => fixture.getTokens("User"))
-      .then((data) => tokensAndUser = data)
+      .then((data) => (tokensAndUser = data))
       .then(() => fixture.getTokens("Admin"))
-      .then((data) => adminTokensAndUser = data)
+      .then((data) => (adminTokensAndUser = data))
       .then(() => fixture.em.findOne(SchoolEntity, { id: 1 }))
       .then((data) => {
         if (!data) {
@@ -38,8 +39,7 @@ describe("CheckInsController (e2e)", () => {
   })
 
   after(() => {
-    return fixture.clearDatabase()
-      .then(() => fixture.app.close())
+    return fixture.clearDatabase().then(() => fixture.app.close())
   })
 
   describe("/checkins (POST)", () => {
@@ -48,13 +48,13 @@ describe("CheckInsController (e2e)", () => {
         locationId: location.id,
         schoolId: school.id
       }
-  
+
       const response = await request(fixture.app.getHttpServer())
         .post("/checkins")
         .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(201)
-      
+
       const responseCheckIn = response.body as CheckIn
       expect(responseCheckIn.id).to.exist
       expect(responseCheckIn.location.id).to.be.equal(location.id)
@@ -68,13 +68,13 @@ describe("CheckInsController (e2e)", () => {
         locationId: v4(),
         schoolId: school.id
       }
-  
+
       const response = await request(fixture.app.getHttpServer())
         .post("/checkins")
         .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(404)
-      
+
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).to.be.equal("Location not found")
     })
@@ -84,13 +84,13 @@ describe("CheckInsController (e2e)", () => {
         locationId: location.id,
         schoolId: -1
       }
-  
+
       const response = await request(fixture.app.getHttpServer())
         .post("/checkins")
         .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
         .send(data)
         .expect(404)
-      
+
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).to.be.equal("School not found")
     })
@@ -102,7 +102,7 @@ describe("CheckInsController (e2e)", () => {
         locationId: location.id,
         schoolId: school.id
       }
-  
+
       return await request(fixture.app.getHttpServer())
         .post("/checkins")
         .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])

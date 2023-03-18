@@ -1,5 +1,4 @@
-import { CheckIn } from "./checkin"
-
+import { type CheckIn } from "./checkin"
 
 export interface Location {
   id: string
@@ -7,7 +6,7 @@ export interface Location {
   capacity: number
   userId: string
   checkIns: CheckIn[]
-  
+
   get normalizedName(): string
   get available(): number
 }

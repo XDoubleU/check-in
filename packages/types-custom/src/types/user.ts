@@ -1,5 +1,4 @@
-import { Location } from "./location"
-
+import { type Location } from "./location"
 
 export interface User {
   id: string

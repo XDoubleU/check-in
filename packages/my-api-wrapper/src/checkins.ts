@@ -1,9 +1,12 @@
-import { CheckIn, CreateCheckInDto } from "types-custom"
+import { type CheckIn, type CreateCheckInDto } from "types-custom"
 import { fetchHandler } from "./fetchHandler"
 
 const CHECKIN_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/checkins`
 
-export async function createCheckIn(locationId: string, schoolId: number): Promise<CheckIn | null> {
+export async function createCheckIn(
+  locationId: string,
+  schoolId: number
+): Promise<CheckIn | null> {
   const data: CreateCheckInDto = {
     locationId,
     schoolId
@@ -11,12 +14,9 @@ export async function createCheckIn(locationId: string, schoolId: number): Promi
 
   const response = await fetchHandler(CHECKIN_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(data)
   })
-  if (!response){
+  if (!response) {
     return null
   }
 

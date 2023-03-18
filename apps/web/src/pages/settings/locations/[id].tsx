@@ -2,7 +2,7 @@ import { Col } from "react-bootstrap"
 import AdminLayout from "@/layouts/AdminLayout"
 import { LocationUpdateModal } from "@/components/cards/LocationCard"
 import CustomButton from "@/components/CustomButton"
-import { Location } from "types-custom"
+import { type Location } from "types-custom"
 import { getLocation } from "my-api-wrapper"
 import { useEffect, useState } from "react"
 import Router from "next/router"
@@ -12,18 +12,17 @@ export default function LocationDetail() {
   const [location, updateLocation] = useState<Location>()
 
   useEffect(() => {
-    void getLocation(Router.query.id as string)
-      .then((data) => {
-        if (data) {
-          updateLocation(data)
-        } else {
-          console.log("ERROR")
-        }
-      })
+    void getLocation(Router.query.id as string).then((data) => {
+      if (data) {
+        updateLocation(data)
+      } else {
+        console.log("ERROR")
+      }
+    })
   }, [])
 
   if (location === undefined) {
-    return <LoadingLayout/>
+    return <LoadingLayout />
   }
 
   return (
@@ -36,15 +35,12 @@ export default function LocationDetail() {
           capacity={location.capacity}
         />
       </Col>
-      <br/>
-
+      <br />
       <Col size={2}>
         <CustomButton>Download CSV (TODO)</CustomButton>
       </Col>
-      <br/>
-
+      <br />
       Still needs a chart :)
-
     </AdminLayout>
-  )  
+  )
 }

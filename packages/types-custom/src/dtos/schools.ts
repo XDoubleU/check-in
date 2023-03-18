@@ -1,4 +1,4 @@
-import { School } from "../types"
+import { type School } from "../types"
 
 export interface CreateSchoolDto {
   name: string
