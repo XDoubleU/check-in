@@ -1,7 +1,7 @@
 import Head from "next/head"
 import NextNProgress from "nextjs-progressbar"
 
-export default function LoadingLayout(){
+export default function LoadingLayout() {
   return (
     <>
       <Head>

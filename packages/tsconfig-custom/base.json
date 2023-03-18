@@ -18,8 +18,11 @@
     "isolatedModules": true,
     "composite": true,
 
+    "allowUnreachableCode": false,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+
     "strict": true,
-    "strictPropertyInitialization": false,
 
     "noUnusedLocals": true,
     "noUnusedParameters": true,

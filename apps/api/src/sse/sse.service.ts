@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common"
-import { LocationEntity } from "mikro-orm-config"
-import { filter, map, Observable, Subject } from "rxjs"
+import { type LocationEntity } from "mikro-orm-config"
+import { filter, map, type Observable, Subject } from "rxjs"
 
 export interface LocationUpdateEventData {
-  normalizedName: string,
-  available: number,
+  normalizedName: string
+  available: number
   capacity: number
 }
 
@@ -14,9 +14,9 @@ export interface LocationUpdateEvent {
 
 @Injectable()
 export class SseService {
-  private locationUpdates = new Subject<LocationUpdateEvent>()
+  private readonly locationUpdates = new Subject<LocationUpdateEvent>()
 
-  addLocationUpdate(location: LocationEntity): void {
+  public addLocationUpdate(location: LocationEntity): void {
     const newLocationUpdate: LocationUpdateEvent = {
       data: {
         normalizedName: location.normalizedName,
@@ -28,14 +28,16 @@ export class SseService {
     this.locationUpdates.next(newLocationUpdate)
   }
 
-  sendAllLocationUpdates(): Observable<LocationUpdateEvent> {
+  public sendAllLocationUpdates(): Observable<LocationUpdateEvent> {
     return this.locationUpdates.asObservable()
   }
 
-  sendSingleLocationUpdates(normalizedName: string): Observable<LocationUpdateEvent> {
+  public sendSingleLocationUpdates(
+    normalizedName: string
+  ): Observable<LocationUpdateEvent> {
     return this.locationUpdates.asObservable().pipe(
-      filter(location => location.data.normalizedName === normalizedName),
-      map(location => location)
+      filter((location) => location.data.normalizedName === normalizedName),
+      map((location) => location)
     )
   }
 }

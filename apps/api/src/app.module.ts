@@ -26,12 +26,12 @@ import { MikroOrmModule } from "@mikro-orm/nestjs"
   providers: [
     {
       provide: APP_GUARD,
-      useClass: AccessTokenGuard,
+      useClass: AccessTokenGuard
     },
     {
       provide: APP_GUARD,
-      useClass: RolesGuard,
+      useClass: RolesGuard
     }
-  ],
+  ]
 })
 export class AppModule {}

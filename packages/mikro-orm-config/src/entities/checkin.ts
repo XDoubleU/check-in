@@ -1,28 +1,31 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core"
 import { SchoolEntity } from "./school"
 import { LocationEntity } from "./location"
-import type { CheckIn } from "types-custom"
+import { type CheckIn } from "types-custom"
 
-type MikroCheckInInterface = Omit<CheckIn, "location"|"school"> & { location: LocationEntity, school: SchoolEntity }
+type MikroCheckInInterface = Omit<CheckIn, "location" | "school"> & {
+  location: LocationEntity
+  school: SchoolEntity
+}
 
 @Entity({ tableName: "CheckIn" })
 export class CheckInEntity implements MikroCheckInInterface {
   @PrimaryKey()
-  id: number
+  public id!: number
 
   @ManyToOne({ onDelete: "cascade" })
-  location: LocationEntity
+  public location: LocationEntity
 
   @ManyToOne({ default: 1, onDelete: "set default" })
-  school: SchoolEntity
+  public school: SchoolEntity
 
   @Property()
-  capacity: number
+  public capacity: number
 
   @Property()
-  createdAt = new Date()
+  public createdAt = new Date()
 
-  constructor(location: LocationEntity, school: SchoolEntity) {
+  public constructor(location: LocationEntity, school: SchoolEntity) {
     this.location = location
     this.school = school
     this.capacity = location.capacity

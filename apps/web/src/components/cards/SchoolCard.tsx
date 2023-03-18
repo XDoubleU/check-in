@@ -5,11 +5,11 @@ import DeleteModal from "@/components/modals/DeleteModal"
 import { deleteSchool, updateSchool } from "my-api-wrapper"
 
 interface SchoolCardProps {
-  id: number,
+  id: number
   name: string
 }
 
-function SchoolUpdateModal({id, name}: SchoolCardProps) {
+function SchoolUpdateModal({ id, name }: SchoolCardProps) {
   const [updateInfo, setUpdateInfo] = useState({
     id: id,
     name: name
@@ -20,16 +20,23 @@ function SchoolUpdateModal({id, name}: SchoolCardProps) {
   }
 
   return (
-    <UpdateModal handler={handleUpdate} >
+    <UpdateModal handler={handleUpdate}>
       <Form.Group className="mb-3">
         <Form.Label>Name</Form.Label>
-        <Form.Control type="text" placeholder="Name" value={updateInfo.name} onChange={({ target}) => setUpdateInfo({ ...updateInfo, name: target.value })}></Form.Control>
+        <Form.Control
+          type="text"
+          placeholder="Name"
+          value={updateInfo.name}
+          onChange={({ target }) =>
+            setUpdateInfo({ ...updateInfo, name: target.value })
+          }
+        ></Form.Control>
       </Form.Group>
     </UpdateModal>
   )
 }
 
-export default function SchoolCard({id, name}: SchoolCardProps) {
+export default function SchoolCard({ id, name }: SchoolCardProps) {
   const handleDelete = async () => {
     await deleteSchool(id)
   }
@@ -49,7 +56,7 @@ export default function SchoolCard({id, name}: SchoolCardProps) {
           </div>
         </Card.Body>
       </Card>
-      <br/>
+      <br />
     </>
   )
 }

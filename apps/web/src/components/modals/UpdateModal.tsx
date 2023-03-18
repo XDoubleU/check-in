@@ -1,14 +1,14 @@
 import { useRouter } from "next/router"
-import { FormEvent, ReactElement, useState } from "react"
+import { type FormEvent, type ReactElement, useState } from "react"
 import { Form, Modal } from "react-bootstrap"
 import CustomButton from "@/components/CustomButton"
 
 interface UpdateModalProps {
-  children: ReactElement | ReactElement[],
+  children: ReactElement | ReactElement[]
   handler: () => Promise<void>
 }
 
-export default function UpdateModal({children, handler}: UpdateModalProps) {
+export default function UpdateModal({ children, handler }: UpdateModalProps) {
   const router = useRouter()
   const [showUpdate, setShowUpdate] = useState(false)
   const handleCloseUpdate = () => setShowUpdate(false)
@@ -18,7 +18,7 @@ export default function UpdateModal({children, handler}: UpdateModalProps) {
     event.preventDefault()
 
     await handler()
-    
+
     await router.replace(router.asPath)
     handleCloseUpdate()
   }
@@ -28,16 +28,29 @@ export default function UpdateModal({children, handler}: UpdateModalProps) {
       <Modal show={showUpdate} onHide={handleCloseUpdate}>
         <Modal.Body>
           <Modal.Title>Update school</Modal.Title>
-          <br/>
+          <br />
           <Form onSubmit={() => handleUpdate}>
             {children}
-            <br/>
-            <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseUpdate}>Cancel</CustomButton>
-            <CustomButton type="submit" style={{"float": "right"}}>Update</CustomButton>
+            <br />
+            <CustomButton
+              type="button"
+              style={{ float: "left" }}
+              onClick={handleCloseUpdate}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton type="submit" style={{ float: "right" }}>
+              Update
+            </CustomButton>
           </Form>
         </Modal.Body>
       </Modal>
-      <CustomButton onClick={handleShowUpdate} style={{"marginRight":"0.25em"}}>Update</CustomButton>
+      <CustomButton
+        onClick={handleShowUpdate}
+        style={{ marginRight: "0.25em" }}
+      >
+        Update
+      </CustomButton>
     </>
   )
 }

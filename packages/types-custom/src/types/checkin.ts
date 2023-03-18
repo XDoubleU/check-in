@@ -1,6 +1,5 @@
-import { School } from "./school"
-import { Location } from "./location"
-
+import { type School } from "./school"
+import { type Location } from "./location"
 
 export interface CheckIn {
   id: number

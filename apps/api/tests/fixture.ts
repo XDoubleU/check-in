@@ -1,19 +1,23 @@
-import { INestApplication } from "@nestjs/common"
+import { type INestApplication } from "@nestjs/common"
 import { Test } from "@nestjs/testing"
 import { AppModule } from "../src/app.module"
 import cookieParser from "cookie-parser"
 import { AuthService } from "../src/auth/auth.service"
 import { LocationEntity, SchoolEntity, UserEntity } from "mikro-orm-config"
 import { MikroORM } from "@mikro-orm/core"
-import { Role, Tokens } from "types-custom"
-import { EntityManager, PostgreSqlDriver } from "@mikro-orm/postgresql"
+import { Role, type Tokens } from "types-custom"
+import {
+  type EntityManager,
+  type PostgreSqlDriver
+} from "@mikro-orm/postgresql"
 
 export interface TokensAndUser {
-  tokens: Tokens,
+  tokens: Tokens
   user: UserEntity
 }
 
 export interface RequestHeaders {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   "set-cookie": string
 }
 
@@ -22,13 +26,12 @@ export interface ErrorResponse {
 }
 
 export default class Fixture {
-  app: INestApplication
-  em: EntityManager
+  public app!: INestApplication
+  public em!: EntityManager
 
-
-  async init(): Promise<void> {
+  public async init(): Promise<void> {
     const module = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule]
     }).compile()
 
     this.app = module.createNestApplication()
@@ -41,25 +44,27 @@ export default class Fixture {
     this.em = orm.em.fork()
   }
 
-  async seedDatabase(): Promise<void> {
+  public async seedDatabase(): Promise<void> {
     const users = [
       new UserEntity("Admin", "testpassword", Role.Admin),
       new UserEntity("User", "testpassword")
     ]
 
-    for (let i = 0; i < 20; i++){
+    for (let i = 0; i < 20; i++) {
       const newUser = new UserEntity(`TestUser${i}`, "testpassword")
       users.push(newUser)
     }
 
     await this.em.persistAndFlush(users)
 
-    const locations = [
-      new LocationEntity("TestLocation", 20, users[1])
-    ]
+    const locations = [new LocationEntity("TestLocation", 20, users[1])]
 
-    for (let i = 0; i < 20; i++){
-      const newLocation = new LocationEntity(`TestLocation${i}`, 20, users[i + 2])
+    for (let i = 0; i < 20; i++) {
+      const newLocation = new LocationEntity(
+        `TestLocation${i}`,
+        20,
+        users[i + 2]
+      )
       locations.push(newLocation)
     }
 
@@ -67,7 +72,7 @@ export default class Fixture {
 
     const schools = []
 
-    for (let i = 0; i < 20; i++){
+    for (let i = 0; i < 20; i++) {
       const newSchool = new SchoolEntity(`TestSchool${i}`)
       schools.push(newSchool)
     }
@@ -75,13 +80,13 @@ export default class Fixture {
     await this.em.persistAndFlush(schools)
   }
 
-  async clearDatabase(): Promise<void> {
+  public async clearDatabase(): Promise<void> {
     await this.em.nativeDelete(SchoolEntity, { id: { $gt: 1 } })
     await this.em.nativeDelete(LocationEntity, {})
     await this.em.nativeDelete(UserEntity, {})
   }
 
-  async getTokens(username: string): Promise<TokensAndUser> {
+  public async getTokens(username: string): Promise<TokensAndUser> {
     const authService = this.app.get<AuthService>(AuthService)
 
     await this.em.find(LocationEntity, {})
