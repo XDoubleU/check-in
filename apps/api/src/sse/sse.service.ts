@@ -3,8 +3,8 @@ import { type LocationEntity } from "mikro-orm-config"
 import { filter, map, type Observable, Subject } from "rxjs"
 
 export interface LocationUpdateEventData {
-  normalizedName: string,
-  available: number,
+  normalizedName: string
+  available: number
   capacity: number
 }
 
@@ -32,10 +32,12 @@ export class SseService {
     return this.locationUpdates.asObservable()
   }
 
-  public sendSingleLocationUpdates(normalizedName: string): Observable<LocationUpdateEvent> {
+  public sendSingleLocationUpdates(
+    normalizedName: string
+  ): Observable<LocationUpdateEvent> {
     return this.locationUpdates.asObservable().pipe(
-      filter(location => location.data.normalizedName === normalizedName),
-      map(location => location)
+      filter((location) => location.data.normalizedName === normalizedName),
+      map((location) => location)
     )
   }
 }

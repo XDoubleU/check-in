@@ -14,10 +14,12 @@ export class AccessTokenGuard extends AuthGuard("jwt") {
     this.reflector = reflector
   }
 
-  public override canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+  public override canActivate(
+    context: ExecutionContext
+  ): boolean | Promise<boolean> | Observable<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
-      context.getClass(),
+      context.getClass()
     ])
 
     if (isPublic) {

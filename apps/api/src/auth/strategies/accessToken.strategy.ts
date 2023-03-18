@@ -16,15 +16,17 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, "jwt") {
 
   public constructor(usersService: UsersService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([(request: Request): string | null => {
-        const cookies = request.cookies as Tokens
-        const accessToken = cookies.accessToken
-        if (!accessToken) {
-          return null
-        }
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request): string | null => {
+          const cookies = request.cookies as Tokens
+          const accessToken = cookies.accessToken
+          if (!accessToken) {
+            return null
+          }
 
-        return accessToken
-      }]),
+          return accessToken
+        }
+      ]),
       secretOrKey: process.env.JWT_ACCESS_SECRET
     })
 

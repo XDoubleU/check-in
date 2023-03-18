@@ -12,18 +12,17 @@ export default function LocationDetail() {
   const [location, updateLocation] = useState<Location>()
 
   useEffect(() => {
-    void getLocation(Router.query.id as string)
-      .then((data) => {
-        if (data) {
-          updateLocation(data)
-        } else {
-          console.log("ERROR")
-        }
-      })
+    void getLocation(Router.query.id as string).then((data) => {
+      if (data) {
+        updateLocation(data)
+      } else {
+        console.log("ERROR")
+      }
+    })
   }, [])
 
   if (location === undefined) {
-    return <LoadingLayout/>
+    return <LoadingLayout />
   }
 
   return (
@@ -36,15 +35,12 @@ export default function LocationDetail() {
           capacity={location.capacity}
         />
       </Col>
-      <br/>
-
+      <br />
       <Col size={2}>
         <CustomButton>Download CSV (TODO)</CustomButton>
       </Col>
-      <br/>
-
+      <br />
       Still needs a chart :)
-
     </AdminLayout>
-  )  
+  )
 }

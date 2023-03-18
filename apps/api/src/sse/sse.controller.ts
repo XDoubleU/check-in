@@ -18,7 +18,9 @@ export class SseController {
   }
 
   @Sse(":normalizedName")
-  public sseSingleLocation(@Param("normalizedName") normalizedName: string): Observable<LocationUpdateEvent> {
+  public sseSingleLocation(
+    @Param("normalizedName") normalizedName: string
+  ): Observable<LocationUpdateEvent> {
     return this.sseService.sendSingleLocationUpdates(normalizedName)
   }
 }

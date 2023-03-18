@@ -16,7 +16,10 @@ export class AuthService {
     this.jwtService = jwtService
   }
 
-  public async signin(username: string, password: string): Promise<Tokens | null> {
+  public async signin(
+    username: string,
+    password: string
+  ): Promise<Tokens | null> {
     const user = await this.usersService.getByUserName(username)
     if (!user) {
       return null
@@ -25,7 +28,7 @@ export class AuthService {
     if (!compareSync(password, user.passwordHash)) {
       return null
     }
-    
+
     return await this.getTokens(user)
   }
 
@@ -34,8 +37,13 @@ export class AuthService {
   }
 
   public setTokensAsCookies(tokens: Tokens, res: Response): void {
-    const accessTokenExpires = parseInt((this.jwtService.decode(tokens.accessToken) as Record<string, string>).exp)
-    const refreshTokenExpires = parseInt((this.jwtService.decode(tokens.refreshToken) as Record<string, string>).exp)
+    const accessTokenExpires = parseInt(
+      (this.jwtService.decode(tokens.accessToken) as Record<string, string>).exp
+    )
+    const refreshTokenExpires = parseInt(
+      (this.jwtService.decode(tokens.refreshToken) as Record<string, string>)
+        .exp
+    )
 
     res.cookie("accessToken", tokens.accessToken, {
       expires: new Date(accessTokenExpires * 1000),
@@ -48,7 +56,7 @@ export class AuthService {
       sameSite: "strict",
       httpOnly: true,
       path: "/auth/refresh",
-      secure: process.env.NODE_ENV === "production" 
+      secure: process.env.NODE_ENV === "production"
     })
   }
 
@@ -71,12 +79,12 @@ export class AuthService {
           secret: process.env.JWT_REFRESH_SECRET ?? "",
           expiresIn: process.env.JWT_REFRESH_EXPIRATION ?? ""
         }
-      ),
+      )
     ])
 
     return {
       accessToken,
-      refreshToken,
+      refreshToken
     }
   }
 }

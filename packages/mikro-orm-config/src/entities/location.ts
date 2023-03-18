@@ -1,10 +1,21 @@
-import { Check, Collection, Entity, OneToMany, OneToOne, PrimaryKey, Property } from "@mikro-orm/core"
+import {
+  Check,
+  Collection,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryKey,
+  Property
+} from "@mikro-orm/core"
 import { v4 } from "uuid"
 import { UserEntity } from "./user"
 import { CheckInEntity } from "./checkin"
 import { type Location } from "types-custom"
 
-type MikroLocationInterface = Omit<Location, "checkIns"|"userId"> & { user: UserEntity, checkIns: Collection<CheckInEntity> }
+type MikroLocationInterface = Omit<Location, "checkIns" | "userId"> & {
+  user: UserEntity
+  checkIns: Collection<CheckInEntity>
+}
 
 @Entity({ tableName: "Location" })
 export class LocationEntity implements MikroLocationInterface {
@@ -18,10 +29,14 @@ export class LocationEntity implements MikroLocationInterface {
   @Check({ expression: "capacity >= 0" })
   public capacity: number
 
-  @OneToOne({ inversedBy: "location", serializedName: "userId", serializer: (user: UserEntity) => user.id })
+  @OneToOne({
+    inversedBy: "location",
+    serializedName: "userId",
+    serializer: (user: UserEntity) => user.id
+  })
   public user: UserEntity
 
-  @OneToMany(() => CheckInEntity, checkIn => checkIn.location)
+  @OneToMany(() => CheckInEntity, (checkIn) => checkIn.location)
   public checkIns = new Collection<CheckInEntity>(this)
 
   public constructor(name: string, capacity: number, user: UserEntity) {
@@ -32,9 +47,10 @@ export class LocationEntity implements MikroLocationInterface {
 
   @Property({ persist: false })
   public get normalizedName(): string {
-    return this.name.toLowerCase()
-                    .replace(" ", "-")
-                    .replace("[^A-Za-z0-9\-]+", "")
+    return this.name
+      .toLowerCase()
+      .replace(" ", "-")
+      .replace("[^A-Za-z0-9-]+", "")
   }
 
   @Property({ persist: false })

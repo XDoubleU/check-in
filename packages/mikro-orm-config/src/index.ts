@@ -8,7 +8,7 @@ export const Config: Options = {
   clientUrl: process.env.DATABASE_URL ?? "",
   entities: ["./dist/src/entities/*.js"],
   entitiesTs: ["./src/entities/*.ts"],
-	baseDir: __dirname + "/..",
+  baseDir: __dirname + "/..",
   metadataProvider: TsMorphMetadataProvider,
   cache: {
     enabled: false

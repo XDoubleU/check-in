@@ -8,7 +8,8 @@ export class LocationsService {
   private readonly locationsRepository: EntityRepository<LocationEntity>
   private readonly sseService: SseService
 
-  public constructor(locationsRepository: EntityRepository<LocationEntity>,
+  public constructor(
+    locationsRepository: EntityRepository<LocationEntity>,
     sseService: SseService
   ) {
     this.locationsRepository = locationsRepository
@@ -18,18 +19,21 @@ export class LocationsService {
   public async getTotalCount(): Promise<number> {
     return await this.locationsRepository.count()
   }
-  
+
   public async getAll(): Promise<LocationEntity[]> {
     return await this.locationsRepository.findAll()
   }
 
-  public async getAllPaged(page: number, pageSize: number): Promise<LocationEntity[]> {
+  public async getAllPaged(
+    page: number,
+    pageSize: number
+  ): Promise<LocationEntity[]> {
     return await this.locationsRepository.findAll({
       orderBy: {
         name: QueryOrder.ASC
       },
       limit: pageSize,
-      offset: (page - 1) * pageSize,
+      offset: (page - 1) * pageSize
     })
   }
 
@@ -45,13 +49,21 @@ export class LocationsService {
     })
   }
 
-  public async create(name: string, capacity: number, user: UserEntity): Promise<LocationEntity> {
+  public async create(
+    name: string,
+    capacity: number,
+    user: UserEntity
+  ): Promise<LocationEntity> {
     const location = new LocationEntity(name, capacity, user)
     await this.locationsRepository.persistAndFlush(location)
     return location
   }
 
-  public async update(location: LocationEntity, name?: string, capacity?: number): Promise<LocationEntity> {
+  public async update(
+    location: LocationEntity,
+    name?: string,
+    capacity?: number
+  ): Promise<LocationEntity> {
     location.name = name ?? location.name
     location.capacity = capacity ?? location.capacity
 

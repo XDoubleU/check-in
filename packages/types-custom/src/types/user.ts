@@ -1,6 +1,5 @@
 import { type Location } from "./location"
 
-
 export interface User {
   id: string
   username: string

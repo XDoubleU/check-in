@@ -5,21 +5,17 @@ import { Container, Nav, Navbar } from "react-bootstrap"
 import { Role, type User } from "types-custom"
 
 interface NavItemProps {
-  children: string,
-  href?: string,
-  onClick?: MouseEventHandler<HTMLAnchorElement>,
+  children: string
+  href?: string
+  onClick?: MouseEventHandler<HTMLAnchorElement>
   active?: boolean
 }
 
-function NavItem({children, href, onClick, active}: NavItemProps) {
+function NavItem({ children, href, onClick, active }: NavItemProps) {
   const router = useRouter()
-  
+
   if (onClick !== undefined) {
-    return (
-      <Nav.Link onClick={onClick}>
-        {children}
-      </Nav.Link>
-    )
+    return <Nav.Link onClick={onClick}>{children}</Nav.Link>
   }
 
   if (href === undefined) {
@@ -28,26 +24,27 @@ function NavItem({children, href, onClick, active}: NavItemProps) {
 
   const selected = router.pathname.includes(href.toLowerCase())
   return (
-    <Nav.Link className={`nav-link ${selected || active ? "active" : ""}`} href={href}>
+    <Nav.Link
+      className={`nav-link ${selected || active ? "active" : ""}`}
+      href={href}
+    >
       {children}
     </Nav.Link>
   )
 }
 
-export default function Navigation(){
+export default function Navigation() {
   const [user, setUser] = useState<User | undefined>(undefined)
 
   useEffect(() => {
-    void getMyUser()
-      .then(async (data) => {
-        if (data === null) {
-          await Router.push("/signin")
-        } else {
-          setUser(data)
-        }
-      })
+    void getMyUser().then(async (data) => {
+      if (data === null) {
+        await Router.push("/signin")
+      } else {
+        setUser(data)
+      }
+    })
   }, [])
-
 
   const signOutHandler = async () => {
     await signOut()
@@ -61,16 +58,19 @@ export default function Navigation(){
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto mb-2 mb-lg-0">
-            {
-              user && !user.roles.includes(Role.Admin) && user.location?.id ? (
-                <NavItem active={true} href={`/settings/locations/${user.location.id}`} >My location</NavItem>
-              ) : (
-                <>
-                  <NavItem href="/settings/locations">Locations</NavItem>
-                  <NavItem href="/settings/schools">Schools</NavItem>
-                </>
-              )
-            }
+            {user && !user.roles.includes(Role.Admin) && user.location?.id ? (
+              <NavItem
+                active={true}
+                href={`/settings/locations/${user.location.id}`}
+              >
+                My location
+              </NavItem>
+            ) : (
+              <>
+                <NavItem href="/settings/locations">Locations</NavItem>
+                <NavItem href="/settings/schools">Schools</NavItem>
+              </>
+            )}
           </Nav>
           <Nav className="ms-auto mb-2 mb-lg-0">
             <NavItem onClick={() => signOutHandler}>Sign out</NavItem>

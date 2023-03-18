@@ -1,5 +1,7 @@
 import CustomButton from "@/components/CustomButton"
-import CustomPagination, { type CustomPaginationProps } from "@/components/CustomPagination"
+import CustomPagination, {
+  type CustomPaginationProps
+} from "@/components/CustomPagination"
 import LocationCard from "@/components/cards/LocationCard"
 import AdminLayout from "@/layouts/AdminLayout"
 import { type Location } from "types-custom"
@@ -9,10 +11,11 @@ import { Col, Form, Modal } from "react-bootstrap"
 import { createLocation, getAllLocations } from "my-api-wrapper"
 
 interface LocationList {
-  locations: Location[],
+  locations: Location[]
   pagination: CustomPaginationProps
 }
 
+// eslint-disable-next-line max-lines-per-function
 export default function LocationList() {
   const router = useRouter()
 
@@ -34,27 +37,28 @@ export default function LocationList() {
   const handleCloseCreate = () => setShowCreate(false)
   const handleShowCreate = () => setShowCreate(true)
   const onCloseCreate = useCallback(() => {
-    return !showCreate 
+    return !showCreate
   }, [showCreate])
 
   useEffect(() => {
-    if(!router.isReady) return
-    const page = router.query.page ? parseInt(router.query.page as string) : undefined
-    void getAllLocations(page)
-      .then(async (data) => {
-        if (!data) {
-          await router.push("/signin")
-          return
-        }
+    if (!router.isReady) return
+    const page = router.query.page
+      ? parseInt(router.query.page as string)
+      : undefined
+    void getAllLocations(page).then(async (data) => {
+      if (!data) {
+        await router.push("/signin")
+        return
+      }
 
-        setLocationList({
-          locations: data.locations,
-          pagination: {
-            current: data.page,
-            total: data.totalPages
-          }
-        })
+      setLocationList({
+        locations: data.locations,
+        pagination: {
+          current: data.page,
+          total: data.totalPages
+        }
       })
+    })
   }, [onCloseCreate, router])
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
@@ -84,69 +88,108 @@ export default function LocationList() {
       <Modal show={showCreate} onHide={handleCloseCreate}>
         <Modal.Body>
           <Modal.Title>Create location</Modal.Title>
-          <br/>
+          <br />
           <Form onSubmit={() => handleCreate}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
-              <Form.Control type="text" placeholder="Name" value={createInfo.name} onChange={({ target}) => setCreateInfo({ ...createInfo, name: target.value })}></Form.Control>
+              <Form.Control
+                type="text"
+                placeholder="Name"
+                value={createInfo.name}
+                onChange={({ target }) =>
+                  setCreateInfo({ ...createInfo, name: target.value })
+                }
+              ></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Capacity</Form.Label>
-              <Form.Control type="number" value={createInfo.capacity} onChange={({ target}) => setCreateInfo({ ...createInfo, capacity: parseInt(target.value) })}></Form.Control>
+              <Form.Control
+                type="number"
+                value={createInfo.capacity}
+                onChange={({ target }) =>
+                  setCreateInfo({
+                    ...createInfo,
+                    capacity: parseInt(target.value)
+                  })
+                }
+              ></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Username</Form.Label>
-              <Form.Control type="text" placeholder="Username" value={createInfo.username} onChange={({ target}) => setCreateInfo({ ...createInfo, username: target.value })}></Form.Control>
+              <Form.Control
+                type="text"
+                placeholder="Username"
+                value={createInfo.username}
+                onChange={({ target }) =>
+                  setCreateInfo({ ...createInfo, username: target.value })
+                }
+              ></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="Password" value={createInfo.password} onChange={({ target}) => setCreateInfo({ ...createInfo, password: target.value })}></Form.Control>
+              <Form.Control
+                type="password"
+                placeholder="Password"
+                value={createInfo.password}
+                onChange={({ target }) =>
+                  setCreateInfo({ ...createInfo, password: target.value })
+                }
+              ></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Repeat password</Form.Label>
-              <Form.Control type="password" placeholder="Repeat password" value={createInfo.repeatPassword} onChange={({ target}) => setCreateInfo({ ...createInfo, repeatPassword: target.value })} ></Form.Control>
-              <Form.Text className="text-danger">
-                TODO: error
-              </Form.Text>
+              <Form.Control
+                type="password"
+                placeholder="Repeat password"
+                value={createInfo.repeatPassword}
+                onChange={({ target }) =>
+                  setCreateInfo({ ...createInfo, repeatPassword: target.value })
+                }
+              ></Form.Control>
+              <Form.Text className="text-danger">TODO: error</Form.Text>
             </Form.Group>
-            <br/>
-            <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseCreate}>Cancel</CustomButton>
-            <CustomButton type="submit" style={{"float": "right"}}>Create</CustomButton>
+            <br />
+            <CustomButton
+              type="button"
+              style={{ float: "left" }}
+              onClick={handleCloseCreate}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton type="submit" style={{ float: "right" }}>
+              Create
+            </CustomButton>
           </Form>
         </Modal.Body>
       </Modal>
 
       <Col size={2}>
-        <CustomButton onClick={handleShowCreate}>
-          Create
-        </CustomButton>
+        <CustomButton onClick={handleShowCreate}>Create</CustomButton>
       </Col>
 
-      <br/>
+      <br />
 
       <div className="min-vh-51">
-        {
-          (locationList.locations.length == 0) ? "Nothing to see here." : ""
-        }
+        {locationList.locations.length == 0 ? "Nothing to see here." : ""}
 
-        {
-          locationList.locations.map((location) => {
-            return <LocationCard
+        {locationList.locations.map((location) => {
+          return (
+            <LocationCard
               id={location.id}
               key={location.id}
               name={location.name}
               normalizedName={location.normalizedName}
               capacity={location.capacity}
-              username={"TODO"} />
-          })
-        }
+              username={"TODO"}
+            />
+          )
+        })}
       </div>
 
       <CustomPagination
-        current={locationList.pagination.current} 
-        total={locationList.pagination.total} 
+        current={locationList.pagination.current}
+        total={locationList.pagination.total}
       />
-      
     </AdminLayout>
-  )  
+  )
 }

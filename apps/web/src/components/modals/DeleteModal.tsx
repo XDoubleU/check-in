@@ -4,11 +4,11 @@ import { Form, Modal } from "react-bootstrap"
 import CustomButton from "@/components/CustomButton"
 
 interface DeleteModalProps {
-  name: string,
+  name: string
   handler: () => Promise<void>
 }
 
-export default function DeleteModal({name, handler}: DeleteModalProps) {
+export default function DeleteModal({ name, handler }: DeleteModalProps) {
   const router = useRouter()
   const [showDelete, setShowDelete] = useState(false)
   const handleCloseDelete = () => setShowDelete(false)
@@ -18,7 +18,7 @@ export default function DeleteModal({name, handler}: DeleteModalProps) {
     event.preventDefault()
 
     await handler()
-    
+
     await router.replace(router.asPath)
     handleCloseDelete()
   }
@@ -28,13 +28,21 @@ export default function DeleteModal({name, handler}: DeleteModalProps) {
       <Modal show={showDelete} onHide={handleCloseDelete}>
         <Modal.Body>
           <Modal.Title>Delete school</Modal.Title>
-          <br/>
+          <br />
           Are you sure you want to delete &quot;{name}&quot;?
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Form onSubmit={() => handleDelete}>
-            <CustomButton type="button" style={{"float": "left"}} onClick={handleCloseDelete}>Cancel</CustomButton>
-            <CustomButton type="submit" style={{"float": "right"}}>Delete</CustomButton>
+            <CustomButton
+              type="button"
+              style={{ float: "left" }}
+              onClick={handleCloseDelete}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton type="submit" style={{ float: "right" }}>
+              Delete
+            </CustomButton>
           </Form>
         </Modal.Body>
       </Modal>

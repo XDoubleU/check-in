@@ -13,7 +13,7 @@ export class SchoolsService {
   public async getTotalCount(): Promise<number> {
     return this.schoolsRepository.count()
   }
-  
+
   public async getAll(locationId?: string): Promise<SchoolEntity[]> {
     const schools = await this.schoolsRepository.findAll()
 
@@ -26,20 +26,27 @@ export class SchoolsService {
       let bLocationCheckIns = 0
 
       if (a.id !== 1) {
-        aLocationCheckIns = a.checkIns.toArray().filter(checkIn => checkIn.location.id === locationId).length
+        aLocationCheckIns = a.checkIns
+          .toArray()
+          .filter((checkIn) => checkIn.location.id === locationId).length
       }
 
       if (b.id !== 1) {
-        bLocationCheckIns = b.checkIns.toArray().filter(checkIn => checkIn.location.id === locationId).length
+        bLocationCheckIns = b.checkIns
+          .toArray()
+          .filter((checkIn) => checkIn.location.id === locationId).length
       }
 
-      return (aLocationCheckIns < bLocationCheckIns) ? 1 : -1
+      return aLocationCheckIns < bLocationCheckIns ? 1 : -1
     })
 
     return schools
   }
 
-  public async getAllPaged(page: number, pageSize: number): Promise<SchoolEntity[]> {
+  public async getAllPaged(
+    page: number,
+    pageSize: number
+  ): Promise<SchoolEntity[]> {
     return this.schoolsRepository.findAll({
       orderBy: {
         name: "asc"
@@ -67,7 +74,10 @@ export class SchoolsService {
     return school
   }
 
-  public async update(school: SchoolEntity, name: string): Promise<SchoolEntity> {
+  public async update(
+    school: SchoolEntity,
+    name: string
+  ): Promise<SchoolEntity> {
     school.name = name
     await this.schoolsRepository.flush()
     return school

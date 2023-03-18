@@ -10,21 +10,23 @@ import { type UserEntity } from "mikro-orm-config"
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
-  "jwt-refresh",
+  "jwt-refresh"
 ) {
   private readonly usersService: UsersService
 
   public constructor(usersService: UsersService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([(request: Request): string | null => {
-        const cookies = request.cookies as Tokens
-        const refreshToken = cookies.refreshToken
-        if (!refreshToken) {
-          return null
-        }
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request): string | null => {
+          const cookies = request.cookies as Tokens
+          const refreshToken = cookies.refreshToken
+          if (!refreshToken) {
+            return null
+          }
 
-        return refreshToken
-      }]),
+          return refreshToken
+        }
+      ]),
       secretOrKey: process.env.JWT_REFRESH_SECRET
     })
 

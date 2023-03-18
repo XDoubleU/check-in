@@ -6,10 +6,13 @@ import { AuthService } from "../src/auth/auth.service"
 import { LocationEntity, SchoolEntity, UserEntity } from "mikro-orm-config"
 import { MikroORM } from "@mikro-orm/core"
 import { Role, type Tokens } from "types-custom"
-import { type EntityManager, type PostgreSqlDriver } from "@mikro-orm/postgresql"
+import {
+  type EntityManager,
+  type PostgreSqlDriver
+} from "@mikro-orm/postgresql"
 
 export interface TokensAndUser {
-  tokens: Tokens,
+  tokens: Tokens
   user: UserEntity
 }
 
@@ -26,10 +29,9 @@ export default class Fixture {
   public app!: INestApplication
   public em!: EntityManager
 
-
   public async init(): Promise<void> {
     const module = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule]
     }).compile()
 
     this.app = module.createNestApplication()
@@ -48,19 +50,21 @@ export default class Fixture {
       new UserEntity("User", "testpassword")
     ]
 
-    for (let i = 0; i < 20; i++){
+    for (let i = 0; i < 20; i++) {
       const newUser = new UserEntity(`TestUser${i}`, "testpassword")
       users.push(newUser)
     }
 
     await this.em.persistAndFlush(users)
 
-    const locations = [
-      new LocationEntity("TestLocation", 20, users[1])
-    ]
+    const locations = [new LocationEntity("TestLocation", 20, users[1])]
 
-    for (let i = 0; i < 20; i++){
-      const newLocation = new LocationEntity(`TestLocation${i}`, 20, users[i + 2])
+    for (let i = 0; i < 20; i++) {
+      const newLocation = new LocationEntity(
+        `TestLocation${i}`,
+        20,
+        users[i + 2]
+      )
       locations.push(newLocation)
     }
 
@@ -68,7 +72,7 @@ export default class Fixture {
 
     const schools = []
 
-    for (let i = 0; i < 20; i++){
+    for (let i = 0; i < 20; i++) {
       const newSchool = new SchoolEntity(`TestSchool${i}`)
       schools.push(newSchool)
     }

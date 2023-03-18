@@ -8,18 +8,17 @@ export default function SettingsHome() {
   const [user, setUser] = useState<User>()
 
   useEffect(() => {
-    void getMyUser()
-      .then(async (data) => {
-        if (data === null) {
-          await Router.push("/signin")
-        } else {
-          setUser(data)
-        }
-      })
+    void getMyUser().then(async (data) => {
+      if (data === null) {
+        await Router.push("/signin")
+      } else {
+        setUser(data)
+      }
+    })
   })
 
   if (user === undefined) {
-    return <LoadingLayout/>
+    return <LoadingLayout />
   }
 
   if (user.roles.includes(Role.Admin) || !user.location?.id) {
@@ -28,5 +27,5 @@ export default function SettingsHome() {
     void Router.push(`/settings/locations/${user.location.id}`)
   }
 
-  return <LoadingLayout/>
+  return <LoadingLayout />
 }

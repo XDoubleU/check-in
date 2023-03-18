@@ -1,7 +1,13 @@
-import { Entity, Enum, OneToOne, PrimaryKey, Property, Unique } from "@mikro-orm/core"
+import {
+  Entity,
+  Enum,
+  OneToOne,
+  PrimaryKey,
+  Property,
+  Unique
+} from "@mikro-orm/core"
 import { hashSync } from "bcrypt"
-import { type User } from "types-custom"
-import { Role } from "types-custom"
+import { Role, type User } from "types-custom"
 import { v4 } from "uuid"
 import { LocationEntity } from "./location"
 

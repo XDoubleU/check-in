@@ -28,7 +28,11 @@ export class UsersService {
     return user
   }
 
-  public async update(user: UserEntity, username?: string, password?: string): Promise<UserEntity> {
+  public async update(
+    user: UserEntity,
+    username?: string,
+    password?: string
+  ): Promise<UserEntity> {
     user.update(username, password)
     await this.usersRepository.flush()
     return user

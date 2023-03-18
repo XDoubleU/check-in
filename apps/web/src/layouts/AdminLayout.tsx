@@ -2,17 +2,17 @@ import { type ReactNode } from "react"
 import BaseLayout from "@/layouts/BaseLayout"
 
 interface AdminLayoutProps {
-  children: ReactNode,
+  children: ReactNode
   title: string
 }
 
-export default function AdminLayout({children, title}: AdminLayoutProps){
+export default function AdminLayout({ children, title }: AdminLayoutProps) {
   return (
-    <BaseLayout title={title} showLinks={true} showNav={true} >
+    <BaseLayout title={title} showLinks={true} showNav={true}>
       <h1>{title}</h1>
-      <br/>
+      <br />
 
       {children}
     </BaseLayout>
-  )   
+  )
 }

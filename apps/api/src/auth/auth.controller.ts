@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Res, UnauthorizedException, UseGuards } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Res,
+  UnauthorizedException,
+  UseGuards
+} from "@nestjs/common"
 import { AuthService } from "./auth.service"
 import { RefreshTokenGuard } from "./guards/refreshToken.guard"
 import { Response } from "express"
@@ -14,11 +22,17 @@ export class AuthController {
   public constructor(authService: AuthService) {
     this.authService = authService
   }
-  
+
   @Public()
   @Post("signin")
-  public async signin(@Body() signinDto: SignInDto, @Res({ passthrough: true }) res: Response): Promise<void> {
-    const tokens = await this.authService.signin(signinDto.username, signinDto.password)
+  public async signin(
+    @Body() signinDto: SignInDto,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<void> {
+    const tokens = await this.authService.signin(
+      signinDto.username,
+      signinDto.password
+    )
     if (!tokens) {
       throw new UnauthorizedException("Invalid credentials")
     }
@@ -38,7 +52,10 @@ export class AuthController {
   @Public()
   @UseGuards(RefreshTokenGuard)
   @Get("refresh")
-  public async refreshTokens(@ReqUser() user: UserEntity, @Res({ passthrough: true }) res: Response): Promise<void> {
+  public async refreshTokens(
+    @ReqUser() user: UserEntity,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<void> {
     const tokens = await this.authService.refreshTokens(user)
     this.authService.setTokensAsCookies(tokens, res)
   }

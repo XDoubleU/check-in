@@ -3,7 +3,10 @@ import { fetchHandler } from "./fetchHandler"
 
 const AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/auth`
 
-export async function signin(username: string, password: string): Promise<string | null> {
+export async function signin(
+  username: string,
+  password: string
+): Promise<string | null> {
   const data: SignInDto = {
     username,
     password
@@ -11,9 +14,6 @@ export async function signin(username: string, password: string): Promise<string
 
   const response = await fetchHandler(`${AUTH_URL}/signin`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(data)
   })
 
