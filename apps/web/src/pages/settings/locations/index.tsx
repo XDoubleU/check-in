@@ -4,11 +4,12 @@ import CustomPagination, {
 } from "@/components/CustomPagination"
 import LocationCard from "@/components/cards/LocationCard"
 import AdminLayout from "@/layouts/AdminLayout"
-import { type Location } from "types-custom"
+import { type CreateLocationDto, type Location } from "types-custom"
 import { useRouter } from "next/router"
-import { type FormEvent, useCallback, useEffect, useState } from "react"
-import { Col, Form, Modal } from "react-bootstrap"
+import { useCallback, useEffect, useState } from "react"
+import { Alert, Col, Form, Modal } from "react-bootstrap"
 import { createLocation, getAllLocations } from "my-api-wrapper"
+import { type SubmitHandler, useForm } from "react-hook-form"
 
 interface LocationList {
   locations: Location[]
@@ -26,13 +27,16 @@ export default function LocationList() {
       total: 0
     }
   })
-  const [createInfo, setCreateInfo] = useState({
-    name: "",
-    capacity: 20,
-    username: "",
-    password: "",
-    repeatPassword: ""
-  })
+
+  const {
+    register,
+    watch,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors }
+  } = useForm<CreateLocationDto & { repeatPassword: string }>()
+
   const [showCreate, setShowCreate] = useState(false)
   const handleCloseCreate = () => setShowCreate(false)
   const handleShowCreate = () => setShowCreate(true)
@@ -45,41 +49,32 @@ export default function LocationList() {
     const page = router.query.page
       ? parseInt(router.query.page as string)
       : undefined
-    void getAllLocations(page).then(async (data) => {
-      if (!data) {
+    void getAllLocations(page).then(async (response) => {
+      if (!response.ok) {
         await router.push("/signin")
         return
       }
 
       setLocationList({
-        locations: data.locations,
+        locations: response.data?.locations ?? Array<Location>(),
         pagination: {
-          current: data.page,
-          total: data.totalPages
+          current: response.data?.page ?? 1,
+          total: response.data?.totalPages ?? 1
         }
       })
     })
   }, [onCloseCreate, router])
 
-  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const onSubmit: SubmitHandler<CreateLocationDto> = async (data) => {
+    const response = await createLocation(data)
 
-    const response = await createLocation(
-      createInfo.name,
-      createInfo.capacity,
-      createInfo.username,
-      createInfo.password
-    )
-
-    if (response) {
-      createInfo.name = ""
-      createInfo.capacity = 20
-      createInfo.username = ""
-      createInfo.password = ""
-      createInfo.repeatPassword = ""
-      handleCloseCreate()
+    if (!response.ok) {
+      setError("root", {
+        message: response.message ?? "Something went wrong"
+      })
     } else {
-      console.log("ERROR")
+      handleCloseCreate()
+      reset()
     }
   }
 
@@ -89,29 +84,22 @@ export default function LocationList() {
         <Modal.Body>
           <Modal.Title>Create location</Modal.Title>
           <br />
-          <Form onSubmit={() => handleCreate}>
+          <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Name"
-                value={createInfo.name}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, name: target.value })
-                }
+                required
+                {...register("name")}
               ></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Capacity</Form.Label>
               <Form.Control
                 type="number"
-                value={createInfo.capacity}
-                onChange={({ target }) =>
-                  setCreateInfo({
-                    ...createInfo,
-                    capacity: parseInt(target.value)
-                  })
-                }
+                required
+                {...register("capacity")}
               ></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
@@ -119,10 +107,8 @@ export default function LocationList() {
               <Form.Control
                 type="text"
                 placeholder="Username"
-                value={createInfo.username}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, username: target.value })
-                }
+                required
+                {...register("username")}
               ></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
@@ -130,10 +116,8 @@ export default function LocationList() {
               <Form.Control
                 type="password"
                 placeholder="Password"
-                value={createInfo.password}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, password: target.value })
-                }
+                required
+                {...register("password")}
               ></Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
@@ -141,13 +125,18 @@ export default function LocationList() {
               <Form.Control
                 type="password"
                 placeholder="Repeat password"
-                value={createInfo.repeatPassword}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, repeatPassword: target.value })
-                }
+                required
+                {...register("repeatPassword", {
+                  validate: (val: string) => {
+                    if (watch("password") != val) {
+                      return "Your passwords do no match"
+                    }
+                    return ""
+                  }
+                })}
               ></Form.Control>
-              <Form.Text className="text-danger">TODO: error</Form.Text>
             </Form.Group>
+            {errors.root && <Alert key="danger">{errors.root.message}</Alert>}
             <br />
             <CustomButton
               type="button"

@@ -1,26 +1,39 @@
-import { useRouter } from "next/router"
-import { type FormEvent, type ReactElement, useState } from "react"
-import { Form, Modal } from "react-bootstrap"
+import { type ReactElement, useState } from "react"
+import { Alert, Form, Modal } from "react-bootstrap"
 import CustomButton from "@/components/CustomButton"
+import { type FieldValues, type SubmitHandler, useForm } from "react-hook-form"
+import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"
 
-interface UpdateModalProps {
+interface UpdateModalProps<T> {
   children: ReactElement | ReactElement[]
-  handler: () => Promise<void>
+  handler: (data: T) => Promise<APIResponse<T>>
 }
 
-export default function UpdateModal({ children, handler }: UpdateModalProps) {
-  const router = useRouter()
+// eslint-disable-next-line max-lines-per-function
+export default function UpdateModal<T extends FieldValues>({
+  children,
+  handler
+}: UpdateModalProps<T>) {
   const [showUpdate, setShowUpdate] = useState(false)
   const handleCloseUpdate = () => setShowUpdate(false)
   const handleShowUpdate = () => setShowUpdate(true)
 
-  const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const {
+    //register,
+    handleSubmit,
+    setError,
+    formState: { errors }
+  } = useForm<T>()
 
-    await handler()
-
-    await router.replace(router.asPath)
-    handleCloseUpdate()
+  const onSubmit: SubmitHandler<T> = async (data) => {
+    const response = await handler(data)
+    if (!response.ok) {
+      setError("root", {
+        message: response.message ?? "Something went wrong"
+      })
+    } else {
+      handleCloseUpdate()
+    }
   }
 
   return (
@@ -29,8 +42,9 @@ export default function UpdateModal({ children, handler }: UpdateModalProps) {
         <Modal.Body>
           <Modal.Title>Update school</Modal.Title>
           <br />
-          <Form onSubmit={() => handleUpdate}>
+          <Form onSubmit={handleSubmit(onSubmit)}>
             {children}
+            {errors.root && <Alert key="danger">{errors.root.message}</Alert>}
             <br />
             <CustomButton
               type="button"

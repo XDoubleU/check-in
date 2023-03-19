@@ -1,8 +1,9 @@
-import { getMyUser, signOut } from "my-api-wrapper"
+import { useAuth } from "@/contexts"
+import { signOut } from "my-api-wrapper"
 import Router, { useRouter } from "next/router"
-import { type MouseEventHandler, useEffect, useState } from "react"
+import { type MouseEventHandler } from "react"
 import { Container, Nav, Navbar } from "react-bootstrap"
-import { Role, type User } from "types-custom"
+import { Role } from "types-custom"
 
 interface NavItemProps {
   children: string
@@ -34,21 +35,10 @@ function NavItem({ children, href, onClick, active }: NavItemProps) {
 }
 
 export default function Navigation() {
-  const [user, setUser] = useState<User | undefined>(undefined)
+  const { user } = useAuth()
 
-  useEffect(() => {
-    void getMyUser().then(async (data) => {
-      if (data === null) {
-        await Router.push("/signin")
-      } else {
-        setUser(data)
-      }
-    })
-  }, [])
-
-  const signOutHandler = async () => {
-    await signOut()
-    await Router.push("/signin")
+  const signOutHandler = () => {
+    void signOut().then(() => Router.push("/signin"))
   }
 
   return (
@@ -73,7 +63,7 @@ export default function Navigation() {
             )}
           </Nav>
           <Nav className="ms-auto mb-2 mb-lg-0">
-            <NavItem onClick={() => signOutHandler}>Sign out</NavItem>
+            <NavItem onClick={signOutHandler}>Sign out</NavItem>
           </Nav>
         </Navbar.Collapse>
       </Container>

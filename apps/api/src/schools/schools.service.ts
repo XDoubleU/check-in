@@ -1,4 +1,5 @@
 import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { SchoolEntity } from "mikro-orm-config"
 
@@ -6,7 +7,10 @@ import { SchoolEntity } from "mikro-orm-config"
 export class SchoolsService {
   private readonly schoolsRepository: EntityRepository<SchoolEntity>
 
-  public constructor(schoolsRepository: EntityRepository<SchoolEntity>) {
+  public constructor(
+    @InjectRepository(SchoolEntity)
+    schoolsRepository: EntityRepository<SchoolEntity>
+  ) {
     this.schoolsRepository = schoolsRepository
   }
 

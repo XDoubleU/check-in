@@ -1,4 +1,5 @@
 import { EntityRepository, QueryOrder } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { LocationEntity, type UserEntity } from "mikro-orm-config"
 import { SseService } from "../sse/sse.service"
@@ -9,6 +10,7 @@ export class LocationsService {
   private readonly sseService: SseService
 
   public constructor(
+    @InjectRepository(LocationEntity)
     locationsRepository: EntityRepository<LocationEntity>,
     sseService: SseService
   ) {

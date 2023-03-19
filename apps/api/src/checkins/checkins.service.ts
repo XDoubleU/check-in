@@ -7,6 +7,7 @@ import {
   type LocationEntity,
   type SchoolEntity
 } from "mikro-orm-config"
+import { InjectRepository } from "@mikro-orm/nestjs"
 
 @Injectable()
 export class CheckInsService {
@@ -15,6 +16,7 @@ export class CheckInsService {
   private readonly locationsService: LocationsService
 
   public constructor(
+    @InjectRepository(CheckInEntity)
     checkInsRepository: EntityRepository<CheckInEntity>,
     sseService: SseService,
     locationsService: LocationsService

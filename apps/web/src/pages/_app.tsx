@@ -7,6 +7,7 @@ import { type AppProps } from "next/app"
 import Head from "next/head"
 import { useEffect } from "react"
 import NextNProgress from "nextjs-progressbar"
+import { AuthProvider } from "@/contexts/authContext"
 
 export default function App({
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -25,7 +26,9 @@ export default function App({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <NextNProgress color="red" />
-      <Component {...pageProps} />
+      <AuthProvider>
+        <Component {...pageProps} />
+      </AuthProvider>
     </main>
   )
 }

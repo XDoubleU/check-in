@@ -1,12 +1,16 @@
 import { Injectable } from "@nestjs/common"
 import { EntityRepository } from "@mikro-orm/core"
 import { UserEntity } from "mikro-orm-config"
+import { InjectRepository } from "@mikro-orm/nestjs"
 
 @Injectable()
 export class UsersService {
   private readonly usersRepository: EntityRepository<UserEntity>
 
-  public constructor(usersRepository: EntityRepository<UserEntity>) {
+  public constructor(
+    @InjectRepository(UserEntity)
+    usersRepository: EntityRepository<UserEntity>
+  ) {
     this.usersRepository = usersRepository
   }
 

@@ -4,11 +4,12 @@ import CustomPagination, {
 } from "@/components/CustomPagination"
 import SchoolCard from "@/components/cards/SchoolCard"
 import AdminLayout from "@/layouts/AdminLayout"
-import { type School } from "types-custom"
+import { type CreateSchoolDto, type School } from "types-custom"
 import { createSchool, getAllSchools } from "my-api-wrapper"
 import { useRouter } from "next/router"
-import { type FormEvent, useCallback, useEffect, useState } from "react"
-import { Col, Form, Modal } from "react-bootstrap"
+import { useCallback, useEffect, useState } from "react"
+import { Alert, Col, Form, Modal } from "react-bootstrap"
+import { type SubmitHandler, useForm } from "react-hook-form"
 
 interface SchoolList {
   schools: School[]
@@ -26,7 +27,15 @@ export default function SchoolList() {
       total: 0
     }
   })
-  const [createInfo, setCreateInfo] = useState({ name: "" })
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors }
+  } = useForm<CreateSchoolDto>()
+
   const [showCreate, setShowCreate] = useState(false)
   const handleCloseCreate = () => setShowCreate(false)
   const handleShowCreate = () => setShowCreate(true)
@@ -34,37 +43,42 @@ export default function SchoolList() {
     return !showCreate
   }, [showCreate])
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!router.isReady) return
+
     const page = router.query.page
       ? parseInt(router.query.page as string)
       : undefined
-    void getAllSchools(page).then(async (data) => {
-      if (!data) {
-        await router.push("/signin")
-        return
+
+    const response = await getAllSchools(page)
+    if (!response.ok) {
+      await router.push("/signin")
+      return
+    }
+
+    setSchoolList({
+      schools: response.data?.schools ?? Array<School>(),
+      pagination: {
+        current: response.data?.page ?? 1,
+        total: response.data?.totalPages ?? 1
       }
-
-      setSchoolList({
-        schools: data.schools,
-        pagination: {
-          current: data.page,
-          total: data.totalPages
-        }
-      })
     })
-  }, [onCloseCreate, router])
+  }, [router])
 
-  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  useEffect(() => {
+    void fetchData()
+  }, [fetchData, onCloseCreate])
 
-    const response = await createSchool(createInfo.name)
+  const onSubmit: SubmitHandler<CreateSchoolDto> = async (data) => {
+    const response = await createSchool(data)
 
-    if (response) {
-      createInfo.name = ""
-      handleCloseCreate()
+    if (!response.ok) {
+      setError("root", {
+        message: response.message ?? "Something went wrong"
+      })
     } else {
-      console.log("ERROR")
+      handleCloseCreate()
+      reset()
     }
   }
 
@@ -74,18 +88,17 @@ export default function SchoolList() {
         <Modal.Body>
           <Modal.Title>Create school</Modal.Title>
           <br />
-          <Form onSubmit={() => handleCreate}>
+          <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Name"
-                value={createInfo.name}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, name: target.value })
-                }
+                required
+                {...register("name")}
               ></Form.Control>
             </Form.Group>
+            {errors.root && <Alert key="danger">{errors.root.message}</Alert>}
             <br />
             <CustomButton
               type="button"
@@ -112,7 +125,12 @@ export default function SchoolList() {
 
         {schoolList.schools.map((school) => {
           return (
-            <SchoolCard id={school.id} key={school.id} name={school.name} />
+            <SchoolCard
+              id={school.id}
+              key={school.id}
+              name={school.name}
+              fetchData={fetchData}
+            />
           )
         })}
       </div>

@@ -4,10 +4,10 @@ importers:
 
   .:
     specifiers:
-      dotenv-cli: ^7.0.0
+      dotenv-cli: ^7.1.0
       turbo: ^1.8.3
     dependencies:
-      dotenv-cli: 7.0.0
+      dotenv-cli: 7.1.0
       turbo: 1.8.3
 
   apps/api:
@@ -116,6 +116,7 @@ importers:
       react: 18.2.0
       react-bootstrap: ^2.7.2
       react-dom: 18.2.0
+      react-hook-form: ^7.43.7
       sass: ^1.58.3
       tsconfig-custom: '*'
       types-custom: '*'
@@ -135,6 +136,7 @@ importers:
       react: 18.2.0
       react-bootstrap: 2.7.2_zula6vjvt3wdocc4mwcxqa6nzi
       react-dom: 18.2.0_react@18.2.0
+      react-hook-form: 7.43.7_react@18.2.0
       sass: 1.58.3
       types-custom: link:../../packages/types-custom
       typescript: 4.9.5
@@ -2759,8 +2761,8 @@ packages:
       csstype: 3.1.1
     dev: false
 
-  /dotenv-cli/7.0.0:
-    resolution: {integrity: sha512-XfMzVdpdDTRnlcgvFLg3lSyiLXqFxS4tH7RbK5IxkC4XIUuxPyrGoDufkfLjy/dA28EILzEu+mros6h8aQmyGg==}
+  /dotenv-cli/7.1.0:
+    resolution: {integrity: sha512-motytjZFQB3ZtGTIN4c0vnFgv4kuNZ2WxVnGY6PVFiygCzkm3IFBBguDUzezd9HgNA0OYYd6vNCWlozs0Q1Zxg==}
     hasBin: true
     dependencies:
       cross-spawn: 7.0.3
@@ -5475,6 +5477,15 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
+    dev: false
+
+  /react-hook-form/7.43.7_react@18.2.0:
+    resolution: {integrity: sha512-38yehQkQQ5uufaPKFScs7jhLE8n3+LG9H/BZfFAiBL2+7piDmw/BrdNJV4irzMaPnWZGhmGLHVICHXNVGIuXZg==}
+    engines: {node: '>=12.22.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-is/16.13.1:

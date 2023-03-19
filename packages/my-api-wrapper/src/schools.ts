@@ -6,71 +6,43 @@ import {
 } from "types-custom"
 import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
+import type APIResponse from "./types/apiResponse"
 
 const SCHOOLS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/schools`
 
 export async function getAllSchools(
   page?: number,
   pageSize?: number
-): Promise<GetAllPaginatedSchoolDto | null> {
+): Promise<APIResponse<GetAllPaginatedSchoolDto>> {
   const query = new Query({
     page,
     pageSize
   })
 
-  const response = await fetchHandler(`${SCHOOLS_URL}${query.toString()}`)
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as GetAllPaginatedSchoolDto
+  return await fetchHandler(`${SCHOOLS_URL}${query.toString()}`)
 }
 
-export async function createSchool(name: string): Promise<School | null> {
-  const data: CreateSchoolDto = {
-    name
-  }
-
-  const response = await fetchHandler(SCHOOLS_URL, {
+export async function createSchool(
+  createSchoolDto: CreateSchoolDto
+): Promise<APIResponse<School>> {
+  return await fetchHandler(SCHOOLS_URL, {
     method: "POST",
-    body: JSON.stringify(data)
+    body: JSON.stringify(createSchoolDto)
   })
-
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as School
 }
 
 export async function updateSchool(
   id: number,
-  name: string
-): Promise<School | null> {
-  const data: UpdateSchoolDto = {
-    name
-  }
-
-  const response = await fetchHandler(`${SCHOOLS_URL}/${id}`, {
+  updateSchoolDto: UpdateSchoolDto
+): Promise<APIResponse<School>> {
+  return await fetchHandler(`${SCHOOLS_URL}/${id}`, {
     method: "PATCH",
-    body: JSON.stringify(data)
+    body: JSON.stringify(updateSchoolDto)
   })
-
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as School
 }
 
-export async function deleteSchool(id: number): Promise<School | null> {
-  const response = await fetchHandler(`${SCHOOLS_URL}/${id}`, {
+export async function deleteSchool(id: number): Promise<APIResponse<School>> {
+  return await fetchHandler(`${SCHOOLS_URL}/${id}`, {
     method: "DELETE"
   })
-
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as School
 }

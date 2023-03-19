@@ -1,25 +1,25 @@
-import { useRouter } from "next/router"
-import { type FormEvent, useState } from "react"
+import { useState } from "react"
 import { Form, Modal } from "react-bootstrap"
 import CustomButton from "@/components/CustomButton"
+import { type FieldValues, type SubmitHandler, useForm } from "react-hook-form"
 
 interface DeleteModalProps {
   name: string
   handler: () => Promise<void>
 }
 
-export default function DeleteModal({ name, handler }: DeleteModalProps) {
-  const router = useRouter()
+export default function DeleteModal<T extends FieldValues>({
+  name,
+  handler
+}: DeleteModalProps) {
   const [showDelete, setShowDelete] = useState(false)
   const handleCloseDelete = () => setShowDelete(false)
   const handleShowDelete = () => setShowDelete(true)
 
-  const handleDelete = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const { handleSubmit } = useForm<T>()
 
+  const onSubmit: SubmitHandler<T> = async () => {
     await handler()
-
-    await router.replace(router.asPath)
     handleCloseDelete()
   }
 
@@ -32,7 +32,7 @@ export default function DeleteModal({ name, handler }: DeleteModalProps) {
           Are you sure you want to delete &quot;{name}&quot;?
           <br />
           <br />
-          <Form onSubmit={() => handleDelete}>
+          <Form onSubmit={handleSubmit(onSubmit)}>
             <CustomButton
               type="button"
               style={{ float: "left" }}
