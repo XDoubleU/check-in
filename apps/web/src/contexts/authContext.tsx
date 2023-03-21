@@ -12,7 +12,9 @@ import { type User } from "types-custom"
 
 export interface AuthContextProps {
   user: User | undefined
+  loading: boolean
   setUser: Dispatch<SetStateAction<User | undefined>>
+  setLoading: Dispatch<SetStateAction<boolean>>
 }
 
 interface Props {
@@ -21,12 +23,16 @@ interface Props {
 
 export const AuthContext = React.createContext<AuthContextProps>({
   user: undefined,
+  loading: true,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setUser: () => {}
+  setUser: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  setLoading: () => {}
 })
 
 export const AuthProvider = ({ children }: Props) => {
   const [currentUser, setCurrentUser] = useState<User | undefined>()
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     void getMyUser().then(async (response) => {
@@ -35,10 +41,11 @@ export const AuthProvider = ({ children }: Props) => {
       } else {
         setCurrentUser(response.data)
       }
+      setLoading(false)
     })
   }, [])
 
-  if (!currentUser) {
+  if (loading) {
     return <LoadingLayout />
   }
 
@@ -46,7 +53,9 @@ export const AuthProvider = ({ children }: Props) => {
     <AuthContext.Provider
       value={{
         user: currentUser,
-        setUser: setCurrentUser
+        loading: loading,
+        setUser: setCurrentUser,
+        setLoading: setLoading
       }}
     >
       {children}

@@ -45,6 +45,13 @@ export class LocationsService {
     })
   }
 
+  public async refresh(locationId: string): Promise<LocationEntity> {
+    return this.locationsRepository.findOneOrFail(
+      { id: locationId },
+      { refresh: true }
+    )
+  }
+
   public async getByName(name: string): Promise<LocationEntity | null> {
     return await this.locationsRepository.findOne({
       name: name
@@ -71,7 +78,9 @@ export class LocationsService {
 
     await this.locationsRepository.flush()
 
-    this.sseService.addLocationUpdate(location)
+    const updatedLocation = await this.refresh(location.id)
+
+    this.sseService.addLocationUpdate(updatedLocation)
 
     return location
   }

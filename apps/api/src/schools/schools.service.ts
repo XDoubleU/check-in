@@ -51,13 +51,20 @@ export class SchoolsService {
     page: number,
     pageSize: number
   ): Promise<SchoolEntity[]> {
-    return this.schoolsRepository.findAll({
-      orderBy: {
-        name: "asc"
+    return this.schoolsRepository.find(
+      {
+        id: {
+          $ne: 1
+        }
       },
-      limit: pageSize,
-      offset: (page - 1) * pageSize
-    })
+      {
+        orderBy: {
+          name: "asc"
+        },
+        limit: pageSize,
+        offset: (page - 1) * pageSize
+      }
+    )
   }
 
   public async getById(id: number): Promise<SchoolEntity | null> {

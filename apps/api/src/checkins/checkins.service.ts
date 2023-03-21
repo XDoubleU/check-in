@@ -33,10 +33,7 @@ export class CheckInsService {
     const checkIn = new CheckInEntity(location, school)
     await this.checkInsRepository.persistAndFlush(checkIn)
 
-    const updatedLocation = await this.locationsService.getById(location.id)
-    if (!updatedLocation) {
-      return null
-    }
+    const updatedLocation = await this.locationsService.refresh(location.id)
 
     this.sseService.addLocationUpdate(updatedLocation)
 

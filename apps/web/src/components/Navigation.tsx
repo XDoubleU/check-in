@@ -1,6 +1,5 @@
 import { useAuth } from "@/contexts"
-import { signOut } from "my-api-wrapper"
-import Router, { useRouter } from "next/router"
+import { useRouter } from "next/router"
 import { type MouseEventHandler } from "react"
 import { Container, Nav, Navbar } from "react-bootstrap"
 import { Role } from "types-custom"
@@ -37,10 +36,6 @@ function NavItem({ children, href, onClick, active }: NavItemProps) {
 export default function Navigation() {
   const { user } = useAuth()
 
-  const signOutHandler = () => {
-    void signOut().then(() => Router.push("/signin"))
-  }
-
   return (
     <Navbar expand="lg" bg="primary" variant="dark">
       <Container>
@@ -63,7 +58,7 @@ export default function Navigation() {
             )}
           </Nav>
           <Nav className="ms-auto mb-2 mb-lg-0">
-            <NavItem onClick={signOutHandler}>Sign out</NavItem>
+            <NavItem href="/signout">Sign out</NavItem>
           </Nav>
         </Navbar.Collapse>
       </Container>

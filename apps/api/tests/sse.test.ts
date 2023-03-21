@@ -3,12 +3,10 @@ import Fixture, { type TokensAndUser } from "./fixture"
 import EventSource from "eventsource"
 import { type Server } from "http"
 import { type AddressInfo } from "net"
-import {
-  type LocationUpdateEventData,
-  SseService
-} from "../src/sse/sse.service"
+import { SseService } from "../src/sse/sse.service"
 import { LocationEntity } from "mikro-orm-config"
 import { expect } from "chai"
+import { type LocationUpdateEventDto } from "types-custom"
 
 describe("SseController (e2e)", () => {
   let fixture: Fixture
@@ -69,14 +67,14 @@ describe("SseController (e2e)", () => {
       eventSource.onmessage = (event): void => {
         const locationUpdateEventData = JSON.parse(
           event.data as string
-        ) as LocationUpdateEventData
+        ) as LocationUpdateEventDto
 
         try {
           expect(locationUpdateEventData.normalizedName).to.be.equal(
             location.normalizedName
           )
           expect(locationUpdateEventData.available).to.be.equal(
-            location.available
+            location.capacity - 1
           )
           expect(locationUpdateEventData.capacity).to.be.equal(
             location.capacity
@@ -113,14 +111,14 @@ describe("SseController (e2e)", () => {
       eventSource.onmessage = (event): void => {
         const locationUpdateEventData = JSON.parse(
           event.data as string
-        ) as LocationUpdateEventData
+        ) as LocationUpdateEventDto
 
         try {
           expect(locationUpdateEventData.normalizedName).to.be.equal(
             location.normalizedName
           )
           expect(locationUpdateEventData.available).to.be.equal(
-            location.available
+            location.capacity - 1
           )
           expect(locationUpdateEventData.capacity).to.be.equal(
             location.capacity

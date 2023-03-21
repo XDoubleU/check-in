@@ -26,6 +26,7 @@
     "react-bootstrap": "^2.7.2",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.7",
+    "react-spinners": "^0.13.8",
     "sass": "^1.58.3",
     "types-custom": "*",
     "typescript": "^4.9.5"

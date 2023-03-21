@@ -131,11 +131,14 @@ export default function LocationList() {
                     if (watch("password") != val) {
                       return "Your passwords do no match"
                     }
-                    return ""
+                    return undefined
                   }
                 })}
               ></Form.Control>
             </Form.Group>
+            {errors.repeatPassword && (
+              <Alert key="danger">{errors.repeatPassword.message}</Alert>
+            )}
             {errors.root && <Alert key="danger">{errors.root.message}</Alert>}
             <br />
             <CustomButton

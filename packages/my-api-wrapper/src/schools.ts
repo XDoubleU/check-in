@@ -10,6 +10,10 @@ import type APIResponse from "./types/apiResponse"
 
 const SCHOOLS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/schools`
 
+export async function getAllSchoolsCheckIn(): Promise<APIResponse<School[]>> {
+  return await fetchHandler(`${SCHOOLS_URL}/all`)
+}
+
 export async function getAllSchools(
   page?: number,
   pageSize?: number

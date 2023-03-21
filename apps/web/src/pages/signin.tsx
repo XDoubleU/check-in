@@ -6,11 +6,15 @@ import { signin } from "my-api-wrapper"
 import Router from "next/router"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { type SignInDto } from "types-custom"
+import { useAuth } from "@/contexts"
+import LoadingLayout from "@/layouts/LoadingLayout"
 
 // TODO: implement remember me
 
 // eslint-disable-next-line max-lines-per-function
 export default function SignIn() {
+  const { user, setUser } = useAuth()
+
   const {
     register,
     handleSubmit,
@@ -25,8 +29,14 @@ export default function SignIn() {
         message: response.message ?? "Something went wrong"
       })
     } else {
+      setUser(response.data)
       await Router.push("/")
     }
+  }
+
+  if (user) {
+    void Router.push("/")
+    return <LoadingLayout />
   }
 
   return (
