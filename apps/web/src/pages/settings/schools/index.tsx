@@ -1,4 +1,3 @@
-import CustomButton from "@/components/CustomButton"
 import CustomPagination, {
   type CustomPaginationProps
 } from "@/components/CustomPagination"
@@ -8,8 +7,9 @@ import { type CreateSchoolDto, type School } from "types-custom"
 import { createSchool, getAllSchools } from "my-api-wrapper"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState } from "react"
-import { Alert, Col, Form, Modal } from "react-bootstrap"
-import { type SubmitHandler, useForm } from "react-hook-form"
+import { Form } from "react-bootstrap"
+import { useForm } from "react-hook-form"
+import CreateModal from "@/components/modals/CreateModal"
 
 interface SchoolList {
   schools: School[]
@@ -28,20 +28,7 @@ export default function SchoolList() {
     }
   })
 
-  const {
-    register,
-    handleSubmit,
-    setError,
-    reset,
-    formState: { errors }
-  } = useForm<CreateSchoolDto>()
-
-  const [showCreate, setShowCreate] = useState(false)
-  const handleCloseCreate = () => setShowCreate(false)
-  const handleShowCreate = () => setShowCreate(true)
-  const onCloseCreate = useCallback(() => {
-    return !showCreate
-  }, [showCreate])
+  const form = useForm<CreateSchoolDto>()
 
   const fetchData = useCallback(async () => {
     if (!router.isReady) return
@@ -51,10 +38,6 @@ export default function SchoolList() {
       : undefined
 
     const response = await getAllSchools(page)
-    if (!response.ok) {
-      await router.push("/signin")
-      return
-    }
 
     setSchoolList({
       schools: response.data?.schools ?? Array<School>(),
@@ -67,56 +50,30 @@ export default function SchoolList() {
 
   useEffect(() => {
     void fetchData()
-  }, [fetchData, onCloseCreate])
+  }, [fetchData])
 
-  const onSubmit: SubmitHandler<CreateSchoolDto> = async (data) => {
-    const response = await createSchool(data)
-
-    if (!response.ok) {
-      setError("root", {
-        message: response.message ?? "Something went wrong"
-      })
-    } else {
-      handleCloseCreate()
-      reset()
-    }
+  const handleCreate = (data: CreateSchoolDto) => {
+    return createSchool(data)
   }
 
   return (
     <AdminLayout title="Schools">
-      <Modal show={showCreate} onHide={handleCloseCreate}>
-        <Modal.Body>
-          <Modal.Title>Create school</Modal.Title>
-          <br />
-          <Form onSubmit={handleSubmit(onSubmit)}>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Name"
-                required
-                {...register("name")}
-              ></Form.Control>
-            </Form.Group>
-            {errors.root && <Alert key="danger">{errors.root.message}</Alert>}
-            <br />
-            <CustomButton
-              type="button"
-              style={{ float: "left" }}
-              onClick={handleCloseCreate}
-            >
-              Cancel
-            </CustomButton>
-            <CustomButton type="submit" style={{ float: "right" }}>
-              Create
-            </CustomButton>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      <Col size={2}>
-        <CustomButton onClick={handleShowCreate}>Create</CustomButton>
-      </Col>
+      <CreateModal<CreateSchoolDto, School>
+        form={form}
+        handler={handleCreate}
+        refetchData={fetchData}
+        typeName="school"
+      >
+        <Form.Group className="mb-3">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Name"
+            required
+            {...form.register("name")}
+          ></Form.Control>
+        </Form.Group>
+      </CreateModal>
 
       <br />
 
@@ -129,7 +86,7 @@ export default function SchoolList() {
               id={school.id}
               key={school.id}
               name={school.name}
-              fetchData={fetchData}
+              refetchData={fetchData}
             />
           )
         })}

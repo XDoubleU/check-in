@@ -1,4 +1,3 @@
-import CustomButton from "@/components/CustomButton"
 import CustomPagination, {
   type CustomPaginationProps
 } from "@/components/CustomPagination"
@@ -7,12 +6,18 @@ import AdminLayout from "@/layouts/AdminLayout"
 import { type CreateLocationDto, type Location } from "types-custom"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState } from "react"
-import { Alert, Col, Form, Modal } from "react-bootstrap"
-import { createLocation, getAllLocations } from "my-api-wrapper"
-import { type SubmitHandler, useForm } from "react-hook-form"
+import { Form } from "react-bootstrap"
+import { createLocation, getAllLocations, getUser } from "my-api-wrapper"
+import { useForm } from "react-hook-form"
+import CreateModal from "@/components/modals/CreateModal"
+
+export type LocationWithUsername = Omit<Location, "userId"> & {
+  username: string
+}
+type LocationCreateForm = CreateLocationDto & { repeatPassword?: string }
 
 interface LocationList {
-  locations: Location[]
+  locations: LocationWithUsername[]
   pagination: CustomPaginationProps
 }
 
@@ -28,136 +33,117 @@ export default function LocationList() {
     }
   })
 
-  const {
-    register,
-    watch,
-    handleSubmit,
-    setError,
-    reset,
-    formState: { errors }
-  } = useForm<CreateLocationDto & { repeatPassword: string }>()
+  const form = useForm<LocationCreateForm>()
 
-  const [showCreate, setShowCreate] = useState(false)
-  const handleCloseCreate = () => setShowCreate(false)
-  const handleShowCreate = () => setShowCreate(true)
-  const onCloseCreate = useCallback(() => {
-    return !showCreate
-  }, [showCreate])
-
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!router.isReady) return
+
     const page = router.query.page
       ? parseInt(router.query.page as string)
       : undefined
-    void getAllLocations(page).then(async (response) => {
-      if (!response.ok) {
-        await router.push("/signin")
-        return
+
+    const response = await getAllLocations(page)
+    if (!response.data) return
+
+    const locationsWithUsernames = Array<LocationWithUsername>()
+
+    await Promise.all(
+      response.data.locations.map(async (location) => {
+        const username = (await getUser(location.userId)).data?.username
+
+        locationsWithUsernames.push({
+          id: location.id,
+          name: location.name,
+          normalizedName: location.normalizedName,
+          capacity: location.capacity,
+          username: username ?? "",
+          available: location.available,
+          checkIns: location.checkIns
+        })
+      })
+    )
+
+    setLocationList({
+      locations: locationsWithUsernames,
+      pagination: {
+        current: response.data.page,
+        total: response.data.totalPages
       }
-
-      setLocationList({
-        locations: response.data?.locations ?? Array<Location>(),
-        pagination: {
-          current: response.data?.page ?? 1,
-          total: response.data?.totalPages ?? 1
-        }
-      })
     })
-  }, [onCloseCreate, router])
+  }, [router])
 
-  const onSubmit: SubmitHandler<CreateLocationDto> = async (data) => {
-    const response = await createLocation(data)
+  useEffect(() => {
+    void fetchData()
+  }, [fetchData])
 
-    if (!response.ok) {
-      setError("root", {
-        message: response.message ?? "Something went wrong"
-      })
-    } else {
-      handleCloseCreate()
-      reset()
-    }
+  const handleCreate = (data: CreateLocationDto) => {
+    return createLocation(data)
   }
 
   return (
     <AdminLayout title="Locations">
-      <Modal show={showCreate} onHide={handleCloseCreate}>
-        <Modal.Body>
-          <Modal.Title>Create location</Modal.Title>
-          <br />
-          <Form onSubmit={handleSubmit(onSubmit)}>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Name"
-                required
-                {...register("name")}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Capacity</Form.Label>
-              <Form.Control
-                type="number"
-                required
-                {...register("capacity")}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Username"
-                required
-                {...register("username")}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Password"
-                required
-                {...register("password")}
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Repeat password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Repeat password"
-                required
-                {...register("repeatPassword", {
-                  validate: (val: string) => {
-                    if (watch("password") != val) {
-                      return "Your passwords do no match"
-                    }
-                    return undefined
-                  }
-                })}
-              ></Form.Control>
-            </Form.Group>
-            {errors.repeatPassword && (
-              <Alert key="danger">{errors.repeatPassword.message}</Alert>
-            )}
-            {errors.root && <Alert key="danger">{errors.root.message}</Alert>}
-            <br />
-            <CustomButton
-              type="button"
-              style={{ float: "left" }}
-              onClick={handleCloseCreate}
-            >
-              Cancel
-            </CustomButton>
-            <CustomButton type="submit" style={{ float: "right" }}>
-              Create
-            </CustomButton>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      <Col size={2}>
-        <CustomButton onClick={handleShowCreate}>Create</CustomButton>
-      </Col>
+      <CreateModal<CreateLocationDto, Location>
+        form={form}
+        handler={handleCreate}
+        refetchData={fetchData}
+        typeName="location"
+      >
+        <Form.Group className="mb-3">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Name"
+            required
+            {...form.register("name")}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Capacity</Form.Label>
+          <Form.Control
+            type="number"
+            required
+            {...form.register("capacity")}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Username</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Username"
+            required
+            {...form.register("username")}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Password"
+            required
+            {...form.register("password")}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Repeat password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Repeat password"
+            required
+            isInvalid={!!form.formState.errors.repeatPassword}
+            {...form.register("repeatPassword", {
+              validate: (val: string | undefined) => {
+                if (form.watch("password") != val) {
+                  return "Your passwords do no match"
+                }
+                return undefined
+              }
+            })}
+          ></Form.Control>
+          <Form.Control.Feedback type="invalid">
+            {form.formState.errors.repeatPassword?.message}
+          </Form.Control.Feedback>
+        </Form.Group>
+      </CreateModal>
 
       <br />
 
@@ -172,7 +158,8 @@ export default function LocationList() {
               name={location.name}
               normalizedName={location.normalizedName}
               capacity={location.capacity}
-              username={"TODO"}
+              username={location.username}
+              refetchData={fetchData}
             />
           )
         })}

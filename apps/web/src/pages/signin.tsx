@@ -1,13 +1,13 @@
 import styles from "./signin.module.css"
-import { Alert, Col, Form } from "react-bootstrap"
+import { Col, Form } from "react-bootstrap"
 import BaseLayout from "@/layouts/BaseLayout"
-import CustomButton from "@/components/CustomButton"
 import { signin } from "my-api-wrapper"
 import Router from "next/router"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { type SignInDto } from "types-custom"
 import { useAuth } from "@/contexts"
 import LoadingLayout from "@/layouts/LoadingLayout"
+import BaseForm from "@/components/forms/BaseForm"
 
 // TODO: implement remember me
 
@@ -45,7 +45,12 @@ export default function SignIn() {
         <h1 className="text-center">Sign In</h1>
         <br />
 
-        <Form className={styles.customForm} onSubmit={handleSubmit(onSubmit)}>
+        <BaseForm
+          className={styles.customForm}
+          onSubmit={handleSubmit(onSubmit)}
+          errors={errors}
+          submitBtnText="Sign In"
+        >
           <Form.Group className="mb-3">
             <Form.Label>Username</Form.Label>
             <Form.Control
@@ -64,9 +69,9 @@ export default function SignIn() {
               {...register("password")}
             ></Form.Control>
           </Form.Group>
-          {errors.root && <Alert key="danger">{errors.root.message}</Alert>}
-          <CustomButton type="submit">Sign In</CustomButton>
-        </Form>
+        </BaseForm>
+        <br />
+        <br />
       </Col>
     </BaseLayout>
   )

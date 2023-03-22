@@ -7,3 +7,7 @@ const USERS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/users`
 export async function getMyUser(): Promise<APIResponse<User>> {
   return await fetchHandler(`${USERS_URL}/me`)
 }
+
+export async function getUser(id: string): Promise<APIResponse<User>> {
+  return await fetchHandler(`${USERS_URL}/${id}`)
+}

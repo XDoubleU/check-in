@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react"
-import { Card, Form } from "react-bootstrap"
+import { Alert, Card, Form } from "react-bootstrap"
 import Link from "next/link"
 import UpdateModal from "@/components/modals/UpdateModal"
 import DeleteModal from "@/components/modals/DeleteModal"
 import { deleteLocation, updateLocation } from "my-api-wrapper"
+import { type UpdateLocationDto } from "types-custom"
+import { useForm } from "react-hook-form"
 
 type LocationUpdateProps = Omit<LocationCardProps, "normalizedName">
+type LocationUpdateForm = UpdateLocationDto & { repeatPassword?: string }
 
 interface LocationCardProps {
   id: string
@@ -13,6 +15,7 @@ interface LocationCardProps {
   normalizedName: string
   capacity: number
   username: string
+  refetchData: () => Promise<void>
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -20,57 +23,42 @@ export function LocationUpdateModal({
   id,
   name,
   capacity,
-  username
+  username,
+  refetchData
 }: LocationUpdateProps) {
-  const [updateInfo, setUpdateInfo] = useState({
-    id: id,
-    name: name,
-    capacity: capacity,
-    username: username,
-    password: "",
-    repeatPassword: ""
-  })
-  const [updateFormError, setUpdateFormError] = useState("")
-
-  useEffect(() => {
-    if (updateInfo.password !== updateInfo.repeatPassword) {
-      setUpdateFormError("Passwords don't match.")
-    } else {
-      setUpdateFormError("")
+  const form = useForm<LocationUpdateForm>({
+    defaultValues: {
+      name: name,
+      capacity: capacity,
+      username: username
     }
-  }, [updateInfo])
+  })
 
-  const handleUpdate = async () => {
-    await updateLocation(
-      id,
-      updateInfo.name,
-      updateInfo.capacity,
-      updateInfo.username,
-      updateInfo.password
-    )
+  const handleUpdate = (data: UpdateLocationDto) => {
+    return updateLocation(id, data)
   }
 
   return (
-    <UpdateModal handler={handleUpdate}>
+    <UpdateModal<UpdateLocationDto>
+      form={form}
+      handler={handleUpdate}
+      refetchData={refetchData}
+      typeName="location"
+    >
       <Form.Group className="mb-3">
         <Form.Label>Name</Form.Label>
         <Form.Control
           type="text"
           placeholder="Name"
-          value={updateInfo.name}
-          onChange={({ target }) =>
-            setUpdateInfo({ ...updateInfo, name: target.value })
-          }
+          {...form.register("name")}
         ></Form.Control>
       </Form.Group>
       <Form.Group className="mb-3">
         <Form.Label>Capacity</Form.Label>
         <Form.Control
           type="number"
-          value={updateInfo.capacity}
-          onChange={({ target }) =>
-            setUpdateInfo({ ...updateInfo, capacity: parseInt(target.value) })
-          }
+          placeholder="Capacity"
+          {...form.register("capacity")}
         ></Form.Control>
       </Form.Group>
       <Form.Group className="mb-3">
@@ -78,10 +66,7 @@ export function LocationUpdateModal({
         <Form.Control
           type="text"
           placeholder="Username"
-          value={updateInfo.username}
-          onChange={({ target }) =>
-            setUpdateInfo({ ...updateInfo, username: target.value })
-          }
+          {...form.register("username")}
         ></Form.Control>
       </Form.Group>
       <Form.Group className="mb-3">
@@ -89,10 +74,7 @@ export function LocationUpdateModal({
         <Form.Control
           type="password"
           placeholder="Password"
-          value={updateInfo.password}
-          onChange={({ target }) =>
-            setUpdateInfo({ ...updateInfo, password: target.value })
-          }
+          {...form.register("password")}
         ></Form.Control>
       </Form.Group>
       <Form.Group className="mb-3">
@@ -100,14 +82,37 @@ export function LocationUpdateModal({
         <Form.Control
           type="password"
           placeholder="Repeat password"
-          value={updateInfo.repeatPassword}
-          onChange={({ target }) =>
-            setUpdateInfo({ ...updateInfo, repeatPassword: target.value })
-          }
+          {...form.register("repeatPassword", {
+            validate: (val: string | undefined) => {
+              if (form.watch("password") != val) {
+                return "Your passwords do no match"
+              }
+              return undefined
+            }
+          })}
         ></Form.Control>
-        <Form.Text className="text-danger">{updateFormError}</Form.Text>
+        {form.formState.errors.repeatPassword && (
+          <Alert key="danger">
+            {form.formState.errors.repeatPassword.message}
+          </Alert>
+        )}
       </Form.Group>
     </UpdateModal>
+  )
+}
+
+function LocationDeleteModal({ id, name, refetchData }: LocationUpdateProps) {
+  const handleDelete = () => {
+    return deleteLocation(id)
+  }
+
+  return (
+    <DeleteModal
+      name={name}
+      handler={handleDelete}
+      refetchData={refetchData}
+      typeName="location"
+    />
   )
 }
 
@@ -116,12 +121,9 @@ export default function LocationCard({
   name,
   normalizedName,
   capacity,
-  username
+  username,
+  refetchData
 }: LocationCardProps) {
-  const handleDelete = async () => {
-    await deleteLocation(id)
-  }
-
   return (
     <>
       <Card>
@@ -142,8 +144,15 @@ export default function LocationCard({
                 name={name}
                 username={username}
                 capacity={capacity}
+                refetchData={refetchData}
               />
-              <DeleteModal name={name} handler={handleDelete} />
+              <LocationDeleteModal
+                id={id}
+                name={name}
+                username={username}
+                capacity={capacity}
+                refetchData={refetchData}
+              />
             </div>
           </div>
         </Card.Body>
