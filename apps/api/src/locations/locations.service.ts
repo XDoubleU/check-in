@@ -65,7 +65,7 @@ export class LocationsService {
   ): Promise<LocationEntity> {
     const location = new LocationEntity(name, capacity, user)
     await this.locationsRepository.persistAndFlush(location)
-    return location
+    return await this.refresh(location.id)
   }
 
   public async update(

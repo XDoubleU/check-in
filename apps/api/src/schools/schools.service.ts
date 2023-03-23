@@ -15,7 +15,11 @@ export class SchoolsService {
   }
 
   public async getTotalCount(): Promise<number> {
-    return this.schoolsRepository.count()
+    return this.schoolsRepository.count({
+      id: {
+        $ne: 1
+      }
+    })
   }
 
   public async getAll(locationId?: string): Promise<SchoolEntity[]> {

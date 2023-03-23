@@ -18,6 +18,8 @@ function SchoolUpdateModal({ id, name, refetchData }: SchoolCardProps) {
     }
   })
 
+  const { register } = form
+
   const handleUpdate = (data: UpdateSchoolDto) => {
     return updateSchool(id, data)
   }
@@ -34,7 +36,7 @@ function SchoolUpdateModal({ id, name, refetchData }: SchoolCardProps) {
         <Form.Control
           type="text"
           placeholder="Name"
-          {...form.register("name")}
+          {...register("name")}
         ></Form.Control>
       </Form.Group>
     </UpdateModal>

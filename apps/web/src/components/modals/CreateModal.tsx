@@ -17,6 +17,7 @@ interface CreateModalProps<T extends FieldValues, Y> {
   typeName: string
 }
 
+// eslint-disable-next-line max-lines-per-function
 export default function CreateModal<
   T extends FieldValues,
   Y extends FieldValues
@@ -25,15 +26,22 @@ export default function CreateModal<
   const handleCloseCreate = () => setShowCreate(false)
   const handleShowCreate = () => setShowCreate(true)
 
+  const {
+    handleSubmit,
+    formState: { errors },
+    setError,
+    reset
+  } = form
+
   const onSubmit: SubmitHandler<T> = async (data) => {
     const response = await handler(data)
     if (!response.ok) {
-      form.setError("root", {
+      setError("root", {
         message: response.message ?? "Something went wrong"
       })
     } else {
       handleCloseCreate()
-      form.reset()
+      reset()
       await refetchData()
     }
   }
@@ -45,8 +53,8 @@ export default function CreateModal<
           <Modal.Title>Create {typeName.toLowerCase()}</Modal.Title>
           <br />
           <BaseForm
-            onSubmit={form.handleSubmit(onSubmit)}
-            errors={form.formState.errors}
+            onSubmit={handleSubmit(onSubmit)}
+            errors={errors}
             submitBtnText="Create"
             onCancelCallback={handleCloseCreate}
           >

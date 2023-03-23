@@ -10,9 +10,10 @@ import { useCallback, useEffect, useState } from "react"
 import { Form } from "react-bootstrap"
 import { useForm } from "react-hook-form"
 import CreateModal from "@/components/modals/CreateModal"
+import Loader from "@/components/Loader"
 
 interface SchoolList {
-  schools: School[]
+  schools: School[] | undefined
   pagination: CustomPaginationProps
 }
 
@@ -21,7 +22,7 @@ export default function SchoolList() {
   const router = useRouter()
 
   const [schoolList, setSchoolList] = useState<SchoolList>({
-    schools: [],
+    schools: undefined,
     pagination: {
       current: 0,
       total: 0
@@ -29,6 +30,8 @@ export default function SchoolList() {
   })
 
   const form = useForm<CreateSchoolDto>()
+
+  const { register } = form
 
   const fetchData = useCallback(async () => {
     if (!router.isReady) return
@@ -38,12 +41,17 @@ export default function SchoolList() {
       : undefined
 
     const response = await getAllSchools(page)
+    if (!response.data) return
+
+    if (response.data.page > response.data.totalPages) {
+      await router.push(`schools?page=${response.data.totalPages}`)
+    }
 
     setSchoolList({
-      schools: response.data?.schools ?? Array<School>(),
+      schools: response.data.schools,
       pagination: {
-        current: response.data?.page ?? 1,
-        total: response.data?.totalPages ?? 1
+        current: response.data.page,
+        total: response.data.totalPages
       }
     })
   }, [router])
@@ -70,7 +78,7 @@ export default function SchoolList() {
             type="text"
             placeholder="Name"
             required
-            {...form.register("name")}
+            {...register("name")}
           ></Form.Control>
         </Form.Group>
       </CreateModal>
@@ -78,9 +86,13 @@ export default function SchoolList() {
       <br />
 
       <div className="min-vh-51">
-        {schoolList.schools.length == 0 ? "Nothing to see here." : ""}
+        {!schoolList.schools && <Loader />}
 
-        {schoolList.schools.map((school) => {
+        {schoolList.schools && schoolList.schools.length == 0
+          ? "Nothing to see here."
+          : ""}
+
+        {schoolList.schools?.map((school) => {
           return (
             <SchoolCard
               id={school.id}

@@ -10,6 +10,7 @@ import { Form } from "react-bootstrap"
 import { createLocation, getAllLocations, getUser } from "my-api-wrapper"
 import { useForm } from "react-hook-form"
 import CreateModal from "@/components/modals/CreateModal"
+import Loader from "@/components/Loader"
 
 export type LocationWithUsername = Omit<Location, "userId"> & {
   username: string
@@ -17,7 +18,7 @@ export type LocationWithUsername = Omit<Location, "userId"> & {
 type LocationCreateForm = CreateLocationDto & { repeatPassword?: string }
 
 interface LocationList {
-  locations: LocationWithUsername[]
+  locations: LocationWithUsername[] | undefined
   pagination: CustomPaginationProps
 }
 
@@ -26,7 +27,7 @@ export default function LocationList() {
   const router = useRouter()
 
   const [locationList, setLocationList] = useState<LocationList>({
-    locations: [],
+    locations: undefined,
     pagination: {
       current: 0,
       total: 0
@@ -34,6 +35,12 @@ export default function LocationList() {
   })
 
   const form = useForm<LocationCreateForm>()
+
+  const {
+    register,
+    watch,
+    formState: { errors }
+  } = form
 
   const fetchData = useCallback(async () => {
     if (!router.isReady) return
@@ -44,6 +51,10 @@ export default function LocationList() {
 
     const response = await getAllLocations(page)
     if (!response.data) return
+
+    if (response.data.page > response.data.totalPages) {
+      await router.push(`locations?page=${response.data.totalPages}`)
+    }
 
     const locationsWithUsernames = Array<LocationWithUsername>()
 
@@ -94,7 +105,7 @@ export default function LocationList() {
             type="text"
             placeholder="Name"
             required
-            {...form.register("name")}
+            {...register("name")}
           ></Form.Control>
         </Form.Group>
         <Form.Group className="mb-3">
@@ -102,7 +113,7 @@ export default function LocationList() {
           <Form.Control
             type="number"
             required
-            {...form.register("capacity")}
+            {...register("capacity")}
           ></Form.Control>
         </Form.Group>
         <Form.Group className="mb-3">
@@ -111,7 +122,7 @@ export default function LocationList() {
             type="text"
             placeholder="Username"
             required
-            {...form.register("username")}
+            {...register("username")}
           ></Form.Control>
         </Form.Group>
         <Form.Group className="mb-3">
@@ -120,7 +131,7 @@ export default function LocationList() {
             type="password"
             placeholder="Password"
             required
-            {...form.register("password")}
+            {...register("password")}
           ></Form.Control>
         </Form.Group>
         <Form.Group className="mb-3">
@@ -129,10 +140,10 @@ export default function LocationList() {
             type="password"
             placeholder="Repeat password"
             required
-            isInvalid={!!form.formState.errors.repeatPassword}
-            {...form.register("repeatPassword", {
+            isInvalid={!!errors.repeatPassword}
+            {...register("repeatPassword", {
               validate: (val: string | undefined) => {
-                if (form.watch("password") != val) {
+                if (watch("password") != val) {
                   return "Your passwords do no match"
                 }
                 return undefined
@@ -140,7 +151,7 @@ export default function LocationList() {
             })}
           ></Form.Control>
           <Form.Control.Feedback type="invalid">
-            {form.formState.errors.repeatPassword?.message}
+            {errors.repeatPassword?.message}
           </Form.Control.Feedback>
         </Form.Group>
       </CreateModal>
@@ -148,9 +159,13 @@ export default function LocationList() {
       <br />
 
       <div className="min-vh-51">
-        {locationList.locations.length == 0 ? "Nothing to see here." : ""}
+        {!locationList.locations && <Loader />}
 
-        {locationList.locations.map((location) => {
+        {locationList.locations && locationList.locations.length == 0
+          ? "Nothing to see here."
+          : ""}
+
+        {locationList.locations?.map((location) => {
           return (
             <LocationCard
               id={location.id}

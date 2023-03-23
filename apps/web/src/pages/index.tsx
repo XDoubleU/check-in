@@ -6,8 +6,7 @@ import { Container, Form } from "react-bootstrap"
 import {
   type LocationUpdateEventDto,
   type CreateCheckInDto,
-  type School,
-  Role
+  type School
 } from "types-custom"
 import BaseLayout from "@/layouts/BaseLayout"
 import CustomButton from "@/components/CustomButton"
@@ -16,10 +15,9 @@ import {
   createCheckIn,
   getAllSchoolsCheckIn
 } from "my-api-wrapper"
-import LoadingLayout from "@/layouts/LoadingLayout"
 import { useAuth } from "@/contexts"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import Router from "next/router"
+import LoadingLayout from "@/layouts/LoadingLayout"
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {
@@ -42,7 +40,6 @@ export default function CheckIn() {
         event.data as string
       ) as LocationUpdateEventDto
 
-      console.log(locationUpdateEvent)
       setAvailable(locationUpdateEvent.available)
     }
 
@@ -50,11 +47,6 @@ export default function CheckIn() {
       eventSource.close()
     }
   }, [user?.location])
-
-  if (user?.roles.includes(Role.Admin)) {
-    void Router.push("/settings")
-    return <LoadingLayout />
-  }
 
   const loadSchools = async () => {
     const response = await getAllSchoolsCheckIn()
@@ -80,6 +72,10 @@ export default function CheckIn() {
     setTimeout(function () {
       setDisabled(false)
     }, 1500)
+  }
+
+  if (!user?.location) {
+    return <LoadingLayout />
   }
 
   return (

@@ -29,7 +29,13 @@ export default function UpdateModal<T extends FieldValues>({
   const handleCloseUpdate = () => setShowUpdate(false)
   const handleShowUpdate = () => setShowUpdate(true)
 
-  const { dirtyFields } = form.formState
+  const {
+    handleSubmit,
+    formState: { dirtyFields, errors },
+    setError,
+    reset
+  } = form
+
   const onSubmit: SubmitHandler<T> = async (data) => {
     const dataToSubmit = Object.fromEntries(
       Object.keys(dirtyFields).map((key) => [key, data[key]])
@@ -37,12 +43,12 @@ export default function UpdateModal<T extends FieldValues>({
 
     const response = await handler(dataToSubmit as T)
     if (!response.ok) {
-      form.setError("root", {
+      setError("root", {
         message: response.message ?? "Something went wrong"
       })
     } else {
       handleCloseUpdate()
-      form.reset(data)
+      reset(data)
       await refetchData()
     }
   }
@@ -54,8 +60,8 @@ export default function UpdateModal<T extends FieldValues>({
           <Modal.Title>Update {typeName.toLowerCase()}</Modal.Title>
           <br />
           <BaseForm
-            onSubmit={form.handleSubmit(onSubmit)}
-            errors={form.formState.errors}
+            onSubmit={handleSubmit(onSubmit)}
+            errors={errors}
             submitBtnText="Update"
             onCancelCallback={handleCloseUpdate}
           >

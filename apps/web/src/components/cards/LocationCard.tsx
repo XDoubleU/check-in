@@ -34,6 +34,12 @@ export function LocationUpdateModal({
     }
   })
 
+  const {
+    register,
+    watch,
+    formState: { errors }
+  } = form
+
   const handleUpdate = (data: UpdateLocationDto) => {
     return updateLocation(id, data)
   }
@@ -50,7 +56,7 @@ export function LocationUpdateModal({
         <Form.Control
           type="text"
           placeholder="Name"
-          {...form.register("name")}
+          {...register("name")}
         ></Form.Control>
       </Form.Group>
       <Form.Group className="mb-3">
@@ -58,7 +64,7 @@ export function LocationUpdateModal({
         <Form.Control
           type="number"
           placeholder="Capacity"
-          {...form.register("capacity")}
+          {...register("capacity")}
         ></Form.Control>
       </Form.Group>
       <Form.Group className="mb-3">
@@ -66,7 +72,7 @@ export function LocationUpdateModal({
         <Form.Control
           type="text"
           placeholder="Username"
-          {...form.register("username")}
+          {...register("username")}
         ></Form.Control>
       </Form.Group>
       <Form.Group className="mb-3">
@@ -74,7 +80,7 @@ export function LocationUpdateModal({
         <Form.Control
           type="password"
           placeholder="Password"
-          {...form.register("password")}
+          {...register("password")}
         ></Form.Control>
       </Form.Group>
       <Form.Group className="mb-3">
@@ -82,19 +88,17 @@ export function LocationUpdateModal({
         <Form.Control
           type="password"
           placeholder="Repeat password"
-          {...form.register("repeatPassword", {
+          {...register("repeatPassword", {
             validate: (val: string | undefined) => {
-              if (form.watch("password") != val) {
+              if (watch("password") != val) {
                 return "Your passwords do no match"
               }
               return undefined
             }
           })}
         ></Form.Control>
-        {form.formState.errors.repeatPassword && (
-          <Alert key="danger">
-            {form.formState.errors.repeatPassword.message}
-          </Alert>
+        {errors.repeatPassword && (
+          <Alert key="danger">{errors.repeatPassword.message}</Alert>
         )}
       </Form.Group>
     </UpdateModal>

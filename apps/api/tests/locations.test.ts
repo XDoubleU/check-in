@@ -9,7 +9,6 @@ import {
 } from "types-custom"
 import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
 import { v4 } from "uuid"
-import { expect } from "chai"
 import { LocationEntity } from "mikro-orm-config"
 
 describe("LocationsController (e2e)", () => {
@@ -23,7 +22,7 @@ describe("LocationsController (e2e)", () => {
   const defaultPage = 1
   const defaultPageSize = 3
 
-  before(() => {
+  beforeEach(() => {
     fixture = new Fixture()
     return fixture
       .init()
@@ -38,7 +37,7 @@ describe("LocationsController (e2e)", () => {
       })
   })
 
-  after(() => {
+  afterEach(() => {
     return fixture.clearDatabase().then(() => fixture.app.close())
   })
 
@@ -51,13 +50,11 @@ describe("LocationsController (e2e)", () => {
 
       const paginatedLocationsResponse =
         response.body as GetAllPaginatedLocationDto
-      expect(paginatedLocationsResponse.page).to.be.equal(defaultPage)
-      expect(paginatedLocationsResponse.totalPages).to.be.equal(
+      expect(paginatedLocationsResponse.page).toBe(defaultPage)
+      expect(paginatedLocationsResponse.totalPages).toBe(
         Math.ceil(locations.length / defaultPageSize)
       )
-      expect(paginatedLocationsResponse.locations.length).to.be.equal(
-        defaultPageSize
-      )
+      expect(paginatedLocationsResponse.locations.length).toBe(defaultPageSize)
     })
 
     it("gets certain page of all Locations (200)", async () => {
@@ -71,13 +68,11 @@ describe("LocationsController (e2e)", () => {
 
       const paginatedLocationsResponse =
         response.body as GetAllPaginatedLocationDto
-      expect(paginatedLocationsResponse.page).to.be.equal(page)
-      expect(paginatedLocationsResponse.totalPages).to.be.equal(
+      expect(paginatedLocationsResponse.page).toBe(page)
+      expect(paginatedLocationsResponse.totalPages).toBe(
         Math.ceil(locations.length / defaultPageSize)
       )
-      expect(paginatedLocationsResponse.locations.length).to.be.equal(
-        defaultPageSize
-      )
+      expect(paginatedLocationsResponse.locations.length).toBe(defaultPageSize)
     })
 
     it("returns Forbidden (403)", async () => {
@@ -97,11 +92,11 @@ describe("LocationsController (e2e)", () => {
 
       const locationResponse = response.body as Location
 
-      expect(locationResponse.id).to.be.equal(tokensAndUser.user.location?.id)
-      expect(locationResponse.name).to.exist
-      expect(locationResponse.available).to.exist
-      expect(locationResponse.capacity).to.exist
-      expect(locationResponse.userId).to.be.equal(tokensAndUser.user.id)
+      expect(locationResponse.id).toBe(tokensAndUser.user.location?.id)
+      expect(locationResponse.name).toBeDefined()
+      expect(locationResponse.available).toBeDefined()
+      expect(locationResponse.capacity).toBeDefined()
+      expect(locationResponse.userId).toBe(tokensAndUser.user.id)
     })
 
     it("returns Forbidden (403)", async () => {
@@ -114,7 +109,8 @@ describe("LocationsController (e2e)", () => {
 
   describe("/locations/:id (GET)", () => {
     it("get Location as Admin (200)", async () => {
-      const location = locations[0]
+      const location = await fixture.em.refresh(locations[0])
+      if (!location) throw new Error("Location is undefined")
 
       const response = await request(fixture.app.getHttpServer())
         .get(`/locations/${location.id}`)
@@ -122,11 +118,11 @@ describe("LocationsController (e2e)", () => {
         .expect(200)
 
       const locationResponse = response.body as Location
-      expect(locationResponse.id).to.be.equal(location.id)
-      expect(locationResponse.name).to.be.equal(location.name)
-      expect(locationResponse.available).to.be.equal(location.available)
-      expect(locationResponse.capacity).to.be.equal(location.capacity)
-      expect(locationResponse.userId).to.be.equal(location.user.id)
+      expect(locationResponse.id).toBe(location.id)
+      expect(locationResponse.name).toBe(location.name)
+      expect(locationResponse.available).toBe(location.available)
+      expect(locationResponse.capacity).toBe(location.capacity)
+      expect(locationResponse.userId).toBe(location.user.id)
     })
 
     it("get Location as User (200)", async () => {
@@ -136,11 +132,11 @@ describe("LocationsController (e2e)", () => {
         .expect(200)
 
       const locationResponse = response.body as Location
-      expect(locationResponse.id).to.be.equal(tokensAndUser.user.location?.id)
-      expect(locationResponse.name).to.exist
-      expect(locationResponse.available).to.exist
-      expect(locationResponse.capacity).to.exist
-      expect(locationResponse.userId).to.be.equal(tokensAndUser.user.id)
+      expect(locationResponse.id).toBe(tokensAndUser.user.location?.id)
+      expect(locationResponse.name).toBeDefined()
+      expect(locationResponse.available).toBeDefined()
+      expect(locationResponse.capacity).toBeDefined()
+      expect(locationResponse.userId).toBe(tokensAndUser.user.id)
     })
 
     it("returns Location not found because Location doesn't exist (404)", async () => {
@@ -150,7 +146,7 @@ describe("LocationsController (e2e)", () => {
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("Location not found")
+      expect(errorResponse.message).toBe("Location not found")
     })
 
     it("returns Location not found because User doesn't own Location (404)", async () => {
@@ -167,7 +163,7 @@ describe("LocationsController (e2e)", () => {
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("Location not found")
+      expect(errorResponse.message).toBe("Location not found")
     })
   })
 
@@ -187,11 +183,11 @@ describe("LocationsController (e2e)", () => {
         .expect(201)
 
       const locationResponse = response.body as Location
-      expect(locationResponse.id).to.exist
-      expect(locationResponse.name).to.be.equal(data.name)
-      expect(locationResponse.available).to.be.equal(data.capacity)
-      expect(locationResponse.capacity).to.be.equal(data.capacity)
-      expect(locationResponse.userId).to.exist
+      expect(locationResponse.id).toBeDefined()
+      expect(locationResponse.name).toBe(data.name)
+      expect(locationResponse.available).toBe(data.capacity)
+      expect(locationResponse.capacity).toBe(data.capacity)
+      expect(locationResponse.userId).toBeDefined()
     })
 
     it("returns Location with this name already exists (409)", async () => {
@@ -209,7 +205,7 @@ describe("LocationsController (e2e)", () => {
         .expect(409)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal(
+      expect(errorResponse.message).toBe(
         "Location with this name already exists"
       )
     })
@@ -229,7 +225,7 @@ describe("LocationsController (e2e)", () => {
         .expect(409)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal(
+      expect(errorResponse.message).toBe(
         "User with this username already exists"
       )
     })
@@ -266,11 +262,11 @@ describe("LocationsController (e2e)", () => {
         .expect(200)
 
       const locationResponse = response.body as Location
-      expect(locationResponse.id).to.exist
-      expect(locationResponse.name).to.be.equal(data.name)
-      expect(locationResponse.available).to.exist
-      expect(locationResponse.capacity).to.exist
-      expect(locationResponse.userId).to.be.equal(tokensAndUser.user.id)
+      expect(locationResponse.id).toBeDefined()
+      expect(locationResponse.name).toBe(data.name)
+      expect(locationResponse.available).toBeDefined()
+      expect(locationResponse.capacity).toBeDefined()
+      expect(locationResponse.userId).toBe(tokensAndUser.user.id)
     })
 
     it("returns Location with this name already exists (409)", async () => {
@@ -288,7 +284,7 @@ describe("LocationsController (e2e)", () => {
         .expect(409)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal(
+      expect(errorResponse.message).toBe(
         "Location with this name already exists"
       )
     })
@@ -308,7 +304,7 @@ describe("LocationsController (e2e)", () => {
         .expect(409)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal(
+      expect(errorResponse.message).toBe(
         "User with this username already exists"
       )
     })
@@ -344,7 +340,7 @@ describe("LocationsController (e2e)", () => {
         .expect(200)
 
       const locationResponse = response.body as Location
-      expect(locationResponse.id).to.be.equal(id)
+      expect(locationResponse.id).toBe(id)
     })
 
     it("returns Location not found (404)", async () => {
@@ -354,16 +350,16 @@ describe("LocationsController (e2e)", () => {
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("Location not found")
+      expect(errorResponse.message).toBe("Location not found")
     })
 
-    it("returns Unauthorized (401)", async () => {
+    it("returns Forbidden (403)", async () => {
       const id = locations[0].id
 
       await request(fixture.app.getHttpServer())
         .delete(`/locations/${id}`)
         .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
-        .expect(401)
+        .expect(403)
     })
   })
 })

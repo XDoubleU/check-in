@@ -2,18 +2,18 @@ import styles from "./signin.module.css"
 import { Col, Form } from "react-bootstrap"
 import BaseLayout from "@/layouts/BaseLayout"
 import { signin } from "my-api-wrapper"
-import Router from "next/router"
+import { useRouter } from "next/router"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { type SignInDto } from "types-custom"
 import { useAuth } from "@/contexts"
-import LoadingLayout from "@/layouts/LoadingLayout"
 import BaseForm from "@/components/forms/BaseForm"
 
 // TODO: implement remember me
 
 // eslint-disable-next-line max-lines-per-function
 export default function SignIn() {
-  const { user, setUser } = useAuth()
+  const router = useRouter()
+  const { setUser } = useAuth()
 
   const {
     register,
@@ -22,21 +22,17 @@ export default function SignIn() {
     formState: { errors }
   } = useForm<SignInDto>()
 
-  const onSubmit: SubmitHandler<SignInDto> = async (data) => {
-    const response = await signin(data)
-    if (!response.ok) {
+  const onSubmit: SubmitHandler<SignInDto> = (data) => {
+    void signin(data).then((response) => {
+      if (response.ok) {
+        setUser(response.data)
+        return router.push("/")
+      }
       setError("root", {
         message: response.message ?? "Something went wrong"
       })
-    } else {
-      setUser(response.data)
-      await Router.push("/")
-    }
-  }
-
-  if (user) {
-    void Router.push("/")
-    return <LoadingLayout />
+      return new Promise((resolve) => resolve(true))
+    })
   }
 
   return (

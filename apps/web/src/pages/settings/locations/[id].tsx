@@ -4,7 +4,7 @@ import { LocationUpdateModal } from "@/components/cards/LocationCard"
 import CustomButton from "@/components/CustomButton"
 import { getLocation, getUser } from "my-api-wrapper"
 import { useCallback, useEffect, useState } from "react"
-import Router from "next/router"
+import { useRouter } from "next/router"
 import LoadingLayout from "@/layouts/LoadingLayout"
 import { type LocationWithUsername } from "."
 import { useAuth } from "@/contexts"
@@ -13,16 +13,20 @@ import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"
 
 // eslint-disable-next-line max-lines-per-function
 export default function LocationDetail() {
+  const router = useRouter()
   const { user } = useAuth()
   const [location, updateLocation] = useState<LocationWithUsername>()
 
   const fetchData = useCallback(async () => {
-    if (!Router.isReady) return
+    if (!router.isReady) return
 
-    const locationId = Router.query.id as string
+    const locationId = router.query.id as string
 
     const responseLocation = await getLocation(locationId)
-    if (!responseLocation.data) return
+    if (!responseLocation.data) {
+      await router.push("locations")
+      return
+    }
 
     let responseUser: APIResponse<User> | undefined = undefined
     if (user?.roles.includes(Role.Admin)) {
@@ -41,13 +45,13 @@ export default function LocationDetail() {
     }
 
     updateLocation(locationWithUsername)
-  }, [user?.roles, user?.username])
+  }, [router, user?.roles, user?.username])
 
   useEffect(() => {
     void fetchData()
   }, [fetchData])
 
-  if (location === undefined) {
+  if (!location) {
     return <LoadingLayout />
   }
 

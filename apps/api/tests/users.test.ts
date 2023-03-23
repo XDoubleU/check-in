@@ -1,4 +1,3 @@
-import { expect } from "chai"
 import request from "supertest"
 import { type User } from "types-custom"
 import Fixture, { type TokensAndUser } from "./fixture"
@@ -8,7 +7,7 @@ describe("UsersController (e2e)", () => {
 
   let tokensAndUser: TokensAndUser
 
-  before(() => {
+  beforeEach(() => {
     fixture = new Fixture()
     return fixture
       .init()
@@ -17,7 +16,7 @@ describe("UsersController (e2e)", () => {
       .then((data) => (tokensAndUser = data))
   })
 
-  after(() => {
+  afterEach(() => {
     return fixture.clearDatabase().then(() => fixture.app.close())
   })
 
@@ -29,12 +28,10 @@ describe("UsersController (e2e)", () => {
         .expect(200)
 
       const userResponse = response.body as User
-      expect(userResponse.id).to.be.equal(tokensAndUser.user.id)
-      expect(userResponse.username).to.be.equal(tokensAndUser.user.username)
-      expect(userResponse.roles).to.deep.equal(tokensAndUser.user.roles)
-      expect(userResponse.location?.id).to.be.equal(
-        tokensAndUser.user.location?.id
-      )
+      expect(userResponse.id).toBe(tokensAndUser.user.id)
+      expect(userResponse.username).toBe(tokensAndUser.user.username)
+      expect(userResponse.roles).toStrictEqual(tokensAndUser.user.roles)
+      expect(userResponse.location?.id).toBe(tokensAndUser.user.location?.id)
     })
   })
 })

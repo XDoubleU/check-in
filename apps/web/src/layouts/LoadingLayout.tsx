@@ -1,3 +1,4 @@
+import Loader from "@/components/Loader"
 import Head from "next/head"
 
 export default function LoadingLayout() {
@@ -6,6 +7,7 @@ export default function LoadingLayout() {
       <Head>
         <title>Loading...</title>
       </Head>
+      <Loader />
     </>
   )
 }

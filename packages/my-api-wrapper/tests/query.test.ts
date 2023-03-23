@@ -1,4 +1,3 @@
-import { expect } from "chai"
 import Query from "../src/query"
 
 describe("Query class", () => {
@@ -11,7 +10,7 @@ describe("Query class", () => {
       search
     })
 
-    expect(query.toString()).to.be.equal("")
+    expect(query.toString()).toBe("")
   })
 
   it("All query string parameters are empty strings", () => {
@@ -23,7 +22,7 @@ describe("Query class", () => {
       search
     })
 
-    expect(query.toString()).to.be.equal("")
+    expect(query.toString()).toBe("")
   })
 
   it("All query parameters have valid values", () => {
@@ -35,6 +34,6 @@ describe("Query class", () => {
       search
     })
 
-    expect(query.toString()).to.be.equal("?page=5&search=test")
+    expect(query.toString()).toBe("?page=5&search=test")
   })
 })

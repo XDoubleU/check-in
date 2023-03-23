@@ -3,7 +3,6 @@ import request from "supertest"
 import { type CheckIn, type CreateCheckInDto } from "types-custom"
 import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
 import { LocationEntity, SchoolEntity } from "mikro-orm-config"
-import { expect } from "chai"
 import { v4 } from "uuid"
 
 describe("CheckInsController (e2e)", () => {
@@ -15,7 +14,7 @@ describe("CheckInsController (e2e)", () => {
   let location: LocationEntity
   let school: SchoolEntity
 
-  before(() => {
+  beforeEach(() => {
     fixture = new Fixture()
     return fixture
       .init()
@@ -38,7 +37,7 @@ describe("CheckInsController (e2e)", () => {
       })
   })
 
-  after(() => {
+  afterEach(() => {
     return fixture.clearDatabase().then(() => fixture.app.close())
   })
 
@@ -56,11 +55,11 @@ describe("CheckInsController (e2e)", () => {
         .expect(201)
 
       const responseCheckIn = response.body as CheckIn
-      expect(responseCheckIn.id).to.exist
-      expect(responseCheckIn.location.id).to.be.equal(location.id)
-      expect(responseCheckIn.capacity).to.be.equal(location.capacity)
-      expect(responseCheckIn.createdAt).to.exist
-      expect(responseCheckIn.school.id).to.be.equal(school.id)
+      expect(responseCheckIn.id).toBeDefined()
+      expect(responseCheckIn.location.id).toBe(location.id)
+      expect(responseCheckIn.capacity).toBe(location.capacity)
+      expect(responseCheckIn.createdAt).toBeDefined()
+      expect(responseCheckIn.school.id).toBe(school.id)
     })
 
     it("returns Location not found (404)", async () => {
@@ -76,7 +75,7 @@ describe("CheckInsController (e2e)", () => {
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("Location not found")
+      expect(errorResponse.message).toBe("Location not found")
     })
 
     it("returns School not found (404)", async () => {
@@ -92,7 +91,7 @@ describe("CheckInsController (e2e)", () => {
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("School not found")
+      expect(errorResponse.message).toBe("School not found")
     })
 
     // TODO: test user should own location where checkin is made

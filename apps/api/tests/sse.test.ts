@@ -4,8 +4,7 @@ import EventSource from "eventsource"
 import { type Server } from "http"
 import { type AddressInfo } from "net"
 import { SseService } from "../src/sse/sse.service"
-import { LocationEntity } from "mikro-orm-config"
-import { expect } from "chai"
+import { CheckInEntity, LocationEntity, SchoolEntity } from "mikro-orm-config"
 import { type LocationUpdateEventDto } from "types-custom"
 
 describe("SseController (e2e)", () => {
@@ -19,11 +18,21 @@ describe("SseController (e2e)", () => {
   let sseService: SseService
 
   let location: LocationEntity
+  let school: SchoolEntity
 
-  before(() => {
+  beforeEach(() => {
     fixture = new Fixture()
+
     return fixture
       .init()
+      .then(() => {
+        const address = (fixture.app.getHttpServer() as Server)
+          .listen()
+          .address() as AddressInfo
+        port = address.port
+
+        sseService = fixture.app.get<SseService>(SseService)
+      })
       .then(() => fixture.seedDatabase())
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
@@ -31,29 +40,21 @@ describe("SseController (e2e)", () => {
       .then((data) => {
         location = data[0]
       })
-  })
-
-  beforeEach(() => {
-    const address = (fixture.app.getHttpServer() as Server)
-      .listen()
-      .address() as AddressInfo
-    port = address.port
-
-    sseService = fixture.app.get<SseService>(SseService)
+      .then(() => fixture.em.find(SchoolEntity, {}))
+      .then((data) => {
+        school = data[0]
+      })
   })
 
   afterEach(() => {
     const server = fixture.app.getHttpServer() as Server
-    server.close()
     eventSource.close()
-  })
-
-  after(() => {
+    server.close()
     return fixture.clearDatabase().then(() => fixture.app.close())
   })
 
   describe("/sse (SSE)", () => {
-    it("receives event after updating Location capacity (200)", (done: Mocha.Done) => {
+    it("receives event after updating Location capacity (200)", (done: jest.DoneCallback) => {
       eventSource = new EventSource(`http://localhost:${port}/sse`)
 
       eventSource.onerror = (error): void => {
@@ -61,7 +62,16 @@ describe("SseController (e2e)", () => {
       }
 
       eventSource.onopen = (): void => {
-        sseService.addLocationUpdate(location)
+        const newCheckIn = new CheckInEntity(location, school)
+
+        void fixture.em
+          .persistAndFlush(newCheckIn)
+          .then(() => fixture.em.refresh(location))
+          .then((data) => {
+            if (!data) throw new Error("Location is undefined")
+            location = data
+          })
+          .then(() => sseService.addLocationUpdate(location))
       }
 
       eventSource.onmessage = (event): void => {
@@ -70,15 +80,11 @@ describe("SseController (e2e)", () => {
         ) as LocationUpdateEventDto
 
         try {
-          expect(locationUpdateEventData.normalizedName).to.be.equal(
+          expect(locationUpdateEventData.normalizedName).toBe(
             location.normalizedName
           )
-          expect(locationUpdateEventData.available).to.be.equal(
-            location.capacity - 1
-          )
-          expect(locationUpdateEventData.capacity).to.be.equal(
-            location.capacity
-          )
+          expect(locationUpdateEventData.available).toBe(location.available)
+          expect(locationUpdateEventData.capacity).toBe(location.capacity)
           done()
         } catch (error) {
           done(error)
@@ -88,7 +94,7 @@ describe("SseController (e2e)", () => {
   })
 
   describe("/sse/:normalizedName (SSE)", () => {
-    it("receives event after updating Location capacity (200)", (done: Mocha.Done) => {
+    it("receives event after updating Location capacity (200)", (done: jest.DoneCallback) => {
       const eventSourceInitDict = {
         headers: {
           Cookie: `accessToken=${tokensAndUser.tokens.accessToken}`
@@ -105,7 +111,16 @@ describe("SseController (e2e)", () => {
       }
 
       eventSource.onopen = (): void => {
-        sseService.addLocationUpdate(location)
+        location.capacity--
+
+        void fixture.em
+          .flush()
+          .then(() => fixture.em.refresh(location))
+          .then((data) => {
+            if (!data) throw new Error("Location is undefined")
+            location = data
+          })
+          .then(() => sseService.addLocationUpdate(location))
       }
 
       eventSource.onmessage = (event): void => {
@@ -114,15 +129,11 @@ describe("SseController (e2e)", () => {
         ) as LocationUpdateEventDto
 
         try {
-          expect(locationUpdateEventData.normalizedName).to.be.equal(
+          expect(locationUpdateEventData.normalizedName).toBe(
             location.normalizedName
           )
-          expect(locationUpdateEventData.available).to.be.equal(
-            location.capacity - 1
-          )
-          expect(locationUpdateEventData.capacity).to.be.equal(
-            location.capacity
-          )
+          expect(locationUpdateEventData.available).toBe(location.available)
+          expect(locationUpdateEventData.capacity).toBe(location.capacity)
           done()
         } catch (error) {
           done(error)
@@ -130,14 +141,14 @@ describe("SseController (e2e)", () => {
       }
     })
 
-    it("returns Unauthorized (401)", (done: Mocha.Done) => {
+    it("returns Unauthorized (401)", (done: jest.DoneCallback) => {
       eventSource = new EventSource(
         `http://localhost:${port}/sse/${location.normalizedName}`
       )
 
       eventSource.onerror = (event): void => {
         try {
-          expect(event.status).to.be.equal(401)
+          expect(event.status).toBe(401)
           done()
         } catch (error) {
           done(error)
