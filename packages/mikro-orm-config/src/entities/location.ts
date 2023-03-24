@@ -2,6 +2,7 @@ import {
   Check,
   Collection,
   Entity,
+  Formula,
   OneToMany,
   OneToOne,
   PrimaryKey,
@@ -39,6 +40,13 @@ export class LocationEntity implements MikroLocationInterface {
   @OneToMany(() => CheckInEntity, (checkIn) => checkIn.location)
   public checkIns = new Collection<CheckInEntity>(this)
 
+  @Formula(
+    (alias) =>
+      `(select CAST(count(*) as int) from "CheckIn" ci where ci.location_id = ${alias}.id and CAST(ci.created_at AS DATE) = CAST(NOW() AS DATE))`,
+    { persist: false }
+  )
+  public readonly checkInsToday!: number
+
   public constructor(name: string, capacity: number, user: UserEntity) {
     this.name = name
     this.capacity = capacity
@@ -55,24 +63,6 @@ export class LocationEntity implements MikroLocationInterface {
 
   @Property({ persist: false })
   public get available(): number {
-    const [today, tomorrow] = this.getDates()
-
-    const checkInsToday = this.checkIns.toArray().filter((checkIn) => {
-      return checkIn.createdAt >= today && checkIn.createdAt < tomorrow
-    })
-
-    return this.capacity - checkInsToday.length
-  }
-
-  private getDates(): Date[] {
-    const today = new Date()
-    today.setHours(0)
-    today.setMinutes(0)
-    today.setSeconds(0)
-
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-
-    return [today, tomorrow]
+    return this.capacity - this.checkInsToday
   }
 }

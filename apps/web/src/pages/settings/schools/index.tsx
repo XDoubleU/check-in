@@ -1,17 +1,19 @@
-import CustomButton from "@/components/CustomButton"
 import CustomPagination, {
   type CustomPaginationProps
 } from "@/components/CustomPagination"
 import SchoolCard from "@/components/cards/SchoolCard"
 import AdminLayout from "@/layouts/AdminLayout"
-import { type School } from "types-custom"
+import { type CreateSchoolDto, type School } from "types-custom"
 import { createSchool, getAllSchools } from "my-api-wrapper"
 import { useRouter } from "next/router"
-import { type FormEvent, useCallback, useEffect, useState } from "react"
-import { Col, Form, Modal } from "react-bootstrap"
+import { useCallback, useEffect, useState } from "react"
+import { Form } from "react-bootstrap"
+import { useForm } from "react-hook-form"
+import CreateModal from "@/components/modals/CreateModal"
+import Loader from "@/components/Loader"
 
 interface SchoolList {
-  schools: School[]
+  schools: School[] | undefined
   pagination: CustomPaginationProps
 }
 
@@ -20,99 +22,84 @@ export default function SchoolList() {
   const router = useRouter()
 
   const [schoolList, setSchoolList] = useState<SchoolList>({
-    schools: [],
+    schools: undefined,
     pagination: {
       current: 0,
       total: 0
     }
   })
-  const [createInfo, setCreateInfo] = useState({ name: "" })
-  const [showCreate, setShowCreate] = useState(false)
-  const handleCloseCreate = () => setShowCreate(false)
-  const handleShowCreate = () => setShowCreate(true)
-  const onCloseCreate = useCallback(() => {
-    return !showCreate
-  }, [showCreate])
 
-  useEffect(() => {
+  const form = useForm<CreateSchoolDto>()
+
+  const { register } = form
+
+  const fetchData = useCallback(async () => {
     if (!router.isReady) return
+
     const page = router.query.page
       ? parseInt(router.query.page as string)
       : undefined
-    void getAllSchools(page).then(async (data) => {
-      if (!data) {
-        await router.push("/signin")
-        return
-      }
 
-      setSchoolList({
-        schools: data.schools,
-        pagination: {
-          current: data.page,
-          total: data.totalPages
-        }
-      })
-    })
-  }, [onCloseCreate, router])
+    const response = await getAllSchools(page)
+    if (!response.data) return
 
-  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    const response = await createSchool(createInfo.name)
-
-    if (response) {
-      createInfo.name = ""
-      handleCloseCreate()
-    } else {
-      console.log("ERROR")
+    if (response.data.page > response.data.totalPages) {
+      await router.push(`schools?page=${response.data.totalPages}`)
     }
+
+    setSchoolList({
+      schools: response.data.schools,
+      pagination: {
+        current: response.data.page,
+        total: response.data.totalPages
+      }
+    })
+  }, [router])
+
+  useEffect(() => {
+    void fetchData()
+  }, [fetchData])
+
+  const handleCreate = (data: CreateSchoolDto) => {
+    return createSchool(data)
   }
 
   return (
     <AdminLayout title="Schools">
-      <Modal show={showCreate} onHide={handleCloseCreate}>
-        <Modal.Body>
-          <Modal.Title>Create school</Modal.Title>
-          <br />
-          <Form onSubmit={() => handleCreate}>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Name"
-                value={createInfo.name}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, name: target.value })
-                }
-              ></Form.Control>
-            </Form.Group>
-            <br />
-            <CustomButton
-              type="button"
-              style={{ float: "left" }}
-              onClick={handleCloseCreate}
-            >
-              Cancel
-            </CustomButton>
-            <CustomButton type="submit" style={{ float: "right" }}>
-              Create
-            </CustomButton>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      <Col size={2}>
-        <CustomButton onClick={handleShowCreate}>Create</CustomButton>
-      </Col>
+      <CreateModal<CreateSchoolDto, School>
+        form={form}
+        handler={handleCreate}
+        refetchData={fetchData}
+        typeName="school"
+      >
+        <Form.Group className="mb-3">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Name"
+            required
+            {...register("name")}
+          ></Form.Control>
+        </Form.Group>
+      </CreateModal>
 
       <br />
 
       <div className="min-vh-51">
-        {schoolList.schools.length == 0 ? "Nothing to see here." : ""}
+        {!schoolList.schools && <Loader />}
 
-        {schoolList.schools.map((school) => {
+        {schoolList.schools && schoolList.schools.length == 0
+          ? "Nothing to see here."
+          : ""}
+
+        {schoolList.schools?.map((school) => {
           return (
-            <SchoolCard id={school.id} key={school.id} name={school.name} />
+            <SchoolCard
+              id={school.id}
+              key={school.id}
+              name={school.name}
+              refetchData={fetchData}
+            />
           )
         })}
       </div>

@@ -1,30 +1,35 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable max-lines-per-function */
-import { expect } from "chai"
 import request from "supertest"
 import { type SignInDto } from "types-custom"
 import Fixture, {
   type ErrorResponse,
   type RequestHeaders,
   type TokensAndUser
-} from "./fixture"
+} from "./config/fixture"
 
 describe("AuthController (e2e)", () => {
-  let fixture: Fixture
+  const fixture: Fixture = new Fixture()
 
   let tokensAndUser: TokensAndUser
 
-  before(() => {
-    fixture = new Fixture()
+  beforeAll(() => {
+    return fixture.beforeAll()
+  })
+
+  afterAll(() => {
+    return fixture.afterAll()
+  })
+
+  beforeEach(() => {
     return fixture
-      .init()
-      .then(() => fixture.seedDatabase())
+      .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
   })
 
-  after(() => {
-    return fixture.clearDatabase().then(() => fixture.app.close())
+  afterEach(() => {
+    return fixture.afterEach()
   })
 
   describe("/auth/signin (POST)", () => {
@@ -40,8 +45,8 @@ describe("AuthController (e2e)", () => {
         .expect(200)
 
       const responseHeaders = response.headers as RequestHeaders
-      expect(responseHeaders["set-cookie"][0]).to.contain("accessToken")
-      expect(responseHeaders["set-cookie"][1]).to.contain("refreshToken")
+      expect(responseHeaders["set-cookie"][0]).toContain("accessToken")
+      expect(responseHeaders["set-cookie"][1]).toContain("refreshToken")
     })
 
     it("returns Invalid credentials (401)", async () => {
@@ -56,7 +61,7 @@ describe("AuthController (e2e)", () => {
         .expect(401)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("Invalid credentials")
+      expect(errorResponse.message).toBe("Invalid credentials")
     })
   })
 
@@ -68,8 +73,8 @@ describe("AuthController (e2e)", () => {
         .expect(200)
 
       const responseHeaders = response.headers as RequestHeaders
-      expect(responseHeaders["set-cookie"][0]).to.contain("accessToken=;")
-      expect(responseHeaders["set-cookie"][1]).to.contain("refreshToken=;")
+      expect(responseHeaders["set-cookie"][0]).toContain("accessToken=;")
+      expect(responseHeaders["set-cookie"][1]).toContain("refreshToken=;")
     })
 
     it("returns unauthorized (401)", async () => {
@@ -87,8 +92,8 @@ describe("AuthController (e2e)", () => {
         .expect(200)
 
       const responseHeaders = response.headers as RequestHeaders
-      expect(responseHeaders["set-cookie"][0]).to.contain("accessToken")
-      expect(responseHeaders["set-cookie"][1]).to.contain("refreshToken")
+      expect(responseHeaders["set-cookie"][0]).toContain("accessToken")
+      expect(responseHeaders["set-cookie"][1]).toContain("refreshToken")
     })
 
     it("returns unauthorized (401)", async () => {

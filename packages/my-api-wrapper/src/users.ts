@@ -1,13 +1,13 @@
 import { type User } from "types-custom"
 import { fetchHandler } from "./fetchHandler"
+import type APIResponse from "./types/apiResponse"
 
 const USERS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/users`
 
-export async function getMyUser(): Promise<User | null> {
-  const response = await fetchHandler(`${USERS_URL}/me`)
-  if (response === null) {
-    return null
-  }
+export async function getMyUser(): Promise<APIResponse<User>> {
+  return await fetchHandler(`${USERS_URL}/me`)
+}
 
-  return (await response.json()) as User
+export async function getUser(id: string): Promise<APIResponse<User>> {
+  return await fetchHandler(`${USERS_URL}/${id}`)
 }

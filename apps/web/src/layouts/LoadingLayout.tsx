@@ -1,5 +1,5 @@
+import Loader from "@/components/Loader"
 import Head from "next/head"
-import NextNProgress from "nextjs-progressbar"
 
 export default function LoadingLayout() {
   return (
@@ -7,7 +7,7 @@ export default function LoadingLayout() {
       <Head>
         <title>Loading...</title>
       </Head>
-      <NextNProgress color="red" />
+      <Loader />
     </>
   )
 }

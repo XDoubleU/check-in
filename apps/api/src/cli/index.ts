@@ -1,7 +1,8 @@
 import { Command } from "commander"
 import prompts from "prompts"
 import { Role } from "types-custom"
-import config, {
+import {
+  Config,
   CheckInEntity,
   LocationEntity,
   SchoolEntity,
@@ -10,7 +11,7 @@ import config, {
 import { MikroORM } from "@mikro-orm/core"
 
 const mikroOptions = {
-  ...config,
+  ...Config,
   entities: [CheckInEntity, LocationEntity, SchoolEntity, UserEntity]
 }
 
@@ -24,7 +25,7 @@ program
   .option("-u, --username <string>", "username")
   .option("-p, --password <string>", "password")
   .action(async (options: { username?: string; password?: string }) => {
-    const em = (await MikroORM.init(mikroOptions)).em
+    const em = (await MikroORM.init(mikroOptions)).em.fork()
 
     let promptResponse = {
       username: "",

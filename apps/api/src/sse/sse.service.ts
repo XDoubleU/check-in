@@ -1,15 +1,10 @@
 import { Injectable } from "@nestjs/common"
 import { type LocationEntity } from "mikro-orm-config"
 import { filter, map, type Observable, Subject } from "rxjs"
-
-export interface LocationUpdateEventData {
-  normalizedName: string
-  available: number
-  capacity: number
-}
+import { type LocationUpdateEventDto } from "types-custom"
 
 export interface LocationUpdateEvent {
-  data: LocationUpdateEventData
+  data: LocationUpdateEventDto
 }
 
 @Injectable()

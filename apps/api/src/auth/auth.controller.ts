@@ -28,17 +28,19 @@ export class AuthController {
   public async signin(
     @Body() signinDto: SignInDto,
     @Res({ passthrough: true }) res: Response
-  ): Promise<void> {
-    const tokens = await this.authService.signin(
+  ): Promise<UserEntity> {
+    const userAndTokens = await this.authService.signin(
       signinDto.username,
       signinDto.password
     )
-    if (!tokens) {
+    if (!userAndTokens) {
       throw new UnauthorizedException("Invalid credentials")
     }
 
-    this.authService.setTokensAsCookies(tokens, res)
+    this.authService.setTokensAsCookies(userAndTokens.tokens, res)
+
     res.status(200)
+    return userAndTokens.user
   }
 
   @Get("signout")

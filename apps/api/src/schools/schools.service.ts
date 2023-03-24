@@ -1,4 +1,5 @@
 import { EntityRepository } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { SchoolEntity } from "mikro-orm-config"
 
@@ -6,12 +7,19 @@ import { SchoolEntity } from "mikro-orm-config"
 export class SchoolsService {
   private readonly schoolsRepository: EntityRepository<SchoolEntity>
 
-  public constructor(schoolsRepository: EntityRepository<SchoolEntity>) {
+  public constructor(
+    @InjectRepository(SchoolEntity)
+    schoolsRepository: EntityRepository<SchoolEntity>
+  ) {
     this.schoolsRepository = schoolsRepository
   }
 
   public async getTotalCount(): Promise<number> {
-    return this.schoolsRepository.count()
+    return this.schoolsRepository.count({
+      id: {
+        $ne: 1
+      }
+    })
   }
 
   public async getAll(locationId?: string): Promise<SchoolEntity[]> {
@@ -47,13 +55,20 @@ export class SchoolsService {
     page: number,
     pageSize: number
   ): Promise<SchoolEntity[]> {
-    return this.schoolsRepository.findAll({
-      orderBy: {
-        name: "asc"
+    return this.schoolsRepository.find(
+      {
+        id: {
+          $ne: 1
+        }
       },
-      limit: pageSize,
-      offset: (page - 1) * pageSize
-    })
+      {
+        orderBy: {
+          name: "asc"
+        },
+        limit: pageSize,
+        offset: (page - 1) * pageSize
+      }
+    )
   }
 
   public async getById(id: number): Promise<SchoolEntity | null> {

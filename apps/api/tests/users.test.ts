@@ -1,24 +1,29 @@
-import { expect } from "chai"
 import request from "supertest"
 import { type User } from "types-custom"
-import Fixture, { type TokensAndUser } from "./fixture"
+import Fixture, { type TokensAndUser } from "./config/fixture"
 
 describe("UsersController (e2e)", () => {
-  let fixture: Fixture
+  const fixture: Fixture = new Fixture()
 
   let tokensAndUser: TokensAndUser
 
-  before(() => {
-    fixture = new Fixture()
+  beforeAll(() => {
+    return fixture.beforeAll()
+  })
+
+  afterAll(() => {
+    return fixture.afterAll()
+  })
+
+  beforeEach(() => {
     return fixture
-      .init()
-      .then(() => fixture.seedDatabase())
+      .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
   })
 
-  after(() => {
-    return fixture.clearDatabase().then(() => fixture.app.close())
+  afterEach(() => {
+    return fixture.afterEach()
   })
 
   describe("/users/me (GET)", () => {
@@ -29,12 +34,10 @@ describe("UsersController (e2e)", () => {
         .expect(200)
 
       const userResponse = response.body as User
-      expect(userResponse.id).to.be.equal(tokensAndUser.user.id)
-      expect(userResponse.username).to.be.equal(tokensAndUser.user.username)
-      expect(userResponse.roles).to.deep.equal(tokensAndUser.user.roles)
-      expect(userResponse.location?.id).to.be.equal(
-        tokensAndUser.user.location?.id
-      )
+      expect(userResponse.id).toBe(tokensAndUser.user.id)
+      expect(userResponse.username).toBe(tokensAndUser.user.username)
+      expect(userResponse.roles).toStrictEqual(tokensAndUser.user.roles)
+      expect(userResponse.location?.id).toBe(tokensAndUser.user.location?.id)
     })
   })
 })

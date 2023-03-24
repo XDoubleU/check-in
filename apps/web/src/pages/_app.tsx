@@ -6,7 +6,9 @@ import "@/styles/scss/global.scss"
 import { type AppProps } from "next/app"
 import Head from "next/head"
 import { useEffect } from "react"
-import NextNProgress from "nextjs-progressbar"
+import { AuthProvider } from "@/contexts/authContext"
+import { RedirectsProvider } from "@/contexts/redirectsContext"
+import { LoadingProvider } from "@/contexts/loadingContext"
 
 export default function App({
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -24,8 +26,13 @@ export default function App({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <NextNProgress color="red" />
-      <Component {...pageProps} />
+      <LoadingProvider>
+        <AuthProvider>
+          <RedirectsProvider>
+            <Component {...pageProps} />
+          </RedirectsProvider>
+        </AuthProvider>
+      </LoadingProvider>
     </main>
   )
 }

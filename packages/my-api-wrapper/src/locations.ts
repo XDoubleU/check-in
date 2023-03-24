@@ -6,112 +6,51 @@ import {
 } from "types-custom"
 import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
+import type APIResponse from "./types/apiResponse"
 
 const LOCATIONS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/locations`
 
 export async function getAllLocations(
   page?: number
-): Promise<GetAllPaginatedLocationDto | null> {
+): Promise<APIResponse<GetAllPaginatedLocationDto>> {
   const query = new Query({
     page
   })
 
-  const response = await fetchHandler(`${LOCATIONS_URL}${query.toString()}`)
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as GetAllPaginatedLocationDto
+  return await fetchHandler(`${LOCATIONS_URL}${query.toString()}`)
 }
 
-export async function getMyLocation(): Promise<Location | null> {
-  const response = await fetchHandler(`${LOCATIONS_URL}/me`)
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as Location
+export async function getMyLocation(): Promise<APIResponse<Location>> {
+  return await fetchHandler(`${LOCATIONS_URL}/me`)
 }
 
-export async function getLocation(id: string): Promise<Location | null> {
-  const response = await fetchHandler(`${LOCATIONS_URL}/${id}`)
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as Location
+export async function getLocation(id: string): Promise<APIResponse<Location>> {
+  return await fetchHandler(`${LOCATIONS_URL}/${id}`)
 }
 
 export async function createLocation(
-  name: string,
-  capacity: number,
-  username: string,
-  password: string
-): Promise<Location | null> {
-  const data: CreateLocationDto = {
-    name,
-    capacity,
-    username,
-    password
-  }
-
-  const response = await fetchHandler(LOCATIONS_URL, {
+  createLocationDto: CreateLocationDto
+): Promise<APIResponse<Location>> {
+  return await fetchHandler(LOCATIONS_URL, {
     method: "POST",
-    body: JSON.stringify(data)
+    body: JSON.stringify(createLocationDto)
   })
-
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as Location
 }
 
 export async function updateLocation(
   id: string,
-  name?: string,
-  capacity?: number,
-  username?: string,
-  password?: string
-): Promise<Location | null> {
-  const data: UpdateLocationDto = {}
-
-  if (name) {
-    data.name = name
-  }
-
-  if (capacity) {
-    data.capacity = capacity
-  }
-
-  if (username) {
-    data.username = username
-  }
-
-  if (password) {
-    data.password = password
-  }
-
-  const response = await fetchHandler(`${LOCATIONS_URL}/${id}`, {
+  updateLocationDto: UpdateLocationDto
+): Promise<APIResponse<Location>> {
+  return await fetchHandler(`${LOCATIONS_URL}/${id}`, {
     method: "PATCH",
-    body: JSON.stringify(data)
+    body: JSON.stringify(updateLocationDto)
   })
-
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as Location
 }
 
-export async function deleteLocation(id: string): Promise<Location | null> {
-  const response = await fetchHandler(`${LOCATIONS_URL}/${id}`, {
+export async function deleteLocation(
+  id: string
+): Promise<APIResponse<Location>> {
+  return await fetchHandler(`${LOCATIONS_URL}/${id}`, {
     method: "DELETE"
   })
-
-  if (!response) {
-    return null
-  }
-
-  return (await response.json()) as Location
 }

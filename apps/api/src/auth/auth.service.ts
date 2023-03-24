@@ -6,6 +6,11 @@ import { type Response } from "express"
 import { compareSync } from "bcrypt"
 import { type UserEntity } from "mikro-orm-config"
 
+export interface UserAndTokens {
+  user: UserEntity
+  tokens: Tokens
+}
+
 @Injectable()
 export class AuthService {
   private readonly usersService: UsersService
@@ -19,7 +24,7 @@ export class AuthService {
   public async signin(
     username: string,
     password: string
-  ): Promise<Tokens | null> {
+  ): Promise<UserAndTokens | null> {
     const user = await this.usersService.getByUserName(username)
     if (!user) {
       return null
@@ -29,7 +34,10 @@ export class AuthService {
       return null
     }
 
-    return await this.getTokens(user)
+    return {
+      user,
+      tokens: await this.getTokens(user)
+    }
   }
 
   public async refreshTokens(user: UserEntity): Promise<Tokens> {

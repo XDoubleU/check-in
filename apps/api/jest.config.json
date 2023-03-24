@@ -1,0 +1,12 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "testMatch": ["**/tests/*.test.ts"],
+  "collectCoverageFrom": ["src/**/*.ts"],
+  "coveragePathIgnorePatterns": [
+    "main.ts",
+    "cli",
+    ".module.ts"
+  ],
+  "testTimeout": 50000
+}

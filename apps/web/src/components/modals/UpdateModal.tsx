@@ -1,48 +1,72 @@
-import { useRouter } from "next/router"
-import { type FormEvent, type ReactElement, useState } from "react"
-import { Form, Modal } from "react-bootstrap"
+import { type ReactElement, useState } from "react"
+import { Modal } from "react-bootstrap"
 import CustomButton from "@/components/CustomButton"
+import {
+  type FieldValues,
+  type SubmitHandler,
+  type UseFormReturn
+} from "react-hook-form"
+import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"
+import BaseForm from "../forms/BaseForm"
 
-interface UpdateModalProps {
+interface UpdateModalProps<T extends FieldValues> {
   children: ReactElement | ReactElement[]
-  handler: () => Promise<void>
+  form: UseFormReturn<T>
+  handler: (data: T) => Promise<APIResponse<T>>
+  refetchData: () => Promise<void>
+  typeName: string
 }
 
-export default function UpdateModal({ children, handler }: UpdateModalProps) {
-  const router = useRouter()
+// eslint-disable-next-line max-lines-per-function
+export default function UpdateModal<T extends FieldValues>({
+  children,
+  form,
+  handler,
+  refetchData,
+  typeName
+}: UpdateModalProps<T>) {
   const [showUpdate, setShowUpdate] = useState(false)
   const handleCloseUpdate = () => setShowUpdate(false)
   const handleShowUpdate = () => setShowUpdate(true)
 
-  const handleUpdate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const {
+    handleSubmit,
+    formState: { dirtyFields, errors },
+    setError,
+    reset
+  } = form
 
-    await handler()
+  const onSubmit: SubmitHandler<T> = async (data) => {
+    const dataToSubmit = Object.fromEntries(
+      Object.keys(dirtyFields).map((key) => [key, data[key]])
+    )
 
-    await router.replace(router.asPath)
-    handleCloseUpdate()
+    const response = await handler(dataToSubmit as T)
+    if (!response.ok) {
+      setError("root", {
+        message: response.message ?? "Something went wrong"
+      })
+    } else {
+      handleCloseUpdate()
+      reset(data)
+      await refetchData()
+    }
   }
 
   return (
     <>
       <Modal show={showUpdate} onHide={handleCloseUpdate}>
         <Modal.Body>
-          <Modal.Title>Update school</Modal.Title>
+          <Modal.Title>Update {typeName.toLowerCase()}</Modal.Title>
           <br />
-          <Form onSubmit={() => handleUpdate}>
+          <BaseForm
+            onSubmit={handleSubmit(onSubmit)}
+            errors={errors}
+            submitBtnText="Update"
+            onCancelCallback={handleCloseUpdate}
+          >
             {children}
-            <br />
-            <CustomButton
-              type="button"
-              style={{ float: "left" }}
-              onClick={handleCloseUpdate}
-            >
-              Cancel
-            </CustomButton>
-            <CustomButton type="submit" style={{ float: "right" }}>
-              Update
-            </CustomButton>
-          </Form>
+          </BaseForm>
         </Modal.Body>
       </Modal>
       <CustomButton

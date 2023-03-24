@@ -1,13 +1,14 @@
 /* eslint-disable max-lines-per-function */
 import request from "supertest"
 import { type CheckIn, type CreateCheckInDto } from "types-custom"
-import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
+import Fixture, {
+  type ErrorResponse,
+  type TokensAndUser
+} from "./config/fixture"
 import { LocationEntity, SchoolEntity } from "mikro-orm-config"
-import { expect } from "chai"
-import { v4 } from "uuid"
 
 describe("CheckInsController (e2e)", () => {
-  let fixture: Fixture
+  const fixture: Fixture = new Fixture()
 
   let tokensAndUser: TokensAndUser
   let adminTokensAndUser: TokensAndUser
@@ -15,11 +16,17 @@ describe("CheckInsController (e2e)", () => {
   let location: LocationEntity
   let school: SchoolEntity
 
-  before(() => {
-    fixture = new Fixture()
+  beforeAll(() => {
+    return fixture.beforeAll()
+  })
+
+  afterAll(() => {
+    return fixture.afterAll()
+  })
+
+  beforeEach(() => {
     return fixture
-      .init()
-      .then(() => fixture.seedDatabase())
+      .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
       .then(() => fixture.getTokens("Admin"))
@@ -38,14 +45,13 @@ describe("CheckInsController (e2e)", () => {
       })
   })
 
-  after(() => {
-    return fixture.clearDatabase().then(() => fixture.app.close())
+  afterEach(() => {
+    return fixture.afterEach()
   })
 
   describe("/checkins (POST)", () => {
     it("creates a new CheckIn (201)", async () => {
       const data: CreateCheckInDto = {
-        locationId: location.id,
         schoolId: school.id
       }
 
@@ -56,32 +62,15 @@ describe("CheckInsController (e2e)", () => {
         .expect(201)
 
       const responseCheckIn = response.body as CheckIn
-      expect(responseCheckIn.id).to.exist
-      expect(responseCheckIn.location.id).to.be.equal(location.id)
-      expect(responseCheckIn.capacity).to.be.equal(location.capacity)
-      expect(responseCheckIn.createdAt).to.exist
-      expect(responseCheckIn.school.id).to.be.equal(school.id)
-    })
-
-    it("returns Location not found (404)", async () => {
-      const data: CreateCheckInDto = {
-        locationId: v4(),
-        schoolId: school.id
-      }
-
-      const response = await request(fixture.app.getHttpServer())
-        .post("/checkins")
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
-        .send(data)
-        .expect(404)
-
-      const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("Location not found")
+      expect(responseCheckIn.id).toBeDefined()
+      expect(responseCheckIn.location.id).toBe(location.id)
+      expect(responseCheckIn.capacity).toBe(location.capacity)
+      expect(responseCheckIn.createdAt).toBeDefined()
+      expect(responseCheckIn.school.id).toBe(school.id)
     })
 
     it("returns School not found (404)", async () => {
       const data: CreateCheckInDto = {
-        locationId: location.id,
         schoolId: -1
       }
 
@@ -92,14 +81,11 @@ describe("CheckInsController (e2e)", () => {
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("School not found")
+      expect(errorResponse.message).toBe("School not found")
     })
-
-    // TODO: test user should own location where checkin is made
 
     it("returns Forbidden (403)", async () => {
       const data: CreateCheckInDto = {
-        locationId: location.id,
         schoolId: school.id
       }
 

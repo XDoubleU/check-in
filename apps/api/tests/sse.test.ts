@@ -1,17 +1,14 @@
 /* eslint-disable max-lines-per-function */
-import Fixture, { type TokensAndUser } from "./fixture"
+import Fixture, { type TokensAndUser } from "./config/fixture"
 import EventSource from "eventsource"
 import { type Server } from "http"
 import { type AddressInfo } from "net"
-import {
-  type LocationUpdateEventData,
-  SseService
-} from "../src/sse/sse.service"
-import { LocationEntity } from "mikro-orm-config"
-import { expect } from "chai"
+import { SseService } from "../src/sse/sse.service"
+import { CheckInEntity, LocationEntity, SchoolEntity } from "mikro-orm-config"
+import { type LocationUpdateEventDto } from "types-custom"
 
 describe("SseController (e2e)", () => {
-  let fixture: Fixture
+  const fixture: Fixture = new Fixture()
 
   let port: number
   let eventSource: EventSource
@@ -21,41 +18,46 @@ describe("SseController (e2e)", () => {
   let sseService: SseService
 
   let location: LocationEntity
+  let school: SchoolEntity
 
-  before(() => {
-    fixture = new Fixture()
+  beforeAll(() => {
+    return fixture.beforeAll().then(() => {
+      const address = (fixture.app.getHttpServer() as Server)
+        .listen()
+        .address() as AddressInfo
+      port = address.port
+
+      sseService = fixture.app.get<SseService>(SseService)
+    })
+  })
+
+  afterAll(() => {
+    const server = fixture.app.getHttpServer() as Server
+    server.close()
+    return fixture.afterAll()
+  })
+
+  beforeEach(() => {
     return fixture
-      .init()
-      .then(() => fixture.seedDatabase())
+      .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
       .then(() => fixture.em.find(LocationEntity, {}))
       .then((data) => {
         location = data[0]
       })
-  })
-
-  beforeEach(() => {
-    const address = (fixture.app.getHttpServer() as Server)
-      .listen()
-      .address() as AddressInfo
-    port = address.port
-
-    sseService = fixture.app.get<SseService>(SseService)
+      .then(() => fixture.em.find(SchoolEntity, {}))
+      .then((data) => {
+        school = data[0]
+      })
   })
 
   afterEach(() => {
-    const server = fixture.app.getHttpServer() as Server
-    server.close()
-    eventSource.close()
-  })
-
-  after(() => {
-    return fixture.clearDatabase().then(() => fixture.app.close())
+    return fixture.afterEach().then(() => eventSource.close())
   })
 
   describe("/sse (SSE)", () => {
-    it("receives event after updating Location capacity (200)", (done: Mocha.Done) => {
+    it("receives event after updating Location capacity (200)", (done: jest.DoneCallback) => {
       eventSource = new EventSource(`http://localhost:${port}/sse`)
 
       eventSource.onerror = (error): void => {
@@ -63,24 +65,28 @@ describe("SseController (e2e)", () => {
       }
 
       eventSource.onopen = (): void => {
-        sseService.addLocationUpdate(location)
+        const newCheckIn = new CheckInEntity(location, school)
+
+        void fixture.em
+          .persistAndFlush(newCheckIn)
+          .then(() => fixture.em.findOneOrFail(LocationEntity, location.id))
+          .then((data) => {
+            location = data
+          })
+          .then(() => sseService.addLocationUpdate(location))
       }
 
       eventSource.onmessage = (event): void => {
         const locationUpdateEventData = JSON.parse(
           event.data as string
-        ) as LocationUpdateEventData
+        ) as LocationUpdateEventDto
 
         try {
-          expect(locationUpdateEventData.normalizedName).to.be.equal(
+          expect(locationUpdateEventData.normalizedName).toBe(
             location.normalizedName
           )
-          expect(locationUpdateEventData.available).to.be.equal(
-            location.available
-          )
-          expect(locationUpdateEventData.capacity).to.be.equal(
-            location.capacity
-          )
+          expect(locationUpdateEventData.available).toBe(location.available)
+          expect(locationUpdateEventData.capacity).toBe(location.capacity)
           done()
         } catch (error) {
           done(error)
@@ -90,7 +96,7 @@ describe("SseController (e2e)", () => {
   })
 
   describe("/sse/:normalizedName (SSE)", () => {
-    it("receives event after updating Location capacity (200)", (done: Mocha.Done) => {
+    it("receives event after updating Location capacity (200)", (done: jest.DoneCallback) => {
       const eventSourceInitDict = {
         headers: {
           Cookie: `accessToken=${tokensAndUser.tokens.accessToken}`
@@ -107,24 +113,28 @@ describe("SseController (e2e)", () => {
       }
 
       eventSource.onopen = (): void => {
-        sseService.addLocationUpdate(location)
+        location.capacity--
+
+        void fixture.em
+          .flush()
+          .then(() => fixture.em.findOneOrFail(LocationEntity, location.id))
+          .then((data) => {
+            location = data
+          })
+          .then(() => sseService.addLocationUpdate(location))
       }
 
       eventSource.onmessage = (event): void => {
         const locationUpdateEventData = JSON.parse(
           event.data as string
-        ) as LocationUpdateEventData
+        ) as LocationUpdateEventDto
 
         try {
-          expect(locationUpdateEventData.normalizedName).to.be.equal(
+          expect(locationUpdateEventData.normalizedName).toBe(
             location.normalizedName
           )
-          expect(locationUpdateEventData.available).to.be.equal(
-            location.available
-          )
-          expect(locationUpdateEventData.capacity).to.be.equal(
-            location.capacity
-          )
+          expect(locationUpdateEventData.available).toBe(location.available)
+          expect(locationUpdateEventData.capacity).toBe(location.capacity)
           done()
         } catch (error) {
           done(error)
@@ -132,14 +142,14 @@ describe("SseController (e2e)", () => {
       }
     })
 
-    it("returns Unauthorized (401)", (done: Mocha.Done) => {
+    it("returns Unauthorized (401)", (done: jest.DoneCallback) => {
       eventSource = new EventSource(
         `http://localhost:${port}/sse/${location.normalizedName}`
       )
 
       eventSource.onerror = (event): void => {
         try {
-          expect(event.status).to.be.equal(401)
+          expect(event.status).toBe(401)
           done()
         } catch (error) {
           done(error)

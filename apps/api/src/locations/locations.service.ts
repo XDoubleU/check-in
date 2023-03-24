@@ -1,4 +1,5 @@
 import { EntityRepository, QueryOrder } from "@mikro-orm/core"
+import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { LocationEntity, type UserEntity } from "mikro-orm-config"
 import { SseService } from "../sse/sse.service"
@@ -9,6 +10,7 @@ export class LocationsService {
   private readonly sseService: SseService
 
   public constructor(
+    @InjectRepository(LocationEntity)
     locationsRepository: EntityRepository<LocationEntity>,
     sseService: SseService
   ) {
@@ -43,6 +45,13 @@ export class LocationsService {
     })
   }
 
+  public async refresh(locationId: string): Promise<LocationEntity> {
+    return this.locationsRepository.findOneOrFail(
+      { id: locationId },
+      { refresh: true }
+    )
+  }
+
   public async getByName(name: string): Promise<LocationEntity | null> {
     return await this.locationsRepository.findOne({
       name: name
@@ -56,7 +65,7 @@ export class LocationsService {
   ): Promise<LocationEntity> {
     const location = new LocationEntity(name, capacity, user)
     await this.locationsRepository.persistAndFlush(location)
-    return location
+    return await this.refresh(location.id)
   }
 
   public async update(
@@ -69,7 +78,9 @@ export class LocationsService {
 
     await this.locationsRepository.flush()
 
-    this.sseService.addLocationUpdate(location)
+    const updatedLocation = await this.refresh(location.id)
+
+    this.sseService.addLocationUpdate(updatedLocation)
 
     return location
   }

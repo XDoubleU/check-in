@@ -1,17 +1,24 @@
-import CustomButton from "@/components/CustomButton"
 import CustomPagination, {
   type CustomPaginationProps
 } from "@/components/CustomPagination"
 import LocationCard from "@/components/cards/LocationCard"
 import AdminLayout from "@/layouts/AdminLayout"
-import { type Location } from "types-custom"
+import { type CreateLocationDto, type Location } from "types-custom"
 import { useRouter } from "next/router"
-import { type FormEvent, useCallback, useEffect, useState } from "react"
-import { Col, Form, Modal } from "react-bootstrap"
-import { createLocation, getAllLocations } from "my-api-wrapper"
+import { useCallback, useEffect, useState } from "react"
+import { Form } from "react-bootstrap"
+import { createLocation, getAllLocations, getUser } from "my-api-wrapper"
+import { useForm } from "react-hook-form"
+import CreateModal from "@/components/modals/CreateModal"
+import Loader from "@/components/Loader"
+
+export type LocationWithUsername = Omit<Location, "userId"> & {
+  username: string
+}
+type LocationCreateForm = CreateLocationDto & { repeatPassword?: string }
 
 interface LocationList {
-  locations: Location[]
+  locations: LocationWithUsername[] | undefined
   pagination: CustomPaginationProps
 }
 
@@ -20,159 +27,145 @@ export default function LocationList() {
   const router = useRouter()
 
   const [locationList, setLocationList] = useState<LocationList>({
-    locations: [],
+    locations: undefined,
     pagination: {
       current: 0,
       total: 0
     }
   })
-  const [createInfo, setCreateInfo] = useState({
-    name: "",
-    capacity: 20,
-    username: "",
-    password: "",
-    repeatPassword: ""
-  })
-  const [showCreate, setShowCreate] = useState(false)
-  const handleCloseCreate = () => setShowCreate(false)
-  const handleShowCreate = () => setShowCreate(true)
-  const onCloseCreate = useCallback(() => {
-    return !showCreate
-  }, [showCreate])
 
-  useEffect(() => {
+  const form = useForm<LocationCreateForm>()
+
+  const {
+    register,
+    watch,
+    formState: { errors }
+  } = form
+
+  const fetchData = useCallback(async () => {
     if (!router.isReady) return
+
     const page = router.query.page
       ? parseInt(router.query.page as string)
       : undefined
-    void getAllLocations(page).then(async (data) => {
-      if (!data) {
-        await router.push("/signin")
-        return
-      }
 
-      setLocationList({
-        locations: data.locations,
-        pagination: {
-          current: data.page,
-          total: data.totalPages
-        }
+    const response = await getAllLocations(page)
+    if (!response.data) return
+
+    if (response.data.page > response.data.totalPages) {
+      await router.push(`locations?page=${response.data.totalPages}`)
+    }
+
+    const locationsWithUsernames = Array<LocationWithUsername>()
+
+    await Promise.all(
+      response.data.locations.map(async (location) => {
+        const username = (await getUser(location.userId)).data?.username
+
+        locationsWithUsernames.push({
+          id: location.id,
+          name: location.name,
+          normalizedName: location.normalizedName,
+          capacity: location.capacity,
+          username: username ?? "",
+          available: location.available,
+          checkIns: location.checkIns
+        })
       })
-    })
-  }, [onCloseCreate, router])
-
-  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    const response = await createLocation(
-      createInfo.name,
-      createInfo.capacity,
-      createInfo.username,
-      createInfo.password
     )
 
-    if (response) {
-      createInfo.name = ""
-      createInfo.capacity = 20
-      createInfo.username = ""
-      createInfo.password = ""
-      createInfo.repeatPassword = ""
-      handleCloseCreate()
-    } else {
-      console.log("ERROR")
-    }
+    setLocationList({
+      locations: locationsWithUsernames,
+      pagination: {
+        current: response.data.page,
+        total: response.data.totalPages
+      }
+    })
+  }, [router])
+
+  useEffect(() => {
+    void fetchData()
+  }, [fetchData])
+
+  const handleCreate = (data: CreateLocationDto) => {
+    return createLocation(data)
   }
 
   return (
     <AdminLayout title="Locations">
-      <Modal show={showCreate} onHide={handleCloseCreate}>
-        <Modal.Body>
-          <Modal.Title>Create location</Modal.Title>
-          <br />
-          <Form onSubmit={() => handleCreate}>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Name"
-                value={createInfo.name}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, name: target.value })
+      <CreateModal<CreateLocationDto, Location>
+        form={form}
+        handler={handleCreate}
+        refetchData={fetchData}
+        typeName="location"
+      >
+        <Form.Group className="mb-3">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Name"
+            required
+            {...register("name")}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Capacity</Form.Label>
+          <Form.Control
+            type="number"
+            required
+            {...register("capacity")}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Username</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Username"
+            required
+            {...register("username")}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Password"
+            required
+            {...register("password")}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Repeat password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Repeat password"
+            required
+            isInvalid={!!errors.repeatPassword}
+            {...register("repeatPassword", {
+              validate: (val: string | undefined) => {
+                if (watch("password") != val) {
+                  return "Your passwords do no match"
                 }
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Capacity</Form.Label>
-              <Form.Control
-                type="number"
-                value={createInfo.capacity}
-                onChange={({ target }) =>
-                  setCreateInfo({
-                    ...createInfo,
-                    capacity: parseInt(target.value)
-                  })
-                }
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Username"
-                value={createInfo.username}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, username: target.value })
-                }
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Password"
-                value={createInfo.password}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, password: target.value })
-                }
-              ></Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Repeat password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Repeat password"
-                value={createInfo.repeatPassword}
-                onChange={({ target }) =>
-                  setCreateInfo({ ...createInfo, repeatPassword: target.value })
-                }
-              ></Form.Control>
-              <Form.Text className="text-danger">TODO: error</Form.Text>
-            </Form.Group>
-            <br />
-            <CustomButton
-              type="button"
-              style={{ float: "left" }}
-              onClick={handleCloseCreate}
-            >
-              Cancel
-            </CustomButton>
-            <CustomButton type="submit" style={{ float: "right" }}>
-              Create
-            </CustomButton>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      <Col size={2}>
-        <CustomButton onClick={handleShowCreate}>Create</CustomButton>
-      </Col>
+                return undefined
+              }
+            })}
+          ></Form.Control>
+          <Form.Control.Feedback type="invalid">
+            {errors.repeatPassword?.message}
+          </Form.Control.Feedback>
+        </Form.Group>
+      </CreateModal>
 
       <br />
 
       <div className="min-vh-51">
-        {locationList.locations.length == 0 ? "Nothing to see here." : ""}
+        {!locationList.locations && <Loader />}
 
-        {locationList.locations.map((location) => {
+        {locationList.locations && locationList.locations.length == 0
+          ? "Nothing to see here."
+          : ""}
+
+        {locationList.locations?.map((location) => {
           return (
             <LocationCard
               id={location.id}
@@ -180,7 +173,8 @@ export default function LocationList() {
               name={location.name}
               normalizedName={location.normalizedName}
               capacity={location.capacity}
-              username={"TODO"}
+              username={location.username}
+              refetchData={fetchData}
             />
           )
         })}

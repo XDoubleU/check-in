@@ -7,12 +7,14 @@ import {
   type School,
   type UpdateSchoolDto
 } from "types-custom"
-import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
+import Fixture, {
+  type ErrorResponse,
+  type TokensAndUser
+} from "./config/fixture"
 import { CheckInEntity, SchoolEntity } from "mikro-orm-config"
-import { expect } from "chai"
 
 describe("SchoolsController (e2e)", () => {
-  let fixture: Fixture
+  const fixture: Fixture = new Fixture()
 
   let tokensAndUser: TokensAndUser
   let adminTokensAndUser: TokensAndUser
@@ -22,11 +24,17 @@ describe("SchoolsController (e2e)", () => {
   const defaultPage = 1
   const defaultPageSize = 4
 
-  before(() => {
-    fixture = new Fixture()
+  beforeAll(() => {
+    return fixture.beforeAll()
+  })
+
+  afterAll(() => {
+    return fixture.afterAll()
+  })
+
+  beforeEach(() => {
     return fixture
-      .init()
-      .then(() => fixture.seedDatabase())
+      .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
       .then(() => fixture.getTokens("Admin"))
@@ -37,8 +45,8 @@ describe("SchoolsController (e2e)", () => {
       })
   })
 
-  after(() => {
-    return fixture.clearDatabase().then(() => fixture.app.close())
+  afterEach(() => {
+    return fixture.afterEach()
   })
 
   describe("/schools/all (GET)", () => {
@@ -68,11 +76,9 @@ describe("SchoolsController (e2e)", () => {
         .expect(200)
 
       const schoolsResponse = response.body as School[]
-      expect(schoolsResponse.length).to.be.equal(schools.length)
-      expect(schoolsResponse[schoolsResponse.length - 1].name).to.be.equal(
-        andere.name
-      )
-      expect(schoolsResponse[0].name).to.be.equal(school.name)
+      expect(schoolsResponse.length).toBe(schools.length)
+      expect(schoolsResponse[schoolsResponse.length - 1].name).toBe(andere.name)
+      expect(schoolsResponse[0].name).toBe(school.name)
     })
 
     it("returns Forbidden (403)", async () => {
@@ -91,13 +97,11 @@ describe("SchoolsController (e2e)", () => {
         .expect(200)
 
       const paginatedSchoolsResponse = response.body as GetAllPaginatedSchoolDto
-      expect(paginatedSchoolsResponse.page).to.be.equal(defaultPage)
-      expect(paginatedSchoolsResponse.totalPages).to.be.equal(
-        Math.ceil(schools.length / defaultPageSize)
+      expect(paginatedSchoolsResponse.page).toBe(defaultPage)
+      expect(paginatedSchoolsResponse.totalPages).toBe(
+        Math.ceil((schools.length - 1) / defaultPageSize)
       )
-      expect(paginatedSchoolsResponse.schools.length).to.be.equal(
-        defaultPageSize
-      )
+      expect(paginatedSchoolsResponse.schools.length).toBe(defaultPageSize)
     })
 
     it("gets certain page of all Schools (200)", async () => {
@@ -110,13 +114,11 @@ describe("SchoolsController (e2e)", () => {
         .expect(200)
 
       const paginatedSchoolsResponse = response.body as GetAllPaginatedSchoolDto
-      expect(paginatedSchoolsResponse.page).to.be.equal(page)
-      expect(paginatedSchoolsResponse.totalPages).to.be.equal(
-        Math.ceil(schools.length / defaultPageSize)
+      expect(paginatedSchoolsResponse.page).toBe(page)
+      expect(paginatedSchoolsResponse.totalPages).toBe(
+        Math.ceil((schools.length - 1) / defaultPageSize)
       )
-      expect(paginatedSchoolsResponse.schools.length).to.be.equal(
-        defaultPageSize
-      )
+      expect(paginatedSchoolsResponse.schools.length).toBe(defaultPageSize)
     })
 
     it("returns Forbidden (403)", async () => {
@@ -140,8 +142,8 @@ describe("SchoolsController (e2e)", () => {
         .expect(201)
 
       const schoolResponse = response.body as School
-      expect(schoolResponse.id).to.exist
-      expect(schoolResponse.name).to.be.equal(data.name)
+      expect(schoolResponse.id).toBeDefined()
+      expect(schoolResponse.name).toBe(data.name)
     })
 
     it("returns School with this name already exists (409)", async () => {
@@ -156,9 +158,7 @@ describe("SchoolsController (e2e)", () => {
         .expect(409)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal(
-        "School with this name already exists"
-      )
+      expect(errorResponse.message).toBe("School with this name already exists")
     })
 
     it("returns Forbidden (403)", async () => {
@@ -188,8 +188,8 @@ describe("SchoolsController (e2e)", () => {
         .expect(200)
 
       const schoolResponse = response.body as School
-      expect(schoolResponse.id).to.be.equal(id)
-      expect(schoolResponse.name).to.be.equal(data.name)
+      expect(schoolResponse.id).toBe(id)
+      expect(schoolResponse.name).toBe(data.name)
     })
 
     it("returns School with this name already exists (409)", async () => {
@@ -205,9 +205,7 @@ describe("SchoolsController (e2e)", () => {
         .expect(409)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal(
-        "School with this name already exists"
-      )
+      expect(errorResponse.message).toBe("School with this name already exists")
     })
 
     it("returns School not found (404)", async () => {
@@ -223,7 +221,7 @@ describe("SchoolsController (e2e)", () => {
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("School not found")
+      expect(errorResponse.message).toBe("School not found")
     })
 
     it("returns Forbidden (403)", async () => {
@@ -250,7 +248,7 @@ describe("SchoolsController (e2e)", () => {
         .expect(200)
 
       const schoolResponse = response.body as School
-      expect(schoolResponse.id).to.be.equal(id)
+      expect(schoolResponse.id).toBe(id)
     })
 
     it("returns School not found (404)", async () => {
@@ -262,7 +260,7 @@ describe("SchoolsController (e2e)", () => {
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).to.be.equal("School not found")
+      expect(errorResponse.message).toBe("School not found")
     })
 
     it("returns Forbidden (403)", async () => {
