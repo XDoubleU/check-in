@@ -7,11 +7,14 @@ import {
   type School,
   type UpdateSchoolDto
 } from "types-custom"
-import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
+import Fixture, {
+  type ErrorResponse,
+  type TokensAndUser
+} from "./config/fixture"
 import { CheckInEntity, SchoolEntity } from "mikro-orm-config"
 
 describe("SchoolsController (e2e)", () => {
-  let fixture: Fixture
+  const fixture: Fixture = new Fixture()
 
   let tokensAndUser: TokensAndUser
   let adminTokensAndUser: TokensAndUser
@@ -21,11 +24,17 @@ describe("SchoolsController (e2e)", () => {
   const defaultPage = 1
   const defaultPageSize = 4
 
+  beforeAll(() => {
+    return fixture.beforeAll()
+  })
+
+  afterAll(() => {
+    return fixture.afterAll()
+  })
+
   beforeEach(() => {
-    fixture = new Fixture()
     return fixture
-      .init()
-      .then(() => fixture.seedDatabase())
+      .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
       .then(() => fixture.getTokens("Admin"))
@@ -37,7 +46,7 @@ describe("SchoolsController (e2e)", () => {
   })
 
   afterEach(() => {
-    return fixture.clearDatabase().then(() => fixture.app.close())
+    return fixture.afterEach()
   })
 
   describe("/schools/all (GET)", () => {

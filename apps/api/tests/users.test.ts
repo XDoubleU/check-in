@@ -1,23 +1,29 @@
 import request from "supertest"
 import { type User } from "types-custom"
-import Fixture, { type TokensAndUser } from "./fixture"
+import Fixture, { type TokensAndUser } from "./config/fixture"
 
 describe("UsersController (e2e)", () => {
-  let fixture: Fixture
+  const fixture: Fixture = new Fixture()
 
   let tokensAndUser: TokensAndUser
 
+  beforeAll(() => {
+    return fixture.beforeAll()
+  })
+
+  afterAll(() => {
+    return fixture.afterAll()
+  })
+
   beforeEach(() => {
-    fixture = new Fixture()
     return fixture
-      .init()
-      .then(() => fixture.seedDatabase())
+      .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
   })
 
   afterEach(() => {
-    return fixture.clearDatabase().then(() => fixture.app.close())
+    return fixture.afterEach()
   })
 
   describe("/users/me (GET)", () => {

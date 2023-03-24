@@ -59,7 +59,6 @@ export default function CheckIn() {
       .submitter as HTMLButtonElement
 
     await createCheckIn({
-      locationId: user?.location?.id ?? "",
       schoolId: parseInt(pickedSchool.value)
     })
 
@@ -115,7 +114,7 @@ export default function CheckIn() {
       <div className="d-flex align-items-center min-vh-80">
         <Container className="text-center">
           <h1 className="bold" style={{ fontSize: "5rem" }}>
-            Welkom bij {user?.location?.name}!
+            Welkom bij {user.location.name}!
           </h1>
           <br />
           {available <= 0 ? (

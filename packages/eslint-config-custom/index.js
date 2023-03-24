@@ -22,7 +22,8 @@ module.exports = {
   ignorePatterns: [
     ".eslintrc.js",
     "**/dist/**",
-    "*.config.*"
+    "*.config.*",
+    "**/coverage/**"
   ],
   rules: {
     "@typescript-eslint/explicit-function-return-type": "error",

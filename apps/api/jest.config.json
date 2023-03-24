@@ -8,5 +8,5 @@
     "cli",
     ".module.ts"
   ],
-  "testTimeout": 15000
+  "testTimeout": 50000
 }

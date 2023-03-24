@@ -7,12 +7,15 @@ import {
   type Location,
   type UpdateLocationDto
 } from "types-custom"
-import Fixture, { type ErrorResponse, type TokensAndUser } from "./fixture"
+import Fixture, {
+  type ErrorResponse,
+  type TokensAndUser
+} from "./config/fixture"
 import { v4 } from "uuid"
 import { LocationEntity } from "mikro-orm-config"
 
 describe("LocationsController (e2e)", () => {
-  let fixture: Fixture
+  const fixture: Fixture = new Fixture()
 
   let tokensAndUser: TokensAndUser
   let adminTokensAndUser: TokensAndUser
@@ -22,11 +25,17 @@ describe("LocationsController (e2e)", () => {
   const defaultPage = 1
   const defaultPageSize = 3
 
+  beforeAll(() => {
+    return fixture.beforeAll()
+  })
+
+  afterAll(() => {
+    return fixture.afterAll()
+  })
+
   beforeEach(() => {
-    fixture = new Fixture()
     return fixture
-      .init()
-      .then(() => fixture.seedDatabase())
+      .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
       .then(() => fixture.getTokens("Admin"))
@@ -38,7 +47,7 @@ describe("LocationsController (e2e)", () => {
   })
 
   afterEach(() => {
-    return fixture.clearDatabase().then(() => fixture.app.close())
+    return fixture.afterEach()
   })
 
   describe("/locations (GET)", () => {
@@ -109,8 +118,10 @@ describe("LocationsController (e2e)", () => {
 
   describe("/locations/:id (GET)", () => {
     it("get Location as Admin (200)", async () => {
-      const location = await fixture.em.refresh(locations[0])
-      if (!location) throw new Error("Location is undefined")
+      const location = await fixture.em.findOneOrFail(
+        LocationEntity,
+        locations[0].id
+      )
 
       const response = await request(fixture.app.getHttpServer())
         .get(`/locations/${location.id}`)
@@ -294,7 +305,7 @@ describe("LocationsController (e2e)", () => {
 
       const data: UpdateLocationDto = {
         name: "NewTestLocation3",
-        username: locations[1].user.username
+        username: locations[0].user.username
       }
 
       const response = await request(fixture.app.getHttpServer())

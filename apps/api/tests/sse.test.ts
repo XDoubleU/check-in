@@ -1,5 +1,5 @@
 /* eslint-disable max-lines-per-function */
-import Fixture, { type TokensAndUser } from "./fixture"
+import Fixture, { type TokensAndUser } from "./config/fixture"
 import EventSource from "eventsource"
 import { type Server } from "http"
 import { type AddressInfo } from "net"
@@ -8,7 +8,7 @@ import { CheckInEntity, LocationEntity, SchoolEntity } from "mikro-orm-config"
 import { type LocationUpdateEventDto } from "types-custom"
 
 describe("SseController (e2e)", () => {
-  let fixture: Fixture
+  const fixture: Fixture = new Fixture()
 
   let port: number
   let eventSource: EventSource
@@ -20,20 +20,26 @@ describe("SseController (e2e)", () => {
   let location: LocationEntity
   let school: SchoolEntity
 
+  beforeAll(() => {
+    return fixture.beforeAll().then(() => {
+      const address = (fixture.app.getHttpServer() as Server)
+        .listen()
+        .address() as AddressInfo
+      port = address.port
+
+      sseService = fixture.app.get<SseService>(SseService)
+    })
+  })
+
+  afterAll(() => {
+    const server = fixture.app.getHttpServer() as Server
+    server.close()
+    return fixture.afterAll()
+  })
+
   beforeEach(() => {
-    fixture = new Fixture()
-
     return fixture
-      .init()
-      .then(() => {
-        const address = (fixture.app.getHttpServer() as Server)
-          .listen()
-          .address() as AddressInfo
-        port = address.port
-
-        sseService = fixture.app.get<SseService>(SseService)
-      })
-      .then(() => fixture.seedDatabase())
+      .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (tokensAndUser = data))
       .then(() => fixture.em.find(LocationEntity, {}))
@@ -47,10 +53,7 @@ describe("SseController (e2e)", () => {
   })
 
   afterEach(() => {
-    const server = fixture.app.getHttpServer() as Server
-    eventSource.close()
-    server.close()
-    return fixture.clearDatabase().then(() => fixture.app.close())
+    return fixture.afterEach().then(() => eventSource.close())
   })
 
   describe("/sse (SSE)", () => {
@@ -66,9 +69,8 @@ describe("SseController (e2e)", () => {
 
         void fixture.em
           .persistAndFlush(newCheckIn)
-          .then(() => fixture.em.refresh(location))
+          .then(() => fixture.em.findOneOrFail(LocationEntity, location.id))
           .then((data) => {
-            if (!data) throw new Error("Location is undefined")
             location = data
           })
           .then(() => sseService.addLocationUpdate(location))
@@ -115,9 +117,8 @@ describe("SseController (e2e)", () => {
 
         void fixture.em
           .flush()
-          .then(() => fixture.em.refresh(location))
+          .then(() => fixture.em.findOneOrFail(LocationEntity, location.id))
           .then((data) => {
-            if (!data) throw new Error("Location is undefined")
             location = data
           })
           .then(() => sseService.addLocationUpdate(location))
