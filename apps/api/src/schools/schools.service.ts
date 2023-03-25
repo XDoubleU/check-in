@@ -22,7 +22,11 @@ export class SchoolsService {
     })
   }
 
-  public async getAll(locationId?: string): Promise<SchoolEntity[]> {
+  public async getAll(): Promise<SchoolEntity[]> {
+    return await this.schoolsRepository.findAll()
+  }
+
+  public async getAllForLocation(locationId?: string): Promise<SchoolEntity[]> {
     const schools = await this.schoolsRepository.findAll()
 
     if (!locationId) {

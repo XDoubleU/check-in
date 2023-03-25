@@ -52,7 +52,10 @@ export default function LocationList() {
     const response = await getAllLocations(page)
     if (!response.data) return
 
-    if (response.data.page > response.data.totalPages) {
+    if (
+      response.data.totalPages !== 0 &&
+      response.data.page > response.data.totalPages
+    ) {
       await router.push(`locations?page=${response.data.totalPages}`)
     }
 

@@ -4,7 +4,7 @@ import CustomPagination, {
 import SchoolCard from "@/components/cards/SchoolCard"
 import AdminLayout from "@/layouts/AdminLayout"
 import { type CreateSchoolDto, type School } from "types-custom"
-import { createSchool, getAllSchools } from "my-api-wrapper"
+import { createSchool, getAllSchoolsPaged } from "my-api-wrapper"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState } from "react"
 import { Form } from "react-bootstrap"
@@ -40,10 +40,13 @@ export default function SchoolList() {
       ? parseInt(router.query.page as string)
       : undefined
 
-    const response = await getAllSchools(page)
+    const response = await getAllSchoolsPaged(page)
     if (!response.data) return
 
-    if (response.data.page > response.data.totalPages) {
+    if (
+      response.data.totalPages !== 0 &&
+      response.data.page > response.data.totalPages
+    ) {
       await router.push(`schools?page=${response.data.totalPages}`)
     }
 

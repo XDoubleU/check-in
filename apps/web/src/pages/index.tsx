@@ -13,7 +13,7 @@ import CustomButton from "@/components/CustomButton"
 import {
   checkinsEventSource,
   createCheckIn,
-  getAllSchoolsCheckIn
+  getAllSchools
 } from "my-api-wrapper"
 import { useAuth } from "@/contexts"
 import { type SubmitHandler, useForm } from "react-hook-form"
@@ -49,7 +49,7 @@ export default function CheckIn() {
   }, [user?.location])
 
   const loadSchools = async () => {
-    const response = await getAllSchoolsCheckIn()
+    const response = await getAllSchools()
     setSchools(response.data ?? Array<School>())
     handleShow()
   }

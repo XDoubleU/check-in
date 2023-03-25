@@ -26,6 +26,22 @@ export class CheckInsService {
     this.locationsService = locationsService
   }
 
+  public async getAll(
+    location: LocationEntity,
+    startDate: Date,
+    endDate: Date
+  ): Promise<CheckInEntity[]> {
+    return this.checkInsRepository.find({
+      location: {
+        id: location.id
+      },
+      createdAt: {
+        $gte: startDate,
+        $lte: endDate
+      }
+    })
+  }
+
   public async create(
     location: LocationEntity,
     school: SchoolEntity

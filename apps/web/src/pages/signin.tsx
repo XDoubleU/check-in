@@ -8,8 +8,6 @@ import { type SignInDto } from "types-custom"
 import { useAuth } from "@/contexts"
 import BaseForm from "@/components/forms/BaseForm"
 
-// TODO: implement remember me
-
 // eslint-disable-next-line max-lines-per-function
 export default function SignIn() {
   const router = useRouter()
@@ -20,7 +18,11 @@ export default function SignIn() {
     handleSubmit,
     setError,
     formState: { errors }
-  } = useForm<SignInDto>()
+  } = useForm<SignInDto>({
+    defaultValues: {
+      rememberMe: true
+    }
+  })
 
   const onSubmit: SubmitHandler<SignInDto> = (data) => {
     void signin(data).then((response) => {
@@ -65,6 +67,11 @@ export default function SignIn() {
               {...register("password")}
             ></Form.Control>
           </Form.Group>
+          <Form.Check
+            label="Remember me"
+            type="checkbox"
+            {...register("rememberMe")}
+          ></Form.Check>
         </BaseForm>
         <br />
         <br />

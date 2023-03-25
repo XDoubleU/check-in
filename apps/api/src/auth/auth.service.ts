@@ -44,7 +44,11 @@ export class AuthService {
     return this.getTokens(user)
   }
 
-  public setTokensAsCookies(tokens: Tokens, res: Response): void {
+  public setTokensAsCookies(
+    tokens: Tokens,
+    res: Response,
+    rememberMe: boolean
+  ): void {
     const accessTokenExpires = parseInt(
       (this.jwtService.decode(tokens.accessToken) as Record<string, string>).exp
     )
@@ -59,13 +63,16 @@ export class AuthService {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production"
     })
-    res.cookie("refreshToken", tokens.refreshToken, {
-      expires: new Date(refreshTokenExpires * 1000),
-      sameSite: "strict",
-      httpOnly: true,
-      path: "/auth/refresh",
-      secure: process.env.NODE_ENV === "production"
-    })
+
+    if (rememberMe) {
+      res.cookie("refreshToken", tokens.refreshToken, {
+        expires: new Date(refreshTokenExpires * 1000),
+        sameSite: "strict",
+        httpOnly: true,
+        path: "/auth/refresh",
+        secure: process.env.NODE_ENV === "production"
+      })
+    }
   }
 
   public async getTokens(user: UserEntity): Promise<Tokens> {

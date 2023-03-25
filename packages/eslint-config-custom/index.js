@@ -36,7 +36,6 @@ module.exports = {
     "no-duplicate-imports": "error",
     "no-warning-comments": "error",
     "redundant-undefined/redundant-undefined": "error",
-    "complexity": "error",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {

@@ -10,7 +10,8 @@ import {
   Param,
   Patch,
   Post,
-  Query
+  Query,
+  Res
 } from "@nestjs/common"
 import { LocationsService } from "./locations.service"
 import { UsersService } from "../users/users.service"
@@ -23,6 +24,8 @@ import {
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { type LocationEntity, UserEntity } from "mikro-orm-config"
+import { Public } from "../auth/decorators/public.decorator"
+import { Response } from "express"
 
 type MikroGetAllPaginatedLocationDto = Omit<
   GetAllPaginatedLocationDto,
@@ -42,6 +45,23 @@ export class LocationsController {
   ) {
     this.locationsService = locationsService
     this.usersService = usersService
+  }
+
+  @Get("sse")
+  @Public()
+  public async getInitStateSse(@Res() res: Response): Promise<void> {
+    res.set("Access-Control-Allow-Origin", "*")
+
+    const locations = await this.locationsService.getAll()
+    const data = locations.map((location) => {
+      return {
+        normalizedName: location.normalizedName,
+        available: location.available,
+        capacity: location.capacity
+      }
+    })
+
+    res.json(data)
   }
 
   @Roles(Role.Admin)

@@ -37,7 +37,11 @@ export class AuthController {
       throw new UnauthorizedException("Invalid credentials")
     }
 
-    this.authService.setTokensAsCookies(userAndTokens.tokens, res)
+    this.authService.setTokensAsCookies(
+      userAndTokens.tokens,
+      res,
+      signinDto.rememberMe
+    )
 
     res.status(200)
     return userAndTokens.user
@@ -59,6 +63,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ): Promise<void> {
     const tokens = await this.authService.refreshTokens(user)
-    this.authService.setTokensAsCookies(tokens, res)
+    this.authService.setTokensAsCookies(tokens, res, true)
   }
 }

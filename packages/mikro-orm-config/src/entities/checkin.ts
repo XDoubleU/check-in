@@ -16,7 +16,7 @@ export class CheckInEntity implements MikroCheckInInterface {
   @ManyToOne({ onDelete: "cascade" })
   public location: LocationEntity
 
-  @ManyToOne({ default: 1, onDelete: "set default" })
+  @ManyToOne({ default: 1, onDelete: "set default", eager: true })
   public school: SchoolEntity
 
   @Property()

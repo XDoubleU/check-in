@@ -1,7 +1,8 @@
-import { Controller, Param, Sse } from "@nestjs/common"
+import { Controller, Param, Res, Sse } from "@nestjs/common"
 import { type LocationUpdateEvent, SseService } from "./sse.service"
 import { Observable } from "rxjs"
 import { Public } from "../auth/decorators/public.decorator"
+import { Response } from "express"
 
 @Controller("sse")
 export class SseController {
@@ -13,7 +14,10 @@ export class SseController {
 
   @Public()
   @Sse()
-  public sseAllLocations(): Observable<LocationUpdateEvent> {
+  public sseAllLocations(
+    @Res() res: Response
+  ): Observable<LocationUpdateEvent> {
+    res.set("Access-Control-Allow-Origin", "*")
     return this.sseService.sendAllLocationUpdates()
   }
 

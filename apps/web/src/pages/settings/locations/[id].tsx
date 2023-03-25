@@ -1,7 +1,5 @@
-import { Col } from "react-bootstrap"
 import AdminLayout from "@/layouts/AdminLayout"
 import { LocationUpdateModal } from "@/components/cards/LocationCard"
-import CustomButton from "@/components/CustomButton"
 import { getLocation, getUser } from "my-api-wrapper"
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/router"
@@ -10,6 +8,7 @@ import { type LocationWithUsername } from "."
 import { useAuth } from "@/contexts"
 import { Role, type User } from "types-custom"
 import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"
+import Charts from "@/components/charts/Charts"
 
 // eslint-disable-next-line max-lines-per-function
 export default function LocationDetail() {
@@ -55,23 +54,19 @@ export default function LocationDetail() {
     return <LoadingLayout />
   }
 
+  const titleButton = (
+    <LocationUpdateModal
+      id={location.id}
+      name={location.name}
+      username={location.username}
+      capacity={location.capacity}
+      refetchData={fetchData}
+    />
+  )
+
   return (
-    <AdminLayout title={location.name}>
-      <Col size={2}>
-        <LocationUpdateModal
-          id={location.id}
-          name={location.name}
-          username={location.username}
-          capacity={location.capacity}
-          refetchData={fetchData}
-        />
-      </Col>
-      <br />
-      <Col size={2}>
-        <CustomButton>Download CSV (TODO)</CustomButton>
-      </Col>
-      <br />
-      Still needs a chart :)
+    <AdminLayout title={location.name} titleButton={titleButton}>
+      <Charts locationId={location.id} />
     </AdminLayout>
   )
 }

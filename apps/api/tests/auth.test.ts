@@ -36,7 +36,8 @@ describe("AuthController (e2e)", () => {
     it("signs in user (200)", async () => {
       const data: SignInDto = {
         username: tokensAndUser.user.username,
-        password: "testpassword"
+        password: "testpassword",
+        rememberMe: true
       }
 
       const response = await request(fixture.app.getHttpServer())
@@ -52,7 +53,8 @@ describe("AuthController (e2e)", () => {
     it("returns Invalid credentials (401)", async () => {
       const data: SignInDto = {
         username: "inexistentuser",
-        password: "testpassword"
+        password: "testpassword",
+        rememberMe: true
       }
 
       const response = await request(fixture.app.getHttpServer())

@@ -34,14 +34,20 @@ export class SchoolsController {
     this.schoolsService = schoolsService
   }
 
-  @Roles(Role.User)
   @Get("all")
-  public async getAll(@ReqUser() user: UserEntity): Promise<SchoolEntity[]> {
-    if (!user.location?.id) {
+  public async getAll(): Promise<SchoolEntity[]> {
+    return await this.schoolsService.getAll()
+  }
+
+  @Get("location")
+  public async getAllForLocation(
+    @ReqUser() user: UserEntity
+  ): Promise<SchoolEntity[]> {
+    if (!user.location) {
       return []
     }
 
-    return await this.schoolsService.getAll(user.location.id)
+    return await this.schoolsService.getAllForLocation(user.location.id)
   }
 
   @Roles(Role.Admin)
