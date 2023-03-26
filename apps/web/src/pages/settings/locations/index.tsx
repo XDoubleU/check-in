@@ -61,21 +61,20 @@ export default function LocationList() {
 
     const locationsWithUsernames = Array<LocationWithUsername>()
 
-    await Promise.all(
-      response.data.locations.map(async (location) => {
-        const username = (await getUser(location.userId)).data?.username
+    for (const location of response.data.locations) {
+      const username = (await getUser(location.userId)).data?.username
 
-        locationsWithUsernames.push({
-          id: location.id,
-          name: location.name,
-          normalizedName: location.normalizedName,
-          capacity: location.capacity,
-          username: username ?? "",
-          available: location.available,
-          checkIns: location.checkIns
-        })
+      locationsWithUsernames.push({
+        id: location.id,
+        name: location.name,
+        normalizedName: location.normalizedName,
+        capacity: location.capacity,
+        username: username ?? "",
+        available: location.available,
+        checkIns: location.checkIns,
+        yesterdayFullAt: location.yesterdayFullAt
       })
-    )
+    }
 
     setLocationList({
       locations: locationsWithUsernames,
@@ -171,12 +170,8 @@ export default function LocationList() {
         {locationList.locations?.map((location) => {
           return (
             <LocationCard
-              id={location.id}
               key={location.id}
-              name={location.name}
-              normalizedName={location.normalizedName}
-              capacity={location.capacity}
-              username={location.username}
+              location={location}
               refetchData={fetchData}
             />
           )

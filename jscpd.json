@@ -1,0 +1,12 @@
+{
+  "pattern": "**/*.ts",
+  "ignore": [
+    "**/dist/**",
+    "**/coverage/**",
+    "**/node_modules/**"
+  ],
+  "format": [
+    "javascript",
+    "typescript"
+  ]
+}

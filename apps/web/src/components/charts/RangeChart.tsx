@@ -15,6 +15,7 @@ import {
 import {
   CHART_PROPS,
   COLORS,
+  DataLoading,
   NoDataFound,
   RESPONSIVE_CONTAINER_PROPS
 } from "./Shared"
@@ -73,6 +74,7 @@ export default function RangeChart({
   setEndDate
 }: RangeChartProps) {
   const [schools, setSchools] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     void getDataForRangeChart(locationId, startDate, endDate).then(
@@ -81,9 +83,24 @@ export default function RangeChart({
         data = convertDates(data)
         setRangeData(data)
         setSchools(extractAllSchools(data))
+        setLoading(false)
       }
     )
   }, [startDate, endDate, setRangeData, locationId])
+
+  if (loading) {
+    return (
+      <>
+        <Filter
+          startDate={startDate}
+          endDate={endDate}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+        />
+        <DataLoading />
+      </>
+    )
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   if (rangeData.length === 0) {

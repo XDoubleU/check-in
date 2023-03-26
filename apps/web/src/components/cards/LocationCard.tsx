@@ -5,32 +5,26 @@ import DeleteModal from "@/components/modals/DeleteModal"
 import { deleteLocation, updateLocation } from "my-api-wrapper"
 import { type UpdateLocationDto } from "types-custom"
 import { useForm } from "react-hook-form"
+import { format } from "date-fns"
+import { type LocationWithUsername } from "@/pages/settings/locations"
 
-type LocationUpdateProps = Omit<LocationCardProps, "normalizedName">
 type LocationUpdateForm = UpdateLocationDto & { repeatPassword?: string }
 
 interface LocationCardProps {
-  id: string
-  name: string
-  normalizedName: string
-  capacity: number
-  username: string
+  location: LocationWithUsername
   refetchData: () => Promise<void>
 }
 
 // eslint-disable-next-line max-lines-per-function
 export function LocationUpdateModal({
-  id,
-  name,
-  capacity,
-  username,
+  location,
   refetchData
-}: LocationUpdateProps) {
+}: LocationCardProps) {
   const form = useForm<LocationUpdateForm>({
     defaultValues: {
-      name: name,
-      capacity: capacity,
-      username: username
+      name: location.name,
+      capacity: location.capacity,
+      username: location.username
     }
   })
 
@@ -41,7 +35,7 @@ export function LocationUpdateModal({
   } = form
 
   const handleUpdate = (data: UpdateLocationDto) => {
-    return updateLocation(id, data)
+    return updateLocation(location.id, data)
   }
 
   return (
@@ -105,14 +99,14 @@ export function LocationUpdateModal({
   )
 }
 
-function LocationDeleteModal({ id, name, refetchData }: LocationUpdateProps) {
+function LocationDeleteModal({ location, refetchData }: LocationCardProps) {
   const handleDelete = () => {
-    return deleteLocation(id)
+    return deleteLocation(location.id)
   }
 
   return (
     <DeleteModal
-      name={name}
+      name={location.name}
       handler={handleDelete}
       refetchData={refetchData}
       typeName="location"
@@ -120,12 +114,9 @@ function LocationDeleteModal({ id, name, refetchData }: LocationUpdateProps) {
   )
 }
 
+// eslint-disable-next-line max-lines-per-function
 export default function LocationCard({
-  id,
-  name,
-  normalizedName,
-  capacity,
-  username,
+  location,
   refetchData
 }: LocationCardProps) {
   return (
@@ -135,26 +126,30 @@ export default function LocationCard({
           <div className="d-flex flex-row">
             <div>
               <Card.Title>
-                <Link href={`/settings/locations/${id}`}>{name}</Link> (
-                {normalizedName})
+                <Link href={`/settings/locations/${location.id}`}>
+                  {location.name}
+                </Link>{" "}
+                ({location.normalizedName})
               </Card.Title>
               <Card.Subtitle className="mb-2 text-muted">
-                {capacity}
+                {location.available} / {location.capacity}
+              </Card.Subtitle>
+              <Card.Subtitle className="mb-2 text-muted">
+                {location.yesterdayFullAt
+                  ? `Yesterday full at ${format(
+                      new Date(location.yesterdayFullAt),
+                      "HH:mm"
+                    )}`
+                  : "Yesterday not full"}
               </Card.Subtitle>
             </div>
             <div className="ms-auto">
               <LocationUpdateModal
-                id={id}
-                name={name}
-                username={username}
-                capacity={capacity}
+                location={location}
                 refetchData={refetchData}
               />
               <LocationDeleteModal
-                id={id}
-                name={name}
-                username={username}
-                capacity={capacity}
+                location={location}
                 refetchData={refetchData}
               />
             </div>

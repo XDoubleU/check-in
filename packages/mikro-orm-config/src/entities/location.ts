@@ -42,10 +42,34 @@ export class LocationEntity implements MikroLocationInterface {
 
   @Formula(
     (alias) =>
-      `(select CAST(count(*) as int) from "CheckIn" ci where ci.location_id = ${alias}.id and CAST(ci.created_at AS DATE) = CAST(NOW() AS DATE))`,
-    { persist: false }
+      `(
+        SELECT CAST(COUNT(*) as int) 
+        FROM "CheckIn"
+        WHERE location_id = ${alias}.id 
+          AND DATE(created_at) = DATE(NOW())
+      )`,
+    { persist: false, hidden: true }
   )
   public readonly checkInsToday!: number
+
+  @Formula(
+    (alias) =>
+      `(
+        SELECT EXTRACT(EPOCH FROM MAX(created_at)) * 1000
+        FROM "CheckIn"
+        INNER JOIN (
+          SELECT location_id, COUNT(*) AS total_checkins, MAX(capacity) AS max_capacity
+          FROM "CheckIn"
+          WHERE DATE(created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+          GROUP BY location_id
+        ) daily_stats ON "CheckIn".location_id = daily_stats.location_id
+        WHERE "CheckIn".location_id = ${alias}.id
+          AND DATE("CheckIn".created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+          AND daily_stats.total_checkins >= daily_stats.max_capacity
+      )`,
+    { persist: false }
+  )
+  public readonly yesterdayFullAt!: number | null
 
   public constructor(name: string, capacity: number, user: UserEntity) {
     this.name = name

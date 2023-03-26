@@ -40,7 +40,8 @@ export default function LocationDetail() {
       capacity: responseLocation.data.capacity,
       username: responseUser?.data?.username ?? user?.username ?? "",
       available: responseLocation.data.available,
-      checkIns: responseLocation.data.checkIns
+      checkIns: responseLocation.data.checkIns,
+      yesterdayFullAt: responseLocation.data.yesterdayFullAt
     }
 
     updateLocation(locationWithUsername)
@@ -55,13 +56,7 @@ export default function LocationDetail() {
   }
 
   const titleButton = (
-    <LocationUpdateModal
-      id={location.id}
-      name={location.name}
-      username={location.username}
-      capacity={location.capacity}
-      refetchData={fetchData}
-    />
+    <LocationUpdateModal location={location} refetchData={fetchData} />
   )
 
   return (

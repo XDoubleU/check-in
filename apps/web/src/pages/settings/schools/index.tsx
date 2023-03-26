@@ -98,9 +98,8 @@ export default function SchoolList() {
         {schoolList.schools?.map((school) => {
           return (
             <SchoolCard
-              id={school.id}
               key={school.id}
-              name={school.name}
+              school={school}
               refetchData={fetchData}
             />
           )

@@ -34,17 +34,3 @@ export function convertDates(data: unknown[]): unknown[] {
       return a.datetime - b.datetime
     }) as unknown[]
 }
-
-export function extractAllDates(data: unknown[]): Date[] {
-  const result = new Array<Date>()
-
-  const anyData = data as any
-
-  for (const entry of anyData) {
-    if (!result.includes(entry.datetime)) {
-      result.push(entry.datetime)
-    }
-  }
-
-  return result
-}

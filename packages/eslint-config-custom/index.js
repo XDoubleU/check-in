@@ -10,7 +10,6 @@ module.exports = {
     "redundant-undefined"
   ],
   extends: [
-    "plugin:prettier/recommended",
     "eslint:recommended",
     "turbo",
     "plugin:@typescript-eslint/recommended",
@@ -55,15 +54,6 @@ module.exports = {
     "import/consistent-type-specifier-style": [
       "error", 
       "prefer-inline"
-    ],
-    "prettier/prettier": [
-      "error",
-      {
-        "semi": false,
-        "trailingComma": "none",
-        "parser": "typescript",
-        
-      }
     ]
   },
   settings: {

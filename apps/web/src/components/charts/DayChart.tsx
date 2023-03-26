@@ -17,6 +17,7 @@ import { convertDates, extractAllSchools } from "./dataProcessing"
 import {
   CHART_PROPS,
   COLORS,
+  DataLoading,
   NoDataFound,
   RESPONSIVE_CONTAINER_PROPS
 } from "./Shared"
@@ -59,6 +60,7 @@ export default function DayChart({
   setDate
 }: DayChartProps) {
   const [schools, setSchools] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     void getDataForDayChart(locationId, date).then((response) => {
@@ -66,8 +68,18 @@ export default function DayChart({
       data = convertDates(data)
       setDayData(response.data ?? [])
       setSchools(extractAllSchools(data))
+      setLoading(false)
     })
   }, [date, locationId, setDayData])
+
+  if (loading) {
+    return (
+      <>
+        <Filter date={date} setDate={setDate} />
+        <DataLoading />
+      </>
+    )
+  }
 
   if (dayData.length === 0) {
     return (

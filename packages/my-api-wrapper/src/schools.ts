@@ -14,6 +14,12 @@ export async function getAllSchools(): Promise<APIResponse<School[]>> {
   return await fetchHandler(`${SCHOOLS_URL}/all`)
 }
 
+export async function getAllSchoolsSortedForLocation(): Promise<
+  APIResponse<School[]>
+> {
+  return await fetchHandler(`${SCHOOLS_URL}/location`)
+}
+
 export async function getAllSchoolsPaged(
   page?: number,
   pageSize?: number

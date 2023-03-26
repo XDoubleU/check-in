@@ -13,7 +13,7 @@ import CustomButton from "@/components/CustomButton"
 import {
   checkinsEventSource,
   createCheckIn,
-  getAllSchools
+  getAllSchoolsSortedForLocation
 } from "my-api-wrapper"
 import { useAuth } from "@/contexts"
 import { type SubmitHandler, useForm } from "react-hook-form"
@@ -49,7 +49,7 @@ export default function CheckIn() {
   }, [user?.location])
 
   const loadSchools = async () => {
-    const response = await getAllSchools()
+    const response = await getAllSchoolsSortedForLocation()
     setSchools(response.data ?? Array<School>())
     handleShow()
   }
@@ -87,7 +87,7 @@ export default function CheckIn() {
         scrollable={true}
       >
         <div className={styles.modalContent}>
-          <Modal.Body>
+          <Modal.Body style={{ maxHeight: "100vh" }}>
             <h1 className="bold" style={{ fontSize: "4rem" }}>
               KIES JE SCHOOL:
             </h1>

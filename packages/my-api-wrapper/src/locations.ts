@@ -20,10 +20,6 @@ export async function getAllLocations(
   return await fetchHandler(`${LOCATIONS_URL}${query.toString()}`)
 }
 
-export async function getMyLocation(): Promise<APIResponse<Location>> {
-  return await fetchHandler(`${LOCATIONS_URL}/me`)
-}
-
 export async function getLocation(id: string): Promise<APIResponse<Location>> {
   return await fetchHandler(`${LOCATIONS_URL}/${id}`)
 }

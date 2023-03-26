@@ -1,4 +1,5 @@
 import { ResponsiveContainer } from "recharts"
+import Loader from "../Loader"
 
 export const RESPONSIVE_CONTAINER_PROPS = {
   width: "100%",
@@ -65,6 +66,25 @@ export function NoDataFound() {
           }}
         >
           <h2>No data found</h2>
+        </div>
+      </ResponsiveContainer>
+    </>
+  )
+}
+
+export function DataLoading() {
+  return (
+    <>
+      <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%"
+          }}
+        >
+          <Loader />
         </div>
       </ResponsiveContainer>
     </>

@@ -18,9 +18,12 @@ There are Docker-files present in both apps.
 2. Building api: `pnpm build --filter=api...`
 3. For running both apps: `pnpm prod`
 
-## Linting
+## Static testing
 
 1. Linting: `pnpm lint` and `pnpm lint:fix`
+2. Knip: `pnpm knip`
+3. Duplicates: `pnpm jscpd`
+4. Formatting: `pnpm format`
 
 ## Edit schema?
 

@@ -11,5 +11,9 @@
   "devDependencies": {
     "eslint-config-custom": "*",
     "tsconfig-custom": "*"
+  },
+  "dependencies": {
+    "eslint": "^8.35.0",
+    "typescript": "^4.9.5"
   }
 }

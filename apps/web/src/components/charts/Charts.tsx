@@ -5,7 +5,10 @@ import CustomButton from "../CustomButton"
 import { DATE_FORMAT } from "types-custom"
 import RangeChart from "./RangeChart"
 import DayChart from "./DayChart"
-import { downloadCsvForDayChart, downloadCsvForRangeChart } from "my-api-wrapper"
+import {
+  downloadCsvForDayChart,
+  downloadCsvForRangeChart
+} from "my-api-wrapper"
 
 interface ChartProps {
   locationId: string

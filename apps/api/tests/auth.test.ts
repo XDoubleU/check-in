@@ -2,16 +2,16 @@
 /* eslint-disable max-lines-per-function */
 import request from "supertest"
 import { type SignInDto } from "types-custom"
+import { type UserAndTokens } from "../src/auth/auth.service"
 import Fixture, {
   type ErrorResponse,
   type RequestHeaders,
-  type TokensAndUser
 } from "./config/fixture"
 
 describe("AuthController (e2e)", () => {
   const fixture: Fixture = new Fixture()
 
-  let tokensAndUser: TokensAndUser
+  let userAndTokens: UserAndTokens
 
   beforeAll(() => {
     return fixture.beforeAll()
@@ -25,7 +25,7 @@ describe("AuthController (e2e)", () => {
     return fixture
       .beforeEach()
       .then(() => fixture.getTokens("User"))
-      .then((data) => (tokensAndUser = data))
+      .then((data) => (userAndTokens = data))
   })
 
   afterEach(() => {
@@ -35,7 +35,7 @@ describe("AuthController (e2e)", () => {
   describe("/auth/signin (POST)", () => {
     it("signs in user (200)", async () => {
       const data: SignInDto = {
-        username: tokensAndUser.user.username,
+        username: userAndTokens.user.username,
         password: "testpassword",
         rememberMe: true
       }
@@ -71,7 +71,7 @@ describe("AuthController (e2e)", () => {
     it("signs out user (200)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/auth/signout")
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(200)
 
       const responseHeaders = response.headers as RequestHeaders
@@ -90,7 +90,7 @@ describe("AuthController (e2e)", () => {
     it("refreshes users tokens (200)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/auth/refresh")
-        .set("Cookie", [`refreshToken=${tokensAndUser.tokens.refreshToken}`])
+        .set("Cookie", [`refreshToken=${userAndTokens.tokens.refreshToken}`])
         .expect(200)
 
       const responseHeaders = response.headers as RequestHeaders

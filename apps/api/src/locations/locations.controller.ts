@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -26,6 +25,7 @@ import { Roles } from "../auth/decorators/roles.decorator"
 import { type LocationEntity, UserEntity } from "mikro-orm-config"
 import { Public } from "../auth/decorators/public.decorator"
 import { Response } from "express"
+import { convertToLocationUpdateEventDto } from "../helpers/conversion"
 
 type MikroGetAllPaginatedLocationDto = Omit<
   GetAllPaginatedLocationDto,
@@ -54,11 +54,7 @@ export class LocationsController {
 
     const locations = await this.locationsService.getAll()
     const data = locations.map((location) => {
-      return {
-        normalizedName: location.normalizedName,
-        available: location.available,
-        capacity: location.capacity
-      }
+      return convertToLocationUpdateEventDto(location)
     })
 
     res.json(data)
@@ -79,23 +75,6 @@ export class LocationsController {
       totalPages: Math.ceil(count / pageSize),
       locations: locations
     }
-  }
-
-  @Roles(Role.User)
-  @Get("me")
-  public async getMyLocation(
-    @ReqUser() user: UserEntity
-  ): Promise<LocationEntity> {
-    if (!user.location?.id) {
-      throw new BadRequestException()
-    }
-
-    const location = await this.locationsService.getById(user.location.id)
-    if (!location) {
-      throw new NotFoundException(NOT_FOUND_MESSAGE)
-    }
-
-    return location
   }
 
   @Get(":id")

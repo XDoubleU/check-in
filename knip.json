@@ -1,0 +1,18 @@
+{
+  "exclude": [
+    "classMembers"
+  ],
+  "ignore": [
+    "apps/api/src/cli/**",
+    "apps/api/src/main.ts",
+    "integration/script.js",
+    "packages/mikro-orm-config/src/migrations/**",
+    "packages/mikro-orm-config/src/seeders/**"
+  ],
+  "ignoreWorkspaces": [
+    "packages/eslint-config-custom"
+  ],
+  "ignoreDependencies": [
+    "only-allow"
+  ]
+}

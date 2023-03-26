@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common"
 import { type LocationEntity } from "mikro-orm-config"
 import { filter, map, type Observable, Subject } from "rxjs"
 import { type LocationUpdateEventDto } from "types-custom"
+import { convertToLocationUpdateEventDto } from "../helpers/conversion"
 
 export interface LocationUpdateEvent {
   data: LocationUpdateEventDto
@@ -12,15 +13,9 @@ export class SseService {
   private readonly locationUpdates = new Subject<LocationUpdateEvent>()
 
   public addLocationUpdate(location: LocationEntity): void {
-    const newLocationUpdate: LocationUpdateEvent = {
-      data: {
-        normalizedName: location.normalizedName,
-        available: location.available,
-        capacity: location.capacity
-      }
-    }
-
-    this.locationUpdates.next(newLocationUpdate)
+    this.locationUpdates.next({
+      data: convertToLocationUpdateEventDto(location)
+    })
   }
 
   public sendAllLocationUpdates(): Observable<LocationUpdateEvent> {

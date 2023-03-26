@@ -1,27 +1,26 @@
 import { Card, Form } from "react-bootstrap"
 import DeleteModal from "@/components/modals/DeleteModal"
 import { deleteSchool, updateSchool } from "my-api-wrapper"
-import { type UpdateSchoolDto } from "types-custom"
+import { type School, type UpdateSchoolDto } from "types-custom"
 import { useForm } from "react-hook-form"
 import UpdateModal from "../modals/UpdateModal"
 
 interface SchoolCardProps {
-  id: number
-  name: string
+  school: School
   refetchData: () => Promise<void>
 }
 
-function SchoolUpdateModal({ id, name, refetchData }: SchoolCardProps) {
+function SchoolUpdateModal({ school, refetchData }: SchoolCardProps) {
   const form = useForm<UpdateSchoolDto>({
     defaultValues: {
-      name: name
+      name: school.name
     }
   })
 
   const { register } = form
 
   const handleUpdate = (data: UpdateSchoolDto) => {
-    return updateSchool(id, data)
+    return updateSchool(school.id, data)
   }
 
   return (
@@ -43,14 +42,14 @@ function SchoolUpdateModal({ id, name, refetchData }: SchoolCardProps) {
   )
 }
 
-function SchoolDeleteModal({ id, name, refetchData }: SchoolCardProps) {
+function SchoolDeleteModal({ school, refetchData }: SchoolCardProps) {
   const handleDelete = () => {
-    return deleteSchool(id)
+    return deleteSchool(school.id)
   }
 
   return (
     <DeleteModal
-      name={name}
+      name={school.name}
       handler={handleDelete}
       refetchData={refetchData}
       typeName="school"
@@ -58,26 +57,18 @@ function SchoolDeleteModal({ id, name, refetchData }: SchoolCardProps) {
   )
 }
 
-export default function SchoolCard({ id, name, refetchData }: SchoolCardProps) {
+export default function SchoolCard({ school, refetchData }: SchoolCardProps) {
   return (
     <>
       <Card>
         <Card.Body>
           <div className="d-flex flex-row">
             <div>
-              <Card.Title>{name}</Card.Title>
+              <Card.Title>{school.name}</Card.Title>
             </div>
             <div className="ms-auto">
-              <SchoolUpdateModal
-                id={id}
-                name={name}
-                refetchData={refetchData}
-              />
-              <SchoolDeleteModal
-                id={id}
-                name={name}
-                refetchData={refetchData}
-              />
+              <SchoolUpdateModal school={school} refetchData={refetchData} />
+              <SchoolDeleteModal school={school} refetchData={refetchData} />
             </div>
           </div>
         </Card.Body>

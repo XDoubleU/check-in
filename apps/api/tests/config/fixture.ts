@@ -2,10 +2,10 @@ import { type INestApplication } from "@nestjs/common"
 import { Test } from "@nestjs/testing"
 import { AppModule } from "../../src/app.module"
 import cookieParser from "cookie-parser"
-import { AuthService } from "../../src/auth/auth.service"
+import { AuthService, type UserAndTokens } from "../../src/auth/auth.service"
 import { LocationEntity, SchoolEntity, UserEntity } from "mikro-orm-config"
 import { MikroORM, type Transaction } from "@mikro-orm/core"
-import { Role, type Tokens } from "types-custom"
+import { Role } from "types-custom"
 import {
   type Knex,
   type EntityManager,
@@ -13,11 +13,6 @@ import {
 } from "@mikro-orm/postgresql"
 import { TestModule } from "./test.module"
 import { ContextManager } from "./test.middleware"
-
-export interface TokensAndUser {
-  tokens: Tokens
-  user: UserEntity
-}
 
 export interface RequestHeaders {
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -84,7 +79,7 @@ export default class Fixture {
     await this.app.close()
   }
 
-  public async getTokens(username: string): Promise<TokensAndUser> {
+  public async getTokens(username: string): Promise<UserAndTokens> {
     const authService = this.app.get<AuthService>(AuthService)
 
     await this.em.find(LocationEntity, {})

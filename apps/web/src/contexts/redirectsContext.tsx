@@ -1,8 +1,8 @@
 import LoadingLayout from "@/layouts/LoadingLayout"
 import { type NextRouter, useRouter } from "next/router"
-import React, { useEffect, type ReactNode } from "react"
+import React, { useEffect, useState, type ReactNode } from "react"
 import { Role, type User } from "types-custom"
-import { useAuth, useLoading } from "."
+import { useAuth } from "."
 
 interface Props {
   children: ReactNode
@@ -44,7 +44,7 @@ function checkRedirects(currentUser: User | undefined, router: NextRouter) {
 export const RedirectsProvider = ({ children }: Props) => {
   const router = useRouter()
   const { user, loadingUser } = useAuth()
-  const { loading, setLoading } = useLoading()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!loadingUser) {

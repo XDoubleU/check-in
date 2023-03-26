@@ -1,6 +1,6 @@
 import { type ReactNode } from "react"
 import BaseLayout from "@/layouts/BaseLayout"
-import { Col, Row } from "react-bootstrap"
+import { Col, Container, Row } from "react-bootstrap"
 
 interface AdminLayoutProps {
   children: ReactNode
@@ -23,7 +23,7 @@ export default function AdminLayout({
       </Row>
       <br />
 
-      {children}
+      <Container style={{ minHeight: "65vh" }}>{children}</Container>
     </BaseLayout>
   )
 }

@@ -26,12 +26,10 @@ export class SchoolsService {
     return await this.schoolsRepository.findAll()
   }
 
-  public async getAllForLocation(locationId?: string): Promise<SchoolEntity[]> {
-    const schools = await this.schoolsRepository.findAll()
-
-    if (!locationId) {
-      return schools
-    }
+  public async getAllForLocation(locationId: string): Promise<SchoolEntity[]> {
+    const schools = await this.schoolsRepository.findAll({
+      populate: ["checkIns"]
+    })
 
     schools.sort((a, b) => {
       let aLocationCheckIns = 0
