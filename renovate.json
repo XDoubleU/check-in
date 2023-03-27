@@ -5,5 +5,6 @@
     "schedule:daily",
     ":disableRateLimiting"
   ],
-  "timezone":"Europe/Brussels"
+  "timezone":"Europe/Brussels",
+  "ignoreDeps": ["mikro-orm-config","types-custom","tsconfig-custom"," my-api-wrapper"]
 }
