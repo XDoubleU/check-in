@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "eslint-plugin-redundant-undefined": "^0.4.0",
-    "eslint-plugin-sonarjs": "^0.18.0"
+    "eslint-plugin-sonarjs": "^0.19.0"
   }
 }

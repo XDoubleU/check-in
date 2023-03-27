@@ -142,12 +142,12 @@ importers:
       eslint-plugin-import: ^2.27.5
       eslint-plugin-prettier: ^4.2.1
       eslint-plugin-redundant-undefined: ^0.4.0
-      eslint-plugin-sonarjs: ^0.18.0
+      eslint-plugin-sonarjs: ^0.19.0
       prettier: ^2.8.4
       typescript: ^5.0.0
     dependencies:
       eslint-plugin-redundant-undefined: 0.4.0_ptmzjahj2lzv7vrsfzwjsq4mpu
-      eslint-plugin-sonarjs: 0.18.0_eslint@8.35.0
+      eslint-plugin-sonarjs: 0.19.0_eslint@8.35.0
     devDependencies:
       '@typescript-eslint/eslint-plugin': 5.54.1_ptmzjahj2lzv7vrsfzwjsq4mpu
       '@typescript-eslint/parser': 5.54.1_byynos7ffx3cepxtk6gvolkky4
@@ -3659,8 +3659,8 @@ packages:
       - typescript
     dev: false
 
-  /eslint-plugin-sonarjs/0.18.0_eslint@8.35.0:
-    resolution: {integrity: sha512-DJ3osLnt6KFdT5e9ZuIDOjT5A6wUGSLeiJJT03lPgpdD+7CVWlYAw9Goe3bt7SmbFO3Xh89NOCZAuB9XA7bAUQ==}
+  /eslint-plugin-sonarjs/0.19.0_eslint@8.35.0:
+    resolution: {integrity: sha512-6+s5oNk5TFtVlbRxqZN7FIGmjdPCYQKaTzFPmqieCmsU1kBYDzndTeQav0xtQNwZJWu5awWfTGe8Srq9xFOGnw==}
     engines: {node: '>=14'}
     peerDependencies:
       eslint: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
