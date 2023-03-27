@@ -53,7 +53,7 @@ describe("LocationsController (e2e)", () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/locations/sse")
         .expect(200)
-      
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = response.body as any[]
 
@@ -355,11 +355,9 @@ describe("LocationsController (e2e)", () => {
         .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(404)
-      
+
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe(
-        "Location not found"
-      )
+      expect(errorResponse.message).toBe("Location not found")
     })
   })
 

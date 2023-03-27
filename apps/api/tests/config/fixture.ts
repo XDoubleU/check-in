@@ -3,7 +3,12 @@ import { Test } from "@nestjs/testing"
 import { AppModule } from "../../src/app.module"
 import cookieParser from "cookie-parser"
 import { AuthService, type UserAndTokens } from "../../src/auth/auth.service"
-import { CheckInEntity, LocationEntity, SchoolEntity, UserEntity } from "mikro-orm-config"
+import {
+  CheckInEntity,
+  LocationEntity,
+  SchoolEntity,
+  UserEntity
+} from "mikro-orm-config"
 import { MikroORM, type Transaction } from "@mikro-orm/core"
 import { Role } from "types-custom"
 import {

@@ -68,9 +68,7 @@ describe("UsersController (e2e)", () => {
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe(
-        "User not found"
-      )
+      expect(errorResponse.message).toBe("User not found")
     })
   })
 })

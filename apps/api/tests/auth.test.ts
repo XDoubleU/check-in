@@ -3,9 +3,7 @@
 import request from "supertest"
 import { type SignInDto } from "types-custom"
 import { type UserAndTokens } from "../src/auth/auth.service"
-import Fixture, {
-  type ErrorResponse
-} from "./config/fixture"
+import Fixture, { type ErrorResponse } from "./config/fixture"
 
 describe("AuthController (e2e)", () => {
   const fixture: Fixture = new Fixture()
@@ -85,7 +83,7 @@ describe("AuthController (e2e)", () => {
     it("returns Internal server error exception because of missing JWT config (500)", async () => {
       const temp = process.env.JWT_ACCESS_SECRET
       process.env.JWT_ACCESS_SECRET = ""
-      
+
       const data: SignInDto = {
         username: userAndTokens.user.username,
         password: "testpassword",
@@ -96,11 +94,12 @@ describe("AuthController (e2e)", () => {
         .post("/auth/signin")
         .send(data)
         .expect(500)
-      
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe("JWT secrets or expirations missing in environment")
-      
+      expect(errorResponse.message).toBe(
+        "JWT secrets or expirations missing in environment"
+      )
+
       process.env.JWT_ACCESS_SECRET = temp
     })
   })

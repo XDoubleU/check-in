@@ -76,8 +76,15 @@ export class AuthService {
   }
 
   public async getTokens(user: UserEntity): Promise<Tokens> {
-    if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_ACCESS_EXPIRATION || !process.env.JWT_REFRESH_SECRET || !process.env.JWT_REFRESH_EXPIRATION){
-      throw new InternalServerErrorException("JWT secrets or expirations missing in environment")
+    if (
+      !process.env.JWT_ACCESS_SECRET ||
+      !process.env.JWT_ACCESS_EXPIRATION ||
+      !process.env.JWT_REFRESH_SECRET ||
+      !process.env.JWT_REFRESH_EXPIRATION
+    ) {
+      throw new InternalServerErrorException(
+        "JWT secrets or expirations missing in environment"
+      )
     }
 
     const [accessToken, refreshToken] = await Promise.all([

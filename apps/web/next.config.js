@@ -13,7 +13,6 @@ const nextConfig = {
   sassOptions: {
     includePaths: ["./styles"],
   },
-  output: "standalone",
   trailingSlash: true,
 }
 
