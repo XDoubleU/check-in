@@ -1,9 +1,7 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -135,20 +133,12 @@ export class CheckInsController {
     @ReqUser() user: UserEntity,
     @Body() createCheckInDto: CreateCheckInDto
   ): Promise<CheckInEntity> {
-    if (!user.location) {
-      throw new BadRequestException()
-    }
-
     const school = await this.schoolsService.getById(createCheckInDto.schoolId)
     if (!school) {
       throw new NotFoundException("School not found")
     }
 
-    const checkin = await this.checkInsService.create(user.location, school)
-    if (!checkin) {
-      throw new InternalServerErrorException("Could not create CheckIn")
-    }
-
-    return checkin
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return await this.checkInsService.create(user.location!, school)
   }
 }

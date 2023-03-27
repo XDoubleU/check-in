@@ -2,17 +2,24 @@
   "exclude": [
     "classMembers"
   ],
-  "ignore": [
-    "apps/api/src/cli/**",
-    "apps/api/src/main.ts",
-    "integration/script.js",
-    "packages/mikro-orm-config/src/migrations/**",
-    "packages/mikro-orm-config/src/seeders/**"
-  ],
   "ignoreWorkspaces": [
     "packages/eslint-config-custom"
   ],
-  "ignoreDependencies": [
-    "only-allow", "helmet"
-  ]
+  "workspaces": {
+    ".": {
+      "ignore": ["integration/script.js"],
+      "ignoreDependencies": ["only-allow"]
+    },
+    "apps/api": {
+      "entry": "src/main.ts",
+      "ignore": ["src/cli/**"],
+      "ignoreDependencies": ["helmet"]
+    },
+    "packages/mikro-orm-config": {
+      "ignore": [
+        "src/migrations/**",
+        "src/seeders/**"
+      ]
+    }
+  }
 }

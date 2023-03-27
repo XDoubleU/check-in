@@ -1,13 +1,17 @@
 {
+  "name": "check-in",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
+    "dev": "dotenv -- turbo dev",
     "build": "turbo build",
+    "export": "turbo export",
     "cli": "dotenv -- turbo cli",
     "db:migration-create": "dotenv -- turbo db:migration-create",
     "db:migration-down": "dotenv -- turbo db:migration-down",
     "db:migration-up": "dotenv -- turbo db:migration-up",
     "db:seed": "dotenv -- turbo db:seed",
     "db:test": "dotenv -- turbo db:test",
-    "dev": "dotenv -- turbo dev",
     "format": "prettier --write ./**/*.{ts,tsx}",
     "preinstall": "npx only-allow pnpm",
     "jscpd": "jscpd --config jscpd.json .",

@@ -40,3 +40,15 @@ There are Docker-files present in both apps.
 1. Start database in docker: `docker-compose up -d`
 2. Setup database: `pnpm db:test`
 3. Run tests on: `pnpm test`
+
+## Deploy (on DigitalOcean)
+
+Mostly as a reference to myself but might be useful for others too.
+
+0. Datanbase with pooling
+1. Don't forget env vars (see .env)
+2. Web (static site): `npm run export --filter=web...`
+3. API (server):
+   1. Build: `npm run build --filter=api...`
+   2. Run: `npm run prod --filter=api...`
+4. Manually on API: `npm db:migration-up`

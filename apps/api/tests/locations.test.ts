@@ -48,6 +48,28 @@ describe("LocationsController (e2e)", () => {
     return fixture.afterEach()
   })
 
+  describe("/locations/sse (GET)", () => {
+    it("gets all locations as LocationUpdateEventDto (200)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get("/locations/sse")
+        .expect(200)
+      
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = response.body as any[]
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(data[0].normalizedName).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(data[0].available).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(data[0].capacity).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(data[0].yesterdayFullAt).toBeDefined()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(data[0].id).toBeUndefined()
+    })
+  })
+
   describe("/locations (GET)", () => {
     it("gets all Locations with default page size (200)", async () => {
       const response = await request(fixture.app.getHttpServer())
@@ -90,30 +112,6 @@ describe("LocationsController (e2e)", () => {
     })
   })
 
-  describe("/locations/me (GET)", () => {
-    it("get my Location (200)", async () => {
-      const response = await request(fixture.app.getHttpServer())
-        .get("/locations/me")
-        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
-        .expect(200)
-
-      const locationResponse = response.body as Location
-
-      expect(locationResponse.id).toBe(userAndTokens.user.location?.id)
-      expect(locationResponse.name).toBeDefined()
-      expect(locationResponse.available).toBeDefined()
-      expect(locationResponse.capacity).toBeDefined()
-      expect(locationResponse.userId).toBe(userAndTokens.user.id)
-    })
-
-    it("returns Forbidden (403)", async () => {
-      return await request(fixture.app.getHttpServer())
-        .get("/locations/me")
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
-        .expect(403)
-    })
-  })
-
   describe("/locations/:id (GET)", () => {
     it("get Location as Admin (200)", async () => {
       const location = await fixture.em.findOneOrFail(
@@ -123,7 +121,7 @@ describe("LocationsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .get(`/locations/${location.id}`)
-        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(200)
 
       const locationResponse = response.body as Location
@@ -223,7 +221,7 @@ describe("LocationsController (e2e)", () => {
       const data: CreateLocationDto = {
         name: "NewTestLocation2",
         capacity: 10,
-        username: locations[0].user.username,
+        username: userAndTokens.user.username,
         password: "testpassword"
       }
 
@@ -260,7 +258,6 @@ describe("LocationsController (e2e)", () => {
       const id = userAndTokens.user.location?.id ?? 0
 
       const data: UpdateLocationDto = {
-        name: "NewTestLocation2",
         username: "NewTestLocationUser2"
       }
 
@@ -272,9 +269,31 @@ describe("LocationsController (e2e)", () => {
 
       const locationResponse = response.body as Location
       expect(locationResponse.id).toBeDefined()
-      expect(locationResponse.name).toBe(data.name)
+      expect(locationResponse.name).toBeDefined()
       expect(locationResponse.available).toBeDefined()
       expect(locationResponse.capacity).toBeDefined()
+      expect(locationResponse.userId).toBe(userAndTokens.user.id)
+    })
+
+    it("updates a Location as admin (200)", async () => {
+      const id = userAndTokens.user.location?.id ?? 0
+
+      const data: UpdateLocationDto = {
+        name: "NewTestLocation2",
+        capacity: 100
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/locations/${id}`)
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .send(data)
+        .expect(200)
+
+      const locationResponse = response.body as Location
+      expect(locationResponse.id).toBeDefined()
+      expect(locationResponse.name).toBe(data.name)
+      expect(locationResponse.available).toBeDefined()
+      expect(locationResponse.capacity).toBe(100)
       expect(locationResponse.userId).toBe(userAndTokens.user.id)
     })
 
@@ -303,7 +322,7 @@ describe("LocationsController (e2e)", () => {
 
       const data: UpdateLocationDto = {
         name: "NewTestLocation3",
-        username: locations[0].user.username
+        username: adminUserAndTokens.user.username
       }
 
       const response = await request(fixture.app.getHttpServer())
@@ -331,11 +350,16 @@ describe("LocationsController (e2e)", () => {
         username: "NewTestLocationUser"
       }
 
-      return await request(fixture.app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .patch(`/locations/${location.id}`)
         .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(404)
+      
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe(
+        "Location not found"
+      )
     })
   })
 

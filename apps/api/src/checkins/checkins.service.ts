@@ -45,7 +45,7 @@ export class CheckInsService {
   public async create(
     location: LocationEntity,
     school: SchoolEntity
-  ): Promise<CheckInEntity | null> {
+  ): Promise<CheckInEntity> {
     const checkIn = new CheckInEntity(location, school)
     await this.checkInsRepository.persistAndFlush(checkIn)
 

@@ -33,20 +33,13 @@ export class SchoolsController {
     this.schoolsService = schoolsService
   }
 
-  @Get("all")
-  public async getAll(): Promise<SchoolEntity[]> {
-    return await this.schoolsService.getAll()
-  }
-
+  @Roles(Role.User)
   @Get("location")
   public async getAllForLocation(
     @ReqUser() user: UserEntity
   ): Promise<SchoolEntity[]> {
-    if (!user.location) {
-      return []
-    }
-
-    return await this.schoolsService.getAllForLocation(user.location.id)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return await this.schoolsService.getAllForLocation(user.location!.id)
   }
 
   @Roles(Role.Admin)

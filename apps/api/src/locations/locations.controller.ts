@@ -1,10 +1,10 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import {
   Body,
   ConflictException,
   Controller,
   Delete,
   Get,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   Patch,
@@ -31,8 +31,6 @@ type MikroGetAllPaginatedLocationDto = Omit<
   GetAllPaginatedLocationDto,
   "data"
 > & { data: LocationEntity[] }
-
-const NOT_FOUND_MESSAGE = "Location not found"
 
 @Controller("locations")
 export class LocationsController {
@@ -84,12 +82,9 @@ export class LocationsController {
     @ReqUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<LocationEntity> {
-    const location = await this.locationsService.getById(id)
-    if (
-      !location ||
-      (!user.roles.includes(Role.Admin) && location.user.id !== user.id)
-    ) {
-      throw new NotFoundException(NOT_FOUND_MESSAGE)
+    const location = await this.locationsService.getLocation(id, user)
+    if (!location) {
+      throw new NotFoundException("Location not found")
     }
 
     return location
@@ -155,14 +150,10 @@ export class LocationsController {
     }
 
     const user = await this.usersService.getById(location.user.id)
-    if (!user) {
-      throw new InternalServerErrorException(
-        "User from location couldn't be fetched"
-      )
-    }
 
     await this.usersService.update(
-      user,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      user!,
       updateLocationDto.username,
       updateLocationDto.password
     )
@@ -179,18 +170,14 @@ export class LocationsController {
   public async delete(@Param("id") id: string): Promise<LocationEntity> {
     let location = await this.locationsService.getById(id)
     if (!location) {
-      throw new NotFoundException(NOT_FOUND_MESSAGE)
+      throw new NotFoundException("Location not found")
     }
 
     const user = await this.usersService.getById(location.user.id)
-    if (!user) {
-      throw new InternalServerErrorException(
-        "User from location couldn't be fetched"
-      )
-    }
 
     location = await this.locationsService.delete(location)
-    await this.usersService.delete(user)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    await this.usersService.delete(user!)
 
     return location
   }

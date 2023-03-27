@@ -13,7 +13,8 @@ const nextConfig = {
   sassOptions: {
     includePaths: ["./styles"],
   },
-  output: "standalone"
+  output: "standalone",
+  trailingSlash: true,
 }
 
 module.exports = nextConfig

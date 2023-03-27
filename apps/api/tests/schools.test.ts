@@ -47,8 +47,8 @@ describe("SchoolsController (e2e)", () => {
     return fixture.afterEach()
   })
 
-  describe("/schools/all (GET)", () => {
-    it("gets all Schools (200)", async () => {
+  describe("/schools/location (GET)", () => {
+    it("gets all Schools sorted by checkins at location (200)", async () => {
       const location = userAndTokens.user.location
 
       if (!location) {
@@ -69,7 +69,7 @@ describe("SchoolsController (e2e)", () => {
       }
 
       const response = await request(fixture.app.getHttpServer())
-        .get("/schools/all")
+        .get("/schools/location")
         .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(200)
 
@@ -81,7 +81,7 @@ describe("SchoolsController (e2e)", () => {
 
     it("returns Forbidden (403)", async () => {
       return await request(fixture.app.getHttpServer())
-        .get("/schools/all")
+        .get("/schools/location")
         .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(403)
     })

@@ -3,7 +3,7 @@ import { Test } from "@nestjs/testing"
 import { AppModule } from "../../src/app.module"
 import cookieParser from "cookie-parser"
 import { AuthService, type UserAndTokens } from "../../src/auth/auth.service"
-import { LocationEntity, SchoolEntity, UserEntity } from "mikro-orm-config"
+import { CheckInEntity, LocationEntity, SchoolEntity, UserEntity } from "mikro-orm-config"
 import { MikroORM, type Transaction } from "@mikro-orm/core"
 import { Role } from "types-custom"
 import {
@@ -13,11 +13,6 @@ import {
 } from "@mikro-orm/postgresql"
 import { TestModule } from "./test.module"
 import { ContextManager } from "./test.middleware"
-
-export interface RequestHeaders {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  "set-cookie": string
-}
 
 export interface ErrorResponse {
   message: string
@@ -93,6 +88,7 @@ export default class Fixture {
     }
   }
 
+  // eslint-disable-next-line max-lines-per-function
   private async seedDatabase(): Promise<void> {
     const users = [
       new UserEntity("Admin", "testpassword", Role.Admin),
@@ -127,6 +123,25 @@ export default class Fixture {
     }
 
     await this.em.persistAndFlush(schools)
+
+    const checkIns = []
+
+    for (let i = 0; i < 5; i++) {
+      checkIns.push(new CheckInEntity(locations[0], schools[0]))
+    }
+
+    await this.em.persistAndFlush(checkIns)
+
+    locations[0].capacity++
+
+    await this.em.flush()
+
+    for (let i = 0; i < 5; i++) {
+      checkIns.push(new CheckInEntity(locations[0], schools[0]))
+    }
+
+    await this.em.persistAndFlush(checkIns)
+
     this.em.clear()
   }
 }

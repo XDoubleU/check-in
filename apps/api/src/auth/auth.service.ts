@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common"
+import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { UsersService } from "../users/users.service"
 import { type Tokens } from "types-custom"
 import { JwtService } from "@nestjs/jwt"
@@ -76,14 +76,18 @@ export class AuthService {
   }
 
   public async getTokens(user: UserEntity): Promise<Tokens> {
+    if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_ACCESS_EXPIRATION || !process.env.JWT_REFRESH_SECRET || !process.env.JWT_REFRESH_EXPIRATION){
+      throw new InternalServerErrorException("JWT secrets or expirations missing in environment")
+    }
+
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: user.id
         },
         {
-          secret: process.env.JWT_ACCESS_SECRET ?? "",
-          expiresIn: process.env.JWT_ACCESS_EXPIRATION ?? ""
+          secret: process.env.JWT_ACCESS_SECRET,
+          expiresIn: process.env.JWT_ACCESS_EXPIRATION
         }
       ),
       this.jwtService.signAsync(
@@ -91,8 +95,8 @@ export class AuthService {
           sub: user.id
         },
         {
-          secret: process.env.JWT_REFRESH_SECRET ?? "",
-          expiresIn: process.env.JWT_REFRESH_EXPIRATION ?? ""
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: process.env.JWT_REFRESH_EXPIRATION
         }
       )
     ])
