@@ -36,7 +36,6 @@
     "commander": "^10.0.0",
     "cookie-parser": "^1.4.6",
     "date-fns": "^2.29.3",
-    "eslint": "^8.35.0",
     "eventsource": "^2.0.2",
     "helmet": "^6.0.1",
     "json2csv": "6.0.0-alpha.2",
