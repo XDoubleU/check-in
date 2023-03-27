@@ -94,7 +94,7 @@ importers:
   apps/web:
     specifiers:
       '@popperjs/core': ^2.11.6
-      '@types/react': 18.0.28
+      '@types/react': 18.0.29
       bootstrap: ^5.2.3
       bootstrap-icons: ^1.10.3
       eslint: ^8.35.0
@@ -113,14 +113,14 @@ importers:
       typescript: ^5.0.0
     dependencies:
       '@popperjs/core': 2.11.6
-      '@types/react': 18.0.28
+      '@types/react': 18.0.29
       bootstrap: 5.2.3_@popperjs+core@2.11.6
       bootstrap-icons: 1.10.3
       eslint-config-next: 13.2.3_byynos7ffx3cepxtk6gvolkky4
       my-api-wrapper: link:../../packages/my-api-wrapper
       next: 13.1.6_wiv434v7erz4aedd5whhdwmpv4
       react: 18.2.0
-      react-bootstrap: 2.7.2_zula6vjvt3wdocc4mwcxqa6nzi
+      react-bootstrap: 2.7.2_aen5vu2fkbnw3ssyd5drxdxkh4
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.43.7_react@18.2.0
       react-spinners: 0.13.8_biqbaboplfbrettd7655fr4n2y
@@ -1954,11 +1954,11 @@ packages:
   /@types/react-transition-group/4.4.5:
     resolution: {integrity: sha512-juKD/eiSM3/xZYzjuzH6ZwpP+/lejltmiS3QEzV/vmb/Q8+HfDmxu+Baga8UEMGBqV88Nbg4l2hY/K2DkyaLLA==}
     dependencies:
-      '@types/react': 18.0.28
+      '@types/react': 18.0.29
     dev: false
 
-  /@types/react/18.0.28:
-    resolution: {integrity: sha512-RD0ivG1kEztNBdoAK7lekI9M+azSnitIn85h4iOiaLjaTrMjzslhaqCGaI4IyCJ1RljWiLCEu4jyrLLgqxBTew==}
+  /@types/react/18.0.29:
+    resolution: {integrity: sha512-wXHktgUABxplw1+UnljseDq4+uztQyp2tlWZRIxHlpchsCFqiYkvaDS8JR7eKOQm8wziTH/el5qL7D6gYNkYcw==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -6265,7 +6265,7 @@ packages:
       iconv-lite: 0.4.24
       unpipe: 1.0.0
 
-  /react-bootstrap/2.7.2_zula6vjvt3wdocc4mwcxqa6nzi:
+  /react-bootstrap/2.7.2_aen5vu2fkbnw3ssyd5drxdxkh4:
     resolution: {integrity: sha512-WDSln+mG4RLLFO01stkj2bEx/3MF4YihK9D/dWnHaSxOiQZLbhhlf95D2Jb20X3t2m7vMxRe888FVrfLJoGmmA==}
     peerDependencies:
       '@types/react': '>=16.14.8'
@@ -6278,7 +6278,7 @@ packages:
       '@babel/runtime': 7.21.0
       '@restart/hooks': 0.4.9_react@18.2.0
       '@restart/ui': 1.6.1_biqbaboplfbrettd7655fr4n2y
-      '@types/react': 18.0.28
+      '@types/react': 18.0.29
       '@types/react-transition-group': 4.4.5
       classnames: 2.3.2
       dom-helpers: 5.2.1
@@ -7261,7 +7261,7 @@ packages:
       react: '>=15.0.0'
     dependencies:
       '@babel/runtime': 7.21.0
-      '@types/react': 18.0.28
+      '@types/react': 18.0.29
       invariant: 2.2.4
       react: 18.2.0
       react-lifecycles-compat: 3.0.4
