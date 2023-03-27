@@ -20,10 +20,5 @@
     "tsconfig-custom": "*",
     "types-custom": "*",
     "typescript": "^5.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^18.14.2",
-    "eslint-config-custom": "*",
-    "tsconfig-custom": "*"
   }
 }
