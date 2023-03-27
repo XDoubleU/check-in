@@ -6,5 +6,5 @@
     ":disableRateLimiting"
   ],
   "timezone":"Europe/Brussels",
-  "ignoreDeps": ["mikro-orm-config","types-custom","tsconfig-custom"," my-api-wrapper"]
+  "ignoreDeps": ["mikro-orm-config","types-custom","tsconfig-custom","my-api-wrapper"]
 }
