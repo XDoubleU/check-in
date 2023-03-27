@@ -19,6 +19,11 @@
     "ts-jest": "^29.0.5",
     "tsconfig-custom": "*",
     "types-custom": "*",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.2",
+    "eslint-config-custom": "*",
+    "tsconfig-custom": "*"
   }
 }
