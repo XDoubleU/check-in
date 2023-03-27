@@ -25,7 +25,7 @@
     "react-spinners": "^0.13.8",
     "sass": "^1.58.3",
     "types-custom": "*",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.0"
   },
   "devDependencies": {
     "eslint": "^8.35.0",
