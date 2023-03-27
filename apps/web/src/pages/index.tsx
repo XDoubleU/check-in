@@ -8,16 +8,16 @@ import {
   type CreateCheckInDto,
   type School
 } from "types-custom"
-import BaseLayout from "@/layouts/BaseLayout"
-import CustomButton from "@/components/CustomButton"
+import BaseLayout from "../layouts/BaseLayout"
+import CustomButton from "../components/CustomButton"
 import {
   checkinsEventSource,
   createCheckIn,
   getAllSchoolsSortedForLocation
 } from "my-api-wrapper"
-import { useAuth } from "@/contexts"
+import { useAuth } from "../contexts/authContext"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import LoadingLayout from "@/layouts/LoadingLayout"
+import LoadingLayout from "../layouts/LoadingLayout"
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {

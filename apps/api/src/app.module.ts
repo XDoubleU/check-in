@@ -11,12 +11,17 @@ import { RolesGuard } from "./auth/guards/roles.guard"
 import { Config } from "mikro-orm-config"
 import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { SseModule } from "./sse/sse.module"
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler"
 
 @Module({
   imports: [
     MikroOrmModule.forRoot({
       ...Config,
       autoLoadEntities: true
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 10, // the number of seconds that each request will last in storage
+      limit: 30 // the maximum number of requests within the TTL limit
     }),
     CheckInsModule,
     LocationsModule,
@@ -26,6 +31,10 @@ import { SseModule } from "./sse/sse.module"
     SseModule
   ],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    },
     {
       provide: APP_GUARD,
       useClass: AccessTokenGuard

@@ -1,6 +1,6 @@
 import { type ReactElement, useState } from "react"
-import { Col, Modal } from "react-bootstrap"
-import CustomButton from "@/components/CustomButton"
+import { Modal } from "react-bootstrap"
+import CustomButton from "../CustomButton"
 import {
   type FieldValues,
   type SubmitHandler,
@@ -17,7 +17,6 @@ interface CreateModalProps<T extends FieldValues, Y> {
   typeName: string
 }
 
-// eslint-disable-next-line max-lines-per-function
 export default function CreateModal<
   T extends FieldValues,
   Y extends FieldValues
@@ -63,9 +62,8 @@ export default function CreateModal<
         </Modal.Body>
       </Modal>
 
-      <Col size={2}>
-        <CustomButton onClick={handleShowCreate}>Create</CustomButton>
-      </Col>
+      <CustomButton onClick={handleShowCreate}>Create</CustomButton>
+      <br />
     </>
   )
 }

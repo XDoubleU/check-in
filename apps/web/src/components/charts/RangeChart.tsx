@@ -1,27 +1,12 @@
 import { getDataForRangeChart } from "my-api-wrapper"
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react"
-import { Row, Col, Form } from "react-bootstrap"
-import {
-  ResponsiveContainer,
-  CartesianGrid,
-  Tooltip,
-  XAxis,
-  YAxis,
-  Legend,
-  Bar,
-  ComposedChart,
-  Line
-} from "recharts"
-import {
-  CHART_PROPS,
-  COLORS,
-  DataLoading,
-  NoDataFound,
-  RESPONSIVE_CONTAINER_PROPS
-} from "./Shared"
+import { Row, Col } from "react-bootstrap"
+import { Bar } from "recharts"
+import { COLORS, DataLoading, NoDataFound, SharedComposedChart } from "./Shared"
 import { convertDates, extractAllSchools } from "./dataProcessing"
 import { DATE_FORMAT } from "types-custom"
 import { format } from "date-fns"
+import FormInput from "../forms/FormInput"
 
 interface RangeChartProps extends FilterProps {
   locationId: string
@@ -40,24 +25,20 @@ function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
   return (
     <Row>
       <Col>
-        <Form.Group className="mb-3">
-          <Form.Label>Start date</Form.Label>
-          <Form.Control
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </Form.Group>
+        <FormInput
+          label="Start date"
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
       </Col>
       <Col>
-        <Form.Group className="mb-3">
-          <Form.Label>End date</Form.Label>
-          <Form.Control
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-        </Form.Group>
+        <FormInput
+          label="End date"
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
       </Col>
     </Row>
   )
@@ -102,7 +83,6 @@ export default function RangeChart({
     )
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   if (rangeData.length === 0) {
     return (
       <>
@@ -125,29 +105,21 @@ export default function RangeChart({
         setStartDate={setStartDate}
         setEndDate={setEndDate}
       />
-      <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
-        <ComposedChart data={rangeData as never} {...CHART_PROPS}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="datetime"
-            tickFormatter={(datetime: Date) => format(datetime, DATE_FORMAT)}
-          />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line dataKey="capacity" stroke="red" strokeDasharray="3 3" />
-          {schools.map((school, index) => {
-            return (
-              <Bar
-                key={school}
-                dataKey={school}
-                stackId="a"
-                fill={COLORS[index % 32]}
-              />
-            )
-          })}
-        </ComposedChart>
-      </ResponsiveContainer>
+      <SharedComposedChart
+        data={rangeData}
+        xAxisTickFomatter={(datetime: Date) => format(datetime, DATE_FORMAT)}
+      >
+        {schools.map((school, index) => {
+          return (
+            <Bar
+              key={school}
+              dataKey={school}
+              stackId="a"
+              fill={COLORS[index % 32]}
+            />
+          )
+        })}
+      </SharedComposedChart>
     </>
   )
 }

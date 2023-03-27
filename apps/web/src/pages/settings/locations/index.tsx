@@ -1,70 +1,127 @@
-import CustomPagination, {
-  type CustomPaginationProps
-} from "@/components/CustomPagination"
-import LocationCard from "@/components/cards/LocationCard"
-import AdminLayout from "@/layouts/AdminLayout"
-import { type CreateLocationDto, type Location } from "types-custom"
-import { useRouter } from "next/router"
-import { useCallback, useEffect, useState } from "react"
+import {
+  type GetAllPaginatedLocationDto,
+  type CreateLocationDto,
+  type Location
+} from "types-custom"
 import { Form } from "react-bootstrap"
 import { createLocation, getAllLocations, getUser } from "my-api-wrapper"
 import { useForm } from "react-hook-form"
-import CreateModal from "@/components/modals/CreateModal"
-import Loader from "@/components/Loader"
+import CreateModal from "../../../components/modals/CreateModal"
+import FormInput from "../../../components/forms/FormInput"
+import ListViewLayout, { type List } from "../../../layouts/ListViewLayout"
+import { useState } from "react"
+import LocationCard from "../../../components/cards/LocationCard"
+import { type ICreateModalProps } from "../../../interfaces/ICreateModalProps"
 
-export type LocationWithUsername = Omit<Location, "userId"> & {
-  username: string
-}
-type LocationCreateForm = CreateLocationDto & { repeatPassword?: string }
+type CreateLocationForm = CreateLocationDto & { repeatPassword?: string }
 
-interface LocationList {
-  locations: LocationWithUsername[] | undefined
-  pagination: CustomPaginationProps
-}
+export type CreateLocationModalProps = ICreateModalProps<CreateLocationForm>
 
 // eslint-disable-next-line max-lines-per-function
-export default function LocationList() {
-  const router = useRouter()
-
-  const [locationList, setLocationList] = useState<LocationList>({
-    locations: undefined,
-    pagination: {
-      current: 0,
-      total: 0
-    }
-  })
-
-  const form = useForm<LocationCreateForm>()
-
+function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
   const {
     register,
     watch,
     formState: { errors }
   } = form
 
-  const fetchData = useCallback(async () => {
-    if (!router.isReady) return
+  return (
+    <CreateModal<CreateLocationDto, Location>
+      form={form}
+      handler={createLocation}
+      refetchData={fetchData}
+      typeName="location"
+    >
+      <FormInput
+        label="Name"
+        type="text"
+        placeholder="Name"
+        required
+        register={register("name")}
+      />
+      <FormInput
+        label="Capacity"
+        type="number"
+        placeholder={10}
+        required
+        register={register("capacity")}
+      />
+      <FormInput
+        label="Username"
+        type="text"
+        placeholder="Username"
+        required
+        register={register("username")}
+      />
+      <FormInput
+        label="Password"
+        type="password"
+        placeholder="Password"
+        required
+        register={register("password")}
+      />
+      <Form.Group className="mb-3">
+        <Form.Label>Repeat password</Form.Label>
+        <Form.Control
+          type="password"
+          placeholder="Repeat password"
+          required
+          isInvalid={!!errors.repeatPassword}
+          {...register("repeatPassword", {
+            validate: (val: string | undefined) => {
+              if (watch("password") != val) {
+                return "Your passwords do no match"
+              }
+              return undefined
+            }
+          })}
+        ></Form.Control>
+        <Form.Control.Feedback type="invalid">
+          {errors.repeatPassword?.message}
+        </Form.Control.Feedback>
+      </Form.Group>
+    </CreateModal>
+  )
+}
 
-    const page = router.query.page
-      ? parseInt(router.query.page as string)
-      : undefined
+export type LocationWithUsername = Omit<Location, "userId"> & {
+  username: string
+}
 
-    const response = await getAllLocations(page)
-    if (!response.data) return
+type LocationList = List<LocationWithUsername>
 
-    if (
-      response.data.totalPages !== 0 &&
-      response.data.page > response.data.totalPages
-    ) {
-      await router.push(`locations?page=${response.data.totalPages}`)
+// eslint-disable-next-line max-lines-per-function
+export default function LocationListView() {
+  const [locationList, setLocationList] = useState<LocationList>({
+    data: undefined,
+    pagination: {
+      current: 0,
+      total: 0
+    }
+  })
+
+  const form = useForm<CreateLocationForm>()
+
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  async function preprocessList(
+    responseData: GetAllPaginatedLocationDto
+  ): Promise<List<LocationWithUsername>> {
+    const locationsWithUsernames: List<LocationWithUsername> = {
+      data: [],
+      pagination: {
+        current: responseData.pagination.current,
+        total: responseData.pagination.total
+      }
     }
 
-    const locationsWithUsernames = Array<LocationWithUsername>()
+    if (!locationsWithUsernames.data) {
+      return locationsWithUsernames
+    }
 
-    for (const location of response.data.locations) {
+    for (const location of responseData.data) {
       const username = (await getUser(location.userId)).data?.username
 
-      locationsWithUsernames.push({
+      locationsWithUsernames.data.push({
         id: location.id,
         name: location.name,
         normalizedName: location.normalizedName,
@@ -76,112 +133,19 @@ export default function LocationList() {
       })
     }
 
-    setLocationList({
-      locations: locationsWithUsernames,
-      pagination: {
-        current: response.data.page,
-        total: response.data.totalPages
-      }
-    })
-  }, [router])
-
-  useEffect(() => {
-    void fetchData()
-  }, [fetchData])
-
-  const handleCreate = (data: CreateLocationDto) => {
-    return createLocation(data)
+    return locationsWithUsernames
   }
 
   return (
-    <AdminLayout title="Locations">
-      <CreateModal<CreateLocationDto, Location>
-        form={form}
-        handler={handleCreate}
-        refetchData={fetchData}
-        typeName="location"
-      >
-        <Form.Group className="mb-3">
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Name"
-            required
-            {...register("name")}
-          ></Form.Control>
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Capacity</Form.Label>
-          <Form.Control
-            type="number"
-            required
-            {...register("capacity")}
-          ></Form.Control>
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Username</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Username"
-            required
-            {...register("username")}
-          ></Form.Control>
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Password"
-            required
-            {...register("password")}
-          ></Form.Control>
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Repeat password</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Repeat password"
-            required
-            isInvalid={!!errors.repeatPassword}
-            {...register("repeatPassword", {
-              validate: (val: string | undefined) => {
-                if (watch("password") != val) {
-                  return "Your passwords do no match"
-                }
-                return undefined
-              }
-            })}
-          ></Form.Control>
-          <Form.Control.Feedback type="invalid">
-            {errors.repeatPassword?.message}
-          </Form.Control.Feedback>
-        </Form.Group>
-      </CreateModal>
-
-      <br />
-
-      <div className="min-vh-51">
-        {!locationList.locations && <Loader />}
-
-        {locationList.locations && locationList.locations.length == 0
-          ? "Nothing to see here."
-          : ""}
-
-        {locationList.locations?.map((location) => {
-          return (
-            <LocationCard
-              key={location.id}
-              location={location}
-              refetchData={fetchData}
-            />
-          )
-        })}
-      </div>
-
-      <CustomPagination
-        current={locationList.pagination.current}
-        total={locationList.pagination.total}
-      />
-    </AdminLayout>
+    <ListViewLayout
+      title="Locations"
+      form={form}
+      list={locationList}
+      setList={setLocationList}
+      apiCall={getAllLocations}
+      preprocessList={preprocessList}
+      createModal={CreateLocationModal}
+      card={LocationCard}
+    />
   )
 }

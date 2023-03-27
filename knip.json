@@ -13,6 +13,6 @@
     "packages/eslint-config-custom"
   ],
   "ignoreDependencies": [
-    "only-allow"
+    "only-allow", "helmet"
   ]
 }

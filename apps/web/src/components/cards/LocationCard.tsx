@@ -1,30 +1,26 @@
-import { Alert, Card, Form } from "react-bootstrap"
+import { Card } from "react-bootstrap"
 import Link from "next/link"
-import UpdateModal from "@/components/modals/UpdateModal"
-import DeleteModal from "@/components/modals/DeleteModal"
+import UpdateModal from "../modals/UpdateModal"
+import DeleteModal from "../modals/DeleteModal"
 import { deleteLocation, updateLocation } from "my-api-wrapper"
 import { type UpdateLocationDto } from "types-custom"
 import { useForm } from "react-hook-form"
 import { format } from "date-fns"
-import { type LocationWithUsername } from "@/pages/settings/locations"
+import { type LocationWithUsername } from "../../pages/settings/locations/index"
+import FormInput from "../forms/FormInput"
+import { type ICardProps } from "../../interfaces/ICardProps"
 
 type LocationUpdateForm = UpdateLocationDto & { repeatPassword?: string }
 
-interface LocationCardProps {
-  location: LocationWithUsername
-  refetchData: () => Promise<void>
-}
+type LocationCardProps = ICardProps<LocationWithUsername>
 
 // eslint-disable-next-line max-lines-per-function
-export function LocationUpdateModal({
-  location,
-  refetchData
-}: LocationCardProps) {
+export function LocationUpdateModal({ data, refetchData }: LocationCardProps) {
   const form = useForm<LocationUpdateForm>({
     defaultValues: {
-      name: location.name,
-      capacity: location.capacity,
-      username: location.username
+      name: data.name,
+      capacity: data.capacity,
+      username: data.username
     }
   })
 
@@ -34,8 +30,8 @@ export function LocationUpdateModal({
     formState: { errors }
   } = form
 
-  const handleUpdate = (data: UpdateLocationDto) => {
-    return updateLocation(location.id, data)
+  const handleUpdate = (updateData: UpdateLocationDto) => {
+    return updateLocation(data.id, updateData)
   }
 
   return (
@@ -45,68 +41,56 @@ export function LocationUpdateModal({
       refetchData={refetchData}
       typeName="location"
     >
-      <Form.Group className="mb-3">
-        <Form.Label>Name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Name"
-          {...register("name")}
-        ></Form.Control>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Label>Capacity</Form.Label>
-        <Form.Control
-          type="number"
-          placeholder="Capacity"
-          {...register("capacity")}
-        ></Form.Control>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Label>Username</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Username"
-          {...register("username")}
-        ></Form.Control>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Label>Password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Password"
-          {...register("password")}
-        ></Form.Control>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Label>Repeat password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Repeat password"
-          {...register("repeatPassword", {
-            validate: (val: string | undefined) => {
-              if (watch("password") != val) {
-                return "Your passwords do no match"
-              }
-              return undefined
+      <FormInput
+        label="Name"
+        type="text"
+        placeholder="Name"
+        register={register("name")}
+      />
+      <FormInput
+        label="Capacity"
+        type="number"
+        placeholder={10}
+        register={register("capacity")}
+      />
+      <FormInput
+        label="Username"
+        type="text"
+        placeholder="Username"
+        register={register("username")}
+      />
+      <FormInput
+        label="Password"
+        type="password"
+        placeholder="Password"
+        register={register("password")}
+      />
+      <FormInput
+        label="Repeat password"
+        type="password"
+        placeholder="Repeat password"
+        register={register("repeatPassword", {
+          validate: (val: string | undefined) => {
+            if (watch("password") != val) {
+              return "Your passwords do no match"
             }
-          })}
-        ></Form.Control>
-        {errors.repeatPassword && (
-          <Alert key="danger">{errors.repeatPassword.message}</Alert>
-        )}
-      </Form.Group>
+            return undefined
+          }
+        })}
+        errors={errors.repeatPassword}
+      />
     </UpdateModal>
   )
 }
 
-function LocationDeleteModal({ location, refetchData }: LocationCardProps) {
+function LocationDeleteModal({ data, refetchData }: LocationCardProps) {
   const handleDelete = () => {
-    return deleteLocation(location.id)
+    return deleteLocation(data.id)
   }
 
   return (
     <DeleteModal
-      name={location.name}
+      name={data.name}
       handler={handleDelete}
       refetchData={refetchData}
       typeName="location"
@@ -114,11 +98,7 @@ function LocationDeleteModal({ location, refetchData }: LocationCardProps) {
   )
 }
 
-// eslint-disable-next-line max-lines-per-function
-export default function LocationCard({
-  location,
-  refetchData
-}: LocationCardProps) {
+export default function LocationCard({ data, refetchData }: LocationCardProps) {
   return (
     <>
       <Card>
@@ -126,32 +106,24 @@ export default function LocationCard({
           <div className="d-flex flex-row">
             <div>
               <Card.Title>
-                <Link href={`/settings/locations/${location.id}`}>
-                  {location.name}
-                </Link>{" "}
-                ({location.normalizedName})
+                <Link href={`/settings/locations/${data.id}`}>{data.name}</Link>{" "}
+                ({data.normalizedName})
               </Card.Title>
               <Card.Subtitle className="mb-2 text-muted">
-                {location.available} / {location.capacity}
+                {data.available} / {data.capacity}
               </Card.Subtitle>
               <Card.Subtitle className="mb-2 text-muted">
-                {location.yesterdayFullAt
+                {data.yesterdayFullAt
                   ? `Yesterday full at ${format(
-                      new Date(location.yesterdayFullAt),
+                      new Date(data.yesterdayFullAt),
                       "HH:mm"
                     )}`
                   : "Yesterday not full"}
               </Card.Subtitle>
             </div>
             <div className="ms-auto">
-              <LocationUpdateModal
-                location={location}
-                refetchData={refetchData}
-              />
-              <LocationDeleteModal
-                location={location}
-                refetchData={refetchData}
-              />
+              <LocationUpdateModal data={data} refetchData={refetchData} />
+              <LocationDeleteModal data={data} refetchData={refetchData} />
             </div>
           </div>
         </Card.Body>

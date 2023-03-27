@@ -21,10 +21,9 @@ import { Roles } from "../auth/decorators/roles.decorator"
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { type SchoolEntity, UserEntity } from "mikro-orm-config"
 
-type MikroGetAllPaginatedSchoolDto = Omit<
-  GetAllPaginatedSchoolDto,
-  "schools"
-> & { schools: SchoolEntity[] }
+type MikroGetAllPaginatedSchoolDto = Omit<GetAllPaginatedSchoolDto, "data"> & {
+  data: SchoolEntity[]
+}
 
 @Controller("schools")
 export class SchoolsController {
@@ -56,14 +55,16 @@ export class SchoolsController {
     @Query("page") queryPage?: string
   ): Promise<MikroGetAllPaginatedSchoolDto> {
     const pageSize = 4
-    const page = queryPage ? parseInt(queryPage) : 1
-    const count = await this.schoolsService.getTotalCount()
-    const schools = await this.schoolsService.getAllPaged(page, pageSize)
+    const current = queryPage ? parseInt(queryPage) : 1
+    const amountOfSchools = await this.schoolsService.getTotalCount()
+    const schools = await this.schoolsService.getAllPaged(current, pageSize)
 
     return {
-      page: page,
-      totalPages: Math.ceil(count / pageSize),
-      schools: schools
+      data: schools,
+      pagination: {
+        current,
+        total: Math.ceil(amountOfSchools / pageSize)
+      }
     }
   }
 

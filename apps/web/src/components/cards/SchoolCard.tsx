@@ -1,26 +1,25 @@
-import { Card, Form } from "react-bootstrap"
-import DeleteModal from "@/components/modals/DeleteModal"
+import { Card } from "react-bootstrap"
+import DeleteModal from "../modals/DeleteModal"
 import { deleteSchool, updateSchool } from "my-api-wrapper"
 import { type School, type UpdateSchoolDto } from "types-custom"
 import { useForm } from "react-hook-form"
 import UpdateModal from "../modals/UpdateModal"
+import FormInput from "../forms/FormInput"
+import { type ICardProps } from "../../interfaces/ICardProps"
 
-interface SchoolCardProps {
-  school: School
-  refetchData: () => Promise<void>
-}
+type SchoolCardProps = ICardProps<School>
 
-function SchoolUpdateModal({ school, refetchData }: SchoolCardProps) {
+function SchoolUpdateModal({ data, refetchData }: SchoolCardProps) {
   const form = useForm<UpdateSchoolDto>({
     defaultValues: {
-      name: school.name
+      name: data.name
     }
   })
 
   const { register } = form
 
-  const handleUpdate = (data: UpdateSchoolDto) => {
-    return updateSchool(school.id, data)
+  const handleUpdate = (updateData: UpdateSchoolDto) => {
+    return updateSchool(data.id, updateData)
   }
 
   return (
@@ -30,26 +29,24 @@ function SchoolUpdateModal({ school, refetchData }: SchoolCardProps) {
       refetchData={refetchData}
       typeName="school"
     >
-      <Form.Group className="mb-3">
-        <Form.Label>Name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Name"
-          {...register("name")}
-        ></Form.Control>
-      </Form.Group>
+      <FormInput
+        label="Name"
+        type="text"
+        placeholder="Name"
+        register={register("name")}
+      />
     </UpdateModal>
   )
 }
 
-function SchoolDeleteModal({ school, refetchData }: SchoolCardProps) {
+function SchoolDeleteModal({ data, refetchData }: SchoolCardProps) {
   const handleDelete = () => {
-    return deleteSchool(school.id)
+    return deleteSchool(data.id)
   }
 
   return (
     <DeleteModal
-      name={school.name}
+      name={data.name}
       handler={handleDelete}
       refetchData={refetchData}
       typeName="school"
@@ -57,18 +54,18 @@ function SchoolDeleteModal({ school, refetchData }: SchoolCardProps) {
   )
 }
 
-export default function SchoolCard({ school, refetchData }: SchoolCardProps) {
+export default function SchoolCard({ data, refetchData }: SchoolCardProps) {
   return (
     <>
       <Card>
         <Card.Body>
           <div className="d-flex flex-row">
             <div>
-              <Card.Title>{school.name}</Card.Title>
+              <Card.Title>{data.name}</Card.Title>
             </div>
             <div className="ms-auto">
-              <SchoolUpdateModal school={school} refetchData={refetchData} />
-              <SchoolDeleteModal school={school} refetchData={refetchData} />
+              <SchoolUpdateModal data={data} refetchData={refetchData} />
+              <SchoolDeleteModal data={data} refetchData={refetchData} />
             </div>
           </div>
         </Card.Body>

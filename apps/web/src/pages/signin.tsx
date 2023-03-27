@@ -1,12 +1,13 @@
 import styles from "./signin.module.css"
 import { Col, Form } from "react-bootstrap"
-import BaseLayout from "@/layouts/BaseLayout"
+import BaseLayout from "../layouts/BaseLayout"
 import { signin } from "my-api-wrapper"
 import { useRouter } from "next/router"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { type SignInDto } from "types-custom"
-import { useAuth } from "@/contexts"
-import BaseForm from "@/components/forms/BaseForm"
+import { useAuth } from "../contexts/authContext"
+import BaseForm from "../components/forms/BaseForm"
+import FormInput from "../components/forms/FormInput"
 
 // eslint-disable-next-line max-lines-per-function
 export default function SignIn() {
@@ -49,24 +50,20 @@ export default function SignIn() {
           errors={errors}
           submitBtnText="Sign In"
         >
-          <Form.Group className="mb-3">
-            <Form.Label>Username</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Username"
-              required
-              {...register("username")}
-            ></Form.Control>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Password"
-              required
-              {...register("password")}
-            ></Form.Control>
-          </Form.Group>
+          <FormInput
+            label="Username"
+            type="text"
+            placeholder="Username"
+            required
+            register={register("username")}
+          />
+          <FormInput
+            label="Password"
+            type="password"
+            placeholder="Password"
+            required
+            register={register("password")}
+          />
           <Form.Check
             label="Remember me"
             type="checkbox"

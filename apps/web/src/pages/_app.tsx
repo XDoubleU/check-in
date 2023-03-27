@@ -6,8 +6,8 @@ import "../styles/scss/global.scss"
 import { type AppProps } from "next/app"
 import Head from "next/head"
 import { useEffect } from "react"
-import { AuthProvider } from "@/contexts/authContext"
-import { RedirectsProvider } from "@/contexts/redirectsContext"
+import { AuthProvider } from "../contexts/authContext"
+import { RedirectsProvider } from "../contexts/redirectsContext"
 
 export default function App({
   // eslint-disable-next-line @typescript-eslint/naming-convention

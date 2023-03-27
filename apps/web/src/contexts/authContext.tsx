@@ -4,11 +4,12 @@ import React, {
   type SetStateAction,
   type Dispatch,
   type ReactNode,
-  useEffect
+  useEffect,
+  useContext
 } from "react"
 import { type User } from "types-custom"
 
-export interface AuthContextProps {
+interface AuthContextProps {
   user: User | undefined
   loadingUser: boolean
   setUser: Dispatch<SetStateAction<User | undefined>>
@@ -18,14 +19,19 @@ interface Props {
   children: ReactNode
 }
 
-export const AuthContext = React.createContext<AuthContextProps>({
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const AuthContext = React.createContext<AuthContextProps>({
   user: undefined,
   loadingUser: true,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setUser: () => {}
 })
 
-// eslint-disable-next-line max-lines-per-function
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export function useAuth(): AuthContextProps {
+  return useContext(AuthContext)
+}
+
 export const AuthProvider = ({ children }: Props) => {
   const [currentUser, setCurrentUser] = useState<User | undefined>()
   const [loading, setLoading] = useState(true)

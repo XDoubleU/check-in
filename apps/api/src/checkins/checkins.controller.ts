@@ -14,7 +14,7 @@ import { CheckInsService } from "./checkins.service"
 import { SchoolsService } from "../schools/schools.service"
 import { CreateCheckInDto, DATE_FORMAT, Role } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
-import { type LocationEntity, UserEntity, type CheckInEntity } from "mikro-orm-config"
+import { UserEntity, type CheckInEntity } from "mikro-orm-config"
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { LocationsService } from "../locations/locations.service"
 import { endOfDay, format, startOfDay } from "date-fns"
@@ -49,8 +49,8 @@ export class CheckInsController {
     @Query("startDate") queryStartDate: string,
     @Query("endDate") queryEndDate: string
   ): Promise<unknown[]> {
-    const location = await this.locationsService.getById(locationId)
-    if (!location || !this.isAdminOrOwner(location, user)) {
+    const location = await this.locationsService.getLocation(locationId, user)
+    if (!location) {
       throw new NotFoundException("Location not found")
     }
 
@@ -95,8 +95,8 @@ export class CheckInsController {
     @Param("locationId") locationId: string,
     @Query("date") queryDate: string
   ): Promise<unknown[]> {
-    const location = await this.locationsService.getById(locationId)
-    if (!location || !this.isAdminOrOwner(location, user)) {
+    const location = await this.locationsService.getLocation(locationId, user)
+    if (!location) {
       throw new NotFoundException("Location not found")
     }
 
@@ -150,9 +150,5 @@ export class CheckInsController {
     }
 
     return checkin
-  }
-
-  private isAdminOrOwner(location: LocationEntity, user: UserEntity): boolean {
-    return !user.roles.includes(Role.Admin) && location.user.id !== user.id
   }
 }

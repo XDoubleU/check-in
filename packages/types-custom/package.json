@@ -9,11 +9,9 @@
     "lint:report": "eslint . --output-file eslint_report.json --format json src"
   },
   "devDependencies": {
+    "eslint": "^8.36.0",
     "eslint-config-custom": "*",
-    "tsconfig-custom": "*"
-  },
-  "dependencies": {
-    "eslint": "^8.35.0",
+    "tsconfig-custom": "*",
     "typescript": "^4.9.5"
   }
 }

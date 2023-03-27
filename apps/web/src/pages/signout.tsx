@@ -1,5 +1,5 @@
-import { useAuth } from "@/contexts"
-import LoadingLayout from "@/layouts/LoadingLayout"
+import { useAuth } from "../contexts/authContext"
+import LoadingLayout from "../layouts/LoadingLayout"
 import { signOut } from "my-api-wrapper"
 import { useRouter } from "next/router"
 import { useEffect } from "react"

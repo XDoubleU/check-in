@@ -10,17 +10,15 @@
     "test": "jest",
     "test:cov": "jest --coverage"
   },
-  "dependencies": {
+  "devDependencies": {
     "@types/jest": "^29.5.0",
-    "eslint": "^8.35.0",
+    "@types/node": "^18.15.10",
+    "eslint": "^8.36.0",
+    "eslint-config-custom": "*",
     "jest": "^29.5.0",
     "ts-jest": "^29.0.5",
+    "tsconfig-custom": "*",
     "types-custom": "*",
     "typescript": "^4.9.5"
-  },
-  "devDependencies": {
-    "@types/node": "^18.14.2",
-    "eslint-config-custom": "*",
-    "tsconfig-custom": "*"
   }
 }

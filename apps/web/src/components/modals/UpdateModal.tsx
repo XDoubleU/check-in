@@ -1,6 +1,6 @@
 import { type ReactElement, useState } from "react"
 import { Modal } from "react-bootstrap"
-import CustomButton from "@/components/CustomButton"
+import CustomButton from "../CustomButton"
 import {
   type FieldValues,
   type SubmitHandler,

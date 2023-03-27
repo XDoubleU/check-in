@@ -21,12 +21,10 @@ export async function getAllSchoolsSortedForLocation(): Promise<
 }
 
 export async function getAllSchoolsPaged(
-  page?: number,
-  pageSize?: number
+  page?: number
 ): Promise<APIResponse<GetAllPaginatedSchoolDto>> {
   const query = new Query({
-    page,
-    pageSize
+    page
   })
 
   return await fetchHandler(`${SCHOOLS_URL}${query.toString()}`)

@@ -1,17 +1,15 @@
 /* eslint-disable max-lines-per-function */
 import request from "supertest"
 import { type CheckIn, type CreateCheckInDto } from "types-custom"
-import Fixture, {
-  type ErrorResponse,
-  type TokensAndUser
-} from "./config/fixture"
+import Fixture, { type ErrorResponse } from "./config/fixture"
 import { LocationEntity, SchoolEntity } from "mikro-orm-config"
+import { type UserAndTokens } from "../src/auth/auth.service"
 
 describe("CheckInsController (e2e)", () => {
   const fixture: Fixture = new Fixture()
 
-  let tokensAndUser: TokensAndUser
-  let adminTokensAndUser: TokensAndUser
+  let userAndTokens: UserAndTokens
+  let adminUserAndTokens: UserAndTokens
 
   let location: LocationEntity
   let school: SchoolEntity
@@ -28,9 +26,9 @@ describe("CheckInsController (e2e)", () => {
     return fixture
       .beforeEach()
       .then(() => fixture.getTokens("User"))
-      .then((data) => (tokensAndUser = data))
+      .then((data) => (userAndTokens = data))
       .then(() => fixture.getTokens("Admin"))
-      .then((data) => (adminTokensAndUser = data))
+      .then((data) => (adminUserAndTokens = data))
       .then(() => fixture.em.findOne(SchoolEntity, { id: 1 }))
       .then((data) => {
         if (!data) {
@@ -57,7 +55,7 @@ describe("CheckInsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .post("/checkins")
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(201)
 
@@ -76,7 +74,7 @@ describe("CheckInsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .post("/checkins")
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(404)
 
@@ -91,7 +89,7 @@ describe("CheckInsController (e2e)", () => {
 
       return await request(fixture.app.getHttpServer())
         .post("/checkins")
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(403)
     })

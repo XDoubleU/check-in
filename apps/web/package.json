@@ -11,8 +11,7 @@
     "lint:report": "eslint . --output-file eslint_report.json --format json src"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.6",
-    "@types/react": "18.0.28",
+    "@popperjs/core": "^2.11.7",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
     "date-fns": "^2.29.3",
@@ -22,16 +21,17 @@
     "react": "18.2.0",
     "react-bootstrap": "^2.7.2",
     "react-dom": "18.2.0",
-    "react-hook-form": "^7.43.7",
+    "react-hook-form": "^7.43.8",
     "react-spinners": "^0.13.8",
     "recharts": "^2.5.0",
-    "sass": "^1.58.3",
-    "types-custom": "*",
-    "typescript": "^4.9.5"
+    "sass": "^1.60.0"
   },
   "devDependencies": {
-    "eslint": "^8.35.0",
+    "@types/react": "18.0.28",
+    "eslint": "^8.36.0",
     "eslint-config-custom": "*",
-    "tsconfig-custom": "*"
+    "tsconfig-custom": "*",
+    "types-custom": "*",
+    "typescript": "^4.9.5"
   }
 }

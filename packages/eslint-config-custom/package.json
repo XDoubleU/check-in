@@ -5,14 +5,14 @@
     "nextjs.js"
   ],
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
-    "eslint": "^8.35.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
+    "eslint": "^8.36.0",
+    "eslint-config-next": "13.2.3",
     "eslint-config-turbo": "^0.0.9",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-config-next": "13.2.3",
-    "typescript": "^4.9.5",
     "eslint-plugin-redundant-undefined": "^0.4.0",
-    "eslint-plugin-sonarjs": "^0.18.0"
+    "eslint-plugin-sonarjs": "^0.18.0",
+    "typescript": "^4.9.5"
   }
 }

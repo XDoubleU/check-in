@@ -1,11 +1,12 @@
 /* eslint-disable max-lines-per-function */
-import Fixture, { type TokensAndUser } from "./config/fixture"
+import Fixture from "./config/fixture"
 import EventSource from "eventsource"
 import { type Server } from "http"
 import { type AddressInfo } from "net"
 import { SseService } from "../src/sse/sse.service"
 import { CheckInEntity, LocationEntity, SchoolEntity } from "mikro-orm-config"
 import { type LocationUpdateEventDto } from "types-custom"
+import { type UserAndTokens } from "../src/auth/auth.service"
 
 describe("SseController (e2e)", () => {
   const fixture: Fixture = new Fixture()
@@ -13,7 +14,7 @@ describe("SseController (e2e)", () => {
   let port: number
   let eventSource: EventSource
 
-  let tokensAndUser: TokensAndUser
+  let userAndTokens: UserAndTokens
 
   let sseService: SseService
 
@@ -41,7 +42,7 @@ describe("SseController (e2e)", () => {
     return fixture
       .beforeEach()
       .then(() => fixture.getTokens("User"))
-      .then((data) => (tokensAndUser = data))
+      .then((data) => (userAndTokens = data))
       .then(() => fixture.em.find(LocationEntity, {}))
       .then((data) => {
         location = data[0]
@@ -99,7 +100,7 @@ describe("SseController (e2e)", () => {
     it("receives event after updating Location capacity (200)", (done: jest.DoneCallback) => {
       const eventSourceInitDict = {
         headers: {
-          Cookie: `accessToken=${tokensAndUser.tokens.accessToken}`
+          Cookie: `accessToken=${userAndTokens.tokens.accessToken}`
         }
       }
 

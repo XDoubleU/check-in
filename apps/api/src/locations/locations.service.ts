@@ -2,6 +2,7 @@ import { EntityRepository, QueryOrder } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { LocationEntity, type UserEntity } from "mikro-orm-config"
+import { Role } from "types-custom"
 import { SseService } from "../sse/sse.service"
 
 @Injectable()
@@ -43,6 +44,22 @@ export class LocationsService {
     return await this.locationsRepository.findOne({
       id: id
     })
+  }
+
+  public async getLocation(
+    locationId: string,
+    user: UserEntity
+  ): Promise<LocationEntity | null> {
+    const location = await this.getById(locationId)
+
+    if (
+      !location ||
+      (!user.roles.includes(Role.Admin) && location.user.id !== user.id)
+    ) {
+      return null
+    }
+
+    return location
   }
 
   public async refresh(locationId: string): Promise<LocationEntity> {

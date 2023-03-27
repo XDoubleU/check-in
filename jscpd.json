@@ -1,12 +1,14 @@
 {
-  "pattern": "**/*.ts",
+  "pattern": "**/*.{ts,tsx}",
   "ignore": [
+    "**/*.test.ts",
     "**/dist/**",
     "**/coverage/**",
     "**/node_modules/**"
   ],
   "format": [
     "javascript",
-    "typescript"
+    "typescript",
+    "tsx"
   ]
 }

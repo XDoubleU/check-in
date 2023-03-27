@@ -1,11 +1,12 @@
 import request from "supertest"
 import { type User } from "types-custom"
-import Fixture, { type TokensAndUser } from "./config/fixture"
+import { type UserAndTokens } from "../src/auth/auth.service"
+import Fixture from "./config/fixture"
 
 describe("UsersController (e2e)", () => {
   const fixture: Fixture = new Fixture()
 
-  let tokensAndUser: TokensAndUser
+  let userAndTokens: UserAndTokens
 
   beforeAll(() => {
     return fixture.beforeAll()
@@ -19,7 +20,7 @@ describe("UsersController (e2e)", () => {
     return fixture
       .beforeEach()
       .then(() => fixture.getTokens("User"))
-      .then((data) => (tokensAndUser = data))
+      .then((data) => (userAndTokens = data))
   })
 
   afterEach(() => {
@@ -30,14 +31,14 @@ describe("UsersController (e2e)", () => {
     it("gets info about logged in User (200)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/users/me")
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(200)
 
       const userResponse = response.body as User
-      expect(userResponse.id).toBe(tokensAndUser.user.id)
-      expect(userResponse.username).toBe(tokensAndUser.user.username)
-      expect(userResponse.roles).toStrictEqual(tokensAndUser.user.roles)
-      expect(userResponse.location?.id).toBe(tokensAndUser.user.location?.id)
+      expect(userResponse.id).toBe(userAndTokens.user.id)
+      expect(userResponse.username).toBe(userAndTokens.user.username)
+      expect(userResponse.roles).toStrictEqual(userAndTokens.user.roles)
+      expect(userResponse.location?.id).toBe(userAndTokens.user.location?.id)
     })
   })
 })

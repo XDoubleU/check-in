@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Modal } from "react-bootstrap"
-import CustomButton from "@/components/CustomButton"
+import CustomButton from "../CustomButton"
 import { type FieldValues, type SubmitHandler, useForm } from "react-hook-form"
 import BaseForm from "../forms/BaseForm"
 import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"

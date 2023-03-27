@@ -1,5 +1,5 @@
 import { type ReactNode } from "react"
-import BaseLayout from "@/layouts/BaseLayout"
+import BaseLayout from "./BaseLayout"
 import { Col, Container, Row } from "react-bootstrap"
 
 interface AdminLayoutProps {

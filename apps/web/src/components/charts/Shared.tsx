@@ -1,13 +1,23 @@
-import { ResponsiveContainer } from "recharts"
+import { type ReactNode } from "react"
+import {
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "recharts"
 import Loader from "../Loader"
 
-export const RESPONSIVE_CONTAINER_PROPS = {
+const RESPONSIVE_CONTAINER_PROPS = {
   width: "100%",
   height: 500,
   aspect: 3
 }
 
-export const CHART_PROPS = {
+const CHART_PROPS = {
   width: 500,
   height: 300,
   margin: {
@@ -88,5 +98,31 @@ export function DataLoading() {
         </div>
       </ResponsiveContainer>
     </>
+  )
+}
+
+interface SharedComposedChartProps {
+  data: unknown[]
+  xAxisTickFomatter: (datetime: Date) => string
+  children: ReactNode
+}
+
+export function SharedComposedChart({
+  data,
+  xAxisTickFomatter,
+  children
+}: SharedComposedChartProps) {
+  return (
+    <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
+      <ComposedChart data={data} {...CHART_PROPS}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <Tooltip />
+        <Legend />
+        <YAxis />
+        <XAxis dataKey="datetime" tickFormatter={xAxisTickFomatter} />
+        <Line dataKey="capacity" stroke="red" strokeDasharray="3 3" />
+        {children}
+      </ComposedChart>
+    </ResponsiveContainer>
   )
 }

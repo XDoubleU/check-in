@@ -29,8 +29,8 @@ import { convertToLocationUpdateEventDto } from "../helpers/conversion"
 
 type MikroGetAllPaginatedLocationDto = Omit<
   GetAllPaginatedLocationDto,
-  "locations"
-> & { locations: LocationEntity[] }
+  "data"
+> & { data: LocationEntity[] }
 
 const NOT_FOUND_MESSAGE = "Location not found"
 
@@ -66,14 +66,16 @@ export class LocationsController {
     @Query("page") queryPage?: string
   ): Promise<MikroGetAllPaginatedLocationDto> {
     const pageSize = 3
-    const page = queryPage ? parseInt(queryPage) : 1
-    const count = await this.locationsService.getTotalCount()
-    const locations = await this.locationsService.getAllPaged(page, pageSize)
+    const current = queryPage ? parseInt(queryPage) : 1
+    const amountOfLocations = await this.locationsService.getTotalCount()
+    const locations = await this.locationsService.getAllPaged(current, pageSize)
 
     return {
-      page: page,
-      totalPages: Math.ceil(count / pageSize),
-      locations: locations
+      data: locations,
+      pagination: {
+        current,
+        total: Math.ceil(amountOfLocations / pageSize)
+      }
     }
   }
 
@@ -123,19 +125,15 @@ export class LocationsController {
     )
   }
 
-  // eslint-disable-next-line max-lines-per-function
   @Patch(":id")
   public async update(
     @ReqUser() reqUser: UserEntity,
     @Param("id") id: string,
     @Body() updateLocationDto: UpdateLocationDto
   ): Promise<LocationEntity> {
-    const location = await this.locationsService.getById(id)
-    if (
-      !location ||
-      (!reqUser.roles.includes(Role.Admin) && location.user.id !== reqUser.id)
-    ) {
-      throw new NotFoundException(NOT_FOUND_MESSAGE)
+    const location = await this.locationsService.getLocation(id, reqUser)
+    if (!location) {
+      throw new NotFoundException("Location not found")
     }
 
     if (updateLocationDto.name) {

@@ -1,13 +1,13 @@
 import { type School } from "../types"
+import { type Pagination } from "./shared"
 
 export interface CreateSchoolDto {
   name: string
 }
 
 export interface GetAllPaginatedSchoolDto {
-  page: number
-  totalPages: number
-  schools: School[]
+  data: School[]
+  pagination: Pagination
 }
 
 export interface UpdateSchoolDto {

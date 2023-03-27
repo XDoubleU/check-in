@@ -1,4 +1,5 @@
 import { type Location } from "../types"
+import { type Pagination } from "./shared"
 
 export interface CreateLocationDto {
   name: string
@@ -8,9 +9,8 @@ export interface CreateLocationDto {
 }
 
 export interface GetAllPaginatedLocationDto {
-  page: number
-  totalPages: number
-  locations: Location[]
+  data: Location[]
+  pagination: Pagination
 }
 
 export interface UpdateLocationDto {

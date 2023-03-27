@@ -1,5 +1,5 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable max-lines-per-function */
+/* eslint-disable sonarjs/no-duplicate-string */
 import request from "supertest"
 import {
   type CreateSchoolDto,
@@ -7,17 +7,15 @@ import {
   type School,
   type UpdateSchoolDto
 } from "types-custom"
-import Fixture, {
-  type ErrorResponse,
-  type TokensAndUser
-} from "./config/fixture"
+import Fixture, { type ErrorResponse } from "./config/fixture"
 import { CheckInEntity, SchoolEntity } from "mikro-orm-config"
+import { type UserAndTokens } from "../src/auth/auth.service"
 
 describe("SchoolsController (e2e)", () => {
   const fixture: Fixture = new Fixture()
 
-  let tokensAndUser: TokensAndUser
-  let adminTokensAndUser: TokensAndUser
+  let userAndTokens: UserAndTokens
+  let adminUserAndTokens: UserAndTokens
 
   let schools: SchoolEntity[]
 
@@ -36,9 +34,9 @@ describe("SchoolsController (e2e)", () => {
     return fixture
       .beforeEach()
       .then(() => fixture.getTokens("User"))
-      .then((data) => (tokensAndUser = data))
+      .then((data) => (userAndTokens = data))
       .then(() => fixture.getTokens("Admin"))
-      .then((data) => (adminTokensAndUser = data))
+      .then((data) => (adminUserAndTokens = data))
       .then(() => fixture.em.find(SchoolEntity, {}))
       .then((data) => {
         schools = data
@@ -51,7 +49,7 @@ describe("SchoolsController (e2e)", () => {
 
   describe("/schools/all (GET)", () => {
     it("gets all Schools (200)", async () => {
-      const location = tokensAndUser.user.location
+      const location = userAndTokens.user.location
 
       if (!location) {
         throw new Error("Location is undefined")
@@ -72,7 +70,7 @@ describe("SchoolsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .get("/schools/all")
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(200)
 
       const schoolsResponse = response.body as School[]
@@ -84,7 +82,7 @@ describe("SchoolsController (e2e)", () => {
     it("returns Forbidden (403)", async () => {
       return await request(fixture.app.getHttpServer())
         .get("/schools/all")
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(403)
     })
   })
@@ -93,15 +91,15 @@ describe("SchoolsController (e2e)", () => {
     it("gets all Schools with default page (200)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/schools")
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(200)
 
       const paginatedSchoolsResponse = response.body as GetAllPaginatedSchoolDto
-      expect(paginatedSchoolsResponse.page).toBe(defaultPage)
-      expect(paginatedSchoolsResponse.totalPages).toBe(
+      expect(paginatedSchoolsResponse.pagination.current).toBe(defaultPage)
+      expect(paginatedSchoolsResponse.pagination.total).toBe(
         Math.ceil((schools.length - 1) / defaultPageSize)
       )
-      expect(paginatedSchoolsResponse.schools.length).toBe(defaultPageSize)
+      expect(paginatedSchoolsResponse.data.length).toBe(defaultPageSize)
     })
 
     it("gets certain page of all Schools (200)", async () => {
@@ -110,21 +108,21 @@ describe("SchoolsController (e2e)", () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/schools")
         .query({ page })
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(200)
 
       const paginatedSchoolsResponse = response.body as GetAllPaginatedSchoolDto
-      expect(paginatedSchoolsResponse.page).toBe(page)
-      expect(paginatedSchoolsResponse.totalPages).toBe(
+      expect(paginatedSchoolsResponse.pagination.current).toBe(page)
+      expect(paginatedSchoolsResponse.pagination.total).toBe(
         Math.ceil((schools.length - 1) / defaultPageSize)
       )
-      expect(paginatedSchoolsResponse.schools.length).toBe(defaultPageSize)
+      expect(paginatedSchoolsResponse.data.length).toBe(defaultPageSize)
     })
 
     it("returns Forbidden (403)", async () => {
       return await request(fixture.app.getHttpServer())
         .get("/schools")
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(403)
     })
   })
@@ -137,7 +135,7 @@ describe("SchoolsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .post("/schools")
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(201)
 
@@ -153,7 +151,7 @@ describe("SchoolsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .post("/schools")
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(409)
 
@@ -168,7 +166,7 @@ describe("SchoolsController (e2e)", () => {
 
       return await request(fixture.app.getHttpServer())
         .post("/schools")
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(403)
     })
@@ -183,7 +181,7 @@ describe("SchoolsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .patch(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(200)
 
@@ -200,7 +198,7 @@ describe("SchoolsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .patch(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(409)
 
@@ -216,7 +214,7 @@ describe("SchoolsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .patch(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(404)
 
@@ -232,7 +230,7 @@ describe("SchoolsController (e2e)", () => {
 
       return await request(fixture.app.getHttpServer())
         .patch(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(403)
     })
@@ -244,7 +242,7 @@ describe("SchoolsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .delete(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(200)
 
       const schoolResponse = response.body as School
@@ -256,7 +254,7 @@ describe("SchoolsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .delete(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${adminTokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
@@ -268,7 +266,7 @@ describe("SchoolsController (e2e)", () => {
 
       return await request(fixture.app.getHttpServer())
         .delete(`/schools/${id}`)
-        .set("Cookie", [`accessToken=${tokensAndUser.tokens.accessToken}`])
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(403)
     })
   })

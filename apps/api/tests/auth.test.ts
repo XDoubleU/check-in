@@ -5,7 +5,7 @@ import { type SignInDto } from "types-custom"
 import { type UserAndTokens } from "../src/auth/auth.service"
 import Fixture, {
   type ErrorResponse,
-  type RequestHeaders,
+  type RequestHeaders
 } from "./config/fixture"
 
 describe("AuthController (e2e)", () => {

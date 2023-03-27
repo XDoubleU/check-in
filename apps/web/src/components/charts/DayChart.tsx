@@ -1,26 +1,11 @@
 import { format } from "date-fns"
 import { getDataForDayChart } from "my-api-wrapper"
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
-import { Col, Form, Row } from "react-bootstrap"
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Area,
-  ComposedChart
-} from "recharts"
+import { Col, Row } from "react-bootstrap"
+import { Area } from "recharts"
+import FormInput from "../forms/FormInput"
 import { convertDates, extractAllSchools } from "./dataProcessing"
-import {
-  CHART_PROPS,
-  COLORS,
-  DataLoading,
-  NoDataFound,
-  RESPONSIVE_CONTAINER_PROPS
-} from "./Shared"
+import { COLORS, DataLoading, NoDataFound, SharedComposedChart } from "./Shared"
 
 interface DayChartProps extends FilterProps {
   locationId: string
@@ -37,14 +22,12 @@ function Filter({ date, setDate }: FilterProps) {
   return (
     <Row>
       <Col>
-        <Form.Group className="mb-3">
-          <Form.Label>Date</Form.Label>
-          <Form.Control
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </Form.Group>
+        <FormInput
+          label="Date"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
       </Col>
       <Col></Col>
     </Row>
@@ -93,30 +76,22 @@ export default function DayChart({
   return (
     <>
       <Filter date={date} setDate={setDate} />
-      <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
-        <ComposedChart data={dayData} {...CHART_PROPS}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="datetime"
-            tickFormatter={(datetime: Date) => format(datetime, "HH:mm")}
-          />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line dataKey="capacity" stroke="red" strokeDasharray="3 3" />
-          {schools.map((school, index) => {
-            return (
-              <Area
-                key={school}
-                stackId="a"
-                dataKey={school}
-                stroke={COLORS[index % 32]}
-                fill={COLORS[index % 32]}
-              />
-            )
-          })}
-        </ComposedChart>
-      </ResponsiveContainer>
+      <SharedComposedChart
+        data={dayData}
+        xAxisTickFomatter={(datetime: Date) => format(datetime, "HH:mm")}
+      >
+        {schools.map((school, index) => {
+          return (
+            <Area
+              key={school}
+              stackId="a"
+              dataKey={school}
+              stroke={COLORS[index % 32]}
+              fill={COLORS[index % 32]}
+            />
+          )
+        })}
+      </SharedComposedChart>
     </>
   )
 }
