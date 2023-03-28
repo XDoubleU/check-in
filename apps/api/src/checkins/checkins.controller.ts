@@ -12,7 +12,7 @@ import { CheckInsService } from "./checkins.service"
 import { SchoolsService } from "../schools/schools.service"
 import { CreateCheckInDto, DATE_FORMAT, Role } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
-import { UserEntity, type CheckInEntity } from "mikro-orm-config"
+import { type LocationEntity, UserEntity, type CheckInEntity } from "mikro-orm-config"
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { LocationsService } from "../locations/locations.service"
 import { endOfDay, format, startOfDay } from "date-fns"
@@ -140,5 +140,9 @@ export class CheckInsController {
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return await this.checkInsService.create(user.location!, school)
+  }
+
+  private isAdminOrOwner(location: LocationEntity, user: UserEntity): boolean {
+    return !user.roles.includes(Role.Admin) && location.user.id !== user.id
   }
 }
