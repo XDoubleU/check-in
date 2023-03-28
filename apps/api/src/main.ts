@@ -10,7 +10,7 @@ const corsOptions = {
 }
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, { logger: false })
   app.useLogger(SentryService.SentryServiceInstance())
   app.enableCors(corsOptions)
   app.use(helmet())
