@@ -13,6 +13,9 @@ import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { SseModule } from "./sse/sse.module"
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler"
 import { SentryModule } from "@ntegral/nestjs-sentry"
+import { CommandModule } from "nestjs-command"
+import { UserCommand } from "./users/user.command"
+import { UsersService } from "./users/users.service"
 
 @Module({
   imports: [
@@ -29,6 +32,7 @@ import { SentryModule } from "@ntegral/nestjs-sentry"
       ttl: 10, // the number of seconds that each request will last in storage
       limit: 30 // the maximum number of requests within the TTL limit
     }),
+    CommandModule,
     CheckInsModule,
     LocationsModule,
     SchoolsModule,
@@ -37,6 +41,7 @@ import { SentryModule } from "@ntegral/nestjs-sentry"
     SseModule
   ],
   providers: [
+    UserCommand, UsersService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard

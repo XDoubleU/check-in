@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common"
 import { EntityRepository } from "@mikro-orm/core"
 import { UserEntity } from "mikro-orm-config"
 import { InjectRepository } from "@mikro-orm/nestjs"
+import { Role } from "types-custom"
 
 @Injectable()
 export class UsersService {
@@ -24,6 +25,12 @@ export class UsersService {
     return await this.usersRepository.findOne({
       username: username
     })
+  }
+
+  public async createAdmin(username: string, password: string): Promise<UserEntity> {
+    const user = new UserEntity(username, password, Role.Admin)
+    await this.usersRepository.persistAndFlush(user)
+    return user
   }
 
   public async create(username: string, password: string): Promise<UserEntity> {

@@ -51,4 +51,5 @@ Mostly as a reference to myself but might be useful for others too.
 4. API (server):
    1. Build: `yarn build --filter=api...`
    2. Run: `yarn prod --filter=api...`
-5. Manually on API: `yarn db:migration-up`
+5. 
+6. Manually on API: `yarn db:migration-up`
