@@ -15,11 +15,15 @@
       "ignore": ["src/cli/**"],
       "ignoreDependencies": ["helmet"]
     },
+    "apps/web": {
+      "ignore": ["sentry.edge.config.js"]
+    },
     "packages/mikro-orm-config": {
       "ignore": [
         "src/migrations/**",
         "src/seeders/**"
-      ]
+      ],
+      "ignoreDependencies": ["ts-node"]
     }
   }
 }
