@@ -5,6 +5,7 @@
     "PORT",
     "WEB_URL",
     "API_PORT",
+    "NEXT_PUBLIC_SENTRY_DSN",
     "NEXT_PUBLIC_API_URL",
     "DATABASE_URL",
     "JWT_ACCESS_SECRET",
