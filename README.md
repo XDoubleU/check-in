@@ -44,12 +44,11 @@ There are Docker-files present in both apps.
 ## Deploy (on DigitalOcean)
 
 Mostly as a reference to myself but might be useful for others too.
-CI needs step where it creates a package-lock.json using `yarn i --package-lock-only`
 
-0. Database with pooling
-1. Don't forget env vars (see .env)
-2. Web (static site): `yarn run export --filter=web...`
-3. API (server):
-   1. Build: `yarn run build --filter=api...`
-   2. Run: `yarn run prod --filter=api...`
-4. Manually on API: `yarn db:migration-up`
+1. Database with pooling
+2. Don't forget env vars (see .env)
+3. Web (static site): `yarn export --filter=web...`
+4. API (server):
+   1. Build: `yarn build --filter=api...`
+   2. Run: `yarn prod --filter=api...`
+5. Manually on API: `yarn db:migration-up`

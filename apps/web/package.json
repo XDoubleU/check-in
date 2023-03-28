@@ -26,8 +26,7 @@
     "react-hook-form": "^7.43.8",
     "react-spinners": "^0.13.8",
     "recharts": "^2.5.0",
-    "sass": "^1.60.0",
-    "types-custom": "*"
+    "sass": "^1.60.0"
   },
   "devDependencies": {
     "@types/node": "18.15.10",
