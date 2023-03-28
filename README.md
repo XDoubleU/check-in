@@ -44,8 +44,9 @@ There are Docker-files present in both apps.
 ## Deploy (on DigitalOcean)
 
 Mostly as a reference to myself but might be useful for others too.
+CI needs step where it creates a package-lock.json using `npm i --package-lock-only`
 
-0. Datanbase with pooling
+0. Database with pooling
 1. Don't forget env vars (see .env)
 2. Web (static site): `npm run export --filter=web...`
 3. API (server):
