@@ -29,11 +29,6 @@
     "semi": false,
     "trailingComma": "none"
   },
-  "prettier": {
-    "semi": false,
-    "trailingComma": "none",
-    "parser": "typescript"
-  },
   "dependencies": {
     "dotenv-cli": "^7.1.0",
     "jscpd": "^3.5.4",
