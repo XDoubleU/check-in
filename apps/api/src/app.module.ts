@@ -19,7 +19,7 @@ import { SentryModule } from "@ntegral/nestjs-sentry"
     SentryModule.forRoot({
       dsn: process.env.API_SENTRY_DSN ?? "",
       tracesSampleRate: 1.0,
-      logLevels: ['debug']
+      logLevels: ['error', 'warn']
     }),
     MikroOrmModule.forRoot({
       ...config,
