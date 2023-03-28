@@ -20,7 +20,9 @@
       "dependsOn": ["^build"]
     },
     "prod": {},
-    "export": {},
+    "export": {
+      "dependsOn": ["^build"]
+    },
     "lint": {
       "cache": false
     },
