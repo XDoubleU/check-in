@@ -12,9 +12,14 @@ import config from "mikro-orm-config"
 import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { SseModule } from "./sse/sse.module"
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler"
+import { SentryModule } from "@ntegral/nestjs-sentry"
 
 @Module({
   imports: [
+    SentryModule.forRoot({
+      dsn: process.env.API_SENTRY_DSN ?? "",
+      tracesSampleRate: 1.0
+    }),
     MikroOrmModule.forRoot({
       ...config,
       autoLoadEntities: true

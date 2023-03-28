@@ -2,6 +2,7 @@ import { NestFactory } from "@nestjs/core"
 import { AppModule } from "./app.module"
 import cookieParser from "cookie-parser"
 import helmet from "helmet"
+import { SentryService } from "@ntegral/nestjs-sentry"
 
 const corsOptions = {
   credentials: true,
@@ -10,6 +11,7 @@ const corsOptions = {
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
+  app.useLogger(SentryService.SentryServiceInstance())
   app.enableCors(corsOptions)
   app.use(helmet())
   app.use(cookieParser())
