@@ -32,6 +32,7 @@
     "cookie-parser": "^1.4.6",
     "date-fns": "^2.29.3",
     "eventsource": "^2.0.2",
+    "graphql": "^16.6.0",
     "helmet": "^6.0.1",
     "json2csv": "6.0.0-alpha.2",
     "mikro-orm-config": "*",

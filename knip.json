@@ -13,7 +13,7 @@
     "apps/api": {
       "entry": "src/main.ts",
       "ignore": ["src/cli/**"],
-      "ignoreDependencies": ["helmet"]
+      "ignoreDependencies": ["helmet", "graphql"]
     },
     "apps/web": {
       "ignore": ["sentry.edge.config.js"]
