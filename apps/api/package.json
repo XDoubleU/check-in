@@ -14,12 +14,14 @@
     "cli": "node dist/src/cli/index.js"
   },
   "dependencies": {
+    "@graphql-tools/merge": "^8.4.0",
     "@mikro-orm/core": "^5.6.15",
     "@mikro-orm/nestjs": "^5.1.7",
     "@mikro-orm/postgresql": "^5.6.15",
     "@nestjs/cli": "^9.3.0",
     "@nestjs/common": "^9.3.12",
     "@nestjs/core": "^9.3.12",
+    "@nestjs/graphql": "^11.0.4",
     "@nestjs/jwt": "^10.0.2",
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.3.12",
