@@ -1,8 +1,7 @@
 import { Command } from "commander"
 import prompts from "prompts"
 import { Role } from "types-custom"
-import {
-  config,
+import config, {
   CheckInEntity,
   LocationEntity,
   SchoolEntity,
