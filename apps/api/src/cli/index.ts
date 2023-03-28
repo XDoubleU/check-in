@@ -1,8 +1,7 @@
 import { Command } from "commander"
 import prompts from "prompts"
 import { Role } from "types-custom"
-import {
-  Config,
+import config, {
   CheckInEntity,
   LocationEntity,
   SchoolEntity,
@@ -11,7 +10,7 @@ import {
 import { MikroORM } from "@mikro-orm/core"
 
 const mikroOptions = {
-  ...Config,
+  ...config,
   entities: [CheckInEntity, LocationEntity, SchoolEntity, UserEntity]
 }
 

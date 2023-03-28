@@ -3,7 +3,8 @@ import { TsMorphMetadataProvider } from "@mikro-orm/reflection"
 
 export * from "./entities"
 
-export const Config: Options = {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const config: Options = {
   type: "postgresql",
   clientUrl: process.env.DATABASE_URL ?? "",
   entities: ["./dist/src/entities/*.js"],
@@ -14,3 +15,5 @@ export const Config: Options = {
     enabled: false
   }
 }
+
+export default config
