@@ -22,7 +22,7 @@
     "lint": "turbo lint && prettier --check ./**/*.{ts,tsx}",
     "lint:fix": "turbo lint:fix",
     "lint:report": "turbo lint:report",
-    "prod": "turbo prod",
+    "prod": "dotenv -- turbo prod",
     "test": "dotenv -- turbo test",
     "test:cov": "dotenv -- turbo test:cov",
     "test:report": "dotenv -- turbo test:report"

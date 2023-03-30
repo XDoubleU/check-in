@@ -13,14 +13,13 @@ import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { SseModule } from "./sse/sse.module"
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler"
 import { SentryModule } from "@ntegral/nestjs-sentry"
-import { CommandModule } from "nestjs-command"
 
 @Module({
   imports: [
     SentryModule.forRoot({
       dsn: process.env.API_SENTRY_DSN ?? "",
       tracesSampleRate: 1.0,
-      logLevels: ["error", "warn"]
+      logLevels: ["error","warn"]
     }),
     MikroOrmModule.forRoot({
       ...config,
@@ -30,7 +29,6 @@ import { CommandModule } from "nestjs-command"
       ttl: 10, // the number of seconds that each request will last in storage
       limit: 30 // the maximum number of requests within the TTL limit
     }),
-    CommandModule,
     CheckInsModule,
     LocationsModule,
     SchoolsModule,

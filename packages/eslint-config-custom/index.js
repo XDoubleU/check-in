@@ -22,7 +22,8 @@ module.exports = {
     ".eslintrc.js",
     "**/dist/**",
     "*.config.*",
-    "**/coverage/**"
+    "**/coverage/**",
+    "**/node_modules/**"
   ],
   rules: {
     "@typescript-eslint/explicit-function-return-type": "error",
