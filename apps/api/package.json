@@ -61,7 +61,6 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.0.5",
     "tsconfig-custom": "*",
-    "types-custom": "*",
-    "typescript": "^4.9.5"
+    "types-custom": "*"
   }
 }

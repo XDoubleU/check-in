@@ -33,7 +33,6 @@
     "@types/react": "18.0.29",
     "eslint": "^8.36.0",
     "eslint-config-custom": "*",
-    "tsconfig-custom": "*",
-    "typescript": "^5.0.0"
+    "tsconfig-custom": "*"
   }
 }

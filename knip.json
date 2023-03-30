@@ -5,6 +5,7 @@
   "ignoreWorkspaces": [
     "packages/eslint-config-custom"
   ],
+  "ignoreDependencies": ["tsc", "tsconfig-custom"],
   "workspaces": {
     ".": {
       "ignore": ["integration/script.js", ".yarn"]
@@ -17,12 +18,15 @@
     "apps/web": {
       "ignore": ["sentry.edge.config.js"]
     },
+    "packages/eslint-config-custom": {},
     "packages/mikro-orm-config": {
       "ignore": [
         "src/migrations/**",
         "src/seeders/**"
       ],
       "ignoreDependencies": ["ts-node"]
-    }
+    },
+    "packages/my-api-wrapper": {},
+    "packages/types-custom": {}
   }
 }
