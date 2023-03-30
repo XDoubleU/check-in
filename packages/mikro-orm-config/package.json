@@ -30,9 +30,7 @@
     "@mikro-orm/seeder": "^5.6.15",
     "bcrypt": "^5.1.0",
     "ts-node": "^10.9.1",
-    "uuid": "^9.0.0"
-  },
-  "devDependencies": {
+    "uuid": "^9.0.0",
     "@types/bcrypt": "^5.0.0",
     "@types/node": "^18.15.10",
     "@types/uuid": "^9.0.1",

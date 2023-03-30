@@ -11,7 +11,6 @@
     "lint:report": "eslint . --output-file eslint_report.json --format json src"
   },
   "devDependencies": {
-    "eslint": "^8.36.0",
     "eslint-config-custom": "*",
     "tsconfig-custom": "*"
   }

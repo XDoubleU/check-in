@@ -6,7 +6,7 @@
     "base.json",
     "nextjs.json"
   ],
-  "devDependencies": {
+  "dependencies": {
     "typescript": "^5.0.2"
   }
 }
