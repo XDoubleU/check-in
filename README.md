@@ -33,7 +33,7 @@ There are Docker-files present in both apps.
 
 ## Other
 
-1. `yarn cli createadmin` create admin
+1. `yarn cli -- createadmin -u <username> -p <password>` create admin
 
 ## Run tests
 

@@ -27,7 +27,10 @@ export class UsersService {
     })
   }
 
-  public async createAdmin(username: string, password: string): Promise<UserEntity> {
+  public async createAdmin(
+    username: string,
+    password: string
+  ): Promise<UserEntity> {
     const user = new UserEntity(username, password, Role.Admin)
     await this.usersRepository.persistAndFlush(user)
     return user

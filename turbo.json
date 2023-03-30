@@ -9,6 +9,7 @@
     "NEXT_PUBLIC_API_URL",
     "API_SENTRY_DSN",
     "DATABASE_URL",
+    "DATABASE_NAME",
     "JWT_ACCESS_SECRET",
     "JWT_ACCESS_EXPIRATION",
     "JWT_REFRESH_SECRET",
@@ -57,6 +58,8 @@
     "db:test": {
       "cache": false
     },
-    "cli": {}
+    "cli": {
+      "cache": false
+    }
   }
 }

@@ -13,6 +13,17 @@ const config: Options = {
   metadataProvider: TsMorphMetadataProvider,
   cache: {
     enabled: false
+  },
+  driverOptions: {
+    connection: {
+      ssl: process.env.NODE_ENV === "production"
+    }
+  },
+  schemaGenerator: {
+    managementDbName: process.env.DATABASE_NAME ?? "postgres"
+  },
+  migrations: {
+    disableForeignKeys: false
   }
 }
 

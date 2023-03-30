@@ -14,15 +14,13 @@ import { SseModule } from "./sse/sse.module"
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler"
 import { SentryModule } from "@ntegral/nestjs-sentry"
 import { CommandModule } from "nestjs-command"
-import { UserCommand } from "./users/user.command"
-import { UsersService } from "./users/users.service"
 
 @Module({
   imports: [
     SentryModule.forRoot({
       dsn: process.env.API_SENTRY_DSN ?? "",
       tracesSampleRate: 1.0,
-      logLevels: ['error', 'warn']
+      logLevels: ["error", "warn"]
     }),
     MikroOrmModule.forRoot({
       ...config,
@@ -41,7 +39,6 @@ import { UsersService } from "./users/users.service"
     SseModule
   ],
   providers: [
-    UserCommand, UsersService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard
