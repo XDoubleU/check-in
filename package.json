@@ -39,5 +39,9 @@
     "prettier": "^2.8.7",
     "turbo": "^1.8.5"
   },
-  "packageManager": "yarn@3.5.0"
+  "packageManager": "yarn@3.5.0",
+  "engines": {
+    "node": "18.x",
+    "yarn": "~3.5.0"
+  }
 }
