@@ -44,6 +44,7 @@ export class AuthController {
     )
 
     res.status(200)
+
     return userAndTokens.user
   }
 

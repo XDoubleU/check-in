@@ -6,5 +6,5 @@ export interface SignInDto {
 
 export interface Tokens {
   accessToken: string
-  refreshToken: string
+  refreshToken?: string
 }

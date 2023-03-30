@@ -10,7 +10,6 @@
     "dev": "dotenv -- turbo dev",
     "build": "turbo build",
     "export": "turbo export",
-    "cli": "dotenv -- turbo cli",
     "db:migration-create": "dotenv -- turbo db:migration-create",
     "db:migration-down": "dotenv -- turbo db:migration-down",
     "db:migration-up": "dotenv -- turbo db:migration-up",

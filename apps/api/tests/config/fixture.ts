@@ -97,6 +97,7 @@ export default class Fixture {
   private async seedDatabase(): Promise<void> {
     const users = [
       new UserEntity("Admin", "testpassword", Role.Admin),
+      new UserEntity("Manager", "testpassword", Role.Manager),
       new UserEntity("User", "testpassword")
     ]
 
@@ -107,13 +108,13 @@ export default class Fixture {
 
     await this.em.persistAndFlush(users)
 
-    const locations = [new LocationEntity("TestLocation", 20, users[1])]
+    const locations = [new LocationEntity("TestLocation", 20, users[2])]
 
     for (let i = 0; i < 20; i++) {
       const newLocation = new LocationEntity(
         `TestLocation${i}`,
         20,
-        users[i + 2]
+        users[i + 3]
       )
       locations.push(newLocation)
     }

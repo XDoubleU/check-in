@@ -16,7 +16,7 @@ describe("LocationsController (e2e)", () => {
   const fixture: Fixture = new Fixture()
 
   let userAndTokens: UserAndTokens
-  let adminUserAndTokens: UserAndTokens
+  let managerUserAndTokens: UserAndTokens
 
   let locations: LocationEntity[]
 
@@ -36,8 +36,8 @@ describe("LocationsController (e2e)", () => {
       .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (userAndTokens = data))
-      .then(() => fixture.getTokens("Admin"))
-      .then((data) => (adminUserAndTokens = data))
+      .then(() => fixture.getTokens("Manager"))
+      .then((data) => (managerUserAndTokens = data))
       .then(() => fixture.em.find(LocationEntity, {}))
       .then((data) => {
         locations = data
@@ -74,7 +74,9 @@ describe("LocationsController (e2e)", () => {
     it("gets all Locations with default page size (200)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/locations")
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(200)
 
       const paginatedLocationsResponse =
@@ -92,7 +94,9 @@ describe("LocationsController (e2e)", () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/locations")
         .query({ page })
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(200)
 
       const paginatedLocationsResponse =
@@ -113,7 +117,7 @@ describe("LocationsController (e2e)", () => {
   })
 
   describe("/locations/:id (GET)", () => {
-    it("get Location as Admin (200)", async () => {
+    it("get Location as manager (200)", async () => {
       const location = await fixture.em.findOneOrFail(
         LocationEntity,
         locations[0].id
@@ -121,7 +125,9 @@ describe("LocationsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .get(`/locations/${location.id}`)
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(200)
 
       const locationResponse = response.body as Location
@@ -149,7 +155,9 @@ describe("LocationsController (e2e)", () => {
     it("returns Location not found because Location doesn't exist (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .get(`/locations/${v4()}`)
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
@@ -185,7 +193,9 @@ describe("LocationsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .post("/locations")
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .send(data)
         .expect(201)
 
@@ -207,7 +217,9 @@ describe("LocationsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .post("/locations")
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .send(data)
         .expect(409)
 
@@ -227,7 +239,9 @@ describe("LocationsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .post("/locations")
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .send(data)
         .expect(409)
 
@@ -275,7 +289,7 @@ describe("LocationsController (e2e)", () => {
       expect(locationResponse.userId).toBe(userAndTokens.user.id)
     })
 
-    it("updates a Location as admin (200)", async () => {
+    it("updates a Location as manager (200)", async () => {
       const id = userAndTokens.user.location?.id ?? 0
 
       const data: UpdateLocationDto = {
@@ -285,7 +299,9 @@ describe("LocationsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .patch(`/locations/${id}`)
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .send(data)
         .expect(200)
 
@@ -322,7 +338,7 @@ describe("LocationsController (e2e)", () => {
 
       const data: UpdateLocationDto = {
         name: "NewTestLocation3",
-        username: adminUserAndTokens.user.username
+        username: managerUserAndTokens.user.username
       }
 
       const response = await request(fixture.app.getHttpServer())
@@ -367,7 +383,9 @@ describe("LocationsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .delete(`/locations/${id}`)
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(200)
 
       const locationResponse = response.body as Location
@@ -377,7 +395,9 @@ describe("LocationsController (e2e)", () => {
     it("returns Location not found (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .delete(`/locations/${v4()}`)
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse

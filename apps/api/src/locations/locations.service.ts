@@ -54,7 +54,7 @@ export class LocationsService {
 
     if (
       !location ||
-      (!user.roles.includes(Role.Admin) && location.user.id !== user.id)
+      (!user.roles.includes(Role.Manager) && location.user.id !== user.id)
     ) {
       return null
     }

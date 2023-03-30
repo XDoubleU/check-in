@@ -13,7 +13,9 @@
     "JWT_ACCESS_SECRET",
     "JWT_ACCESS_EXPIRATION",
     "JWT_REFRESH_SECRET",
-    "JWT_REFRESH_EXPIRATION"
+    "JWT_REFRESH_EXPIRATION",
+    "ADMIN_USERNAME",
+    "ADMIN_PASSWORD"
   ],
   "pipeline": {
     "dev": {},
@@ -56,9 +58,6 @@
       "cache": false
     },
     "db:test": {
-      "cache": false
-    },
-    "cli": {
       "cache": false
     }
   }

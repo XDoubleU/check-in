@@ -2,6 +2,7 @@ import { type Options } from "@mikro-orm/core"
 import { TsMorphMetadataProvider } from "@mikro-orm/reflection"
 
 export * from "./entities"
+export * from "./seeders"
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const config: Options = {
@@ -23,7 +24,9 @@ const config: Options = {
     managementDbName: process.env.DATABASE_NAME ?? "postgres"
   },
   migrations: {
-    disableForeignKeys: false
+    disableForeignKeys: false,
+    path: '../dist/src/migrations',
+    pathTs: '../src/migrations'
   }
 }
 

@@ -18,6 +18,7 @@ async function bootstrap(): Promise<void> {
   app.use(helmet())
   app.use(cookieParser())
   app.enableShutdownHooks()
+
   await app.listen(process.env.API_PORT ?? 8000)
 }
 void bootstrap()

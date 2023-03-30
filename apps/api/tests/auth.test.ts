@@ -128,7 +128,9 @@ describe("AuthController (e2e)", () => {
     it("refreshes users tokens (200)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/auth/refresh")
-        .set("Cookie", [`refreshToken=${userAndTokens.tokens.refreshToken}`])
+        .set("Cookie", [
+          `refreshToken=${userAndTokens.tokens.refreshToken ?? ""}`
+        ])
         .expect(200)
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

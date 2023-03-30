@@ -13,6 +13,7 @@ import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { SseModule } from "./sse/sse.module"
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler"
 import { SentryModule } from "@ntegral/nestjs-sentry"
+import { MigrationsModule } from "./migrations/migrations.module"
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { SentryModule } from "@ntegral/nestjs-sentry"
     SchoolsModule,
     AuthModule,
     UsersModule,
-    SseModule
+    SseModule,
+    MigrationsModule
   ],
   providers: [
     {

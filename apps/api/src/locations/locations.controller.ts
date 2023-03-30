@@ -58,7 +58,7 @@ export class LocationsController {
     res.json(data)
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Manager)
   @Get()
   public async getAll(
     @Query("page") queryPage?: string
@@ -90,7 +90,7 @@ export class LocationsController {
     return location
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Manager)
   @Post()
   public async create(
     @Body() createLocationDto: CreateLocationDto
@@ -111,7 +111,8 @@ export class LocationsController {
 
     const user = await this.usersService.create(
       createLocationDto.username,
-      createLocationDto.password
+      createLocationDto.password,
+      Role.User
     )
     return await this.locationsService.create(
       createLocationDto.name,
@@ -165,7 +166,7 @@ export class LocationsController {
     )
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Manager)
   @Delete(":id")
   public async delete(@Param("id") id: string): Promise<LocationEntity> {
     let location = await this.locationsService.getById(id)

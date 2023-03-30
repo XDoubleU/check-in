@@ -1,10 +1,10 @@
 import Loader from "../../components/Loader"
-import AdminLayout from "../../layouts/AdminLayout"
+import ManagerLayout from "../../layouts/AdminLayout"
 
 export default function SettingsHome() {
   return (
-    <AdminLayout title="">
+    <ManagerLayout title="">
       <Loader />
-    </AdminLayout>
+    </ManagerLayout>
   )
 }

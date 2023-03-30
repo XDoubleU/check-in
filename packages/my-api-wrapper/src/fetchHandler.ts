@@ -57,9 +57,16 @@ async function fetchHandlerBase<T = undefined>(
 
   const data = await response.text()
   if (data) {
-    return {
-      ok: response.ok,
-      data: JSON.parse(data) as T
+    try {
+      return {
+        ok: response.ok,
+        data: JSON.parse(data) as T
+      }
+    } catch(e) {
+      return {
+        ok: response.ok,
+        data: data as T
+      }
     }
   }
 

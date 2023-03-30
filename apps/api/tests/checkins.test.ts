@@ -12,7 +12,7 @@ describe("CheckInsController (e2e)", () => {
   const fixture: Fixture = new Fixture()
 
   let userAndTokens: UserAndTokens
-  let adminUserAndTokens: UserAndTokens
+  let managerUserAndTokens: UserAndTokens
 
   let school: SchoolEntity
 
@@ -29,8 +29,8 @@ describe("CheckInsController (e2e)", () => {
       .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (userAndTokens = data))
-      .then(() => fixture.getTokens("Admin"))
-      .then((data) => (adminUserAndTokens = data))
+      .then(() => fixture.getTokens("Manager"))
+      .then((data) => (managerUserAndTokens = data))
       .then(() => fixture.em.findOne(SchoolEntity, { id: 1 }))
       .then((data) => {
         if (!data) {
@@ -70,7 +70,7 @@ describe("CheckInsController (e2e)", () => {
       expect(data[0].Andere).toBeDefined()
     })
 
-    it("fetches data for range chart as admin (200)", async () => {
+    it("fetches data for range chart as manager (200)", async () => {
       const startDate = format(new Date(), DATE_FORMAT)
       const endDate = format(add(new Date(), { days: 1 }), DATE_FORMAT)
 
@@ -80,7 +80,9 @@ describe("CheckInsController (e2e)", () => {
             userAndTokens.user.location?.id ?? ""
           }?startDate=${startDate}&endDate=${endDate}`
         )
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(200)
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -125,7 +127,7 @@ describe("CheckInsController (e2e)", () => {
       expect(response.headers["content-type"]).toContain("text/csv")
     })
 
-    it("fetches csv with data from range chart as admin (200)", async () => {
+    it("fetches csv with data from range chart as manager (200)", async () => {
       const startDate = format(new Date(), DATE_FORMAT)
       const endDate = format(add(new Date(), { days: 1 }), DATE_FORMAT)
 
@@ -135,7 +137,9 @@ describe("CheckInsController (e2e)", () => {
             userAndTokens.user.location?.id ?? ""
           }?startDate=${startDate}&endDate=${endDate}`
         )
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(200)
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -177,14 +181,16 @@ describe("CheckInsController (e2e)", () => {
       expect(data[0].Andere).toBeDefined()
     })
 
-    it("fetches data for day chart as admin (200)", async () => {
+    it("fetches data for day chart as manager (200)", async () => {
       const date = format(new Date(), DATE_FORMAT)
 
       const response = await request(fixture.app.getHttpServer())
         .get(
           `/checkins/day/${userAndTokens.user.location?.id ?? ""}?date=${date}`
         )
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(200)
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -225,7 +231,7 @@ describe("CheckInsController (e2e)", () => {
       expect(response.headers["content-type"]).toContain("text/csv")
     })
 
-    it("fetches csv with data from day chart as admin (200)", async () => {
+    it("fetches csv with data from day chart as manager (200)", async () => {
       const date = format(new Date(), DATE_FORMAT)
 
       const response = await request(fixture.app.getHttpServer())
@@ -234,7 +240,9 @@ describe("CheckInsController (e2e)", () => {
             userAndTokens.user.location?.id ?? ""
           }?date=${date}`
         )
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(200)
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -295,7 +303,9 @@ describe("CheckInsController (e2e)", () => {
 
       return await request(fixture.app.getHttpServer())
         .post("/checkins")
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .send(data)
         .expect(403)
     })

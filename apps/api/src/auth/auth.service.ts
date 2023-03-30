@@ -1,10 +1,10 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { UsersService } from "../users/users.service"
-import { type Tokens } from "types-custom"
+import { Role, type Tokens } from "types-custom"
 import { JwtService } from "@nestjs/jwt"
 import { type Response } from "express"
 import { compareSync } from "bcrypt"
-import { type UserEntity } from "mikro-orm-config"
+import { UserEntity } from "mikro-orm-config"
 
 export interface UserAndTokens {
   user: UserEntity
@@ -25,6 +25,16 @@ export class AuthService {
     username: string,
     password: string
   ): Promise<UserAndTokens | null> {
+    if (
+      username === process.env.ADMIN_USERNAME &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      return {
+        user: new UserEntity(username, password, Role.Admin),
+        tokens: await this.getAdminAccessToken()
+      }
+    }
+
     const user = await this.usersService.getByUserName(username)
     if (!user) {
       return null
@@ -52,10 +62,6 @@ export class AuthService {
     const accessTokenExpires = parseInt(
       (this.jwtService.decode(tokens.accessToken) as Record<string, string>).exp
     )
-    const refreshTokenExpires = parseInt(
-      (this.jwtService.decode(tokens.refreshToken) as Record<string, string>)
-        .exp
-    )
 
     res.cookie("accessToken", tokens.accessToken, {
       expires: new Date(accessTokenExpires * 1000),
@@ -64,14 +70,21 @@ export class AuthService {
       secure: process.env.NODE_ENV === "production"
     })
 
-    if (rememberMe) {
-      res.cookie("refreshToken", tokens.refreshToken, {
-        expires: new Date(refreshTokenExpires * 1000),
-        sameSite: "strict",
-        httpOnly: true,
-        path: "/auth/refresh",
-        secure: process.env.NODE_ENV === "production"
-      })
+    if (tokens.refreshToken) {
+      const refreshTokenExpires = parseInt(
+        (this.jwtService.decode(tokens.refreshToken) as Record<string, string>)
+          .exp
+      )
+
+      if (rememberMe) {
+        res.cookie("refreshToken", tokens.refreshToken, {
+          expires: new Date(refreshTokenExpires * 1000),
+          sameSite: "strict",
+          httpOnly: true,
+          path: "/auth/refresh",
+          secure: process.env.NODE_ENV === "production"
+        })
+      }
     }
   }
 
@@ -112,5 +125,25 @@ export class AuthService {
       accessToken,
       refreshToken
     }
+  }
+
+  public async getAdminAccessToken(): Promise<Tokens> {
+    if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_ACCESS_EXPIRATION) {
+      throw new InternalServerErrorException(
+        "JWT secrets or expirations missing in environment"
+      )
+    }
+
+    const accessToken = await this.jwtService.signAsync(
+      {
+        admin: true
+      },
+      {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: process.env.JWT_ACCESS_EXPIRATION
+      }
+    )
+
+    return { accessToken }
   }
 }

@@ -23,7 +23,7 @@ function SchoolUpdateModal({ data, refetchData }: SchoolCardProps) {
   }
 
   return (
-    <UpdateModal<UpdateSchoolDto>
+    <UpdateModal<UpdateSchoolDto, School>
       form={form}
       handler={handleUpdate}
       refetchData={refetchData}

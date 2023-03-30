@@ -31,9 +31,6 @@ There are Docker-files present in both apps.
 2. Apply migration: `yarn db:migration-up`
 3. Undo migration: `yarn db:migration-down`
 
-## Other
-
-1. `yarn cli -- createadmin -u <username> -p <password>` create admin
 
 ## Run tests
 
