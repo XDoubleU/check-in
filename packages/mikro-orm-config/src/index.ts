@@ -16,9 +16,9 @@ const config: Options = {
     enabled: false
   },
   driverOptions: {
-    connection: {
-      ssl: process.env.NODE_ENV === "production"
-    }
+    ...(process.env.NODE_ENV === 'production' && {
+      connection: { ssl: { ca: process.env.CA_CERT } },
+    }),
   },
   schemaGenerator: {
     managementDbName: process.env.DATABASE_NAME ?? "postgres"
