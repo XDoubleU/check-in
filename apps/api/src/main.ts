@@ -29,6 +29,7 @@ async function bootstrap(): Promise<void> {
   })
 
   app.use(Sentry.Handlers.requestHandler())
+  app.use(Sentry.Handlers.tracingHandler())
 
   app.enableCors(corsOptions)
   app.use(helmet())
