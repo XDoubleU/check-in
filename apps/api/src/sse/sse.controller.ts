@@ -14,6 +14,7 @@ export class SseController {
   @Public()
   @Sse()
   @Header("Access-Control-Allow-Origin", "*")
+  @Header("Cache-Control", "no-cache")
   public sseAllLocations(): Observable<LocationUpdateEvent> {
     return this.sseService.sendAllLocationUpdates()
   }
