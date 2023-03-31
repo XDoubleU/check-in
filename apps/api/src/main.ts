@@ -20,7 +20,6 @@ async function bootstrap(): Promise<void> {
     environment: process.env.NODE_ENV ?? "unknown",
     release: process.env.RELEASE ?? "unknown",
     tracesSampleRate: 1.0,
-    autoSessionTracking: false,
     integrations: [
       // enable HTTP calls tracing
       new Sentry.Integrations.Http({ tracing: true }),
