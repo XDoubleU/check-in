@@ -45,8 +45,6 @@ export default function Migrations() {
           <CustomButton onClick={seed}>Seed</CustomButton>
         </Col>
         <Col md={2}>
-          <p id="output-create-migrations">...</p>
-          <br />
           <p id="output-migrations-up">...</p>
           <br />
           <p id="output-migrations-down">...</p>
