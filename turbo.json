@@ -45,16 +45,7 @@
     "test:report": {
       "cache": false
     },
-    "db:seed": {
-      "cache": false
-    },
     "db:migration-create": {
-      "cache": false
-    },
-    "db:migration-up": {
-      "cache": false
-    },
-    "db:migration-down": {
       "cache": false
     },
     "db:test": {

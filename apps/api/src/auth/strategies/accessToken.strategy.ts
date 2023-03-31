@@ -38,7 +38,9 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, "jwt") {
     if (payload.admin) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return new UserEntity(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         process.env.ADMIN_USERNAME!,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         process.env.ADMIN_PASSWORD!,
         Role.Admin
       )

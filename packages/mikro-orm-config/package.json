@@ -9,17 +9,14 @@
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
     "lint:report": "eslint . --output-file eslint_report.json --format json src",
-    "db:seed": "npx mikro-orm seeder:run",
     "db:migration-create": "npx mikro-orm migration:create",
-    "db:migration-up": "npx mikro-orm migration:up",
-    "db:migration-down": "npx mikro-orm migration:down",
     "db:test": "npx mikro-orm migration:fresh --seed"
   },
   "mikro-orm": {
     "useTsNode": true,
     "configPaths": [
-      "./src/index.ts",
-      "./dist/src/index.js"
+      "./src/cli-config.ts",
+      "./dist/src/cli-config.js"
     ]
   },
   "dependencies": {

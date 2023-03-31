@@ -6,14 +6,15 @@
   "ignoreWorkspaces": [
     "packages/eslint-config-custom"
   ],
-  "ignoreDependencies": ["tsc", "tsconfig-custom"],
+  "ignore": ["**/.eslintrc.js"],
+  "ignoreBinaries": ["eslint", "tsc"],
+  "ignoreDependencies": ["tsconfig-custom", "eslint-config-custom"],
   "workspaces": {
     ".": {
       "ignore": ["integration/script.js", ".yarn"]
     },
     "apps/api": {
       "entry": "src/main.ts",
-      "ignore": ["src/cli/**"],
       "ignoreDependencies": ["helmet"]
     },
     "apps/web": {
@@ -22,7 +23,8 @@
     "packages/mikro-orm-config": {
       "ignore": [
         "src/migrations/**",
-        "src/seeders/**"
+        "src/seeders/**",
+        "src/cli-config.ts"
       ],
       "ignoreDependencies": ["ts-node"]
     },

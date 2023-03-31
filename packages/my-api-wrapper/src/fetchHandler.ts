@@ -62,7 +62,7 @@ async function fetchHandlerBase<T = undefined>(
         ok: response.ok,
         data: JSON.parse(data) as T
       }
-    } catch(e) {
+    } catch (e) {
       return {
         ok: response.ok,
         data: data as T

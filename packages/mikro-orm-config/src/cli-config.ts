@@ -7,15 +7,10 @@ export * from "./seeders"
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const config: Options = {
   ...sharedConfig,
-  driverOptions: {
-    ...(process.env.NODE_ENV === "production" && {
-      connection: { ssl: { ca: process.env.CA_CERT } }
-    })
-  },
   migrations: {
     disableForeignKeys: false,
-    path: "../dist/src/migrations",
-    pathTs: "../src/migrations"
+    path: "./dist/src/migrations",
+    pathTs: "./src/migrations"
   }
 }
 

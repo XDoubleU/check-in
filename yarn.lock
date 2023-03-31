@@ -411,20 +411,20 @@
   resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.6.0.tgz#9ea331766084288634a9247fcd8b84f16ff4ba07"
   integrity sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw==
 
-"@graphql-tools/merge@8.3.18":
-  version "8.3.18"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/merge/-/merge-8.3.18.tgz#bfbb517c68598a885809f16ce5c3bb1ebb8f04a2"
-  integrity sha512-R8nBglvRWPAyLpZL/f3lxsY7wjnAeE0l056zHhcO/CgpvK76KYUt9oEkR05i8Hmt8DLRycBN0FiotJ0yDQWTVA==
+"@graphql-tools/merge@8.4.0":
+  version "8.4.0"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/merge/-/merge-8.4.0.tgz#47fbe5c4b6764276dc35bd19c4e7d3c46d3dc0fc"
+  integrity sha512-3XYCWe0d3I4F1azNj1CdShlbHfTIfiDgj00R9uvFH8tHKh7i1IWN3F7QQYovcHKhayaR6zPok3YYMESYQcBoaA==
   dependencies:
     "@graphql-tools/utils" "9.2.1"
     tslib "^2.4.0"
 
-"@graphql-tools/schema@9.0.16":
-  version "9.0.16"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/schema/-/schema-9.0.16.tgz#7d340d69e6094dc01a2b9e625c7bb4fff89ea521"
-  integrity sha512-kF+tbYPPf/6K2aHG3e1SWIbapDLQaqnIHVRG6ow3onkFoowwtKszvUyOASL6Krcv2x9bIMvd1UkvRf9OaoROQQ==
+"@graphql-tools/schema@9.0.17":
+  version "9.0.17"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/schema/-/schema-9.0.17.tgz#d731e9899465f88d5b9bf69e607ec465bb88b062"
+  integrity sha512-HVLq0ecbkuXhJlpZ50IHP5nlISqH2GbNgjBJhhRzHeXhfwlUOT4ISXGquWTmuq61K0xSaO0aCjMpxe4QYbKTng==
   dependencies:
-    "@graphql-tools/merge" "8.3.18"
+    "@graphql-tools/merge" "8.4.0"
     "@graphql-tools/utils" "9.2.1"
     tslib "^2.4.0"
     value-or-promise "1.0.12"
@@ -917,25 +917,25 @@
     path-to-regexp "3.2.0"
     tslib "2.5.0"
 
-"@nestjs/graphql@^10.0.20":
-  version "10.2.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/graphql/-/graphql-10.2.0.tgz#ebd3cbab02652d9b4f2d45c6edb84c3df495ed08"
-  integrity sha512-N/sca0eZLJIyyvfusZh1eabGnKBYgQ4LmOCvhI7+oDMiWWK4HOhOEeT5MC11bmd0vq850frWW9qqg+3qRKpiXw==
+"@nestjs/graphql@^11.0.0":
+  version "11.0.4"
+  resolved "https://registry.yarnpkg.com/@nestjs/graphql/-/graphql-11.0.4.tgz#a0e85c76c4c5c2812f2f88b143452f5c5bbbfb13"
+  integrity sha512-D4KqFOfow18R9KrxgQBPntsKGsbZi5XQQnjwngbHXKrarRWv79yjUyHdMwZ7qnoryVx/REbFmdglF6ZpdnjiNg==
   dependencies:
-    "@graphql-tools/merge" "8.3.18"
-    "@graphql-tools/schema" "9.0.16"
+    "@graphql-tools/merge" "8.4.0"
+    "@graphql-tools/schema" "9.0.17"
     "@graphql-tools/utils" "9.2.1"
     "@nestjs/mapped-types" "1.2.2"
     chokidar "3.5.3"
     fast-glob "3.2.12"
     graphql-tag "2.12.6"
-    graphql-ws "5.11.3"
+    graphql-ws "5.12.0"
     lodash "4.17.21"
     normalize-path "3.0.0"
     subscriptions-transport-ws "0.11.0"
     tslib "2.5.0"
     uuid "9.0.0"
-    ws "8.12.0"
+    ws "8.13.0"
 
 "@nestjs/jwt@^10.0.2":
   version "10.0.3"
@@ -1104,13 +1104,6 @@
   resolved "https://registry.yarnpkg.com/@npmcli/name-from-folder/-/name-from-folder-2.0.0.tgz#c44d3a7c6d5c184bb6036f4d5995eee298945815"
   integrity sha512-pwK+BfEBZJbKdNYpHHRTNBwBoqrN/iIMO0AiGvYsp3Hoaq0WbgGSWQR6SCldZovoDpY3yje5lkFUe6gsDgJ2vg==
 
-"@ntegral/nestjs-sentry@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@ntegral/nestjs-sentry/-/nestjs-sentry-4.0.0.tgz#db2747ec57e128f82801682187a61265e061d385"
-  integrity sha512-6WHZcK7NLeg7ue1y3Z61msEBzCGZeXQ0hWhliH1ddQH0kPbZ6lXLxduGMWYb0N/fPjXAX1Astz8urqnoTOZBQw==
-  optionalDependencies:
-    "@nestjs/graphql" "^10.0.20"
-
 "@nuxtjs/opencollective@0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@nuxtjs/opencollective/-/opencollective-0.3.2.tgz#620ce1044f7ac77185e825e1936115bb38e2681c"
@@ -1245,16 +1238,6 @@
     "@sentry/utils" "7.46.0"
     tslib "^1.9.3"
 
-"@sentry/hub@^7.45.0":
-  version "7.46.0"
-  resolved "https://registry.yarnpkg.com/@sentry/hub/-/hub-7.46.0.tgz#382a84aef27cc510278165a462ebf00e68b0c7da"
-  integrity sha512-fsHw+rVcmqsYwEI5lDX8y5REQ+ys3AJf2kpFRM3RLsoWeyEeUITLIC7jjcPMCeNJMfdMAoouBo4QCYugGPC94w==
-  dependencies:
-    "@sentry/core" "7.46.0"
-    "@sentry/types" "7.46.0"
-    "@sentry/utils" "7.46.0"
-    tslib "^1.9.3"
-
 "@sentry/integrations@7.46.0":
   version "7.46.0"
   resolved "https://registry.yarnpkg.com/@sentry/integrations/-/integrations-7.46.0.tgz#24c02d61c62bd7093c9c748b622858667025b028"
@@ -1283,7 +1266,7 @@
     stacktrace-parser "^0.1.10"
     tslib "^1.9.3"
 
-"@sentry/node@7.46.0", "@sentry/node@^7.45.0":
+"@sentry/node@7.46.0", "@sentry/node@^7.46.0":
   version "7.46.0"
   resolved "https://registry.yarnpkg.com/@sentry/node/-/node-7.46.0.tgz#f85ee74926372d19d6b6a23f68f19023d7a528a7"
   integrity sha512-+GrgJMCye2WXGarRiU5IJHCK27xg7xbPc2XjGojBKbBoZfqxVAWbXEK4bnBQgRGP1pCmrU/M6ZhVgR3dP580xA==
@@ -4347,10 +4330,10 @@ graphql-tag@2.12.6:
   dependencies:
     tslib "^2.1.0"
 
-graphql-ws@5.11.3:
-  version "5.11.3"
-  resolved "https://registry.yarnpkg.com/graphql-ws/-/graphql-ws-5.11.3.tgz#eaf8e6baf669d167975cff13ad86abca4ecfe82f"
-  integrity sha512-fU8zwSgAX2noXAsuFiCZ8BtXeXZOzXyK5u1LloCdacsVth4skdBMPO74EG51lBoWSIZ8beUocdpV8+cQHBODnQ==
+graphql-ws@5.12.0:
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/graphql-ws/-/graphql-ws-5.12.0.tgz#d06fe38916334b4a4c827f73268cbf4359a32ed7"
+  integrity sha512-PA3ImUp8utrpEjoxBMhvxsjkStvFEdU0E1gEBREt8HZIWkxOUymwJBhFnBL7t/iHhUq1GVPeZevPinkZFENxTw==
 
 has-bigints@^1.0.1, has-bigints@^1.0.2:
   version "1.0.2"
@@ -5890,6 +5873,13 @@ neo-async@^2.6.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
+
+nest-raven@^9.2.0:
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/nest-raven/-/nest-raven-9.2.0.tgz#c83bfd0a6eadf47efd1aa2c6cd3de72864824bd8"
+  integrity sha512-pI7dBi5Jr7BE5PyuzVTzKYr4R0iJUcPQi1/c/QtHpSwuVMYUEqfvnOY3zYSW5XKvnXmsh+8a7bd0A8QOBooJFw==
+  optionalDependencies:
+    "@nestjs/graphql" "^11.0.0"
 
 next@13.2.4:
   version "13.2.4"
@@ -8137,10 +8127,10 @@ write-file-atomic@^4.0.2:
     imurmurhash "^0.1.4"
     signal-exit "^3.0.7"
 
-ws@8.12.0:
-  version "8.12.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.12.0.tgz#485074cc392689da78e1828a9ff23585e06cddd8"
-  integrity sha512-kU62emKIdKVeEIOIKVegvqpXMSTAMLJozpHZaJNDYqBjzlSYXQGviYwN1osDLJ9av68qHd4a2oSjd7yD4pacig==
+ws@8.13.0:
+  version "8.13.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.13.0.tgz#9a9fb92f93cf41512a0735c8f4dd09b8a1211cd0"
+  integrity sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==
 
 "ws@^5.2.0 || ^6.0.0 || ^7.0.0":
   version "7.5.9"

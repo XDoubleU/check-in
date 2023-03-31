@@ -28,8 +28,8 @@ There are Docker-files present in both apps.
 ## Edit schema?
 
 1. Create migrations: `yarn db:migration-create`
-2. Apply migration: `yarn db:migration-up`
-3. Undo migration: `yarn db:migration-down`
+2. Rebuild `yarn build --force`
+3. Apply migrations as admin in UI
 
 
 ## Run tests

@@ -13,13 +13,6 @@ export class MigrationsController {
   }
 
   @Roles(Role.Admin)
-  @Get("create")
-  public async applyMigrationsCreate(): Promise<string> {
-    const response = await this.orm.getMigrator().createMigration()
-    return response.fileName
-  }
-
-  @Roles(Role.Admin)
   @Get("up")
   public async applyMigrationsUp(): Promise<string> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
