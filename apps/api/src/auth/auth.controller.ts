@@ -9,10 +9,10 @@ import {
 } from "@nestjs/common"
 import { AuthService } from "./auth.service"
 import { RefreshTokenGuard } from "./guards/refreshToken.guard"
-import { Response } from "express"
+import  { type Response } from "express"
 import { Public } from "./decorators/public.decorator"
 import { ReqUser } from "./decorators/user.decorator"
-import { SignInDto } from "types-custom"
+import  { type SignInDto } from "types-custom"
 import { UserEntity } from "mikro-orm-config"
 
 @Controller("auth")

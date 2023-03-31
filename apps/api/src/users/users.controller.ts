@@ -12,10 +12,10 @@ import {
 } from "@nestjs/common"
 import { UserEntity } from "mikro-orm-config"
 import {
-  CreateUserDto,
+  type CreateUserDto,
   type GetAllPaginatedUserDto,
   Role,
-  UpdateUserDto
+  type UpdateUserDto
 } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { ReqUser } from "../auth/decorators/user.decorator"

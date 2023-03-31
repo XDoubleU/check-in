@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { Module } from "@nestjs/common"
+import { HttpException, Module } from "@nestjs/common"
 import { CheckInsModule } from "./checkins/checkins.module"
 import { LocationsModule } from "./locations/locations.module"
 import { SchoolsModule } from "./schools/schools.module"
@@ -37,7 +37,17 @@ import { RavenInterceptor, RavenModule } from "nest-raven"
   providers: [
     {
       provide: APP_INTERCEPTOR,
-      useValue: new RavenInterceptor()
+      useValue: new RavenInterceptor({
+        filters: [
+          // Filter exceptions of type HttpException. Ignore those that
+          // have status code of less than 500
+          {
+            type: HttpException,
+            filter: (exception: HttpException): boolean =>
+              500 > exception.getStatus()
+          }
+        ]
+      })
     },
     {
       provide: APP_GUARD,

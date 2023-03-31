@@ -14,8 +14,8 @@ import { SchoolsService } from "./schools.service"
 import {
   type GetAllPaginatedSchoolDto,
   Role,
-  CreateSchoolDto,
-  UpdateSchoolDto
+  type CreateSchoolDto,
+  type UpdateSchoolDto
 } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { ReqUser } from "../auth/decorators/user.decorator"

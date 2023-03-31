@@ -17,14 +17,14 @@ import { UsersService } from "../users/users.service"
 import {
   type GetAllPaginatedLocationDto,
   Role,
-  CreateLocationDto,
-  UpdateLocationDto
+  type CreateLocationDto,
+  type UpdateLocationDto
 } from "types-custom"
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { type LocationEntity, UserEntity } from "mikro-orm-config"
 import { Public } from "../auth/decorators/public.decorator"
-import { Response } from "express"
+import  { type Response } from "express"
 import { convertToLocationUpdateEventDto } from "../helpers/conversion"
 
 type MikroGetAllPaginatedLocationDto = Omit<

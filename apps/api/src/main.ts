@@ -10,7 +10,9 @@ const corsOptions = {
 }
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, {
+    forceCloseConnections: true
+  })
 
   Sentry.init({
     dsn: process.env.API_SENTRY_DSN ?? "",
