@@ -17,7 +17,7 @@ const config: Options = {
   },
   driverOptions: {
     ...(process.env.NODE_ENV === 'production' && {
-      connection: { ssl: { ca: process.env.CA_CERT } },
+      connection: { ssl: { rejectUnauthorized: false } },
     }),
   },
   schemaGenerator: {
