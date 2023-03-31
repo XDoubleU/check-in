@@ -18,6 +18,7 @@ async function bootstrap(): Promise<void> {
     dsn: process.env.API_SENTRY_DSN ?? "",
     debug: process.env.NODE_ENV === "development",
     environment: process.env.NODE_ENV ?? "unknown",
+    release: process.env.RELEASE ?? "unknown",
     tracesSampleRate: 1.0
   })
 

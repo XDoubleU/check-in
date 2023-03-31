@@ -16,7 +16,8 @@
     "JWT_REFRESH_SECRET",
     "JWT_REFRESH_EXPIRATION",
     "ADMIN_USERNAME",
-    "ADMIN_PASSWORD"
+    "ADMIN_PASSWORD",
+    "RELEASE"
   ],
   "pipeline": {
     "dev": {},
