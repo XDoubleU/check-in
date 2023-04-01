@@ -3,20 +3,20 @@ import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { LocationEntity, type UserEntity } from "mikro-orm-config"
 import { Role } from "types-custom"
-import { SseService } from "../sse/sse.service"
+import { WsService } from "../ws/ws.service"
 
 @Injectable()
 export class LocationsService {
   private readonly locationsRepository: EntityRepository<LocationEntity>
-  private readonly sseService: SseService
+  private readonly wsService: WsService
 
   public constructor(
     @InjectRepository(LocationEntity)
     locationsRepository: EntityRepository<LocationEntity>,
-    sseService: SseService
+    wsService: WsService
   ) {
     this.locationsRepository = locationsRepository
-    this.sseService = sseService
+    this.wsService = wsService
   }
 
   public async getTotalCount(): Promise<number> {
@@ -54,7 +54,7 @@ export class LocationsService {
 
     if (
       !location ||
-      (!user.roles.includes(Role.Admin) && location.user.id !== user.id)
+      (!user.roles.includes(Role.Manager) && location.user.id !== user.id)
     ) {
       return null
     }
@@ -97,7 +97,7 @@ export class LocationsService {
 
     const updatedLocation = await this.refresh(location.id)
 
-    this.sseService.addLocationUpdate(updatedLocation)
+    this.wsService.addLocationUpdate(updatedLocation)
 
     return location
   }

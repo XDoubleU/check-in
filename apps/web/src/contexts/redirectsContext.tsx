@@ -8,18 +8,26 @@ interface Props {
   children: ReactNode
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
+// eslint-disable-next-line @typescript-eslint/naming-convention, sonarjs/cognitive-complexity
 function checkRedirects(currentUser: User | undefined, router: NextRouter) {
   if (!currentUser && router.pathname !== "/signin") {
     return router.push("/signin")
   }
 
-  if (router.pathname === "/" && currentUser?.roles.includes(Role.Admin)) {
+  if (router.pathname === "/" && currentUser?.roles.includes(Role.Manager)) {
     return router.push("/settings")
   }
 
+  if (router.pathname === "/" && currentUser?.roles.includes(Role.Admin)) {
+    return router.push("/admin")
+  }
+
+  if (router.pathname === "/admin" && currentUser?.roles.includes(Role.Admin)) {
+    return router.push("/admin/migrations")
+  }
+
   if (router.pathname === "/settings") {
-    if (currentUser?.roles.includes(Role.Admin)) {
+    if (currentUser?.roles.includes(Role.Manager)) {
       return router.push("/settings/locations")
     }
     if (currentUser?.roles.includes(Role.User) && currentUser.location) {
@@ -28,13 +36,13 @@ function checkRedirects(currentUser: User | undefined, router: NextRouter) {
   }
   if (
     router.pathname === "/settings/schools" &&
-    !currentUser?.roles.includes(Role.Admin)
+    !currentUser?.roles.includes(Role.Manager)
   ) {
     return router.push("/settings")
   }
   if (
     router.pathname === "/settings/locations" &&
-    !currentUser?.roles.includes(Role.Admin)
+    !currentUser?.roles.includes(Role.Manager)
   ) {
     return router.push("/settings")
   }

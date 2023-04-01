@@ -4,16 +4,16 @@ import { CheckInsController } from "./checkins.controller"
 import { LocationsModule } from "../locations/locations.module"
 import { SchoolsModule } from "../schools/schools.module"
 import { CheckInsService } from "./checkins.service"
-import { SseModule } from "../sse/sse.module"
 import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { CheckInEntity } from "mikro-orm-config"
+import { WsModule } from "../ws/ws.module"
 
 @Module({
   imports: [
     MikroOrmModule.forFeature([CheckInEntity]),
     SchoolsModule,
     LocationsModule,
-    SseModule
+    WsModule
   ],
   controllers: [CheckInsController],
   providers: [CheckInsService]

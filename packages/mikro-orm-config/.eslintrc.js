@@ -3,7 +3,7 @@ module.exports = {
     "custom"
   ],
   parserOptions: {
-    project: "tsconfig.json",
+    project: "./tsconfig.json",
     tsconfigRootDir: __dirname,
     sourceType: "module"
   },

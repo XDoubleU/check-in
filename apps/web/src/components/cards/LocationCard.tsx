@@ -3,7 +3,7 @@ import Link from "next/link"
 import UpdateModal from "../modals/UpdateModal"
 import DeleteModal from "../modals/DeleteModal"
 import { deleteLocation, updateLocation } from "my-api-wrapper"
-import { type UpdateLocationDto } from "types-custom"
+import { type UpdateLocationDto, type Location } from "types-custom"
 import { useForm } from "react-hook-form"
 import { format } from "date-fns"
 import { type LocationWithUsername } from "../../pages/settings/locations/index"
@@ -35,7 +35,7 @@ export function LocationUpdateModal({ data, refetchData }: LocationCardProps) {
   }
 
   return (
-    <UpdateModal<UpdateLocationDto>
+    <UpdateModal<UpdateLocationDto, Location>
       form={form}
       handler={handleUpdate}
       refetchData={refetchData}

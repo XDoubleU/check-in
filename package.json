@@ -2,24 +2,23 @@
   "name": "check-in",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "dev": "dotenv -- turbo dev",
     "build": "turbo build",
     "export": "turbo export",
-    "cli": "dotenv -- turbo cli",
     "db:migration-create": "dotenv -- turbo db:migration-create",
-    "db:migration-down": "dotenv -- turbo db:migration-down",
-    "db:migration-up": "dotenv -- turbo db:migration-up",
-    "db:seed": "dotenv -- turbo db:seed",
     "db:test": "dotenv -- turbo db:test",
     "format": "prettier --write ./**/*.{ts,tsx}",
-    "preinstall": "npx only-allow pnpm",
     "jscpd": "jscpd --config jscpd.json .",
     "knip": "knip",
     "lint": "turbo lint && prettier --check ./**/*.{ts,tsx}",
     "lint:fix": "turbo lint:fix",
     "lint:report": "turbo lint:report",
-    "prod": "turbo prod",
+    "prod": "dotenv -- turbo prod",
     "test": "dotenv -- turbo test",
     "test:cov": "dotenv -- turbo test:cov",
     "test:report": "dotenv -- turbo test:report"
@@ -35,5 +34,9 @@
     "knip": "^2.1.3",
     "prettier": "^2.8.7",
     "turbo": "^1.8.5"
+  },
+  "engines": {
+    "node": "16.20.x",
+    "yarn": "1.x"
   }
 }

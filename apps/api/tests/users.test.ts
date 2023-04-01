@@ -9,7 +9,7 @@ describe("UsersController (e2e)", () => {
   const fixture: Fixture = new Fixture()
 
   let userAndTokens: UserAndTokens
-  let adminUserAndTokens: UserAndTokens
+  let managerUserAndTokens: UserAndTokens
 
   beforeAll(() => {
     return fixture.beforeAll()
@@ -24,8 +24,8 @@ describe("UsersController (e2e)", () => {
       .beforeEach()
       .then(() => fixture.getTokens("User"))
       .then((data) => (userAndTokens = data))
-      .then(() => fixture.getTokens("Admin"))
-      .then((data) => (adminUserAndTokens = data))
+      .then(() => fixture.getTokens("Manager"))
+      .then((data) => (managerUserAndTokens = data))
   })
 
   afterEach(() => {
@@ -48,10 +48,12 @@ describe("UsersController (e2e)", () => {
   })
 
   describe("/users/:id (GET)", () => {
-    it("gets User as admin (200)", async () => {
+    it("gets User as manager (200)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .get(`/users/${userAndTokens.user.id}`)
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(200)
 
       const userResponse = response.body as User
@@ -64,7 +66,9 @@ describe("UsersController (e2e)", () => {
     it("returns User not found (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .get(`/users/${v4()}`)
-        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse

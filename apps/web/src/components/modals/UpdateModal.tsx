@@ -9,22 +9,22 @@ import {
 import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"
 import BaseForm from "../forms/BaseForm"
 
-interface UpdateModalProps<T extends FieldValues> {
+interface UpdateModalProps<T extends FieldValues, Y> {
   children: ReactElement | ReactElement[]
   form: UseFormReturn<T>
-  handler: (data: T) => Promise<APIResponse<T>>
+  handler: (data: T) => Promise<APIResponse<Y>>
   refetchData: () => Promise<void>
   typeName: string
 }
 
 // eslint-disable-next-line max-lines-per-function
-export default function UpdateModal<T extends FieldValues>({
+export default function UpdateModal<T extends FieldValues, Y>({
   children,
   form,
   handler,
   refetchData,
   typeName
-}: UpdateModalProps<T>) {
+}: UpdateModalProps<T, Y>) {
   const [showUpdate, setShowUpdate] = useState(false)
   const handleCloseUpdate = () => setShowUpdate(false)
   const handleShowUpdate = () => setShowUpdate(true)

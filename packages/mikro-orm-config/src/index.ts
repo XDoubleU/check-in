@@ -1,18 +1,21 @@
 import { type Options } from "@mikro-orm/core"
-import { TsMorphMetadataProvider } from "@mikro-orm/reflection"
+import sharedConfig from "./shared-config"
 
 export * from "./entities"
+export * from "./seeders"
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const config: Options = {
-  type: "postgresql",
-  clientUrl: process.env.DATABASE_URL ?? "",
-  entities: ["./dist/src/entities/*.js"],
-  entitiesTs: ["./src/entities/*.ts"],
-  baseDir: __dirname + "/..",
-  metadataProvider: TsMorphMetadataProvider,
-  cache: {
-    enabled: false
+  ...sharedConfig,
+  driverOptions: {
+    ...(process.env.NODE_ENV === "production" && {
+      connection: { ssl: { ca: process.env.CA_CERT } }
+    })
+  },
+  migrations: {
+    disableForeignKeys: false,
+    path: "../dist/src/migrations",
+    pathTs: "../src/migrations"
   }
 }
 

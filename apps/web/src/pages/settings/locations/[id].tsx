@@ -1,4 +1,4 @@
-import AdminLayout from "../../../layouts/AdminLayout"
+import ManagerLayout from "../../../layouts/AdminLayout"
 import { LocationUpdateModal } from "../../../components/cards/LocationCard"
 import { getLocation, getUser } from "my-api-wrapper"
 import { useCallback, useEffect, useState } from "react"
@@ -28,7 +28,7 @@ export default function LocationDetail() {
     }
 
     let responseUser: APIResponse<User> | undefined = undefined
-    if (user?.roles.includes(Role.Admin)) {
+    if (user?.roles.includes(Role.Manager)) {
       responseUser = await getUser(responseLocation.data.userId)
       if (!responseUser.data) return
     }
@@ -60,8 +60,8 @@ export default function LocationDetail() {
   )
 
   return (
-    <AdminLayout title={location.name} titleButton={titleButton}>
+    <ManagerLayout title={location.name} titleButton={titleButton}>
       <Charts locationId={location.id} />
-    </AdminLayout>
+    </ManagerLayout>
   )
 }

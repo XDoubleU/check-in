@@ -12,7 +12,8 @@
           "unsigned": true,
           "autoincrement": true,
           "primary": true,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "integer"
         },
         "name": {
           "name": "name",
@@ -20,7 +21,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "string"
         }
       },
       "name": "School",
@@ -56,7 +58,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "uuid"
         },
         "username": {
           "name": "username",
@@ -64,7 +67,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "string"
         },
         "password_hash": {
           "name": "password_hash",
@@ -72,7 +76,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "string"
         },
         "roles": {
           "name": "roles",
@@ -84,8 +89,10 @@
           "default": "'{user}'",
           "enumItems": [
             "user",
+            "manager",
             "admin"
-          ]
+          ],
+          "mappedType": "array"
         }
       },
       "name": "User",
@@ -121,7 +128,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "uuid"
         },
         "name": {
           "name": "name",
@@ -129,7 +137,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "string"
         },
         "capacity": {
           "name": "capacity",
@@ -137,7 +146,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "integer"
         },
         "user_id": {
           "name": "user_id",
@@ -145,7 +155,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "uuid"
         }
       },
       "name": "Location",
@@ -201,7 +212,8 @@
           "unsigned": true,
           "autoincrement": true,
           "primary": true,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "integer"
         },
         "location_id": {
           "name": "location_id",
@@ -209,7 +221,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "uuid"
         },
         "school_id": {
           "name": "school_id",
@@ -218,7 +231,8 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "1"
+          "default": "1",
+          "mappedType": "integer"
         },
         "capacity": {
           "name": "capacity",
@@ -226,7 +240,8 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "mappedType": "integer"
         },
         "created_at": {
           "name": "created_at",
@@ -234,7 +249,9 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
         }
       },
       "name": "CheckIn",

@@ -1,4 +1,12 @@
 {
   "name": "tsconfig-custom",
-  "files": ["base.json", "nextjs.json"]
+  "version": "1.0.0",
+  "private": true,
+  "files": [
+    "base.json",
+    "nextjs.json"
+  ],
+  "dependencies": {
+    "typescript": "^5.0.2"
+  }
 }

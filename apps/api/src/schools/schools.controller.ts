@@ -14,8 +14,8 @@ import { SchoolsService } from "./schools.service"
 import {
   type GetAllPaginatedSchoolDto,
   Role,
-  CreateSchoolDto,
-  UpdateSchoolDto
+  type CreateSchoolDto,
+  type UpdateSchoolDto
 } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { ReqUser } from "../auth/decorators/user.decorator"
@@ -42,7 +42,7 @@ export class SchoolsController {
     return await this.schoolsService.getAllForLocation(user.location!.id)
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Manager)
   @Get()
   public async getAllPaged(
     @Query("page") queryPage?: string
@@ -61,7 +61,7 @@ export class SchoolsController {
     }
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Manager)
   @Post()
   public async create(
     @Body() createSchoolDto: CreateSchoolDto
@@ -76,7 +76,7 @@ export class SchoolsController {
     return await this.schoolsService.create(createSchoolDto.name)
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Manager)
   @Patch(":id")
   public async update(
     @Param("id") id: string,
@@ -97,7 +97,7 @@ export class SchoolsController {
     return await this.schoolsService.update(school, updateSchoolDto.name)
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.Manager)
   @Delete(":id")
   public async delete(@Param("id") id: string): Promise<SchoolEntity> {
     const school = await this.schoolsService.getById(parseInt(id))

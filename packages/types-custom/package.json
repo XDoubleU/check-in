@@ -1,5 +1,7 @@
 {
   "name": "types-custom",
+  "version": "1.0.0",
+  "private": true,
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "scripts": {
@@ -9,9 +11,7 @@
     "lint:report": "eslint . --output-file eslint_report.json --format json src"
   },
   "devDependencies": {
-    "eslint": "^8.36.0",
     "eslint-config-custom": "*",
-    "tsconfig-custom": "*",
-    "typescript": "^4.9.5"
+    "tsconfig-custom": "*"
   }
 }

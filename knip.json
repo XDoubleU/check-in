@@ -1,25 +1,34 @@
 {
   "exclude": [
-    "classMembers"
+    "classMembers",
+    "enumMembers"
   ],
   "ignoreWorkspaces": [
     "packages/eslint-config-custom"
   ],
+  "ignore": ["**/.eslintrc.js"],
+  "ignoreBinaries": ["eslint", "tsc"],
+  "ignoreDependencies": ["tsconfig-custom", "eslint-config-custom"],
   "workspaces": {
     ".": {
-      "ignore": ["integration/script.js"],
-      "ignoreDependencies": ["only-allow"]
+      "ignore": ["integration/script.js", ".yarn"]
     },
     "apps/api": {
       "entry": "src/main.ts",
-      "ignore": ["src/cli/**"],
       "ignoreDependencies": ["helmet"]
+    },
+    "apps/web": {
+      "ignore": ["sentry.edge.config.js"]
     },
     "packages/mikro-orm-config": {
       "ignore": [
         "src/migrations/**",
-        "src/seeders/**"
-      ]
-    }
+        "src/seeders/**",
+        "src/cli-config.ts"
+      ],
+      "ignoreDependencies": ["ts-node"]
+    },
+    "packages/my-api-wrapper": {},
+    "packages/types-custom": {}
   }
 }

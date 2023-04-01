@@ -3,16 +3,12 @@ import { Module } from "@nestjs/common"
 import { LocationsController } from "./locations.controller"
 import { LocationsService } from "./locations.service"
 import { UsersModule } from "../users/users.module"
-import { SseModule } from "../sse/sse.module"
 import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { LocationEntity } from "mikro-orm-config"
+import { WsModule } from "../ws/ws.module"
 
 @Module({
-  imports: [
-    MikroOrmModule.forFeature([LocationEntity]),
-    UsersModule,
-    SseModule
-  ],
+  imports: [MikroOrmModule.forFeature([LocationEntity]), UsersModule, WsModule],
   controllers: [LocationsController],
   providers: [LocationsService],
   exports: [LocationsService]

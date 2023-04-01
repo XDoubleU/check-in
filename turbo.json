@@ -5,12 +5,19 @@
     "PORT",
     "WEB_URL",
     "API_PORT",
+    "NEXT_PUBLIC_SENTRY_DSN",
     "NEXT_PUBLIC_API_URL",
+    "API_SENTRY_DSN",
     "DATABASE_URL",
+    "DATABASE_NAME",
+    "CA_CERT",
     "JWT_ACCESS_SECRET",
     "JWT_ACCESS_EXPIRATION",
     "JWT_REFRESH_SECRET",
-    "JWT_REFRESH_EXPIRATION"
+    "JWT_REFRESH_EXPIRATION",
+    "ADMIN_USERNAME",
+    "ADMIN_PASSWORD",
+    "RELEASE"
   ],
   "pipeline": {
     "dev": {},
@@ -18,7 +25,9 @@
       "dependsOn": ["^build"]
     },
     "prod": {},
-    "export": {},
+    "export": {
+      "dependsOn": ["^build"]
+    },
     "lint": {
       "cache": false
     },
@@ -29,7 +38,6 @@
       "cache": false
     },
     "test": {
-      "dependsOn": ["build"],
       "cache": false
     },
     "test:cov": {
@@ -38,21 +46,11 @@
     "test:report": {
       "cache": false
     },
-    "db:seed": {
-      "cache": false
-    },
     "db:migration-create": {
-      "cache": false
-    },
-    "db:migration-up": {
-      "cache": false
-    },
-    "db:migration-down": {
       "cache": false
     },
     "db:test": {
       "cache": false
-    },
-    "cli": {}
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { type Location } from "./location"
+import { type Role } from "./role"
 
 export interface User {
   id: string
@@ -6,9 +7,4 @@ export interface User {
   passwordHash: string
   roles: Role[]
   location?: Location
-}
-
-export enum Role {
-  User = "user",
-  Admin = "admin"
 }

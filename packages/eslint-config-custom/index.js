@@ -22,7 +22,8 @@ module.exports = {
     ".eslintrc.js",
     "**/dist/**",
     "*.config.*",
-    "**/coverage/**"
+    "**/coverage/**",
+    "**/node_modules/**"
   ],
   rules: {
     "@typescript-eslint/explicit-function-return-type": "error",
@@ -61,8 +62,8 @@ module.exports = {
       "typescript": {
         "alwaysTryTypes": true,
         "project": [
-          "apps/*/tsconfig.json",
-          "packages/*/tsconfig.json"
+          "apps/*/tsconfig*.json",
+          "packages/*/tsconfig*.json",
         ]
       }
     },

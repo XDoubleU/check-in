@@ -12,7 +12,7 @@ import {
   type SetStateAction
 } from "react"
 import { type FieldValues, type UseFormReturn } from "react-hook-form"
-import AdminLayout from "./AdminLayout"
+import ManagerLayout from "./AdminLayout"
 import { type ICreateModalProps } from "../interfaces/ICreateModalProps"
 import { type ICardProps } from "../interfaces/ICardProps"
 
@@ -88,8 +88,10 @@ export default function ListViewLayout<
   }, [fetchData])
 
   return (
-    <AdminLayout title={title}>
-      {createModal?.({ form, fetchData })}
+    <ManagerLayout
+      title={title}
+      titleButton={createModal?.({ form, fetchData })}
+    >
       <br />
 
       <div className="min-vh-51">
@@ -110,6 +112,6 @@ export default function ListViewLayout<
         current={list.pagination.current}
         total={list.pagination.total}
       />
-    </AdminLayout>
+    </ManagerLayout>
   )
 }
