@@ -22,9 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - uses: falti/dotenv-action@v1.0.4
         with:
           node-version-file: 'package.json'
+      - uses: falti/dotenv-action@v1.0.4
       - run: yarn install
       - run: yarn build
       - run: yarn lint
