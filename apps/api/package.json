@@ -44,7 +44,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "uuid": "^9.0.0",
-    "ws": "^8.13.0"
+    "ws": "^8.13.0",
+    "@types/ws": "^8.5.4"
   },
   "devDependencies": {
     "@nestjs/testing": "^9.3.12",
@@ -52,7 +53,6 @@
     "@types/jest": "^29.5.0",
     "@types/supertest": "^2.0.12",
     "@types/uuid": "^9.0.1",
-    "@types/ws": "^8.5.4",
     "eslint-config-custom": "*",
     "jest": "^29.5.0",
     "supertest": "^6.3.3",
