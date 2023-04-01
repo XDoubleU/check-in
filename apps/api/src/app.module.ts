@@ -10,10 +10,10 @@ import { UsersModule } from "./users/users.module"
 import { RolesGuard } from "./auth/guards/roles.guard"
 import config from "mikro-orm-config"
 import { MikroOrmModule } from "@mikro-orm/nestjs"
-import { SseModule } from "./sse/sse.module"
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler"
 import { MigrationsModule } from "./migrations/migrations.module"
 import { RavenInterceptor, RavenModule } from "nest-raven"
+import { WsModule } from "./ws/ws.module"
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { RavenInterceptor, RavenModule } from "nest-raven"
     SchoolsModule,
     AuthModule,
     UsersModule,
-    SseModule,
+    WsModule,
     MigrationsModule
   ],
   providers: [

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { SseService } from "../sse/sse.service"
+import { WsService } from "../ws/ws.service"
 import { LocationsService } from "../locations/locations.service"
 import { EntityRepository } from "@mikro-orm/core"
 import {
@@ -12,17 +12,17 @@ import { InjectRepository } from "@mikro-orm/nestjs"
 @Injectable()
 export class CheckInsService {
   private readonly checkInsRepository: EntityRepository<CheckInEntity>
-  private readonly sseService: SseService
+  private readonly wsService: WsService
   private readonly locationsService: LocationsService
 
   public constructor(
     @InjectRepository(CheckInEntity)
     checkInsRepository: EntityRepository<CheckInEntity>,
-    sseService: SseService,
+    wsService: WsService,
     locationsService: LocationsService
   ) {
     this.checkInsRepository = checkInsRepository
-    this.sseService = sseService
+    this.wsService = wsService
     this.locationsService = locationsService
   }
 
@@ -51,7 +51,7 @@ export class CheckInsService {
 
     const updatedLocation = await this.locationsService.refresh(location.id)
 
-    this.sseService.addLocationUpdate(updatedLocation)
+    this.wsService.addLocationUpdate(updatedLocation)
 
     return checkIn
   }

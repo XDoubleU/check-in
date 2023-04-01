@@ -1,7 +1,7 @@
-const eventSource = new EventSource("http://localhost:8000/sse/")
+const webSocket = new WebSocket("ws://localhost:8000")
 
 eventSource.onopen = async () => {
-  const response = await fetch("http://localhost:8000/locations/sse/")
+  const response = await fetch("http://localhost:8000/locations/ws/")
   const data = await response.json()
   
   data.forEach((location) => {
@@ -9,13 +9,13 @@ eventSource.onopen = async () => {
   })
 }
 
-eventSource.onmessage = (event) => {
+webSocket.onmessage = (event) => {
   const data = JSON.parse(event.data)
   fill(data)
 }
 
 window.onbeforeunload = () => {
-  eventSource.close()
+  webSocket.close()
 }
 
 let hasLiveDotStyle = false
@@ -64,7 +64,6 @@ function createLiveDotStyle() {
   hasLiveDotStyle = true
 
   const styleNode = document.createElement("style")
-  styleNode.type = "text/css"
 
   const style = `
   .blinking {

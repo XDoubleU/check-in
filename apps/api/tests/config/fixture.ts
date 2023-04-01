@@ -18,6 +18,8 @@ import {
 } from "@mikro-orm/postgresql"
 import { TestModule } from "./test.module"
 import { ContextManager } from "./test.middleware"
+import helmet from "helmet"
+import { WsAdapter } from "@nestjs/platform-ws"
 
 export interface ErrorResponse {
   message: string
@@ -40,7 +42,11 @@ export default class Fixture {
     }).compile()
 
     this.app = module.createNestApplication()
+    this.app.use(helmet())
     this.app.use(cookieParser())
+
+    this.app.useWebSocketAdapter(new WsAdapter(this.app))
+
     this.app.enableShutdownHooks()
 
     await this.app.init()
@@ -121,7 +127,7 @@ export default class Fixture {
 
     await this.em.persistAndFlush(locations)
 
-    const schools = []
+    const schools: SchoolEntity[] = []
 
     for (let i = 0; i < 20; i++) {
       const newSchool = new SchoolEntity(`TestSchool${i}`)
@@ -130,7 +136,7 @@ export default class Fixture {
 
     await this.em.persistAndFlush(schools)
 
-    const checkIns = []
+    const checkIns: CheckInEntity[] = []
 
     for (let i = 0; i < 5; i++) {
       checkIns.push(new CheckInEntity(locations[0], schools[0]))

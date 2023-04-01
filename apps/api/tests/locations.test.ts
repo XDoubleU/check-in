@@ -48,10 +48,10 @@ describe("LocationsController (e2e)", () => {
     return fixture.afterEach()
   })
 
-  describe("/locations/sse (GET)", () => {
+  describe("/locations/ws (GET)", () => {
     it("gets all locations as LocationUpdateEventDto (200)", async () => {
       const response = await request(fixture.app.getHttpServer())
-        .get("/locations/sse")
+        .get("/locations/ws")
         .expect(200)
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

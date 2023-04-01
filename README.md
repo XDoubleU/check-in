@@ -31,7 +31,6 @@ There are Docker-files present in both apps.
 2. Rebuild `yarn build --force`
 3. Apply migrations as admin in UI
 
-
 ## Run tests
 
 1. Start database in docker: `docker-compose up -d`

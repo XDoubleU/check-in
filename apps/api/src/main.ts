@@ -3,6 +3,9 @@ import { AppModule } from "./app.module"
 import cookieParser from "cookie-parser"
 import helmet from "helmet"
 import * as Sentry from "@sentry/node"
+import { ProfilingIntegration } from "@sentry/profiling-node"
+import "@sentry/tracing"
+import { WsAdapter } from "@nestjs/platform-ws"
 
 const corsOptions = {
   credentials: true,
@@ -10,9 +13,7 @@ const corsOptions = {
 }
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, {
-    forceCloseConnections: true
-  })
+  const app = await NestFactory.create(AppModule)
 
   Sentry.init({
     dsn: process.env.API_SENTRY_DSN ?? "",
@@ -20,12 +21,14 @@ async function bootstrap(): Promise<void> {
     environment: process.env.NODE_ENV ?? "unknown",
     release: process.env.RELEASE ?? "unknown",
     tracesSampleRate: 1.0,
+    profilesSampleRate: 1.0,
     integrations: [
+      new ProfilingIntegration(),
       // enable HTTP calls tracing
       new Sentry.Integrations.Http({ tracing: true }),
       // Automatically instrument Node.js libraries and frameworks
-      ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
-    ],
+      ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
+    ]
   })
 
   app.use(Sentry.Handlers.requestHandler())
@@ -34,6 +37,9 @@ async function bootstrap(): Promise<void> {
   app.enableCors(corsOptions)
   app.use(helmet())
   app.use(cookieParser())
+
+  app.useWebSocketAdapter(new WsAdapter(app))
+
   app.enableShutdownHooks()
 
   await app.listen(process.env.API_PORT ?? 8000)

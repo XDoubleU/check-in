@@ -1,22 +1,19 @@
 /* eslint-disable max-lines-per-function */
 import Fixture from "./config/fixture"
-import EventSource from "eventsource"
 import { type Server } from "http"
 import { type AddressInfo } from "net"
-import { SseService } from "../src/sse/sse.service"
+import { WsService } from "../src/ws/ws.service"
 import { CheckInEntity, LocationEntity, SchoolEntity } from "mikro-orm-config"
 import { type LocationUpdateEventDto } from "types-custom"
-import { type UserAndTokens } from "../src/auth/auth.service"
+import WebSocket from "ws"
 
-describe("SseController (e2e)", () => {
+describe("WsGateway (e2e)", () => {
   const fixture: Fixture = new Fixture()
 
   let port: number
-  let eventSource: EventSource
+  let webSocket: WebSocket
 
-  let userAndTokens: UserAndTokens
-
-  let sseService: SseService
+  let wsService: WsService
 
   let location: LocationEntity
   let school: SchoolEntity
@@ -28,7 +25,7 @@ describe("SseController (e2e)", () => {
         .address() as AddressInfo
       port = address.port
 
-      sseService = fixture.app.get<SseService>(SseService)
+      wsService = fixture.app.get<WsService>(WsService)
     })
   })
 
@@ -41,8 +38,6 @@ describe("SseController (e2e)", () => {
   beforeEach(() => {
     return fixture
       .beforeEach()
-      .then(() => fixture.getTokens("User"))
-      .then((data) => (userAndTokens = data))
       .then(() => fixture.em.find(LocationEntity, {}))
       .then((data) => {
         location = data[0]
@@ -54,18 +49,24 @@ describe("SseController (e2e)", () => {
   })
 
   afterEach(() => {
-    return fixture.afterEach().then(() => eventSource.close())
+    return fixture.afterEach().then(() => webSocket.close())
   })
 
-  describe("/sse (SSE)", () => {
+  describe("all-locations (WS)", () => {
     it("receives event after updating Location capacity (200)", (done: jest.DoneCallback) => {
-      eventSource = new EventSource(`http://localhost:${port}/sse`)
+      webSocket = new WebSocket(`ws://localhost:${port}`)
 
-      eventSource.onerror = (error): void => {
+      webSocket.onerror = (error): void => {
         done(error)
       }
 
-      eventSource.onopen = (): void => {
+      webSocket.onopen = (): void => {
+        webSocket.send(
+          JSON.stringify({
+            event: "all-locations"
+          })
+        )
+
         const newCheckIn = new CheckInEntity(location, school)
 
         void fixture.em
@@ -74,10 +75,10 @@ describe("SseController (e2e)", () => {
           .then((data) => {
             location = data
           })
-          .then(() => sseService.addLocationUpdate(location))
+          .then(() => wsService.addLocationUpdate(location))
       }
 
-      eventSource.onmessage = (event): void => {
+      webSocket.onmessage = (event): void => {
         const locationUpdateEventData = JSON.parse(
           event.data as string
         ) as LocationUpdateEventDto
@@ -96,24 +97,24 @@ describe("SseController (e2e)", () => {
     })
   })
 
-  describe("/sse/:normalizedName (SSE)", () => {
+  describe("single-location (WS)", () => {
     it("receives event after updating Location capacity (200)", (done: jest.DoneCallback) => {
-      const eventSourceInitDict = {
-        headers: {
-          Cookie: `accessToken=${userAndTokens.tokens.accessToken}`
-        }
-      }
+      webSocket = new WebSocket(`ws://localhost:${port}`)
 
-      eventSource = new EventSource(
-        `http://localhost:${port}/sse/${location.normalizedName}`,
-        eventSourceInitDict
-      )
-
-      eventSource.onerror = (error): void => {
+      webSocket.onerror = (error): void => {
         done(error)
       }
 
-      eventSource.onopen = (): void => {
+      webSocket.onopen = (): void => {
+        webSocket.send(
+          JSON.stringify({
+            event: "single-location",
+            data: {
+              normalizedName: location.normalizedName
+            }
+          })
+        )
+
         location.capacity--
 
         void fixture.em
@@ -122,10 +123,10 @@ describe("SseController (e2e)", () => {
           .then((data) => {
             location = data
           })
-          .then(() => sseService.addLocationUpdate(location))
+          .then(() => wsService.addLocationUpdate(location))
       }
 
-      eventSource.onmessage = (event): void => {
+      webSocket.onmessage = (event): void => {
         const locationUpdateEventData = JSON.parse(
           event.data as string
         ) as LocationUpdateEventDto
@@ -136,21 +137,6 @@ describe("SseController (e2e)", () => {
           )
           expect(locationUpdateEventData.available).toBe(location.available)
           expect(locationUpdateEventData.capacity).toBe(location.capacity)
-          done()
-        } catch (error) {
-          done(error)
-        }
-      }
-    })
-
-    it("returns Unauthorized (401)", (done: jest.DoneCallback) => {
-      eventSource = new EventSource(
-        `http://localhost:${port}/sse/${location.normalizedName}`
-      )
-
-      eventSource.onerror = (event): void => {
-        try {
-          expect(event.status).toBe(401)
           done()
         } catch (error) {
           done(error)

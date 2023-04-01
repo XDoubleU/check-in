@@ -22,7 +22,7 @@ import {
   convertRangeData
 } from "../helpers/dataConverters"
 import { Parser } from "json2csv"
-import  { type Response } from "express"
+import { type Response } from "express"
 
 @Controller("checkins")
 export class CheckInsController {

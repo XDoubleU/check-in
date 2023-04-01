@@ -24,7 +24,7 @@ import { ReqUser } from "../auth/decorators/user.decorator"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { type LocationEntity, UserEntity } from "mikro-orm-config"
 import { Public } from "../auth/decorators/public.decorator"
-import  { type Response } from "express"
+import { type Response } from "express"
 import { convertToLocationUpdateEventDto } from "../helpers/conversion"
 
 type MikroGetAllPaginatedLocationDto = Omit<
@@ -45,7 +45,7 @@ export class LocationsController {
     this.usersService = usersService
   }
 
-  @Get("sse")
+  @Get("ws")
   @Public()
   public async getInitStateSse(@Res() res: Response): Promise<void> {
     res.set("Access-Control-Allow-Origin", "*")

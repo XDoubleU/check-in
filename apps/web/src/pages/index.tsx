@@ -11,7 +11,7 @@ import {
 import BaseLayout from "../layouts/BaseLayout"
 import CustomButton from "../components/CustomButton"
 import {
-  checkinsEventSource,
+  checkinsWebsocket,
   createCheckIn,
   getAllSchoolsSortedForLocation
 } from "my-api-wrapper"
@@ -33,9 +33,9 @@ export default function CheckIn() {
   useEffect(() => {
     if (!user?.location) return
 
-    const eventSource = checkinsEventSource(user.location)
+    const webSocket = checkinsWebsocket(user.location)
 
-    eventSource.onmessage = (event): void => {
+    webSocket.onmessage = (event): void => {
       const locationUpdateEvent = JSON.parse(
         event.data as string
       ) as LocationUpdateEventDto
@@ -44,7 +44,9 @@ export default function CheckIn() {
     }
 
     return () => {
-      eventSource.close()
+      if (webSocket.readyState === 1) {
+        webSocket.close()
+      }
     }
   }, [user?.location])
 
