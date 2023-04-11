@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nest start --watch",
     "build": "nest build",
-    "prod": "node dist/src/main --max-old-space-size=256",
+    "prod": "node dist/src/main",
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
     "lint:report": "eslint . --output-file eslint_report.json --format json src",
