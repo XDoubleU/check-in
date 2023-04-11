@@ -1,6 +1,6 @@
 const webSocket = new WebSocket("ws://localhost:8000")
 
-eventSource.onopen = async () => {
+webSocket.onopen = async () => {
   const response = await fetch("http://localhost:8000/locations/ws/")
   const data = await response.json()
   
@@ -50,7 +50,7 @@ function getLiveDot() {
   createLiveDotStyle()
 
   return `
-  <svg height="10" width="10" class="blinking" viewBox="40 45 20 10">
+  <svg height="15" width="10" class="blinking" viewBox="40 50 20 5">
     <circle cx="50" cy="50" r="10" fill="red" /> 
   </svg>
   `
