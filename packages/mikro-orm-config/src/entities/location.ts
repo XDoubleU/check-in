@@ -81,8 +81,8 @@ export class LocationEntity implements MikroLocationInterface {
   public get normalizedName(): string {
     return this.name
       .toLowerCase()
-      .replace(" ", "-")
-      .replace("[^A-Za-z0-9-]+", "")
+      .replaceAll(/\s/g, "-")
+      .replaceAll(/[^a-z0-9-]/g, "")
   }
 
   @Property({ persist: false })
