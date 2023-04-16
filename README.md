@@ -1,51 +1,20 @@
 # Check-In
 
-## How to run ?
+![GitHub](https://img.shields.io/github/license/XDoubleU/check-in)
+[![Build & Lint & Test](https://github.com/XDoubleU/check-in/actions/workflows/main.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/main.yml)
+![GitHub top language](https://img.shields.io/github/languages/top/XDoubleU/check-in)
+![GitHub issues](https://img.shields.io/github/issues/XDoubleU/check-in)
+![GitHub last commit](https://img.shields.io/github/last-commit/XDoubleU/check-in)
+![GitHub Repo stars](https://img.shields.io/github/stars/XDoubleU/check-in?style=social)
 
-1. `docker-compose up -d` for running the database
-2. `yarn start` or `yarn dev` for running the api and web apps
-3. Go to `http://localhost:3000` for the web-client and `http://localhost:8000` for the api
 
-## How to deploy ?
 
-### Docker
+This web application allows you to manage check-ins at multiple locations. Users can anonymously check-in by simply pressing a button. The app utilizes a websocket connection to display live location capacity on your website, allowing you to provide up-to-date information to your visitors.
 
-There are Docker-files present in both apps.
+Originally developed for Brugge Studentenstad, a non-profit organization that arranges student activities and manages study locations in Bruges, this app has been used to provide live capacity updates for each location on their website. Additionally, students are asked to select their school, providing Brugge Studentenstad with valuable data insights.
 
-### Commands
-
-1. Building web: `yarn build --filter=web...`
-2. Building api: `yarn build --filter=api...`
-3. For running both apps: `yarn prod`
-
-## Static testing
-
-1. Linting: `yarn lint` and `yarn lint:fix`
-2. Knip: `yarn knip`
-3. Duplicates: `yarn jscpd`
-4. Formatting: `yarn format`
-
-## Edit schema?
-
-1. Create migrations: `yarn db:migration-create`
-2. Rebuild `yarn build --force`
-3. Apply migrations as admin in UI
-
-## Run tests
-
-1. Start database in docker: `docker-compose up -d`
-2. Setup database: `yarn db:test`
-3. Run tests on: `yarn test`
-
-## Deploy (on DigitalOcean)
-
-Mostly as a reference to myself but might be useful for others too.
-
-1. Database with pooling
-2. Don't forget env vars (see .env)
-3. Web (static site): `yarn export --filter=web...`
-4. API (server):
-   1. Build: `yarn build --filter=api...`
-   2. Run: `yarn prod --filter=api...`
-5. 
-6. Manually on API: `yarn db:migration-up`
+<p align="center">
+   <img src="https://user-images.githubusercontent.com/54279069/232328182-92de6ebb-ce44-44c4-9796-6e6ef62fb7c6.jpg" style="height: 20em" />
+   <br/>
+   <em>Rubens styled painting of students, with their backpacks and books, lining up to press a red round button on a big screen when arriving at a library. - Generated using Bing Image Creator.</em>
+</p>
