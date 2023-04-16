@@ -21,7 +21,9 @@ jobs:
       - uses: falti/dotenv-action@v1.0.4
       - run: yarn install
       - run: yarn build
-      - run: zip build.zip ./* -r -x "**/node_modules/*"
+      - run: ls
+      - run: pwd
+      - run: zip build.zip ./* -r -x "*node_modules*"
       - uses: actions/upload-artifact@v3
         with:
           name: build
@@ -39,6 +41,8 @@ jobs:
         with:
           cache: 'yarn'
           node-version-file: 'package.json'
+      - run: ls
+      - run: pwd
       - run: yarn lint
 
   test:
