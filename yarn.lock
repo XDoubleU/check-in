@@ -3829,15 +3829,10 @@ eslint-plugin-sonarjs@^0.19.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.19.0.tgz#6654bc1c6d24c2183891b8bfe1175004dbba1e3c"
   integrity sha512-6+s5oNk5TFtVlbRxqZN7FIGmjdPCYQKaTzFPmqieCmsU1kBYDzndTeQav0xtQNwZJWu5awWfTGe8Srq9xFOGnw==
 
-eslint-plugin-turbo@1.9.1:
+eslint-plugin-turbo@1.9.1, eslint-plugin-turbo@^1.8.6:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-turbo/-/eslint-plugin-turbo-1.9.1.tgz#629b11eec21b5e17901371b2ea98e8773eaff675"
   integrity sha512-QPd0EG0xkoDkXJLwPQKULxHjkR27VmvJtILW4C9aIrqauLZ+Yc/V7R+A9yVwAi6nkMHxUlCSUsBxmiQP9TIlPw==
-
-eslint-plugin-turbo@^1.8.6:
-  version "1.8.8"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-turbo/-/eslint-plugin-turbo-1.8.8.tgz#10844428fea929270b3bca07092ec030ef80cd3d"
-  integrity sha512-zqyTIvveOY4YU5jviDWw9GXHd4RiKmfEgwsjBrV/a965w0PpDwJgEUoSMB/C/dU310Sv9mF3DSdEjxjJLaw6rA==
 
 eslint-scope@5.1.1, eslint-scope@^5.1.1:
   version "5.1.1"
