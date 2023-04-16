@@ -26,7 +26,7 @@
         "src/seeders/**",
         "src/cli-config.ts"
       ],
-      "ignoreDependencies": ["ts-node"]
+      "ignoreDependencies": ["ts-node", "@mikro-orm/cli"]
     },
     "packages/my-api-wrapper": {},
     "packages/types-custom": {}
