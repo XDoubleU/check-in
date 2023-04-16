@@ -20,7 +20,7 @@ jobs:
           node-version-file: 'package.json'
       - run: yarn install
       - run: yarn build
-      - run: zip build.zip ./* -r -x "*node_modules*"
+      - run: zip build.zip . -r -x "*node_modules*"
       - uses: actions/upload-artifact@v3
         with:
           name: build
