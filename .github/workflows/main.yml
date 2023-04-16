@@ -37,6 +37,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: 'package.json'
+      - run: yarn install
       - run: yarn lint
 
   test:
@@ -62,5 +63,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: 'package.json'
+      - run: yarn install
       - run: yarn db:test
       - run: yarn test
