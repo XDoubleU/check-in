@@ -41,8 +41,7 @@ jobs:
         with:
           cache: 'yarn'
           node-version-file: 'package.json'
-      - run: ls
-      - run: pwd
+      - run: yarn install
       - run: yarn lint
 
   test:
@@ -69,5 +68,6 @@ jobs:
         with:
           cache: 'yarn'
           node-version-file: 'package.json'
+      - run: yarn install
       - run: yarn db:test
       - run: yarn test
