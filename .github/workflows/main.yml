@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  init:
+  static-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,27 +18,16 @@ jobs:
         with:
           node-version-file: 'package.json'
       - run: yarn install
-      - uses: actions/upload-artifact@v3
-        with:
-          name: init
-          path: ${{ github.workspace }}
-
-  static-test:
-    needs: [init]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: init
       - run: yarn lint
 
   build:
-    needs: [init]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          name: init
+          node-version-file: 'package.json'
+      - run: yarn install
       - uses: falti/dotenv-action@v1.0.4
       - run: yarn install
       - run: yarn build
