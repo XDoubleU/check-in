@@ -24,6 +24,7 @@ jobs:
           path: ${{ github.workspace }}
 
   static-test:
+    needs: [init]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
@@ -32,6 +33,7 @@ jobs:
       - run: yarn lint
 
   build:
+    needs: [init]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
