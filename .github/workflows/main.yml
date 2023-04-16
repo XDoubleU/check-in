@@ -26,7 +26,7 @@ jobs:
           name: build
           path: build.zip
 
-  static-test:
+  lint:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -40,6 +40,36 @@ jobs:
           node-version-file: 'package.json'
       - run: yarn install
       - run: yarn lint
+  
+  knip:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: unzip build.zip
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'yarn'
+          node-version-file: 'package.json'
+      - run: yarn install
+      - run: yarn knip
+  
+  jscpd:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: unzip build.zip
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'yarn'
+          node-version-file: 'package.json'
+      - run: yarn install
+      - run: yarn jscpd
 
   test:
     needs: [build]
