@@ -20,10 +20,11 @@ jobs:
       - uses: falti/dotenv-action@v1.0.4
       - run: yarn install
       - run: yarn build
+      - run: zip build.zip ./* -r
       - uses: actions/upload-artifact@v3
         with:
           name: build
-          path: ${{ github.workspace }}
+          path: build.zip
 
   static-test:
     needs: [build]
@@ -32,6 +33,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build
+      - run: unzip build.zip
       - run: yarn lint
 
   test:
@@ -53,5 +55,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build
+      - run: unzip build.zip
       - run: yarn db:test
       - run: yarn test
