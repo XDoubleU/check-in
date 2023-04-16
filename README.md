@@ -1,4 +1,4 @@
-# Check-In
+# <p align="center">Check-In</p>
 
 ![GitHub](https://img.shields.io/github/license/XDoubleU/check-in)
 [![Build & Lint & Test](https://github.com/XDoubleU/check-in/actions/workflows/main.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/main.yml)
@@ -6,8 +6,6 @@
 ![GitHub issues](https://img.shields.io/github/issues/XDoubleU/check-in)
 ![GitHub last commit](https://img.shields.io/github/last-commit/XDoubleU/check-in)
 ![GitHub Repo stars](https://img.shields.io/github/stars/XDoubleU/check-in?style=social)
-
-
 
 This web application allows you to manage check-ins at multiple locations. Users can anonymously check-in by simply pressing a button. The app utilizes a websocket connection to display live location capacity on your website, allowing you to provide up-to-date information to your visitors.
 
@@ -18,3 +16,26 @@ Originally developed for Brugge Studentenstad, a non-profit organization that ar
    <br/>
    <em>Rubens styled painting of students, with their backpacks and books, lining up to press a red round button on a big screen when arriving at a library. - Generated using Bing Image Creator.</em>
 </p>
+
+## How to run locally?
+
+1. Clone the repo
+2. Install all necessary packages using `yarn install`
+3. Compile the packages in the monorepo using `yarn build`
+4. Start the web-client and the API using `yarn dev`
+5. Go to `http://localhost:3000` for the web-client and `http://localhost:8000` for the API
+
+## Websocket integration
+
+An example on how to use the websocket integration on your own website can be found [here](https://github.com/XDoubleU/check-in/blob/main/integration/script.js).
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first
+to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[GPLv3](https://github.com/XDoubleU/check-in/blob/main/LICENSE)
