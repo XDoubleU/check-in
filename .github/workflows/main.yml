@@ -10,16 +10,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  static-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version-file: 'package.json'
-      - run: yarn install
-      - run: yarn lint
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -35,6 +25,15 @@ jobs:
         with:
           name: build
           path: ${{ github.workspace }}
+
+  static-test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+      - run: yarn lint
 
   test:
     needs: [build]
