@@ -5,9 +5,48 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+    
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
-  action:
+  init:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: 'package.json'
+      - run: yarn install
+      - uses: actions/upload-artifact@v3
+        with:
+          name: init
+          path: ${{ github.workspace }}
+
+  static-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: init
+      - run: yarn lint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: init
+      - uses: falti/dotenv-action@v1.0.4
+      - run: yarn install
+      - run: yarn build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: ${{ github.workspace }}
+
+  test:
+    needs: [build]
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -22,13 +61,8 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/download-artifact@v3
         with:
-          node-version-file: 'package.json'
-      - uses: falti/dotenv-action@v1.0.4
-      - run: yarn install
-      - run: yarn build
-      - run: yarn lint
+          name: build
       - run: yarn db:test
       - run: yarn test
