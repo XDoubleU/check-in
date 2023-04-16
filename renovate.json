@@ -1,11 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
-    "schedule:daily",
-    ":disableRateLimiting"
+    "config:base"
   ],
   "timezone":"Europe/Brussels",
   "ignoreDeps": ["mikro-orm-config","types-custom","tsconfig-custom","my-api-wrapper"],
-  "labels": ["dependencies"]
+  "labels": ["dependencies"],
+  "dependencyDashboardLabels": ["dependencies"],
+  "lockFileMaintenance": { "enabled": true },
+  "schedule": ["every saturday before 9:00am"]
 }
