@@ -1,4 +1,4 @@
-# <p align="center">Check-In</p>
+# <p align="center">Check-In 👉🔴</p>
 
 ![GitHub](https://img.shields.io/github/license/XDoubleU/check-in)
 [![Build & Lint & Test](https://github.com/XDoubleU/check-in/actions/workflows/main.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/main.yml)
