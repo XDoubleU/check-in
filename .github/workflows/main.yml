@@ -34,6 +34,9 @@ jobs:
         with:
           name: build
       - run: unzip build.zip
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: 'package.json'
       - run: yarn lint
 
   test:
@@ -56,5 +59,8 @@ jobs:
         with:
           name: build
       - run: unzip build.zip
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: 'package.json'
       - run: yarn db:test
       - run: yarn test
