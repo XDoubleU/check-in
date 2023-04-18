@@ -60,7 +60,9 @@ export class LocationsController {
 
   @Roles(Role.User)
   @Get("me")
-  public getLocationOfUser(@ReqUser() user: UserEntity): LocationEntity | undefined {    
+  public getLocationOfUser(
+    @ReqUser() user: UserEntity
+  ): LocationEntity | undefined {
     return user.location
   }
 

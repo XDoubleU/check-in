@@ -35,7 +35,7 @@ export default function CheckIn() {
 
   useEffect(() => {
     void getMyLocation()
-      .then(response => response.data)
+      .then((response) => response.data)
       .then((apiLocation) => {
         if (!apiLocation) return
 
