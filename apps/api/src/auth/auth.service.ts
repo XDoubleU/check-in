@@ -78,7 +78,7 @@ export class AuthService {
 
       /* Needed when hosting the api on the same domain but with a fixed path
          Eg. web is on https://domain.com and api is on https://domain.com/api */
-      const fixedPath = res.req.originalUrl.replace("/auth/signin", "")
+      const fixedPath = res.req.path.replace("/auth/signin", "")
 
       if (rememberMe) {
         res.cookie("refreshToken", tokens.refreshToken, {
