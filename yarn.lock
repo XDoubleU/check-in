@@ -5887,7 +5887,7 @@ micromatch@^4.0.4, micromatch@^4.0.5:
     braces "^3.0.2"
     picomatch "^2.3.1"
 
-mikro-orm@^5.6.16, mikro-orm@~5.6.16:
+mikro-orm@~5.6.16:
   version "5.6.16"
   resolved "https://registry.yarnpkg.com/mikro-orm/-/mikro-orm-5.6.16.tgz#9415002748d6e8182abce0cc1a42b2ab1bbaeb82"
   integrity sha512-HgG079qA5hWgGWlq9u3BjgE3ynGnDFsGRtvFhgo6W3Itkz46SsQ4oeQxRcAetd8mj/qM4SOLuy0k71pI6h0PkQ==

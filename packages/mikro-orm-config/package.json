@@ -9,8 +9,8 @@
     "lint": "eslint . && tsc --noEmit",
     "lint:fix": "eslint . --fix",
     "lint:report": "eslint . --output-file eslint_report.json --format json src",
-    "db:migration-create": "npx mikro-orm migration:create",
-    "db:test": "npx mikro-orm migration:fresh --seed"
+    "db:migration-create": "mikro-orm migration:create",
+    "db:test": "mikro-orm migration:fresh --seed"
   },
   "mikro-orm": {
     "useTsNode": true,
@@ -30,7 +30,6 @@
     "bcrypt": "^5.1.0",
     "eslint": "^8.36.0",
     "eslint-config-custom": "*",
-    "mikro-orm": "^5.6.16",
     "ts-node": "^10.9.1",
     "tsconfig-custom": "*",
     "types-custom": "*",

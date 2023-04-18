@@ -43,7 +43,7 @@ describe("UsersController (e2e)", () => {
       expect(userResponse.id).toBe(userAndTokens.user.id)
       expect(userResponse.username).toBe(userAndTokens.user.username)
       expect(userResponse.roles).toStrictEqual(userAndTokens.user.roles)
-      expect(userResponse.location?.id).toBe(userAndTokens.user.location?.id)
+      expect(userResponse.locationId).toBe(userAndTokens.user.location?.id)
     })
   })
 
@@ -60,7 +60,7 @@ describe("UsersController (e2e)", () => {
       expect(userResponse.id).toBe(userAndTokens.user.id)
       expect(userResponse.username).toBe(userAndTokens.user.username)
       expect(userResponse.roles).toStrictEqual(userAndTokens.user.roles)
-      expect(userResponse.location?.id).toBe(userAndTokens.user.location?.id)
+      expect(userResponse.locationId).toBe(userAndTokens.user.location?.id)
     })
 
     it("returns User not found (404)", async () => {

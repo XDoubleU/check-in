@@ -70,6 +70,18 @@ describe("LocationsController (e2e)", () => {
     })
   })
 
+  describe("/locations/me (GET)", () => {
+    it("gets location of logged in User (200)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get("/locations/me")
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .expect(200)
+
+      const locationResponse = response.body as Location
+      expect(locationResponse.id).toBe(userAndTokens.user.location?.id)
+    })
+  })
+
   describe("/locations (GET)", () => {
     it("gets all Locations with default page size (200)", async () => {
       const response = await request(fixture.app.getHttpServer())

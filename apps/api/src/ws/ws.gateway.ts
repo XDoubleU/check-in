@@ -8,6 +8,8 @@ import { Observable } from "rxjs"
 import { type LocationUpdateEventDto } from "types-custom"
 import { WebSocketServer as Server } from "ws"
 import { WsService } from "./ws.service"
+import { UseInterceptors } from "@nestjs/common"
+import { RavenInterceptor } from "nest-raven"
 
 @WebSocketGateway({
   cors: {
@@ -24,11 +26,13 @@ export class WsGateway {
     this.wsService = wsService
   }
 
+  @UseInterceptors(new RavenInterceptor())
   @SubscribeMessage("all-locations")
   public wsAllLocations(): Observable<LocationUpdateEventDto> {
     return this.wsService.sendAllLocationUpdates()
   }
 
+  @UseInterceptors(new RavenInterceptor())
   @SubscribeMessage("single-location")
   public wsSingleLocation(
     @MessageBody("normalizedName") normalizedName: string

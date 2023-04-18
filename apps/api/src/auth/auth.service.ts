@@ -3,7 +3,7 @@ import { UsersService } from "../users/users.service"
 import { Role, type Tokens } from "types-custom"
 import { JwtService } from "@nestjs/jwt"
 import { type Response } from "express"
-import { compareSync } from "bcrypt"
+import { compare } from "bcrypt"
 import { UserEntity } from "mikro-orm-config"
 
 export interface UserAndTokens {
@@ -40,7 +40,7 @@ export class AuthService {
       return null
     }
 
-    if (!compareSync(password, user.passwordHash)) {
+    if (!(await compare(password, user.passwordHash))) {
       return null
     }
 
@@ -76,16 +76,11 @@ export class AuthService {
           .exp
       )
 
-      /* Needed when hosting the api on the same domain but with a fixed path
-         Eg. web is on https://domain.com and api is on https://domain.com/api */
-      const fixedPath = "/api"
-
       if (rememberMe) {
         res.cookie("refreshToken", tokens.refreshToken, {
           expires: new Date(refreshTokenExpires * 1000),
           sameSite: "strict",
           httpOnly: true,
-          path: `${fixedPath}/auth/refresh`,
           secure: process.env.NODE_ENV === "production"
         })
       }
