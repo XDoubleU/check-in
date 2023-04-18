@@ -30,7 +30,7 @@ export class UserEntity implements User {
     mappedBy: "user",
     eager: true,
     serializedName: "locationId",
-    serializer: (location: LocationEntity) => location.id
+    serializer: (location: LocationEntity | undefined) => location?.id
   })
   public location?: LocationEntity
 

@@ -10,6 +10,10 @@ import type APIResponse from "./types/apiResponse"
 
 const LOCATIONS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/locations`
 
+export async function getMyLocation(): Promise<APIResponse<Location>> {
+  return await fetchHandler(`${LOCATIONS_URL}/me`)
+}
+
 export async function getAllLocations(
   page?: number
 ): Promise<APIResponse<GetAllPaginatedLocationDto>> {
