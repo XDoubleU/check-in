@@ -79,6 +79,7 @@ export class AuthService {
       /* Needed when hosting the api on the same domain but with a fixed path
          Eg. web is on https://domain.com and api is on https://domain.com/api */
       const fixedPath = res.req.path.replace("/auth/signin", "")
+      console.log(`Url: ${res.req.protocol}://${res.req.get('host')}${res.req.originalUrl}`)
       console.log(`Req path: ${res.req.path}`)
       console.log(`Fixed path: ${fixedPath}`)
 
