@@ -15,24 +15,26 @@ const corsOptions = {
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
 
-  Sentry.init({
-    dsn: process.env.API_SENTRY_DSN ?? "",
-    debug: process.env.NODE_ENV === "development",
-    environment: process.env.NODE_ENV ?? "unknown",
-    release: process.env.RELEASE ?? "unknown",
-    tracesSampleRate: 1.0,
-    profilesSampleRate: 1.0,
-    integrations: [
-      new ProfilingIntegration(),
-      // enable HTTP calls tracing
-      new Sentry.Integrations.Http({ tracing: true }),
-      // Automatically instrument Node.js libraries and frameworks
-      ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
-    ]
-  })
+  if (process.env.API_SENTRY_DSN) {
+    Sentry.init({
+      dsn: process.env.API_SENTRY_DSN,
+      debug: process.env.NODE_ENV === "development",
+      environment: process.env.NODE_ENV ?? "unknown",
+      release: process.env.RELEASE ?? "unknown",
+      tracesSampleRate: 1.0,
+      profilesSampleRate: 1.0,
+      integrations: [
+        new ProfilingIntegration(),
+        // enable HTTP calls tracing
+        new Sentry.Integrations.Http({ tracing: true }),
+        // Automatically instrument Node.js libraries and frameworks
+        ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
+      ]
+    })
 
-  app.use(Sentry.Handlers.requestHandler())
-  app.use(Sentry.Handlers.tracingHandler())
+    app.use(Sentry.Handlers.requestHandler())
+    app.use(Sentry.Handlers.tracingHandler())
+  }
 
   app.enableCors(corsOptions)
   app.use(helmet())
