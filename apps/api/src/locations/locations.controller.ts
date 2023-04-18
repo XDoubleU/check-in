@@ -58,6 +58,14 @@ export class LocationsController {
     res.json(data)
   }
 
+  @Roles(Role.User)
+  @Get("me")
+  public getLocationOfUser(
+    @ReqUser() user: UserEntity
+  ): LocationEntity | undefined {
+    return user.location
+  }
+
   @Roles(Role.Manager)
   @Get()
   public async getAll(

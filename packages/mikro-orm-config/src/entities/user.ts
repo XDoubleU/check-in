@@ -11,10 +11,8 @@ import { Role, type User } from "types-custom"
 import { v4 } from "uuid"
 import { LocationEntity } from "./location"
 
-type MikroUserInterface = Omit<User, "location"> & { location?: LocationEntity }
-
 @Entity({ tableName: "User" })
-export class UserEntity implements MikroUserInterface {
+export class UserEntity implements User {
   @PrimaryKey({ type: "uuid" })
   public id = v4()
 
@@ -28,7 +26,12 @@ export class UserEntity implements MikroUserInterface {
   @Enum({ default: [Role.User] })
   public roles = [Role.User]
 
-  @OneToOne({ mappedBy: "user", eager: true })
+  @OneToOne({
+    mappedBy: "user",
+    eager: true,
+    serializedName: "locationId",
+    serializer: (location: LocationEntity | undefined) => location?.id
+  })
   public location?: LocationEntity
 
   public constructor(username: string, password: string, role?: Role) {

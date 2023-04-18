@@ -30,8 +30,8 @@ function checkRedirects(currentUser: User | undefined, router: NextRouter) {
     if (currentUser?.roles.includes(Role.Manager)) {
       return router.push("/settings/locations")
     }
-    if (currentUser?.roles.includes(Role.User) && currentUser.location) {
-      return router.push(`/settings/locations/${currentUser.location.id}`)
+    if (currentUser?.roles.includes(Role.User) && currentUser.locationId) {
+      return router.push(`/settings/locations/${currentUser.locationId}`)
     }
   }
   if (

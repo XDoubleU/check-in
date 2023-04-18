@@ -6,49 +6,59 @@ import { Container, Form } from "react-bootstrap"
 import {
   type LocationUpdateEventDto,
   type CreateCheckInDto,
-  type School
+  type School,
+  type Location
 } from "types-custom"
 import BaseLayout from "../layouts/BaseLayout"
 import CustomButton from "../components/CustomButton"
 import {
   checkinsWebsocket,
   createCheckIn,
-  getAllSchoolsSortedForLocation
+  getAllSchoolsSortedForLocation,
+  getMyLocation
 } from "my-api-wrapper"
-import { useAuth } from "../contexts/authContext"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import LoadingLayout from "../layouts/LoadingLayout"
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {
-  const { user } = useAuth()
-  const [available, setAvailable] = useState(user?.location?.available ?? 0)
+  const [location, setLocation] = useState<Location | undefined>()
+  const [available, setAvailable] = useState(0)
   const [schools, setSchools] = useState(new Array<School>())
   const [isDisabled, setDisabled] = useState(false)
+
   const [showSchools, setShowSchools] = useState(false)
   const handleClose = () => setShowSchools(false)
   const handleShow = () => setShowSchools(true)
+
   const { handleSubmit } = useForm<CreateCheckInDto>()
 
   useEffect(() => {
-    if (!user?.location) return
+    void getMyLocation()
+      .then((response) => response.data)
+      .then((apiLocation) => {
+        if (!apiLocation) return
 
-    const webSocket = checkinsWebsocket(user.location)
+        setLocation(apiLocation)
+        setAvailable(apiLocation.available)
 
-    webSocket.onmessage = (event): void => {
-      const locationUpdateEvent = JSON.parse(
-        event.data as string
-      ) as LocationUpdateEventDto
+        const webSocket = checkinsWebsocket(apiLocation)
 
-      setAvailable(locationUpdateEvent.available)
-    }
+        webSocket.onmessage = (event): void => {
+          const locationUpdateEvent = JSON.parse(
+            event.data as string
+          ) as LocationUpdateEventDto
 
-    return () => {
-      if (webSocket.readyState === 1) {
-        webSocket.close()
-      }
-    }
-  }, [user?.location])
+          setAvailable(locationUpdateEvent.available)
+        }
+
+        return () => {
+          if (webSocket.readyState === 1) {
+            webSocket.close()
+          }
+        }
+      })
+  }, [])
 
   const loadSchools = async () => {
     const response = await getAllSchoolsSortedForLocation()
@@ -75,7 +85,7 @@ export default function CheckIn() {
     }, 1500)
   }
 
-  if (!user?.location) {
+  if (!location) {
     return <LoadingLayout />
   }
 
@@ -116,7 +126,7 @@ export default function CheckIn() {
       <div className="d-flex align-items-center min-vh-80">
         <Container className="text-center">
           <h1 className="bold" style={{ fontSize: "5rem" }}>
-            Welkom bij {user.location.name}!
+            Welkom bij {location.name}!
           </h1>
           <br />
           {available <= 0 ? (
