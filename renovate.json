@@ -4,9 +4,9 @@
     "config:base"
   ],
   "timezone":"Europe/Brussels",
-  "ignoreDeps": ["mikro-orm-config","types-custom","tsconfig-custom","my-api-wrapper"],
+  "ignoreDeps": ["mikro-orm-config","types-custom","tsconfig-custom"],
   "labels": ["dependencies"],
   "dependencyDashboardLabels": ["dependencies"],
   "lockFileMaintenance": { "enabled": true },
-  "schedule": ["* 4 * * 6"]
+  "schedule": ["before 8am every weekend"]
 }
