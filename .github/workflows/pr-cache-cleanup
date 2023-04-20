@@ -1,6 +1,6 @@
 name: Cleanup caches when closing PR
 on:
-  pull_request:
+  pull_request_target:
     types:
       - closed
 
