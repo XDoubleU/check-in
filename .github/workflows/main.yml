@@ -98,6 +98,6 @@ jobs:
       - run: yarn install
       - uses: falti/dotenv-action@v1.0.4
       - run: yarn db:test
-      - run: yarn test
+      - run: yarn test:cov
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
