@@ -2,10 +2,8 @@
 
 ![GitHub](https://img.shields.io/github/license/XDoubleU/check-in)
 [![Build & Lint & Test](https://github.com/XDoubleU/check-in/actions/workflows/main.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/main.yml)
-![GitHub top language](https://img.shields.io/github/languages/top/XDoubleU/check-in)
-![GitHub issues](https://img.shields.io/github/issues/XDoubleU/check-in)
+[![codecov](https://codecov.io/gh/XDoubleU/check-in/branch/main/graph/badge.svg?token=8IY0BGQ5RW)](https://codecov.io/gh/XDoubleU/check-in)
 ![GitHub last commit](https://img.shields.io/github/last-commit/XDoubleU/check-in)
-![GitHub Repo stars](https://img.shields.io/github/stars/XDoubleU/check-in?style=social)
 
 This web application allows you to manage check-ins at multiple locations. Users can anonymously check-in by simply pressing a button. The app utilizes a websocket connection to display live location capacity on your website, allowing you to provide up-to-date information to your visitors.
 
