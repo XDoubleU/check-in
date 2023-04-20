@@ -1,14 +1,13 @@
-import ManagerLayout from "../../../layouts/AdminLayout"
-import { LocationUpdateModal } from "../../../components/cards/LocationCard"
-import { getLocation, getUser } from "my-api-wrapper"
+import ManagerLayout from "layouts/AdminLayout"
+import { LocationUpdateModal } from "components/cards/LocationCard"
+import { getLocation, getUser, type APIResponse } from "api-wrapper"
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/router"
-import LoadingLayout from "../../../layouts/LoadingLayout"
+import LoadingLayout from "layouts/LoadingLayout"
 import { type LocationWithUsername } from "."
-import { useAuth } from "../../../contexts/authContext"
+import { useAuth } from "contexts/authContext"
 import { Role, type User } from "types-custom"
-import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"
-import Charts from "../../../components/charts/Charts"
+import Charts from "components/charts/Charts"
 
 // eslint-disable-next-line max-lines-per-function
 export default function LocationDetail() {

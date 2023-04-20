@@ -51,9 +51,7 @@ export class AuthController {
   @Get("signout")
   public signout(@Res({ passthrough: true }) res: Response): void {
     res.clearCookie("accessToken")
-    res.clearCookie("refreshToken", {
-      path: "/auth/refresh"
-    })
+    res.clearCookie("refreshToken")
   }
 
   @Public()

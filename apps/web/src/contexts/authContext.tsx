@@ -1,4 +1,4 @@
-import { getMyUser } from "my-api-wrapper"
+import { getMyUser } from "api-wrapper"
 import React, {
   useState,
   type SetStateAction,

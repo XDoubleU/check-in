@@ -1,13 +1,13 @@
 import { type ReactElement, useState } from "react"
 import { Modal } from "react-bootstrap"
-import CustomButton from "../CustomButton"
+import CustomButton from "components/CustomButton"
 import {
   type FieldValues,
   type SubmitHandler,
   type UseFormReturn
 } from "react-hook-form"
-import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"
-import BaseForm from "../forms/BaseForm"
+import { type APIResponse } from "api-wrapper"
+import BaseForm from "components/forms/BaseForm"
 
 interface CreateModalProps<T extends FieldValues, Y> {
   children: ReactElement | ReactElement[]

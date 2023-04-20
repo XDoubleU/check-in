@@ -1,4 +1,4 @@
-import { useAuth } from "../contexts/authContext"
+import { useAuth } from "contexts/authContext"
 import { useRouter } from "next/router"
 import { type MouseEventHandler } from "react"
 import { Container, Nav, Navbar } from "react-bootstrap"

@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { Modal } from "react-bootstrap"
-import CustomButton from "../CustomButton"
+import CustomButton from "components/CustomButton"
 import { type FieldValues, type SubmitHandler, useForm } from "react-hook-form"
-import BaseForm from "../forms/BaseForm"
-import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"
+import BaseForm from "components/forms/BaseForm"
+import { type APIResponse } from "api-wrapper"
 
 interface DeleteModalProps<T> {
   name: string

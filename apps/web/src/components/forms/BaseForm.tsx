@@ -1,7 +1,7 @@
 import { type ReactElement } from "react"
 import { Alert, Form } from "react-bootstrap"
 import { type FieldErrors } from "react-hook-form"
-import CustomButton from "../CustomButton"
+import CustomButton from "components/CustomButton"
 
 interface BaseFormProps {
   errors: FieldErrors

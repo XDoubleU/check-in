@@ -1,8 +1,8 @@
 import CustomPagination, {
   type CustomPaginationProps
-} from "../components/CustomPagination"
-import Loader from "../components/Loader"
-import type APIResponse from "my-api-wrapper/dist/src/types/apiResponse"
+} from "components/CustomPagination"
+import Loader from "components/Loader"
+import { type APIResponse } from "api-wrapper"
 import { useRouter } from "next/router"
 import {
   type ReactNode,
@@ -13,8 +13,8 @@ import {
 } from "react"
 import { type FieldValues, type UseFormReturn } from "react-hook-form"
 import ManagerLayout from "./AdminLayout"
-import { type ICreateModalProps } from "../interfaces/ICreateModalProps"
-import { type ICardProps } from "../interfaces/ICardProps"
+import { type ICreateModalProps } from "interfaces/ICreateModalProps"
+import { type ICardProps } from "interfaces/ICardProps"
 
 export interface List<T> {
   data: T[] | undefined

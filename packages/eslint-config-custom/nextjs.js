@@ -12,7 +12,7 @@ module.exports = {
       ...commonNamingConvention,
       {
         "selector": "function",
-        "format": ["PascalCase"]
+        "format": ["PascalCase", "camelCase"]
       }
     ],
     "@typescript-eslint/no-misused-promises": [

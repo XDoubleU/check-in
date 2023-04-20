@@ -1,5 +1,5 @@
 import { fetchHandler } from "./fetchHandler"
-import type APIResponse from "./types/apiResponse"
+import { type APIResponse } from "./types"
 
 const MIGRATIONS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/migrations`
 

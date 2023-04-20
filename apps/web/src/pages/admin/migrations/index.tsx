@@ -2,10 +2,10 @@ import {
   applyMigrationsDown,
   applyMigrationsUp,
   applySeeder
-} from "my-api-wrapper"
+} from "api-wrapper"
 import { Col, Row } from "react-bootstrap"
-import CustomButton from "../../../components/CustomButton"
-import AdminLayout from "../../../layouts/AdminLayout"
+import CustomButton from "components/CustomButton"
+import AdminLayout from "layouts/AdminLayout"
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 async function migrationUp() {

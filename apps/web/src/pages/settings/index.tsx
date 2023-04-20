@@ -1,5 +1,5 @@
-import Loader from "../../components/Loader"
-import ManagerLayout from "../../layouts/AdminLayout"
+import Loader from "components/Loader"
+import ManagerLayout from "layouts/AdminLayout"
 
 export default function SettingsHome() {
   return (

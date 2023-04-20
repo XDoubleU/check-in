@@ -1,9 +1,9 @@
 import { format } from "date-fns"
-import { getDataForDayChart } from "my-api-wrapper"
+import { getDataForDayChart } from "api-wrapper"
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
 import { Col, Row } from "react-bootstrap"
 import { Area } from "recharts"
-import FormInput from "../forms/FormInput"
+import FormInput from "components/forms/FormInput"
 import { convertDates, extractAllSchools } from "./dataProcessing"
 import { COLORS, DataLoading, NoDataFound, SharedComposedChart } from "./Shared"
 
