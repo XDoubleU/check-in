@@ -1,14 +1,11 @@
 import { useState } from "react"
 import { Tab, Tabs } from "react-bootstrap"
 import { startOfISOWeek, endOfISOWeek, format } from "date-fns"
-import CustomButton from "../CustomButton"
+import CustomButton from "components/CustomButton"
 import { DATE_FORMAT } from "types-custom"
 import RangeChart from "./RangeChart"
 import DayChart from "./DayChart"
-import {
-  downloadCsvForDayChart,
-  downloadCsvForRangeChart
-} from "my-api-wrapper"
+import { downloadCsvForDayChart, downloadCsvForRangeChart } from "api-wrapper"
 
 interface ChartProps {
   locationId: string

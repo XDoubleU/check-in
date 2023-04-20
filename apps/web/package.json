@@ -17,7 +17,6 @@
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
     "date-fns": "^2.29.3",
-    "my-api-wrapper": "*",
     "next": "13.3.0",
     "prop-types": "^15.8.1",
     "react": "18.2.0",

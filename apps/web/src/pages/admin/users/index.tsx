@@ -1,13 +1,13 @@
 import { type CreateUserDto, type User } from "types-custom"
-import { createUser, getAllUsersPaged } from "my-api-wrapper"
+import { createUser, getAllUsersPaged } from "api-wrapper"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import CreateModal from "../../../components/modals/CreateModal"
-import FormInput from "../../../components/forms/FormInput"
-import ListViewLayout, { type List } from "../../../layouts/ListViewLayout"
-import { type ICreateModalProps } from "../../../interfaces/ICreateModalProps"
+import CreateModal from "components/modals/CreateModal"
+import FormInput from "components/forms/FormInput"
+import ListViewLayout, { type List } from "layouts/ListViewLayout"
+import { type ICreateModalProps } from "interfaces/ICreateModalProps"
 import { Form } from "react-bootstrap"
-import UserCard from "../../../components/cards/UserCard"
+import UserCard from "components/cards/UserCard"
 
 type CreateUserForm = CreateUserDto & { repeatPassword?: string }
 

@@ -1,4 +1,4 @@
-import { getDataForRangeChart } from "my-api-wrapper"
+import { getDataForRangeChart } from "api-wrapper"
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react"
 import { Row, Col } from "react-bootstrap"
 import { Bar } from "recharts"
@@ -6,7 +6,7 @@ import { COLORS, DataLoading, NoDataFound, SharedComposedChart } from "./Shared"
 import { convertDates, extractAllSchools } from "./dataProcessing"
 import { DATE_FORMAT } from "types-custom"
 import { format } from "date-fns"
-import FormInput from "../forms/FormInput"
+import FormInput from "components/forms/FormInput"
 
 interface RangeChartProps extends FilterProps {
   locationId: string

@@ -6,7 +6,7 @@ import {
 } from "types-custom"
 import { fetchHandler } from "./fetchHandler"
 import Query from "./query"
-import type APIResponse from "./types/apiResponse"
+import { type APIResponse } from "./types"
 
 const USERS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/users`
 

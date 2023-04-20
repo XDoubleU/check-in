@@ -1,4 +1,4 @@
-import LoadingLayout from "../layouts/LoadingLayout"
+import LoadingLayout from "layouts/LoadingLayout"
 import { type NextRouter, useRouter } from "next/router"
 import React, { useEffect, useState, type ReactNode } from "react"
 import { Role, type User } from "types-custom"

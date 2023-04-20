@@ -1,11 +1,11 @@
 import { Card, Form } from "react-bootstrap"
-import DeleteModal from "../modals/DeleteModal"
-import { deleteUser, updateUser } from "my-api-wrapper"
+import DeleteModal from "components/modals/DeleteModal"
+import { deleteUser, updateUser } from "api-wrapper"
 import { type UpdateUserDto, type User } from "types-custom"
 import { useForm } from "react-hook-form"
-import UpdateModal from "../modals/UpdateModal"
-import FormInput from "../forms/FormInput"
-import { type ICardProps } from "../../interfaces/ICardProps"
+import UpdateModal from "components/modals/UpdateModal"
+import FormInput from "components/forms/FormInput"
+import { type ICardProps } from "interfaces/ICardProps"
 
 type UserUpdateForm = UpdateUserDto & { repeatPassword?: string }
 

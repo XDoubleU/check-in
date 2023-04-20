@@ -1,11 +1,11 @@
 import { Card } from "react-bootstrap"
-import DeleteModal from "../modals/DeleteModal"
-import { deleteSchool, updateSchool } from "my-api-wrapper"
+import DeleteModal from "components/modals/DeleteModal"
+import { deleteSchool, updateSchool } from "api-wrapper"
 import { type School, type UpdateSchoolDto } from "types-custom"
 import { useForm } from "react-hook-form"
-import UpdateModal from "../modals/UpdateModal"
-import FormInput from "../forms/FormInput"
-import { type ICardProps } from "../../interfaces/ICardProps"
+import UpdateModal from "components/modals/UpdateModal"
+import FormInput from "components/forms/FormInput"
+import { type ICardProps } from "interfaces/ICardProps"
 
 type SchoolCardProps = ICardProps<School>
 

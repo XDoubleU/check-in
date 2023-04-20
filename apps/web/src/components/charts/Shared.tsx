@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis
 } from "recharts"
-import Loader from "../Loader"
+import Loader from "components/Loader"
 
 const RESPONSIVE_CONTAINER_PROPS = {
   width: "100%",

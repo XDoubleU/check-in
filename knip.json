@@ -14,11 +14,11 @@
       "ignore": ["integration/script.js", ".yarn"]
     },
     "apps/api": {
-      "entry": "src/main.ts",
-      "ignoreDependencies": ["helmet"]
+      "entry": "src/main.ts"
     },
     "apps/web": {
-      "ignore": ["sentry.edge.config.js"]
+      "ignore": ["sentry.edge.config.js"],
+      "ignoreDependencies": ["styles"]
     },
     "packages/mikro-orm-config": {
       "ignore": [
@@ -28,7 +28,6 @@
       ],
       "ignoreDependencies": ["ts-node"]
     },
-    "packages/my-api-wrapper": {},
     "packages/types-custom": {}
   }
 }

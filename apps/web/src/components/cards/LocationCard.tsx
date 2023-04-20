@@ -1,14 +1,14 @@
 import { Card } from "react-bootstrap"
 import Link from "next/link"
-import UpdateModal from "../modals/UpdateModal"
-import DeleteModal from "../modals/DeleteModal"
-import { deleteLocation, updateLocation } from "my-api-wrapper"
+import UpdateModal from "components/modals/UpdateModal"
+import DeleteModal from "components/modals/DeleteModal"
+import { deleteLocation, updateLocation } from "api-wrapper"
 import { type UpdateLocationDto, type Location } from "types-custom"
 import { useForm } from "react-hook-form"
 import { format } from "date-fns"
-import { type LocationWithUsername } from "../../pages/settings/locations/index"
-import FormInput from "../forms/FormInput"
-import { type ICardProps } from "../../interfaces/ICardProps"
+import { type LocationWithUsername } from "pages/settings/locations/index"
+import FormInput from "components/forms/FormInput"
+import { type ICardProps } from "interfaces/ICardProps"
 
 type LocationUpdateForm = UpdateLocationDto & { repeatPassword?: string }
 

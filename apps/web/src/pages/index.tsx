@@ -9,16 +9,16 @@ import {
   type School,
   type Location
 } from "types-custom"
-import BaseLayout from "../layouts/BaseLayout"
-import CustomButton from "../components/CustomButton"
+import BaseLayout from "layouts/BaseLayout"
+import CustomButton from "components/CustomButton"
 import {
   checkinsWebsocket,
   createCheckIn,
   getAllSchoolsSortedForLocation,
   getMyLocation
-} from "my-api-wrapper"
+} from "api-wrapper"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import LoadingLayout from "../layouts/LoadingLayout"
+import LoadingLayout from "layouts/LoadingLayout"
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {
@@ -62,6 +62,7 @@ export default function CheckIn() {
 
   const loadSchools = async () => {
     const response = await getAllSchoolsSortedForLocation()
+
     setSchools(response.data ?? Array<School>())
     handleShow()
   }

@@ -1,12 +1,12 @@
-import SchoolCard from "../../../components/cards/SchoolCard"
+import SchoolCard from "components/cards/SchoolCard"
 import { type CreateSchoolDto, type School } from "types-custom"
-import { createSchool, getAllSchoolsPaged } from "my-api-wrapper"
+import { createSchool, getAllSchoolsPaged } from "api-wrapper"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import CreateModal from "../../../components/modals/CreateModal"
-import FormInput from "../../../components/forms/FormInput"
-import ListViewLayout, { type List } from "../../../layouts/ListViewLayout"
-import { type ICreateModalProps } from "../../../interfaces/ICreateModalProps"
+import CreateModal from "components/modals/CreateModal"
+import FormInput from "components/forms/FormInput"
+import ListViewLayout, { type List } from "layouts/ListViewLayout"
+import { type ICreateModalProps } from "interfaces/ICreateModalProps"
 
 export type CreateSchoolModalProps = ICreateModalProps<CreateSchoolDto>
 

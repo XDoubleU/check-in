@@ -1,7 +1,7 @@
 import { type CheckIn, type CreateCheckInDto } from "types-custom"
 import { fetchHandler } from "./fetchHandler"
 import Query from "./query"
-import type APIResponse from "./types/apiResponse"
+import { type APIResponse } from "./types"
 
 const CHECKIN_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/checkins`
 
