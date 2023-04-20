@@ -37,4 +37,3 @@ Please make sure to update tests as appropriate.
 ## License
 
 [GPLv3](https://github.com/XDoubleU/check-in/blob/main/LICENSE)
-
