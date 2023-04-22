@@ -8,7 +8,7 @@ export * from "./seeders"
 const sharedConfig: Options = {
   type: "postgresql",
   clientUrl: process.env.DATABASE_URL ?? "",
-  entities: ["./dist/src/entities/*.js"],
+  entities: ["./dist/entities/*.js"],
   entitiesTs: ["./src/entities/*.ts"],
   baseDir: __dirname + "/..",
   metadataProvider: TsMorphMetadataProvider,
