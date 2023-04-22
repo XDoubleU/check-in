@@ -8,7 +8,7 @@ import {
   type UpdateSchoolDto
 } from "types-custom"
 import Fixture, { type ErrorResponse } from "./config/fixture"
-import { CheckInEntity, SchoolEntity } from "mikro-orm-config"
+import { CheckInEntity, SchoolEntity } from "../src/entities"
 import { type UserAndTokens } from "../src/auth/auth.service"
 
 describe("SchoolsController (e2e)", () => {

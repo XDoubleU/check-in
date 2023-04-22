@@ -1,9 +1,9 @@
 import { EntityRepository, QueryOrder } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
-import { LocationEntity, type UserEntity } from "mikro-orm-config"
 import { Role } from "types-custom"
 import { WsService } from "../ws/ws.service"
+import { LocationEntity, type UserEntity } from "../entities"
 
 @Injectable()
 export class LocationsService {

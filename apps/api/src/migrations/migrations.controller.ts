@@ -2,7 +2,7 @@ import { Controller, Get } from "@nestjs/common"
 import { Role } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { MikroORM } from "@mikro-orm/core"
-import { DatabaseSeeder } from "mikro-orm-config"
+import { DatabaseSeeder } from "../seeders/DatabaseSeeder"
 
 @Controller("migrations")
 export class MigrationsController {

@@ -3,7 +3,7 @@
 import request from "supertest"
 import { DATE_FORMAT, type CheckIn, type CreateCheckInDto } from "types-custom"
 import Fixture, { type ErrorResponse } from "./config/fixture"
-import { SchoolEntity } from "mikro-orm-config"
+import { SchoolEntity } from "../src/entities"
 import { type UserAndTokens } from "../src/auth/auth.service"
 import { add, format } from "date-fns"
 import { v4 } from "uuid"

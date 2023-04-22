@@ -2,5 +2,5 @@ dist
 coverage
 node_modules
 *.d.ts
-packages/mikro-orm-config/src/migrations
-packages/mikro-orm-config/src/seeders
+apps/api/src/migration-files
+apps/api/src/seeders

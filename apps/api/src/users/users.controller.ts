@@ -10,7 +10,6 @@ import {
   Post,
   Query
 } from "@nestjs/common"
-import { UserEntity } from "mikro-orm-config"
 import {
   type CreateUserDto,
   type GetAllPaginatedUserDto,
@@ -20,6 +19,7 @@ import {
 import { Roles } from "../auth/decorators/roles.decorator"
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { UsersService } from "./users.service"
+import { UserEntity } from "../entities"
 
 type MikroGetAllPaginatedUserDto = Omit<GetAllPaginatedUserDto, "data"> & {
   data: UserEntity[]

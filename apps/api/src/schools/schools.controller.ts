@@ -19,7 +19,7 @@ import {
 } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
 import { ReqUser } from "../auth/decorators/user.decorator"
-import { type SchoolEntity, UserEntity } from "mikro-orm-config"
+import { type SchoolEntity, UserEntity } from "../entities"
 
 type MikroGetAllPaginatedSchoolDto = Omit<GetAllPaginatedSchoolDto, "data"> & {
   data: SchoolEntity[]

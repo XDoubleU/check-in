@@ -13,7 +13,7 @@ import { type Response } from "express"
 import { Public } from "./decorators/public.decorator"
 import { ReqUser } from "./decorators/user.decorator"
 import { type SignInDto } from "types-custom"
-import { UserEntity } from "mikro-orm-config"
+import { UserEntity } from "../entities"
 
 @Controller("auth")
 export class AuthController {

@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common"
 import { EntityRepository } from "@mikro-orm/core"
-import { UserEntity } from "mikro-orm-config"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { type Role } from "types-custom"
+import { UserEntity } from "../entities"
 
 @Injectable()
 export class UsersService {
