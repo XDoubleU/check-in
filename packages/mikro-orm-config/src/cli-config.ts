@@ -9,7 +9,7 @@ const config: Options = {
   ...sharedConfig,
   migrations: {
     disableForeignKeys: false,
-    path: "./dist/src/migrations",
+    path: "./dist/migrations",
     pathTs: "./src/migrations"
   }
 }
