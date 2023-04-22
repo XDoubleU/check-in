@@ -5,8 +5,8 @@
   "collectCoverageFrom": ["src/**/*.ts"],
   "coveragePathIgnorePatterns": [
     "main.ts",
-    "cli",
-    ".module.ts"
+    ".module.ts",
+    "migration-files"
   ],
   "testTimeout": 50000
 }
