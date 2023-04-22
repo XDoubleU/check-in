@@ -12,7 +12,6 @@ import { CheckInsService } from "./checkins.service"
 import { SchoolsService } from "../schools/schools.service"
 import { type CreateCheckInDto, DATE_FORMAT, Role } from "types-custom"
 import { Roles } from "../auth/decorators/roles.decorator"
-import { UserEntity, type CheckInEntity } from "mikro-orm-config"
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { LocationsService } from "../locations/locations.service"
 import { endOfDay, format, startOfDay } from "date-fns"
@@ -23,6 +22,7 @@ import {
 } from "../helpers/dataConverters"
 import { Parser } from "json2csv"
 import { type Response } from "express"
+import { type CheckInEntity, UserEntity } from "../entities"
 
 @Controller("checkins")
 export class CheckInsController {

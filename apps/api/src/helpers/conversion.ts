@@ -1,4 +1,4 @@
-import { type LocationEntity } from "mikro-orm-config"
+import { type LocationEntity } from "../entities"
 import { type LocationUpdateEventDto } from "types-custom"
 
 export function convertToLocationUpdateEventDto(

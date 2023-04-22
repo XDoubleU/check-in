@@ -3,5 +3,6 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["tests"]
+  "include": ["tests"],
+  "exclude": ["node_modules"]
 }

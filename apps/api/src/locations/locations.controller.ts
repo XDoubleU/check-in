@@ -22,10 +22,10 @@ import {
 } from "types-custom"
 import { ReqUser } from "../auth/decorators/user.decorator"
 import { Roles } from "../auth/decorators/roles.decorator"
-import { type LocationEntity, UserEntity } from "mikro-orm-config"
 import { Public } from "../auth/decorators/public.decorator"
 import { type Response } from "express"
 import { convertToLocationUpdateEventDto } from "../helpers/conversion"
+import { UserEntity, type LocationEntity } from "../entities"
 
 type MikroGetAllPaginatedLocationDto = Omit<
   GetAllPaginatedLocationDto,

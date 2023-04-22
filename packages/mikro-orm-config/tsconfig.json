@@ -1,9 +1,0 @@
-{
-  "extends": "tsconfig-custom/base.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "noImplicitOverride": false	
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
-}

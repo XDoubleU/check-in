@@ -4,7 +4,7 @@ import { type Request } from "express"
 import { ExtractJwt, Strategy } from "passport-jwt"
 import { UsersService } from "../../users/users.service"
 import { Role, type Tokens } from "types-custom"
-import { UserEntity } from "mikro-orm-config"
+import { UserEntity } from "../../entities"
 
 export interface JwtPayload {
   admin?: boolean

@@ -6,7 +6,7 @@ import {
   CheckInEntity,
   type LocationEntity,
   type SchoolEntity
-} from "mikro-orm-config"
+} from "../entities"
 import { InjectRepository } from "@mikro-orm/nestjs"
 
 @Injectable()

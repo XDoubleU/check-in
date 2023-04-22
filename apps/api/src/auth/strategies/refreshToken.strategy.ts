@@ -5,7 +5,7 @@ import { Injectable } from "@nestjs/common"
 import { type JwtPayload } from "./accessToken.strategy"
 import { UsersService } from "../../users/users.service"
 import { type Tokens } from "types-custom"
-import { type UserEntity } from "mikro-orm-config"
+import { type UserEntity } from "../../entities"
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(

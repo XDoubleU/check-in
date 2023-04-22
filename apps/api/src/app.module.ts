@@ -8,19 +8,23 @@ import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core"
 import { AccessTokenGuard } from "./auth/guards/accessToken.guard"
 import { UsersModule } from "./users/users.module"
 import { RolesGuard } from "./auth/guards/roles.guard"
-import config from "mikro-orm-config"
 import { MikroOrmModule } from "@mikro-orm/nestjs"
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler"
 import { MigrationsModule } from "./migrations/migrations.module"
 import { RavenInterceptor, RavenModule } from "nest-raven"
 import { WsModule } from "./ws/ws.module"
+import sharedConfig from "./shared-config"
 
 @Module({
   imports: [
     RavenModule,
     MikroOrmModule.forRoot({
-      ...config,
-      autoLoadEntities: true
+      ...sharedConfig,
+      driverOptions: {
+        ...(process.env.NODE_ENV === "production" && {
+          connection: { ssl: { ca: process.env.CA_CERT } }
+        })
+      }
     }),
     ThrottlerModule.forRoot({
       ttl: 10, // the number of seconds that each request will last in storage

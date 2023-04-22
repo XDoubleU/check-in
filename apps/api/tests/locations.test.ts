@@ -9,7 +9,7 @@ import {
 } from "types-custom"
 import Fixture, { type ErrorResponse } from "./config/fixture"
 import { v4 } from "uuid"
-import { LocationEntity } from "mikro-orm-config"
+import { LocationEntity } from "../src/entities"
 import { type UserAndTokens } from "../src/auth/auth.service"
 
 describe("LocationsController (e2e)", () => {

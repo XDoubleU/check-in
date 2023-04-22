@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { format } from "date-fns"
-import { type CheckInEntity, type SchoolEntity } from "mikro-orm-config"
+import { type CheckInEntity, type SchoolEntity } from "../entities"
 import { DATE_FORMAT } from "types-custom"
 
 export function convertRangeData(

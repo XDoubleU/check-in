@@ -4,7 +4,7 @@ import { Role, type Tokens } from "types-custom"
 import { JwtService } from "@nestjs/jwt"
 import { type Response } from "express"
 import { compare } from "bcrypt"
-import { UserEntity } from "mikro-orm-config"
+import { UserEntity } from "../entities"
 
 export interface UserAndTokens {
   user: UserEntity

@@ -3,7 +3,7 @@ import Fixture from "./config/fixture"
 import { type Server } from "http"
 import { type AddressInfo } from "net"
 import { WsService } from "../src/ws/ws.service"
-import { CheckInEntity, LocationEntity, SchoolEntity } from "mikro-orm-config"
+import { CheckInEntity, LocationEntity, SchoolEntity } from "../src/entities"
 import { type LocationUpdateEventDto } from "types-custom"
 import WebSocket from "ws"
 

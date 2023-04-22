@@ -7,26 +7,23 @@
     "packages/eslint-config-custom"
   ],
   "ignore": ["**/.eslintrc.js"],
-  "ignoreBinaries": ["eslint", "tsc"],
-  "ignoreDependencies": ["tsconfig-custom", "eslint-config-custom"],
+  "ignoreDependencies": ["eslint-config-custom"],
   "workspaces": {
     ".": {
       "ignore": ["integration/script.js", ".yarn"]
     },
     "apps/api": {
-      "entry": "src/main.ts"
-    },
-    "apps/web": {
-      "ignore": ["sentry.edge.config.js"],
-      "ignoreDependencies": ["styles"]
-    },
-    "packages/mikro-orm-config": {
+      "entry": "src/main.ts",
       "ignore": [
-        "src/migrations/**",
+        "src/migration-files/**",
         "src/seeders/**",
         "src/cli-config.ts"
       ],
       "ignoreDependencies": ["ts-node"]
+    },
+    "apps/web": {
+      "ignore": ["sentry.edge.config.js"],
+      "ignoreDependencies": ["styles"]
     },
     "packages/types-custom": {}
   }

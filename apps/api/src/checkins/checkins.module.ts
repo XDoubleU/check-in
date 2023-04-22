@@ -5,7 +5,7 @@ import { LocationsModule } from "../locations/locations.module"
 import { SchoolsModule } from "../schools/schools.module"
 import { CheckInsService } from "./checkins.service"
 import { MikroOrmModule } from "@mikro-orm/nestjs"
-import { CheckInEntity } from "mikro-orm-config"
+import { CheckInEntity } from "../entities"
 import { WsModule } from "../ws/ws.module"
 
 @Module({

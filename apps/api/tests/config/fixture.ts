@@ -8,7 +8,7 @@ import {
   LocationEntity,
   SchoolEntity,
   UserEntity
-} from "mikro-orm-config"
+} from "../../src/entities"
 import { MikroORM, type Transaction } from "@mikro-orm/core"
 import { Role } from "types-custom"
 import {

@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common"
-import { type LocationEntity } from "mikro-orm-config"
 import { filter, map, type Observable, Subject } from "rxjs"
 import { type LocationUpdateEventDto } from "types-custom"
 import { convertToLocationUpdateEventDto } from "../helpers/conversion"
+import { type LocationEntity } from "../entities"
 
 @Injectable()
 export class WsService {
