@@ -15,7 +15,7 @@
     "format": "prettier --write ./**/*.{ts,tsx}",
     "jscpd": "jscpd --config jscpd.json .",
     "knip": "knip",
-    "lint": "turbo lint && prettier --check ./**/*.{ts,tsx}",
+    "lint": "turbo lint && prettier --check ./**/*.{ts,tsx} && npmPkgJsonLint .",
     "lint:fix": "turbo lint:fix",
     "lint:report": "turbo lint:report",
     "prod": "dotenv -- turbo prod",
@@ -23,17 +23,13 @@
     "test:cov": "dotenv -- turbo test:cov",
     "test:report": "dotenv -- turbo test:report"
   },
-  "prettier": {
-    "parser": "typescript",
-    "semi": false,
-    "trailingComma": "none"
-  },
   "dependencies": {
-    "dotenv-cli": "^7.1.0",
-    "jscpd": "^3.5.4",
-    "knip": "^2.1.3",
-    "prettier": "^2.8.7",
-    "turbo": "^1.8.5"
+    "dotenv-cli": "7.2.1",
+    "jscpd": "3.5.4",
+    "knip": "2.10.1",
+    "npm-package-json-lint": "6.4.0",
+    "prettier": "2.8.7",
+    "turbo": "1.9.3"
   },
   "engines": {
     "node": "16.20.x || 18.16.x",

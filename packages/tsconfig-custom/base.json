@@ -16,7 +16,7 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "isolatedModules": true,
-    "composite": true,
+    "incremental": false,
 
     "allowUnreachableCode": false,
     "exactOptionalPropertyTypes": true,

@@ -7,8 +7,7 @@
     "packages/eslint-config-custom"
   ],
   "ignore": ["**/.eslintrc.js"],
-  "ignoreBinaries": ["eslint", "tsc"],
-  "ignoreDependencies": ["tsconfig-custom", "eslint-config-custom"],
+  "ignoreDependencies": ["eslint-config-custom"],
   "workspaces": {
     ".": {
       "ignore": ["integration/script.js", ".yarn"]
