@@ -24,7 +24,7 @@ import { WsModule } from "./ws/ws.module"
     }),
     ThrottlerModule.forRoot({
       ttl: 10, // the number of seconds that each request will last in storage
-      limit: 60 // the maximum number of requests within the TTL limit
+      limit: 30 // the maximum number of requests within the TTL limit
     }),
     CheckInsModule,
     LocationsModule,

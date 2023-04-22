@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form"
 import CreateModal from "components/modals/CreateModal"
 import FormInput from "components/forms/FormInput"
 import ListViewLayout, { type List } from "layouts/ListViewLayout"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import LocationCard from "components/cards/LocationCard"
 import { type ICreateModalProps } from "interfaces/ICreateModalProps"
 
@@ -102,39 +102,40 @@ export default function LocationListView() {
 
   const form = useForm<CreateLocationForm>()
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  async function preprocessList(
-    responseData: GetAllPaginatedLocationDto
-  ): Promise<List<LocationWithUsername>> {
-    const locationsWithUsernames: List<LocationWithUsername> = {
-      data: [],
-      pagination: {
-        current: responseData.pagination.current,
-        total: responseData.pagination.total
+  // If preprocessList doesn't use useCallback it will be called infinitely
+  const preprocessList = useCallback(
+    async (responseData: GetAllPaginatedLocationDto) => {
+      const locationsWithUsernames: List<LocationWithUsername> = {
+        data: [],
+        pagination: {
+          current: responseData.pagination.current,
+          total: responseData.pagination.total
+        }
       }
-    }
 
-    if (!locationsWithUsernames.data) {
+      if (!locationsWithUsernames.data) {
+        return locationsWithUsernames
+      }
+
+      for (const location of responseData.data) {
+        const username = (await getUser(location.userId)).data?.username
+
+        locationsWithUsernames.data.push({
+          id: location.id,
+          name: location.name,
+          normalizedName: location.normalizedName,
+          capacity: location.capacity,
+          username: username ?? "",
+          available: location.available,
+          checkIns: location.checkIns,
+          yesterdayFullAt: location.yesterdayFullAt
+        })
+      }
+
       return locationsWithUsernames
-    }
-
-    for (const location of responseData.data) {
-      const username = (await getUser(location.userId)).data?.username
-
-      locationsWithUsernames.data.push({
-        id: location.id,
-        name: location.name,
-        normalizedName: location.normalizedName,
-        capacity: location.capacity,
-        username: username ?? "",
-        available: location.available,
-        checkIns: location.checkIns,
-        yesterdayFullAt: location.yesterdayFullAt
-      })
-    }
-
-    return locationsWithUsernames
-  }
+    },
+    []
+  )
 
   return (
     <ListViewLayout
