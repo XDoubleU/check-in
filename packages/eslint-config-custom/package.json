@@ -11,13 +11,10 @@
     "@typescript-eslint/parser": "5.59.0",
     "eslint": "8.39.0",
     "eslint-config-next": "13.3.1",
-    "eslint-config-prettier": "8.8.0",
     "eslint-config-turbo": "1.9.3",
     "eslint-plugin-import": "2.27.5",
-    "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-redundant-undefined": "0.4.0",
     "eslint-plugin-sonarjs": "0.19.0",
-    "eslint-plugin-turbo": "1.9.3",
-    "prettier": "2.8.7"
+    "eslint-plugin-turbo": "1.9.3"
   }
 }
