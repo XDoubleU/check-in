@@ -64,7 +64,7 @@
     "@mikro-orm/cli": "5.6.16",
     "@nestjs/testing": "9.4.0",
     "@types/jest": "29.5.1",
-    "@types/node": "18.15.13",
+    "@types/node": "18.16.0",
     "@types/supertest": "2.0.12",
     "eslint": "8.39.0",
     "eslint-config-custom": "1.0.0",
