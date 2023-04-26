@@ -1,5 +1,4 @@
 import {
-  Check,
   Collection,
   Entity,
   Formula,
@@ -12,6 +11,7 @@ import { v4 } from "uuid"
 import { UserEntity } from "./user"
 import { CheckInEntity } from "./checkin"
 import { type Location } from "types-custom"
+import { normalizeName } from "../helpers/normalization"
 
 type MikroLocationInterface = Omit<Location, "checkIns" | "userId"> & {
   user: UserEntity
@@ -27,7 +27,6 @@ export class LocationEntity implements MikroLocationInterface {
   public name: string
 
   @Property()
-  @Check({ expression: "capacity >= 0" })
   public capacity: number
 
   @OneToOne({
@@ -79,10 +78,7 @@ export class LocationEntity implements MikroLocationInterface {
 
   @Property({ persist: false })
   public get normalizedName(): string {
-    return this.name
-      .toLowerCase()
-      .replaceAll(/\s/g, "-")
-      .replaceAll(/[^a-z0-9-]/g, "")
+    return normalizeName(this.name)
   }
 
   @Property({ persist: false })

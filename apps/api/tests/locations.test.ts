@@ -8,7 +8,6 @@ import {
   type UpdateLocationDto
 } from "types-custom"
 import Fixture, { type ErrorResponse } from "./config/fixture"
-import { v4 } from "uuid"
 import { LocationEntity } from "../src/entities"
 import { type UserAndTokens } from "../src/auth/auth.service"
 
@@ -120,6 +119,21 @@ describe("LocationsController (e2e)", () => {
       expect(paginatedLocationsResponse.data.length).toBe(defaultPageSize)
     })
 
+    it("returns Page should be greater than 0 (400)", async () => {
+      const page = 0
+
+      const response = await request(fixture.app.getHttpServer())
+        .get("/locations")
+        .query({ page })
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+        const errorResponse = response.body as ErrorResponse
+        expect(errorResponse.message).toBe("Page should be greater than 0")
+    })
+
     it("returns Forbidden (403)", async () => {
       return await request(fixture.app.getHttpServer())
         .get("/locations")
@@ -166,7 +180,7 @@ describe("LocationsController (e2e)", () => {
 
     it("returns Location not found because Location doesn't exist (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
-        .get(`/locations/${v4()}`)
+        .get(`/locations/random`)
         .set("Cookie", [
           `accessToken=${managerUserAndTokens.tokens.accessToken}`
         ])
@@ -219,9 +233,31 @@ describe("LocationsController (e2e)", () => {
       expect(locationResponse.userId).toBeDefined()
     })
 
-    it("returns Location with this name already exists (409)", async () => {
+    it("returns Location with this name already exists - simple (409)", async () => {
       const data: CreateLocationDto = {
         name: locations[0].name,
+        capacity: 10,
+        username: "NewTestLocationUser",
+        password: "testpassword"
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .post("/locations")
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .send(data)
+        .expect(409)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe(
+        "Location with this name already exists"
+      )
+    })
+
+    it("returns Location with this name already exists - advanced (409)", async () => {
+      const data: CreateLocationDto = {
+        name: `$${locations[0].name}$`,
         capacity: 10,
         username: "NewTestLocationUser",
         password: "testpassword"
@@ -260,6 +296,28 @@ describe("LocationsController (e2e)", () => {
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe(
         "User with this username already exists"
+      )
+    })
+
+    it("returns Location needs capacity of at least 1 (400)", async () => {
+      const data: CreateLocationDto = {
+        name: "NewTestLocation",
+        capacity: 0,
+        username: "NewTestLocationUser",
+        password: "testpassword"
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .post("/locations")
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .send(data)
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe(
+        "Location needs a capacity of at least 1"
       )
     })
 
@@ -326,11 +384,31 @@ describe("LocationsController (e2e)", () => {
       expect(locationResponse.userId).toBe(userAndTokens.user.id)
     })
 
-    it("returns Location with this name already exists (409)", async () => {
+    it("returns Location with this name already exists - simple (409)", async () => {
       const id = userAndTokens.user.location?.id ?? 0
 
       const data: UpdateLocationDto = {
         name: locations[1].name,
+        username: "NewTestLocationUser3"
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/locations/${id}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .send(data)
+        .expect(409)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe(
+        "Location with this name already exists"
+      )
+    })
+
+    it("returns Location with this name already exists - advanced (409)", async () => {
+      const id = userAndTokens.user.location?.id ?? 0
+
+      const data: UpdateLocationDto = {
+        name: `$${locations[1].name}$`,
         username: "NewTestLocationUser3"
       }
 
@@ -366,6 +444,27 @@ describe("LocationsController (e2e)", () => {
       )
     })
 
+    it("returns Location needs a capacity of at least 1 (400)", async () => {
+      const id = userAndTokens.user.location?.id ?? 0
+
+      const data: UpdateLocationDto = {
+        username: "NewTestLocationUser2",
+        password: "newPassword",
+        capacity: 0
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/locations/${id}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .send(data)
+        .expect(400)
+
+        const errorResponse = response.body as ErrorResponse
+        expect(errorResponse.message).toBe(
+          "Location needs a capacity of at least 1"
+        )
+    })
+
     it("returns Location not found because User doesn't own Location (404)", async () => {
       const location = locations.find(
         (location) => location.name === "TestLocation0"
@@ -381,6 +480,22 @@ describe("LocationsController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .patch(`/locations/${location.id}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .send(data)
+        .expect(404)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Location not found")
+    })
+
+    it("returns Location not found (404)", async () => {
+      const data: UpdateLocationDto = {
+        name: "NewTestLocation",
+        username: "NewTestLocationUser"
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch("/locations/random")
         .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(404)
@@ -407,7 +522,7 @@ describe("LocationsController (e2e)", () => {
 
     it("returns Location not found (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
-        .delete(`/locations/${v4()}`)
+        .delete("/locations/random")
         .set("Cookie", [
           `accessToken=${managerUserAndTokens.tokens.accessToken}`
         ])
