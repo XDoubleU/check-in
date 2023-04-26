@@ -48,6 +48,24 @@ describe("AuthController (e2e)", () => {
       expect(response.headers["set-cookie"][1]).toContain("refreshToken")
     })
 
+    it("signs in Admin (200)", async () => {
+      const data: SignInDto = {
+        username: process.env.ADMIN_USERNAME ?? "",
+        password: process.env.ADMIN_PASSWORD ?? "",
+        rememberMe: true
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .post("/auth/signin")
+        .send(data)
+        .expect(200)
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(response.headers["set-cookie"][0]).toContain("accessToken")
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(response.headers["set-cookie"][1]).toBe(undefined)
+    })
+
     it("returns Invalid credentials because of inexistent user (401)", async () => {
       const data: SignInDto = {
         username: "inexistentuser",
@@ -87,6 +105,29 @@ describe("AuthController (e2e)", () => {
       const data: SignInDto = {
         username: userAndTokens.user.username,
         password: "testpassword",
+        rememberMe: true
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .post("/auth/signin")
+        .send(data)
+        .expect(500)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe(
+        "JWT secrets or expirations missing in environment"
+      )
+
+      process.env.JWT_ACCESS_SECRET = temp
+    })
+
+    it("returns Internal server error exception because of missing JWT config when signing in Admin (500)", async () => {
+      const temp = process.env.JWT_ACCESS_SECRET
+      process.env.JWT_ACCESS_SECRET = ""
+
+      const data: SignInDto = {
+        username: process.env.ADMIN_USERNAME ?? "",
+        password: process.env.ADMIN_PASSWORD ?? "",
         rememberMe: true
       }
 
