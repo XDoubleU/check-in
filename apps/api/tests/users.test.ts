@@ -124,12 +124,10 @@ describe("UsersController (e2e)", () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/users")
         .query({ page })
-        .set("Cookie", [
-          `accessToken=${adminUserAndTokens.tokens.accessToken}`
-        ])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(200)
 
-        const paginatedManagerUsersResponse =
+      const paginatedManagerUsersResponse =
         response.body as GetAllPaginatedUserDto
       expect(paginatedManagerUsersResponse.pagination.current).toBe(page)
       expect(paginatedManagerUsersResponse.pagination.total).toBe(
@@ -166,9 +164,7 @@ describe("UsersController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .post("/users")
-        .set("Cookie", [
-          `accessToken=${adminUserAndTokens.tokens.accessToken}`
-        ])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(409)
 
@@ -226,9 +222,7 @@ describe("UsersController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .patch(`/users/${v4()}`)
-        .set("Cookie", [
-          `accessToken=${adminUserAndTokens.tokens.accessToken}`
-        ])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(404)
 
@@ -243,9 +237,7 @@ describe("UsersController (e2e)", () => {
 
       const response = await request(fixture.app.getHttpServer())
         .delete(`/users/${id}`)
-        .set("Cookie", [
-          `accessToken=${adminUserAndTokens.tokens.accessToken}`
-        ])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(200)
 
       const userResponse = response.body as User
@@ -255,9 +247,7 @@ describe("UsersController (e2e)", () => {
     it("returns User not found (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
         .delete(`/users/${v4()}`)
-        .set("Cookie", [
-          `accessToken=${adminUserAndTokens.tokens.accessToken}`
-        ])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse

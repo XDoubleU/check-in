@@ -129,8 +129,12 @@ export default class Fixture {
     await this.em.persistAndFlush(users)
 
     const managerUsers: UserEntity[] = []
-    for (let i = 0; i < 10; i++){
-      const newManagerUser = new UserEntity(`ManagerUser${i}`, "testpassword", Role.Manager)
+    for (let i = 0; i < 10; i++) {
+      const newManagerUser = new UserEntity(
+        `ManagerUser${i}`,
+        "testpassword",
+        Role.Manager
+      )
       managerUsers.push(newManagerUser)
     }
 
