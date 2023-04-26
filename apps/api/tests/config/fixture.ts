@@ -99,6 +99,21 @@ export default class Fixture {
     }
   }
 
+  public async getAdminTokens(): Promise<UserAndTokens> {
+    const authService = this.app.get<AuthService>(AuthService)
+
+    return {
+      user: new UserEntity(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        process.env.ADMIN_USERNAME!,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        process.env.ADMIN_PASSWORD!,
+        Role.Admin
+      ),
+      tokens: await authService.getAdminAccessToken()
+    }
+  }
+
   // eslint-disable-next-line max-lines-per-function
   private async seedDatabase(): Promise<void> {
     const users = [
@@ -106,7 +121,6 @@ export default class Fixture {
       new UserEntity("Manager", "testpassword", Role.Manager),
       new UserEntity("User", "testpassword")
     ]
-
     for (let i = 0; i < 20; i++) {
       const newUser = new UserEntity(`TestUser${i}`, "testpassword")
       users.push(newUser)
@@ -114,8 +128,19 @@ export default class Fixture {
 
     await this.em.persistAndFlush(users)
 
-    const locations = [new LocationEntity("TestLocation", 20, users[2])]
+    const managerUsers: UserEntity[] = []
+    for (let i = 0; i < 10; i++) {
+      const newManagerUser = new UserEntity(
+        `ManagerUser${i}`,
+        "testpassword",
+        Role.Manager
+      )
+      managerUsers.push(newManagerUser)
+    }
 
+    await this.em.persistAndFlush(managerUsers)
+
+    const locations = [new LocationEntity("TestLocation", 20, users[2])]
     for (let i = 0; i < 20; i++) {
       const newLocation = new LocationEntity(
         `TestLocation${i}`,
@@ -128,7 +153,6 @@ export default class Fixture {
     await this.em.persistAndFlush(locations)
 
     const schools: SchoolEntity[] = []
-
     for (let i = 0; i < 20; i++) {
       const newSchool = new SchoolEntity(`TestSchool${i}`)
       schools.push(newSchool)
@@ -137,7 +161,6 @@ export default class Fixture {
     await this.em.persistAndFlush(schools)
 
     const checkIns: CheckInEntity[] = []
-
     for (let i = 0; i < 5; i++) {
       checkIns.push(new CheckInEntity(locations[0], schools[0]))
     }

@@ -25,6 +25,8 @@ type MikroGetAllPaginatedUserDto = Omit<GetAllPaginatedUserDto, "data"> & {
   data: UserEntity[]
 }
 
+const NOT_FOUND = "User not found"
+
 @Controller("users")
 export class UsersController {
   private readonly usersService: UsersService
@@ -43,7 +45,7 @@ export class UsersController {
   public async get(@Param("id") id: string): Promise<UserEntity> {
     const user = await this.usersService.getById(id)
     if (!user) {
-      throw new NotFoundException("User not found")
+      throw new NotFoundException(NOT_FOUND)
     }
 
     return user
@@ -51,13 +53,13 @@ export class UsersController {
 
   @Roles(Role.Admin)
   @Get()
-  public async getAllPaged(
+  public async getAllManagersPaged(
     @Query("page") queryPage?: string
   ): Promise<MikroGetAllPaginatedUserDto> {
     const pageSize = 4
     const current = queryPage ? parseInt(queryPage) : 1
-    const amountOfUsers = await this.usersService.getTotalCount()
-    const users = await this.usersService.getAllPaged(current, pageSize)
+    const amountOfUsers = await this.usersService.getManagerCount()
+    const users = await this.usersService.getAllManagersPaged(current, pageSize)
 
     return {
       data: users,
@@ -95,7 +97,7 @@ export class UsersController {
   ): Promise<UserEntity> {
     const user = await this.usersService.getById(id)
     if (!user) {
-      throw new NotFoundException("School not found")
+      throw new NotFoundException(NOT_FOUND)
     }
 
     const existingUser = await this.usersService.getByUserName(
@@ -116,8 +118,8 @@ export class UsersController {
   @Delete(":id")
   public async delete(@Param("id") id: string): Promise<UserEntity> {
     const user = await this.usersService.getById(id)
-    if (!user || parseInt(id) === 1) {
-      throw new NotFoundException("User not found")
+    if (!user) {
+      throw new NotFoundException(NOT_FOUND)
     }
 
     return await this.usersService.delete(user)

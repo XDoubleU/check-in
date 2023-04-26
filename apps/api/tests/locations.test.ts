@@ -284,7 +284,8 @@ describe("LocationsController (e2e)", () => {
       const id = userAndTokens.user.location?.id ?? 0
 
       const data: UpdateLocationDto = {
-        username: "NewTestLocationUser2"
+        username: "NewTestLocationUser2",
+        password: "newPassword"
       }
 
       const response = await request(fixture.app.getHttpServer())

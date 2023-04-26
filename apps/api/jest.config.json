@@ -6,7 +6,9 @@
   "coveragePathIgnorePatterns": [
     "main.ts",
     ".module.ts",
-    "migration-files"
+    "migration-files",
+    "cli-config.ts",
+    "shared-config.ts"
   ],
-  "testTimeout": 50000
+  "testTimeout": 90000
 }

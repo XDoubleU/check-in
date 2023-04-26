@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { EntityRepository } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
-import { type Role } from "types-custom"
+import { Role } from "types-custom"
 import { UserEntity } from "../entities"
 
 @Injectable()
@@ -15,16 +15,24 @@ export class UsersService {
     this.usersRepository = usersRepository
   }
 
-  public async getTotalCount(): Promise<number> {
-    return this.usersRepository.count()
+  public async getManagerCount(): Promise<number> {
+    return this.usersRepository.count({
+      roles: {
+        $contains: [Role.Manager]
+      }
+    })
   }
 
-  public async getAllPaged(
+  public async getAllManagersPaged(
     page: number,
     pageSize: number
   ): Promise<UserEntity[]> {
     return this.usersRepository.find(
-      {},
+      {
+        roles: {
+          $contains: [Role.Manager]
+        }
+      },
       {
         orderBy: {
           username: "asc"
