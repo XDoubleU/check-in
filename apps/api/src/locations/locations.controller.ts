@@ -142,6 +142,7 @@ export class LocationsController {
     )
   }
 
+  // eslint-disable-next-line max-lines-per-function
   @Patch(":id")
   public async update(
     @ReqUser() reqUser: UserEntity,
