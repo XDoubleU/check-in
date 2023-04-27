@@ -96,16 +96,58 @@ describe("CheckInsController (e2e)", () => {
       expect(data[0].Andere).toBeDefined()
     })
 
+    it("returns startDate and endDate need to be a valid date - missing value (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get(`/checkins/range/${userAndTokens.user.location?.id ?? ""}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (Date is expected)")
+    })
+
+    it("returns startDate and endDate need to be a valid date - invalid value (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get(
+          `/checkins/range/${
+            userAndTokens.user.location?.id ?? ""
+          }?startDate=random&endDate=random`
+        )
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (Date is expected)")
+    })
+
     it("returns Location not found (404)", async () => {
       const startDate = format(new Date(), DATE_FORMAT)
       const endDate = format(add(new Date(), { days: 1 }), DATE_FORMAT)
 
-      return await request(fixture.app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .get(
           `/checkins/range/${v4()}?startDate=${startDate}&endDate=${endDate}`
         )
         .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(404)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Location not found")
+    })
+
+    it("returns Bad request, id is not uuid (400)", async () => {
+      const startDate = format(new Date(), DATE_FORMAT)
+      const endDate = format(add(new Date(), { days: 1 }), DATE_FORMAT)
+
+      const response = await request(fixture.app.getHttpServer())
+        .get(`/checkins/range/random?startDate=${startDate}&endDate=${endDate}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 
@@ -146,16 +188,60 @@ describe("CheckInsController (e2e)", () => {
       expect(response.headers["content-type"]).toContain("text/csv")
     })
 
+    it("returns startDate and endDate need to be a valid date - missing value (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get(`/checkins/csv/range/${userAndTokens.user.location?.id ?? ""}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (Date is expected)")
+    })
+
+    it("returns startDate and endDate need to be a valid date - invalid value (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get(
+          `/checkins/csv/range/${
+            userAndTokens.user.location?.id ?? ""
+          }?startDate=random&endDate=random`
+        )
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (Date is expected)")
+    })
+
     it("returns Location not found (404)", async () => {
       const startDate = format(new Date(), DATE_FORMAT)
       const endDate = format(add(new Date(), { days: 1 }), DATE_FORMAT)
 
-      return await request(fixture.app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .get(
           `/checkins/csv/range/${v4()}?startDate=${startDate}&endDate=${endDate}`
         )
         .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(404)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Location not found")
+    })
+
+    it("returns Bad request, id is not uuid (400)", async () => {
+      const startDate = format(new Date(), DATE_FORMAT)
+      const endDate = format(add(new Date(), { days: 1 }), DATE_FORMAT)
+
+      const response = await request(fixture.app.getHttpServer())
+        .get(
+          `/checkins/csv/range/random?startDate=${startDate}&endDate=${endDate}`
+        )
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 
@@ -204,13 +290,52 @@ describe("CheckInsController (e2e)", () => {
       expect(data[0].Andere).toBeDefined()
     })
 
+    it("returns date needs to be a valid date - missing value (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get(`/checkins/day/${userAndTokens.user.location?.id ?? ""}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (Date is expected)")
+    })
+
+    it("returns date needs to be a valid date - invalid value (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get(
+          `/checkins/day/${userAndTokens.user.location?.id ?? ""}?date=random`
+        )
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (Date is expected)")
+    })
+
     it("returns Location not found (404)", async () => {
       const date = format(new Date(), DATE_FORMAT)
 
-      return await request(fixture.app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .get(`/checkins/day/${v4()}?date=${date}`)
         .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(404)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Location not found")
+    })
+
+    it("returns Bad request, id is not uuid (400)", async () => {
+      const date = format(new Date(), DATE_FORMAT)
+
+      const response = await request(fixture.app.getHttpServer())
+        .get(`/checkins/day/random?date=${date}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 
@@ -249,13 +374,54 @@ describe("CheckInsController (e2e)", () => {
       expect(response.headers["content-type"]).toContain("text/csv")
     })
 
+    it("returns date needs to be a valid date - missing value (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get(`/checkins/csv/day/${userAndTokens.user.location?.id ?? ""}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (Date is expected)")
+    })
+
+    it("returns date needs to be a valid date - invalid value (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get(
+          `/checkins/csv/day/${
+            userAndTokens.user.location?.id ?? ""
+          }?date=random`
+        )
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (Date is expected)")
+    })
+
     it("returns Location not found (404)", async () => {
       const date = format(new Date(), DATE_FORMAT)
 
-      return await request(fixture.app.getHttpServer())
+      const response = await request(fixture.app.getHttpServer())
         .get(`/checkins/csv/day/${v4()}?date=${date}`)
         .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .expect(404)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Location not found")
+    })
+
+    it("returns Bad request, id is not uuid (400)", async () => {
+      const date = format(new Date(), DATE_FORMAT)
+
+      const response = await request(fixture.app.getHttpServer())
+        .get(`/checkins/csv/day/random?date=${date}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 

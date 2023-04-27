@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/node"
 import { ProfilingIntegration } from "@sentry/profiling-node"
 import "@sentry/tracing"
 import { WsAdapter } from "@nestjs/platform-ws"
+import { ValidationPipe } from "@nestjs/common"
 
 const corsOptions = {
   credentials: true,
@@ -39,6 +40,7 @@ async function bootstrap(): Promise<void> {
   app.enableCors(corsOptions)
   app.use(helmet())
   app.use(cookieParser())
+  app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
   app.useWebSocketAdapter(new WsAdapter(app))
 

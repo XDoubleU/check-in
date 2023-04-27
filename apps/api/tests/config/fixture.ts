@@ -1,4 +1,4 @@
-import { type INestApplication } from "@nestjs/common"
+import { ValidationPipe, type INestApplication } from "@nestjs/common"
 import { Test } from "@nestjs/testing"
 import { AppModule } from "../../src/app.module"
 import cookieParser from "cookie-parser"
@@ -44,6 +44,7 @@ export default class Fixture {
     this.app = module.createNestApplication()
     this.app.use(helmet())
     this.app.use(cookieParser())
+    this.app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
     this.app.useWebSocketAdapter(new WsAdapter(this.app))
 

@@ -8,10 +8,10 @@ import {
   type CreateUserDto,
   type UpdateUserDto
 } from "types-custom"
-import { v4 } from "uuid"
 import { type UserAndTokens } from "../src/auth/auth.service"
 import Fixture, { type ErrorResponse } from "./config/fixture"
 import { UserEntity } from "../src/entities"
+import { v4 } from "uuid"
 
 describe("UsersController (e2e)", () => {
   const fixture: Fixture = new Fixture()
@@ -100,6 +100,18 @@ describe("UsersController (e2e)", () => {
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("User not found")
     })
+
+    it("returns Bad request, id is not a uuid (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get("/users/random")
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
+    })
   })
 
   describe("/users (GET)", () => {
@@ -134,6 +146,19 @@ describe("UsersController (e2e)", () => {
         Math.ceil(managerUsers.length / defaultPageSize)
       )
       expect(paginatedManagerUsersResponse.data.length).toBe(defaultPageSize)
+    })
+
+    it("returns Page should be greater than 0 (400)", async () => {
+      const page = 0
+
+      const response = await request(fixture.app.getHttpServer())
+        .get("/users")
+        .query({ page })
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Page should be greater than 0")
     })
   })
 
@@ -229,6 +254,22 @@ describe("UsersController (e2e)", () => {
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("User not found")
     })
+
+    it("returns Bad request, id is not a uuid (400)", async () => {
+      const data: UpdateUserDto = {
+        username: "Manager2",
+        password: "newPassword"
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch("/users/random")
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .send(data)
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
+    })
   })
 
   describe("/users/:id (DELETE)", () => {
@@ -252,6 +293,16 @@ describe("UsersController (e2e)", () => {
 
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("User not found")
+    })
+
+    it("returns Bad request, id is not a uuid (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .delete("/users/random")
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 })

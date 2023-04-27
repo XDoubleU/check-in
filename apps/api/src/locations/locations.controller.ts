@@ -1,5 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -7,6 +8,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -69,10 +71,17 @@ export class LocationsController {
   @Roles(Role.Manager)
   @Get()
   public async getAll(
-    @Query("page") queryPage?: string
+    @Query("page") queryPage?: number
   ): Promise<MikroGetAllPaginatedLocationDto> {
     const pageSize = 3
-    const current = queryPage ? parseInt(queryPage) : 1
+    // TODO: this check can be removed in NestJS 10
+    queryPage = Number.isNaN(queryPage) ? undefined : queryPage
+    const current = queryPage ?? 1
+
+    if (current <= 0) {
+      throw new BadRequestException("Page should be greater than 0")
+    }
+
     const amountOfLocations = await this.locationsService.getTotalCount()
     const locations = await this.locationsService.getAllPaged(current, pageSize)
 
@@ -88,7 +97,7 @@ export class LocationsController {
   @Get(":id")
   public async get(
     @ReqUser() user: UserEntity,
-    @Param("id") id: string
+    @Param("id", ParseUUIDPipe) id: string
   ): Promise<LocationEntity> {
     const location = await this.locationsService.getLocation(id, user)
     if (!location) {
@@ -103,6 +112,10 @@ export class LocationsController {
   public async create(
     @Body() createLocationDto: CreateLocationDto
   ): Promise<LocationEntity> {
+    if (createLocationDto.capacity <= 0) {
+      throw new BadRequestException("Location needs a capacity of at least 1")
+    }
+
     const existingLocation = await this.locationsService.getByName(
       createLocationDto.name
     )
@@ -129,12 +142,20 @@ export class LocationsController {
     )
   }
 
+  // eslint-disable-next-line max-lines-per-function
   @Patch(":id")
   public async update(
     @ReqUser() reqUser: UserEntity,
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateLocationDto: UpdateLocationDto
   ): Promise<LocationEntity> {
+    if (
+      updateLocationDto.capacity !== undefined &&
+      updateLocationDto.capacity <= 0
+    ) {
+      throw new BadRequestException("Location needs a capacity of at least 1")
+    }
+
     const location = await this.locationsService.getLocation(id, reqUser)
     if (!location) {
       throw new NotFoundException("Location not found")
@@ -176,7 +197,9 @@ export class LocationsController {
 
   @Roles(Role.Manager)
   @Delete(":id")
-  public async delete(@Param("id") id: string): Promise<LocationEntity> {
+  public async delete(
+    @Param("id", ParseUUIDPipe) id: string
+  ): Promise<LocationEntity> {
     let location = await this.locationsService.getById(id)
     if (!location) {
       throw new NotFoundException("Location not found")

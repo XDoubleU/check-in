@@ -181,14 +181,7 @@
           "unique": true
         }
       ],
-      "checks": [
-        {
-          "name": "Location_capacity_check",
-          "expression": "capacity >= 0",
-          "definition": "check ((capacity >= 0))",
-          "columnName": "capacity"
-        }
-      ],
+      "checks": [],
       "foreignKeys": {
         "Location_user_id_foreign": {
           "constraintName": "Location_user_id_foreign",

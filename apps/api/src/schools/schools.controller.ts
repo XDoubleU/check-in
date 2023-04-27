@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -6,6 +7,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query
@@ -45,10 +47,17 @@ export class SchoolsController {
   @Roles(Role.Manager)
   @Get()
   public async getAllPaged(
-    @Query("page") queryPage?: string
+    @Query("page") queryPage?: number
   ): Promise<MikroGetAllPaginatedSchoolDto> {
     const pageSize = 4
-    const current = queryPage ? parseInt(queryPage) : 1
+    // TODO: this check can be removed in NestJS 10
+    queryPage = Number.isNaN(queryPage) ? undefined : queryPage
+    const current = queryPage ?? 1
+
+    if (current <= 0) {
+      throw new BadRequestException("Page should be greater than 0")
+    }
+
     const amountOfSchools = await this.schoolsService.getTotalCount()
     const schools = await this.schoolsService.getAllPaged(current, pageSize)
 
@@ -79,11 +88,11 @@ export class SchoolsController {
   @Roles(Role.Manager)
   @Patch(":id")
   public async update(
-    @Param("id") id: string,
+    @Param("id", ParseIntPipe) id: number,
     @Body() updateSchoolDto: UpdateSchoolDto
   ): Promise<SchoolEntity> {
-    const school = await this.schoolsService.getById(parseInt(id))
-    if (!school || parseInt(id) === 1) {
+    const school = await this.schoolsService.getById(id)
+    if (!school || id === 1) {
       throw new NotFoundException("School not found")
     }
 
@@ -99,9 +108,11 @@ export class SchoolsController {
 
   @Roles(Role.Manager)
   @Delete(":id")
-  public async delete(@Param("id") id: string): Promise<SchoolEntity> {
-    const school = await this.schoolsService.getById(parseInt(id))
-    if (!school || parseInt(id) === 1) {
+  public async delete(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<SchoolEntity> {
+    const school = await this.schoolsService.getById(id)
+    if (!school || id === 1) {
       throw new NotFoundException("School not found")
     }
 

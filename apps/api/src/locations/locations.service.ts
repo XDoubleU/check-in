@@ -4,6 +4,7 @@ import { Injectable } from "@nestjs/common"
 import { Role } from "types-custom"
 import { WsService } from "../ws/ws.service"
 import { LocationEntity, type UserEntity } from "../entities"
+import { normalizeName } from "../helpers/normalization"
 
 @Injectable()
 export class LocationsService {
@@ -69,10 +70,10 @@ export class LocationsService {
     )
   }
 
-  public async getByName(name: string): Promise<LocationEntity | null> {
-    return await this.locationsRepository.findOne({
-      name: name
-    })
+  public async getByName(name: string): Promise<LocationEntity | undefined> {
+    return (await this.locationsRepository.findAll()).find(
+      (location) => location.normalizedName == normalizeName(name)
+    )
   }
 
   public async create(

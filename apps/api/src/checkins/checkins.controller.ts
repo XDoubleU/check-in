@@ -4,6 +4,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseUUIDPipe,
   Post,
   Query,
   Res
@@ -23,6 +24,7 @@ import {
 import { Parser } from "json2csv"
 import { type Response } from "express"
 import { type CheckInEntity, UserEntity } from "../entities"
+import { ParseDatePipe } from "../pipes/parse-date.pipe"
 
 @Controller("checkins")
 export class CheckInsController {
@@ -43,9 +45,9 @@ export class CheckInsController {
   @Get("range/:locationId")
   public async getDataForRangeChart(
     @ReqUser() user: UserEntity,
-    @Param("locationId") locationId: string,
-    @Query("startDate") queryStartDate: string,
-    @Query("endDate") queryEndDate: string
+    @Param("locationId", ParseUUIDPipe) locationId: string,
+    @Query("startDate", ParseDatePipe) queryStartDate: Date,
+    @Query("endDate", ParseDatePipe) queryEndDate: Date
   ): Promise<unknown[]> {
     const location = await this.locationsService.getLocation(locationId, user)
     if (!location) {
@@ -65,9 +67,9 @@ export class CheckInsController {
   public async getCsvForRangeChart(
     @Res() res: Response,
     @ReqUser() user: UserEntity,
-    @Param("locationId") locationId: string,
-    @Query("startDate") queryStartDate: string,
-    @Query("endDate") queryEndDate: string
+    @Param("locationId", ParseUUIDPipe) locationId: string,
+    @Query("startDate", ParseDatePipe) queryStartDate: Date,
+    @Query("endDate", ParseDatePipe) queryEndDate: Date
   ): Promise<void> {
     const data = await this.getDataForRangeChart(
       user,
@@ -90,8 +92,8 @@ export class CheckInsController {
   @Get("day/:locationId")
   public async getDataForDayChart(
     @ReqUser() user: UserEntity,
-    @Param("locationId") locationId: string,
-    @Query("date") queryDate: string
+    @Param("locationId", ParseUUIDPipe) locationId: string,
+    @Query("date", ParseDatePipe) queryDate: Date
   ): Promise<unknown[]> {
     const location = await this.locationsService.getLocation(locationId, user)
     if (!location) {
@@ -111,8 +113,8 @@ export class CheckInsController {
   public async getCsvForDayChart(
     @Res() res: Response,
     @ReqUser() user: UserEntity,
-    @Param("locationId") locationId: string,
-    @Query("date") queryDate: string
+    @Param("locationId", ParseUUIDPipe) locationId: string,
+    @Query("date", ParseDatePipe) queryDate: Date
   ): Promise<void> {
     const data = await this.getDataForDayChart(user, locationId, queryDate)
 

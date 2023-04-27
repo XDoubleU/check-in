@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -6,6 +7,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query
@@ -42,7 +44,9 @@ export class UsersController {
 
   @Roles(Role.Manager)
   @Get(":id")
-  public async get(@Param("id") id: string): Promise<UserEntity> {
+  public async get(
+    @Param("id", ParseUUIDPipe) id: string
+  ): Promise<UserEntity> {
     const user = await this.usersService.getById(id)
     if (!user) {
       throw new NotFoundException(NOT_FOUND)
@@ -54,10 +58,17 @@ export class UsersController {
   @Roles(Role.Admin)
   @Get()
   public async getAllManagersPaged(
-    @Query("page") queryPage?: string
+    @Query("page") queryPage?: number
   ): Promise<MikroGetAllPaginatedUserDto> {
     const pageSize = 4
-    const current = queryPage ? parseInt(queryPage) : 1
+    // TODO: this check can be removed in NestJS 10
+    queryPage = Number.isNaN(queryPage) ? undefined : queryPage
+    const current = queryPage ?? 1
+
+    if (current <= 0) {
+      throw new BadRequestException("Page should be greater than 0")
+    }
+
     const amountOfUsers = await this.usersService.getManagerCount()
     const users = await this.usersService.getAllManagersPaged(current, pageSize)
 
@@ -92,7 +103,7 @@ export class UsersController {
   @Roles(Role.Admin)
   @Patch(":id")
   public async update(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto
   ): Promise<UserEntity> {
     const user = await this.usersService.getById(id)
@@ -116,7 +127,9 @@ export class UsersController {
 
   @Roles(Role.Admin)
   @Delete(":id")
-  public async delete(@Param("id") id: string): Promise<UserEntity> {
+  public async delete(
+    @Param("id", ParseUUIDPipe) id: string
+  ): Promise<UserEntity> {
     const user = await this.usersService.getById(id)
     if (!user) {
       throw new NotFoundException(NOT_FOUND)

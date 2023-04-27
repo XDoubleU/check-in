@@ -125,6 +125,21 @@ describe("SchoolsController (e2e)", () => {
       expect(paginatedSchoolsResponse.data.length).toBe(defaultPageSize)
     })
 
+    it("returns Page should be greater than 0 (400)", async () => {
+      const page = 0
+
+      const response = await request(fixture.app.getHttpServer())
+        .get("/schools")
+        .query({ page })
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Page should be greater than 0")
+    })
+
     it("returns Forbidden (403)", async () => {
       return await request(fixture.app.getHttpServer())
         .get("/schools")
@@ -221,13 +236,12 @@ describe("SchoolsController (e2e)", () => {
     })
 
     it("returns School not found (404)", async () => {
-      const id = -1
       const data: UpdateSchoolDto = {
         name: "NewSchool2"
       }
 
       const response = await request(fixture.app.getHttpServer())
-        .patch(`/schools/${id}`)
+        .patch("/schools/0")
         .set("Cookie", [
           `accessToken=${managerUserAndTokens.tokens.accessToken}`
         ])
@@ -236,6 +250,25 @@ describe("SchoolsController (e2e)", () => {
 
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("School not found")
+    })
+
+    it("returns Bad request, id is number (400)", async () => {
+      const data: UpdateSchoolDto = {
+        name: "NewSchool2"
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch("/schools/random")
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .send(data)
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe(
+        "Validation failed (numeric string is expected)"
+      )
     })
 
     it("returns Forbidden (403)", async () => {
@@ -268,10 +301,8 @@ describe("SchoolsController (e2e)", () => {
     })
 
     it("returns School not found (404)", async () => {
-      const id = -1
-
       const response = await request(fixture.app.getHttpServer())
-        .delete(`/schools/${id}`)
+        .delete("/schools/0")
         .set("Cookie", [
           `accessToken=${managerUserAndTokens.tokens.accessToken}`
         ])
@@ -279,6 +310,20 @@ describe("SchoolsController (e2e)", () => {
 
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("School not found")
+    })
+
+    it("returns Bad request, id is not a number (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .delete("/schools/random")
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe(
+        "Validation failed (numeric string is expected)"
+      )
     })
 
     it("returns Forbidden (403)", async () => {
