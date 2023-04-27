@@ -11,6 +11,7 @@ import {
 import { type UserAndTokens } from "../src/auth/auth.service"
 import Fixture, { type ErrorResponse } from "./config/fixture"
 import { UserEntity } from "../src/entities"
+import { v4 } from "uuid"
 
 describe("UsersController (e2e)", () => {
   const fixture: Fixture = new Fixture()
@@ -90,7 +91,7 @@ describe("UsersController (e2e)", () => {
 
     it("returns User not found (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
-        .get("/users/random")
+        .get(`/users/${v4()}`)
         .set("Cookie", [
           `accessToken=${managerUserAndTokens.tokens.accessToken}`
         ])
@@ -98,6 +99,18 @@ describe("UsersController (e2e)", () => {
 
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("User not found")
+    })
+
+    it("returns Bad request, id is not a uuid (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get("/users/random")
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 
@@ -141,13 +154,11 @@ describe("UsersController (e2e)", () => {
       const response = await request(fixture.app.getHttpServer())
         .get("/users")
         .query({ page })
-        .set("Cookie", [
-          `accessToken=${adminUserAndTokens.tokens.accessToken}`
-        ])
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(400)
 
-        const errorResponse = response.body as ErrorResponse
-        expect(errorResponse.message).toBe("Page should be greater than 0")
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Page should be greater than 0")
     })
   })
 
@@ -235,13 +246,29 @@ describe("UsersController (e2e)", () => {
       }
 
       const response = await request(fixture.app.getHttpServer())
-        .patch("/users/random")
+        .patch(`/users/${v4()}`)
         .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .send(data)
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("User not found")
+    })
+
+    it("returns Bad request, id is not a uuid (400)", async () => {
+      const data: UpdateUserDto = {
+        username: "Manager2",
+        password: "newPassword"
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch("/users/random")
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .send(data)
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 
@@ -260,12 +287,22 @@ describe("UsersController (e2e)", () => {
 
     it("returns User not found (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
-        .delete("/users/random")
+        .delete(`/users/${v4()}`)
         .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
         .expect(404)
 
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("User not found")
+    })
+
+    it("returns Bad request, id is not a uuid (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .delete("/users/random")
+        .set("Cookie", [`accessToken=${adminUserAndTokens.tokens.accessToken}`])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 })

@@ -10,6 +10,7 @@ import {
 import Fixture, { type ErrorResponse } from "./config/fixture"
 import { LocationEntity } from "../src/entities"
 import { type UserAndTokens } from "../src/auth/auth.service"
+import { v4 } from "uuid"
 
 describe("LocationsController (e2e)", () => {
   const fixture: Fixture = new Fixture()
@@ -130,8 +131,8 @@ describe("LocationsController (e2e)", () => {
         ])
         .expect(400)
 
-        const errorResponse = response.body as ErrorResponse
-        expect(errorResponse.message).toBe("Page should be greater than 0")
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Page should be greater than 0")
     })
 
     it("returns Forbidden (403)", async () => {
@@ -180,7 +181,7 @@ describe("LocationsController (e2e)", () => {
 
     it("returns Location not found because Location doesn't exist (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
-        .get(`/locations/random`)
+        .get(`/locations/${v4()}`)
         .set("Cookie", [
           `accessToken=${managerUserAndTokens.tokens.accessToken}`
         ])
@@ -205,6 +206,18 @@ describe("LocationsController (e2e)", () => {
 
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("Location not found")
+    })
+
+    it("returns Bad request, id is not uuid (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .get("/locations/random")
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 
@@ -459,10 +472,10 @@ describe("LocationsController (e2e)", () => {
         .send(data)
         .expect(400)
 
-        const errorResponse = response.body as ErrorResponse
-        expect(errorResponse.message).toBe(
-          "Location needs a capacity of at least 1"
-        )
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe(
+        "Location needs a capacity of at least 1"
+      )
     })
 
     it("returns Location not found because User doesn't own Location (404)", async () => {
@@ -488,7 +501,23 @@ describe("LocationsController (e2e)", () => {
       expect(errorResponse.message).toBe("Location not found")
     })
 
-    it("returns Location not found (404)", async () => {
+    it("returns Location not found because Location doesn't exist (404)", async () => {
+      const data: UpdateLocationDto = {
+        name: "NewTestLocation",
+        username: "NewTestLocationUser"
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/locations/${v4()}`)
+        .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
+        .send(data)
+        .expect(404)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Location not found")
+    })
+
+    it("returns Bad request, id is not uuid (400)", async () => {
       const data: UpdateLocationDto = {
         name: "NewTestLocation",
         username: "NewTestLocationUser"
@@ -498,10 +527,10 @@ describe("LocationsController (e2e)", () => {
         .patch("/locations/random")
         .set("Cookie", [`accessToken=${userAndTokens.tokens.accessToken}`])
         .send(data)
-        .expect(404)
+        .expect(400)
 
       const errorResponse = response.body as ErrorResponse
-      expect(errorResponse.message).toBe("Location not found")
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
   })
 
@@ -522,7 +551,7 @@ describe("LocationsController (e2e)", () => {
 
     it("returns Location not found (404)", async () => {
       const response = await request(fixture.app.getHttpServer())
-        .delete("/locations/random")
+        .delete(`/locations/${v4()}`)
         .set("Cookie", [
           `accessToken=${managerUserAndTokens.tokens.accessToken}`
         ])
@@ -530,6 +559,18 @@ describe("LocationsController (e2e)", () => {
 
       const errorResponse = response.body as ErrorResponse
       expect(errorResponse.message).toBe("Location not found")
+    })
+
+    it("returns Bad request, id is not uuid (400)", async () => {
+      const response = await request(fixture.app.getHttpServer())
+        .delete("/locations/random")
+        .set("Cookie", [
+          `accessToken=${managerUserAndTokens.tokens.accessToken}`
+        ])
+        .expect(400)
+
+      const errorResponse = response.body as ErrorResponse
+      expect(errorResponse.message).toBe("Validation failed (uuid is expected)")
     })
 
     it("returns Forbidden (403)", async () => {

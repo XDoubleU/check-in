@@ -40,7 +40,7 @@ async function bootstrap(): Promise<void> {
   app.enableCors(corsOptions)
   app.use(helmet())
   app.use(cookieParser())
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
   app.useWebSocketAdapter(new WsAdapter(app))
 
