@@ -50,7 +50,6 @@ export class SchoolsController {
     @Query("page") queryPage?: number
   ): Promise<MikroGetAllPaginatedSchoolDto> {
     const pageSize = 4
-    // TODO: this check can be removed in NestJS 10
     queryPage = Number.isNaN(queryPage) ? undefined : queryPage
     const current = queryPage ?? 1
 

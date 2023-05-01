@@ -74,7 +74,6 @@ export class LocationsController {
     @Query("page") queryPage?: number
   ): Promise<MikroGetAllPaginatedLocationDto> {
     const pageSize = 3
-    // TODO: this check can be removed in NestJS 10
     queryPage = Number.isNaN(queryPage) ? undefined : queryPage
     const current = queryPage ?? 1
 
