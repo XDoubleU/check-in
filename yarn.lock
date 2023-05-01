@@ -5700,10 +5700,10 @@ knex@2.4.2:
     tarn "^3.0.2"
     tildify "2.0.0"
 
-knip@2.10.1:
-  version "2.10.1"
-  resolved "https://registry.yarnpkg.com/knip/-/knip-2.10.1.tgz#71278f19e35d873d8cbde53bd34539d468e8539d"
-  integrity sha512-pPEMW9QhF4WLVAenXCBF/swAm3BMIQYv6AlAVO54KErWMyVsJOIqLtMkjskWAkjCDFLit1ygOtCMKOjPaU1UeQ==
+knip@2.10.2:
+  version "2.10.2"
+  resolved "https://registry.yarnpkg.com/knip/-/knip-2.10.2.tgz#fa42dbb91f21e872bae9eec6b0ffc53719fcf156"
+  integrity sha512-aZWiMfYWQyyj58RhjMwFmrHNo7npPD4T2KxNyurOb3fGbFnZPVMp6Iq1Bt2oiW25Zbjyj8jx9PXh7KBtiGdmUw==
   dependencies:
     "@npmcli/map-workspaces" "^3.0.2"
     "@snyk/github-codeowners" "^1.1.0"
