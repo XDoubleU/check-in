@@ -51,7 +51,7 @@
     "class-transformer": "0.5.1",
     "class-validator": "0.14.0",
     "cookie-parser": "1.4.6",
-    "date-fns": "2.29.3",
+    "date-fns": "2.30.0",
     "helmet": "6.1.5",
     "json2csv": " 6.0.0-alpha.2",
     "nest-raven": "9.2.0",
