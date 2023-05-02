@@ -8,6 +8,7 @@ interface CustomButtonProps {
   style?: CSSProperties
   className?: string
   value?: string | number
+  disabled?: boolean
 }
 
 export default function CustomButton({
@@ -16,7 +17,8 @@ export default function CustomButton({
   onClick,
   style,
   className,
-  value
+  value,
+  disabled
 }: CustomButtonProps) {
   return (
     <Button
@@ -25,6 +27,7 @@ export default function CustomButton({
       onClick={onClick}
       style={style}
       value={value}
+      disabled={disabled}
     >
       {children}
     </Button>

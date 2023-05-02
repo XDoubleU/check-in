@@ -8,12 +8,12 @@ import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
 import { type APIResponse } from "./types"
 
-const SCHOOLS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/schools`
+const SCHOOLS_ENDPOINT = "schools"
 
 export async function getAllSchoolsSortedForLocation(): Promise<
   APIResponse<School[]>
 > {
-  return await fetchHandler(`${SCHOOLS_URL}/location`)
+  return await fetchHandler(`${SCHOOLS_ENDPOINT}/location`)
 }
 
 export async function getAllSchoolsPaged(
@@ -23,13 +23,13 @@ export async function getAllSchoolsPaged(
     page
   })
 
-  return await fetchHandler(`${SCHOOLS_URL}${query.toString()}`)
+  return await fetchHandler(`${SCHOOLS_ENDPOINT}${query.toString()}`)
 }
 
 export async function createSchool(
   createSchoolDto: CreateSchoolDto
 ): Promise<APIResponse<School>> {
-  return await fetchHandler(SCHOOLS_URL, {
+  return await fetchHandler(SCHOOLS_ENDPOINT, {
     method: "POST",
     body: JSON.stringify(createSchoolDto)
   })
@@ -39,14 +39,14 @@ export async function updateSchool(
   id: number,
   updateSchoolDto: UpdateSchoolDto
 ): Promise<APIResponse<School>> {
-  return await fetchHandler(`${SCHOOLS_URL}/${id}`, {
+  return await fetchHandler(`${SCHOOLS_ENDPOINT}/${id}`, {
     method: "PATCH",
     body: JSON.stringify(updateSchoolDto)
   })
 }
 
 export async function deleteSchool(id: number): Promise<APIResponse<School>> {
-  return await fetchHandler(`${SCHOOLS_URL}/${id}`, {
+  return await fetchHandler(`${SCHOOLS_ENDPOINT}/${id}`, {
     method: "DELETE"
   })
 }

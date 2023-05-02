@@ -63,6 +63,7 @@ export default function UpdateModal<T extends FieldValues, Y>({
             onSubmit={handleSubmit(onSubmit)}
             errors={errors}
             submitBtnText="Update"
+            submitBtnDisabled={Object.keys(dirtyFields).length === 0}
             onCancelCallback={handleCloseUpdate}
           >
             {children}

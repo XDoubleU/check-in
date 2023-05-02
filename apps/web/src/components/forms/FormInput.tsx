@@ -10,6 +10,8 @@ interface FormInputProps<T extends string> {
   value?: string
   onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
   register?: UseFormRegisterReturn<T>
+  max?: string | number
+  min?: string | number
   // eslint-disable-next-line redundant-undefined/redundant-undefined
   errors?: FieldError | undefined
 }
@@ -22,6 +24,8 @@ export default function FormInput<T extends string>({
   value,
   onChange,
   register,
+  max,
+  min,
   errors
 }: FormInputProps<T>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,6 +47,8 @@ export default function FormInput<T extends string>({
         placeholder={placeholder}
         required={required}
         value={value}
+        max={max}
+        min={min}
         {...registerOrOnChange}
       ></Form.Control>
       {errors && <Alert key="danger">{errors.message}</Alert>}
