@@ -3,7 +3,7 @@ import { fetchHandler } from "./fetchHandler"
 import Query from "./query"
 import { type APIResponse } from "./types"
 
-const CHECKIN_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/checkins`
+const CHECKINS_ENDPOINT = "checkins"
 
 export async function getDataForRangeChart(
   locationId: string,
@@ -16,7 +16,7 @@ export async function getDataForRangeChart(
   })
 
   return await fetchHandler(
-    `${CHECKIN_URL}/range/${locationId}${query.toString()}`
+    `${CHECKINS_ENDPOINT}/range/${locationId}${query.toString()}`
   )
 }
 
@@ -29,7 +29,7 @@ export async function getDataForDayChart(
   })
 
   return await fetchHandler(
-    `${CHECKIN_URL}/day/${locationId}${query.toString()}`
+    `${CHECKINS_ENDPOINT}/day/${locationId}${query.toString()}`
   )
 }
 
@@ -43,7 +43,7 @@ export function downloadCsvForRangeChart(
     endDate
   })
 
-  window.open(`${CHECKIN_URL}/csv/range/${locationId}${query.toString()}`)
+  window.open(`${CHECKINS_ENDPOINT}/csv/range/${locationId}${query.toString()}`)
 }
 
 export function downloadCsvForDayChart(locationId: string, date: string): void {
@@ -51,13 +51,13 @@ export function downloadCsvForDayChart(locationId: string, date: string): void {
     date
   })
 
-  window.open(`${CHECKIN_URL}/csv/day/${locationId}${query.toString()}`)
+  window.open(`${CHECKINS_ENDPOINT}/csv/day/${locationId}${query.toString()}`)
 }
 
 export async function createCheckIn(
   createCheckInDto: CreateCheckInDto
 ): Promise<APIResponse<CheckIn>> {
-  return await fetchHandler(CHECKIN_URL, {
+  return await fetchHandler(CHECKINS_ENDPOINT, {
     method: "POST",
     body: JSON.stringify(createCheckInDto)
   })

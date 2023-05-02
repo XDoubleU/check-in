@@ -10,6 +10,7 @@ interface BaseFormProps {
   children?: ReactElement | ReactElement[]
   className?: string
   onCancelCallback?: () => void
+  submitBtnDisabled?: boolean
 }
 
 export default function BaseForm({
@@ -18,7 +19,8 @@ export default function BaseForm({
   errors,
   onSubmit,
   submitBtnText,
-  onCancelCallback
+  onCancelCallback,
+  submitBtnDisabled
 }: BaseFormProps) {
   const floatDir = onCancelCallback ? "right" : "left"
 
@@ -43,7 +45,11 @@ export default function BaseForm({
         <></>
       )}
 
-      <CustomButton type="submit" style={{ float: floatDir }}>
+      <CustomButton
+        type="submit"
+        style={{ float: floatDir }}
+        disabled={submitBtnDisabled ?? false}
+      >
         {submitBtnText}
       </CustomButton>
     </Form>

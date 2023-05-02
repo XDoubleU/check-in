@@ -8,10 +8,10 @@ import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
 import { type APIResponse } from "./types"
 
-const LOCATIONS_URL = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/locations`
+const LOCATIONS_ENDPOINT = "locations"
 
 export async function getMyLocation(): Promise<APIResponse<Location>> {
-  return await fetchHandler(`${LOCATIONS_URL}/me`)
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}/me`)
 }
 
 export async function getAllLocations(
@@ -21,17 +21,17 @@ export async function getAllLocations(
     page
   })
 
-  return await fetchHandler(`${LOCATIONS_URL}${query.toString()}`)
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}${query.toString()}`)
 }
 
 export async function getLocation(id: string): Promise<APIResponse<Location>> {
-  return await fetchHandler(`${LOCATIONS_URL}/${id}`)
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}/${id}`)
 }
 
 export async function createLocation(
   createLocationDto: CreateLocationDto
 ): Promise<APIResponse<Location>> {
-  return await fetchHandler(LOCATIONS_URL, {
+  return await fetchHandler(LOCATIONS_ENDPOINT, {
     method: "POST",
     body: JSON.stringify(createLocationDto)
   })
@@ -41,7 +41,7 @@ export async function updateLocation(
   id: string,
   updateLocationDto: UpdateLocationDto
 ): Promise<APIResponse<Location>> {
-  return await fetchHandler(`${LOCATIONS_URL}/${id}`, {
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}/${id}`, {
     method: "PATCH",
     body: JSON.stringify(updateLocationDto)
   })
@@ -50,7 +50,7 @@ export async function updateLocation(
 export async function deleteLocation(
   id: string
 ): Promise<APIResponse<Location>> {
-  return await fetchHandler(`${LOCATIONS_URL}/${id}`, {
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}/${id}`, {
     method: "DELETE"
   })
 }

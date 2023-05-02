@@ -3,14 +3,14 @@ import { type APIResponse } from "./types"
 import Router from "next/router"
 
 export async function fetchHandler<T = undefined>(
-  input: URL | RequestInfo,
+  input: string,
   init?: RequestInit
 ): Promise<APIResponse<T>> {
   return fetchHandlerBase(true, input, init)
 }
 
 export async function fetchHandlerNoRefresh<T = undefined>(
-  input: URL | RequestInfo,
+  input: string,
   init?: RequestInit
 ): Promise<APIResponse<T>> {
   return fetchHandlerBase(false, input, init)
@@ -19,11 +19,13 @@ export async function fetchHandlerNoRefresh<T = undefined>(
 // eslint-disable-next-line max-lines-per-function
 async function fetchHandlerBase<T = undefined>(
   refresh: boolean,
-  input: URL | RequestInfo,
+  input: string,
   init?: RequestInit
 ): Promise<APIResponse<T>> {
+  const url = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/${input}`
+
   const fetchCall = async (): Promise<Response> => {
-    return await fetch(input, {
+    return await fetch(url, {
       credentials: "include",
       headers: {
         "Content-Type": "application/json"

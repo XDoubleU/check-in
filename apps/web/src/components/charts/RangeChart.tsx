@@ -30,6 +30,7 @@ function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
+          max={endDate}
         />
       </Col>
       <Col>
@@ -38,6 +39,7 @@ function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
+          min={startDate}
         />
       </Col>
     </Row>
