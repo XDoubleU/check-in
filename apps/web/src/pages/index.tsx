@@ -1,6 +1,6 @@
 import Button from "react-bootstrap/Button"
 import Modal from "react-bootstrap/Modal"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import styles from "./index.module.css"
 import { Container, Form } from "react-bootstrap"
 import {
@@ -19,6 +19,7 @@ import {
 } from "api-wrapper"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import LoadingLayout from "layouts/LoadingLayout"
+import * as Sentry from "@sentry/nextjs"
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {
@@ -33,6 +34,31 @@ export default function CheckIn() {
 
   const { handleSubmit } = useForm<CreateCheckInDto>()
 
+  const connectWebSocket = useCallback((apiLocation: Location): WebSocket => {
+    let webSocket = checkinsWebsocket(apiLocation)
+
+    webSocket.onmessage = (event): void => {
+      const locationUpdateEvent = JSON.parse(
+        event.data as string
+      ) as LocationUpdateEventDto
+
+      setAvailable(locationUpdateEvent.available)
+    }
+
+    webSocket.onclose = (): void => {
+      setTimeout(() => {
+        webSocket = connectWebSocket(apiLocation)
+      })
+    }
+
+    webSocket.onerror = (error): void => {
+      Sentry.captureException(error)
+      webSocket.close()
+    }
+
+    return webSocket
+  }, [])
+
   useEffect(() => {
     void getMyLocation()
       .then((response) => response.data)
@@ -42,15 +68,7 @@ export default function CheckIn() {
         setLocation(apiLocation)
         setAvailable(apiLocation.available)
 
-        const webSocket = checkinsWebsocket(apiLocation)
-
-        webSocket.onmessage = (event): void => {
-          const locationUpdateEvent = JSON.parse(
-            event.data as string
-          ) as LocationUpdateEventDto
-
-          setAvailable(locationUpdateEvent.available)
-        }
+        const webSocket = connectWebSocket(apiLocation)
 
         return () => {
           if (webSocket.readyState === 1) {
@@ -58,7 +76,7 @@ export default function CheckIn() {
           }
         }
       })
-  }, [])
+  }, [connectWebSocket])
 
   const loadSchools = async () => {
     const response = await getAllSchoolsSortedForLocation()
