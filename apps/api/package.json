@@ -38,7 +38,6 @@
     "@nestjs/throttler": "4.0.0",
     "@nestjs/websockets": "9.4.0",
     "@sentry/node": "7.50.0",
-    "@sentry/profiling-node": "0.3.0",
     "@sentry/tracing": "7.50.0",
     "@types/bcrypt": "5.0.0",
     "@types/cookie-parser": "1.4.3",

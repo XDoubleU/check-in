@@ -31,7 +31,7 @@ export class WsGateway {
   public wsAllLocations(): Observable<LocationUpdateEventDto> {
     return this.wsService.sendAllLocationUpdates()
   }
-  
+
   @UseInterceptors(new RavenInterceptor())
   @SubscribeMessage("single-location")
   public wsSingleLocation(
