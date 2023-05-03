@@ -53,9 +53,14 @@ export default function UpdateModal<T extends FieldValues, Y>({
     }
   }
 
+  const onCancel = () => {
+    handleCloseUpdate()
+    reset()
+  }
+
   return (
     <>
-      <Modal show={showUpdate} onHide={handleCloseUpdate}>
+      <Modal show={showUpdate} onHide={onCancel}>
         <Modal.Body>
           <Modal.Title>Update {typeName.toLowerCase()}</Modal.Title>
           <br />
@@ -64,7 +69,7 @@ export default function UpdateModal<T extends FieldValues, Y>({
             errors={errors}
             submitBtnText="Update"
             submitBtnDisabled={Object.keys(dirtyFields).length === 0}
-            onCancelCallback={handleCloseUpdate}
+            onCancelCallback={onCancel}
           >
             {children}
           </BaseForm>
