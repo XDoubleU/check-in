@@ -22,7 +22,7 @@ export interface List<T> {
 }
 
 interface ListViewLayoutProps<
-  T,
+  T extends { id: string | number },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   U extends List<any>,
   V extends FieldValues
@@ -40,7 +40,7 @@ interface ListViewLayoutProps<
 
 // eslint-disable-next-line max-lines-per-function
 export default function ListViewLayout<
-  T,
+  T extends { id: string | number },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   U extends List<any>,
   V extends FieldValues
@@ -99,9 +99,9 @@ export default function ListViewLayout<
 
         {list.data && list.data.length == 0 ? "Nothing to see here." : ""}
 
-        {list.data?.map((item, index) => {
+        {list.data?.map((item) => {
           return (
-            <div key={index}>
+            <div key={item.id}>
               {card({ data: item, refetchData: fetchData })}
             </div>
           )

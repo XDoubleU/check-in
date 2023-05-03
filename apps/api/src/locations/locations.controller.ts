@@ -148,6 +148,11 @@ export class LocationsController {
     @Param("id", ParseUUIDPipe) id: string,
     @Body() updateLocationDto: UpdateLocationDto
   ): Promise<LocationEntity> {
+    const location = await this.locationsService.getLocation(id, reqUser)
+    if (!location) {
+      throw new NotFoundException("Location not found")
+    }
+
     if (
       updateLocationDto.capacity !== undefined &&
       updateLocationDto.capacity <= 0
@@ -155,16 +160,11 @@ export class LocationsController {
       throw new BadRequestException("Location needs a capacity of at least 1")
     }
 
-    const location = await this.locationsService.getLocation(id, reqUser)
-    if (!location) {
-      throw new NotFoundException("Location not found")
-    }
-
     if (updateLocationDto.name) {
       const existingLocation = await this.locationsService.getByName(
         updateLocationDto.name
       )
-      if (existingLocation) {
+      if (existingLocation && existingLocation.id !== location.id) {
         throw new ConflictException("Location with this name already exists")
       }
     }
@@ -173,7 +173,7 @@ export class LocationsController {
       const existingUser = await this.usersService.getByUserName(
         updateLocationDto.username
       )
-      if (existingUser) {
+      if (existingUser && existingUser.id !== location.user.id) {
         throw new ConflictException("User with this username already exists")
       }
     }

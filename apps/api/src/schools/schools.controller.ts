@@ -98,7 +98,7 @@ export class SchoolsController {
     const existingSchool = await this.schoolsService.getByName(
       updateSchoolDto.name
     )
-    if (existingSchool) {
+    if (existingSchool && existingSchool.id !== school.id) {
       throw new ConflictException("School with this name already exists")
     }
 
