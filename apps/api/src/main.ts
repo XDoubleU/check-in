@@ -3,7 +3,6 @@ import { AppModule } from "./app.module"
 import cookieParser from "cookie-parser"
 import helmet from "helmet"
 import * as Sentry from "@sentry/node"
-import { ProfilingIntegration } from "@sentry/profiling-node"
 import "@sentry/tracing"
 import { WsAdapter } from "@nestjs/platform-ws"
 import { ValidationPipe } from "@nestjs/common"
@@ -23,9 +22,7 @@ async function bootstrap(): Promise<void> {
       environment: process.env.NODE_ENV ?? "unknown",
       release: process.env.RELEASE ?? "unknown",
       tracesSampleRate: 1.0,
-      profilesSampleRate: 1.0,
       integrations: [
-        new ProfilingIntegration(),
         // enable HTTP calls tracing
         new Sentry.Integrations.Http({ tracing: true }),
         // Automatically instrument Node.js libraries and frameworks

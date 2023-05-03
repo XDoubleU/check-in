@@ -30,7 +30,7 @@ export class AuthService {
       password === process.env.ADMIN_PASSWORD
     ) {
       return {
-        user: new UserEntity(username, password, Role.Admin),
+        user: new UserEntity(username, undefined, Role.Admin),
         tokens: await this.getAdminAccessToken()
       }
     }
