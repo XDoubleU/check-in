@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nest start --watch",
     "build": "nest build",
-    "prod": "node dist/main",
+    "prod": "node dist/main --max-old-space-size=200",
     "db:migration-create": "mikro-orm migration:create",
     "db:test": "mikro-orm migration:fresh --seed",
     "lint": "eslint . && tsc --noEmit",
