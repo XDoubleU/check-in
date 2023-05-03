@@ -28,7 +28,10 @@ export class SchoolsService {
 
   public async getAllForLocation(locationId: string): Promise<SchoolEntity[]> {
     const schools = await this.schoolsRepository.findAll({
-      populate: ["checkIns"]
+      populate: ["checkIns"],
+      orderBy: {
+        name: "asc"
+      }
     })
 
     schools.sort((a, b) => {

@@ -107,8 +107,7 @@ export default class Fixture {
       user: new UserEntity(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         process.env.ADMIN_USERNAME!,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        process.env.ADMIN_PASSWORD!,
+        undefined,
         Role.Admin
       ),
       tokens: await authService.getAdminAccessToken()

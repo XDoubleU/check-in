@@ -34,9 +34,13 @@ export class UserEntity implements User {
   })
   public location?: LocationEntity
 
-  public constructor(username: string, password: string, role?: Role) {
+  public constructor(username: string, password?: string, role?: Role) {
     this.username = username
-    this.passwordHash = hashSync(password, 12)
+    this.passwordHash = ""
+
+    if (password) {
+      this.passwordHash = hashSync(password, 12)
+    }
 
     if (role) {
       this.roles = [role]
