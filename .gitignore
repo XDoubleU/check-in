@@ -51,3 +51,5 @@ sentry.properties
 dist
 .turbo
 eslint_report.json
+
+users.csv
