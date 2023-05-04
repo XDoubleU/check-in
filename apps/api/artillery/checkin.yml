@@ -1,44 +1,32 @@
-# Requirements:
-# Using a variable amount of locations
-# Every vuser should be a different location
-# Log in vusers, preferably in the load test
-# Have credentials of user in seperate csv which is included in the gitignore
-
-# Every vuser will post a checkin at a not yet defined rate
-# Duration of this test: start of with 5 or 10 min
-# Would be better if you can stop a vuser after x checkins
-
-# Creating locations before and removing them after testing should be done manually
-
-
 config:
   target: "http://localhost:8000"
+  plugins:
+    expect: { outputFormat: silent }
   payload:
     path: "users.csv"
     fields:
       - "username"
       - "password"
+    order: sequence
+  phases:
+    - duration: 1
+      arrivalCount: 2
 
-before:
-  flow:
+scenarios:
+  - flow:
     - post: 
         url: "/auth/signin"
         json:
           username: "{{ username }}"
           password: "{{ password }}"
-        capture:
-          header: "random"
-          as: "random"
         expect:
           - statusCode: 200
-
-scenarios:
-  - flow:
-    - post: 
-        url: "/checkins"
-        cookie:
-          random: "{{ random }}"
-        json:
-          schoolId: 1
-        expect:
-          - statusCode: 201
+    - loop:     
+      - post: 
+          url: "/checkins"
+          json:
+            schoolId: 1
+          expect:
+            - statusCode: 201
+      - think: 2
+      count: 20
