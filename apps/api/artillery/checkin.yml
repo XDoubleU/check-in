@@ -1,0 +1,32 @@
+config:
+  target: "http://localhost:8000"
+  plugins:
+    expect: { outputFormat: silent }
+  payload:
+    path: "users.csv"
+    fields:
+      - "username"
+      - "password"
+    order: sequence
+  phases:
+    - duration: 1
+      arrivalCount: 2
+
+scenarios:
+  - flow:
+    - post: 
+        url: "/auth/signin"
+        json:
+          username: "{{ username }}"
+          password: "{{ password }}"
+        expect:
+          - statusCode: 200
+    - loop:     
+      - post: 
+          url: "/checkins"
+          json:
+            schoolId: 1
+          expect:
+            - statusCode: 201
+      - think: 2
+      count: 20
