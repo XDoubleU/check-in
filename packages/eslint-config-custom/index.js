@@ -7,7 +7,8 @@ module.exports = {
     "@typescript-eslint",
     "import",
     "sonarjs",
-    "redundant-undefined"
+    "redundant-undefined",
+    "deprecation"
   ],
   extends: [
     "eslint:recommended",
@@ -26,6 +27,7 @@ module.exports = {
     "**/node_modules/**"
   ],
   rules: {
+    "deprecation/deprecation": "error",
     "@typescript-eslint/explicit-function-return-type": "error",
     "@typescript-eslint/explicit-member-accessibility": "error",
     "@typescript-eslint/member-ordering": "error",

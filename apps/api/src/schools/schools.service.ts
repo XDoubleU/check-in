@@ -1,16 +1,19 @@
-import { EntityRepository } from "@mikro-orm/core"
+import { EntityRepository, EntityManager } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { SchoolEntity } from "../entities/school"
 
 @Injectable()
 export class SchoolsService {
+  private readonly em: EntityManager
   private readonly schoolsRepository: EntityRepository<SchoolEntity>
 
   public constructor(
+    em: EntityManager,
     @InjectRepository(SchoolEntity)
     schoolsRepository: EntityRepository<SchoolEntity>
   ) {
+    this.em = em
     this.schoolsRepository = schoolsRepository
   }
 
@@ -28,7 +31,7 @@ export class SchoolsService {
 
   public async getAllForLocation(locationId: string): Promise<SchoolEntity[]> {
     const schools = await this.schoolsRepository.findAll({
-      populate: ["checkIns"],
+      populate: ["checkIns.location.id"],
       orderBy: {
         name: "asc"
       }
@@ -90,7 +93,7 @@ export class SchoolsService {
 
   public async create(name: string): Promise<SchoolEntity> {
     const school = new SchoolEntity(name)
-    await this.schoolsRepository.persistAndFlush(school)
+    await this.em.persistAndFlush(school)
     return school
   }
 
@@ -99,12 +102,12 @@ export class SchoolsService {
     name: string
   ): Promise<SchoolEntity> {
     school.name = name
-    await this.schoolsRepository.flush()
+    await this.em.flush()
     return school
   }
 
   public async delete(school: SchoolEntity): Promise<SchoolEntity> {
-    await this.schoolsRepository.removeAndFlush(school)
+    await this.em.removeAndFlush(school)
     return school
   }
 }

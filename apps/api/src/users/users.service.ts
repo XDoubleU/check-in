@@ -1,17 +1,20 @@
 import { Injectable } from "@nestjs/common"
-import { EntityRepository } from "@mikro-orm/core"
+import { EntityRepository, EntityManager } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { Role } from "types-custom"
 import { UserEntity } from "../entities"
 
 @Injectable()
 export class UsersService {
+  private readonly em: EntityManager
   private readonly usersRepository: EntityRepository<UserEntity>
 
   public constructor(
+    em: EntityManager,
     @InjectRepository(UserEntity)
     usersRepository: EntityRepository<UserEntity>
   ) {
+    this.em = em
     this.usersRepository = usersRepository
   }
 
@@ -61,7 +64,7 @@ export class UsersService {
     role: Role
   ): Promise<UserEntity> {
     const user = new UserEntity(username, password, role)
-    await this.usersRepository.persistAndFlush(user)
+    await this.em.persistAndFlush(user)
     return user
   }
 
@@ -71,12 +74,12 @@ export class UsersService {
     password?: string
   ): Promise<UserEntity> {
     user.update(username, password)
-    await this.usersRepository.flush()
+    await this.em.flush()
     return user
   }
 
   public async delete(user: UserEntity): Promise<UserEntity> {
-    await this.usersRepository.removeAndFlush(user)
+    await this.em.removeAndFlush(user)
     return user
   }
 }

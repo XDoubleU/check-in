@@ -22,7 +22,7 @@ export class SchoolEntity implements MikroSchoolInterface {
   @Unique()
   public name: string
 
-  @OneToMany(() => CheckInEntity, (checkIn) => checkIn.school)
+  @OneToMany(() => CheckInEntity, (checkIn) => checkIn.school, { hidden: true })
   public checkIns = new Collection<CheckInEntity>(this)
 
   public constructor(name: string) {

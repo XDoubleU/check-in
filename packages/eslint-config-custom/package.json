@@ -12,6 +12,7 @@
     "eslint": "8.39.0",
     "eslint-config-next": "13.3.4",
     "eslint-config-turbo": "1.9.3",
+    "eslint-plugin-deprecation": "1.4.1",
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-redundant-undefined": "0.4.0",
     "eslint-plugin-sonarjs": "0.19.0",
