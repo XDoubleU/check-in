@@ -1,4 +1,4 @@
-import { EntityRepository, QueryOrder } from "@mikro-orm/core"
+import { EntityManager, EntityRepository, QueryOrder } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { Role } from "types-custom"
@@ -8,14 +8,17 @@ import { normalizeName } from "../helpers/normalization"
 
 @Injectable()
 export class LocationsService {
+  private readonly em: EntityManager
   private readonly locationsRepository: EntityRepository<LocationEntity>
   private readonly wsService: WsService
 
   public constructor(
+    em: EntityManager,
     @InjectRepository(LocationEntity)
     locationsRepository: EntityRepository<LocationEntity>,
     wsService: WsService
   ) {
+    this.em = em
     this.locationsRepository = locationsRepository
     this.wsService = wsService
   }
@@ -82,7 +85,7 @@ export class LocationsService {
     user: UserEntity
   ): Promise<LocationEntity> {
     const location = new LocationEntity(name, capacity, user)
-    await this.locationsRepository.persistAndFlush(location)
+    await this.em.persistAndFlush(location)
     return await this.refresh(location.id)
   }
 
@@ -93,18 +96,16 @@ export class LocationsService {
   ): Promise<LocationEntity> {
     location.name = name ?? location.name
     location.capacity = capacity ?? location.capacity
-
-    await this.locationsRepository.flush()
+    await this.em.flush()
 
     const updatedLocation = await this.refresh(location.id)
-
     this.wsService.addLocationUpdate(updatedLocation)
 
     return location
   }
 
   public async delete(location: LocationEntity): Promise<LocationEntity> {
-    await this.locationsRepository.removeAndFlush(location)
+    await this.em.removeAndFlush(location)
     return location
   }
 }
