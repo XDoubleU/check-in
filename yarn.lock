@@ -2446,7 +2446,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@npmcli/map-workspaces@^3.0.2":
+"@npmcli/map-workspaces@^3.0.4":
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/@npmcli/map-workspaces/-/map-workspaces-3.0.4.tgz#15ad7d854292e484f7ba04bc30187a8320dba799"
   integrity sha512-Z0TbvXkRbacjFFLpVpV0e2mheCh+WzQpcqL+4xp49uNJOxOnIAPZyXtUxZ5Qn3QBTGKA11Exjd9a5411rBrhDg==
@@ -5897,7 +5897,7 @@ eslint-module-utils@^2.7.4:
   dependencies:
     debug "^3.2.7"
 
-eslint-plugin-deprecation@^1.4.1:
+eslint-plugin-deprecation@1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-deprecation/-/eslint-plugin-deprecation-1.4.1.tgz#09a2889210955fd1a5c37703922c01724aba80eb"
   integrity sha512-4vxTghWzxsBukPJVQupi6xlTuDc8Pyi1QlRCrFiLgwLPMJQW3cJCNaehJUKQqQFvuue5m4W27e179Y3Qjzeghg==
@@ -8193,12 +8193,12 @@ knex@2.4.2:
     tarn "^3.0.2"
     tildify "2.0.0"
 
-knip@2.10.2:
-  version "2.10.2"
-  resolved "https://registry.yarnpkg.com/knip/-/knip-2.10.2.tgz#fa42dbb91f21e872bae9eec6b0ffc53719fcf156"
-  integrity sha512-aZWiMfYWQyyj58RhjMwFmrHNo7npPD4T2KxNyurOb3fGbFnZPVMp6Iq1Bt2oiW25Zbjyj8jx9PXh7KBtiGdmUw==
+knip@2.10.3:
+  version "2.10.3"
+  resolved "https://registry.yarnpkg.com/knip/-/knip-2.10.3.tgz#39d49ba222d64be9c7cf73513c09f5ecd92e5e9c"
+  integrity sha512-gZJYVSJtXxPxYFjJDssS5pV4mYvAJjcSfA7GAwI1qj58SBMeCfpUOMzv7oOW+/xeiG83W1TE9rvU0IbERpI+TQ==
   dependencies:
-    "@npmcli/map-workspaces" "^3.0.2"
+    "@npmcli/map-workspaces" "^3.0.4"
     "@snyk/github-codeowners" "^1.1.0"
     bash-parser "^0.5.0"
     chalk "^5.2.0"
