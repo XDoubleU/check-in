@@ -7,21 +7,25 @@ import {
   type SchoolEntity
 } from "../entities"
 import { InjectRepository } from "@mikro-orm/nestjs"
+import { LocationsService } from "../locations/locations.service"
 
 @Injectable()
 export class CheckInsService {
   private readonly em: EntityManager
   private readonly checkInsRepository: EntityRepository<CheckInEntity>
+  private readonly locationsService: LocationsService
   private readonly wsService: WsService
 
   public constructor(
     em: EntityManager,
     @InjectRepository(CheckInEntity)
     checkInsRepository: EntityRepository<CheckInEntity>,
+    locationsService: LocationsService,
     wsService: WsService
   ) {
     this.em = em
     this.checkInsRepository = checkInsRepository
+    this.locationsService = locationsService
     this.wsService = wsService
   }
 
@@ -48,7 +52,9 @@ export class CheckInsService {
     const checkIn = new CheckInEntity(location, school)
     await this.em.persistAndFlush(checkIn)
 
-    this.wsService.addLocationUpdate(location)
+    // Need this line for recomputing available spots
+    const updatedLocation = await this.locationsService.refresh(location.id)
+    this.wsService.addLocationUpdate(updatedLocation)
 
     return checkIn
   }

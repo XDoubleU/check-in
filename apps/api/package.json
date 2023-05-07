@@ -12,8 +12,7 @@
     "lint:fix": "eslint . --fix",
     "lint:report": "eslint . --output-file eslint_report.json --format json src",
     "test": "jest",
-    "test:cov": "jest --coverage",
-    "test:load": "artillery run artillery/checkin.yml"
+    "test:cov": "jest --coverage"
   },
   "mikro-orm": {
     "useTsNode": true,
@@ -68,7 +67,6 @@
     "@types/jest": "29.5.1",
     "@types/node": "18.16.3",
     "@types/supertest": "2.0.12",
-    "artillery": "2.0.0-31",
     "eslint": "8.39.0",
     "eslint-config-custom": "1.0.0",
     "jest": "29.5.0",

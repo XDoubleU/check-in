@@ -1,12 +1,13 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import {
   type CreateLocationDto,
   type GetAllPaginatedLocationDto,
   type Location,
   type UpdateLocationDto
 } from "types-custom"
-import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
 import { type APIResponse } from "./types"
+import { validate as isValidUUID } from "uuid"
 
 const LOCATIONS_ENDPOINT = "locations"
 
@@ -17,14 +18,17 @@ export async function getMyLocation(): Promise<APIResponse<Location>> {
 export async function getAllLocations(
   page?: number
 ): Promise<APIResponse<GetAllPaginatedLocationDto>> {
-  const query = new Query({
-    page
-  })
-
-  return await fetchHandler(`${LOCATIONS_ENDPOINT}${query.toString()}`)
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}`, undefined, { page })
 }
 
 export async function getLocation(id: string): Promise<APIResponse<Location>> {
+  if (!isValidUUID(id)) {
+    return {
+      ok: false,
+      message: "Invalid UUID"
+    }
+  }
+
   return await fetchHandler(`${LOCATIONS_ENDPOINT}/${id}`)
 }
 
@@ -41,6 +45,13 @@ export async function updateLocation(
   id: string,
   updateLocationDto: UpdateLocationDto
 ): Promise<APIResponse<Location>> {
+  if (!isValidUUID(id)) {
+    return {
+      ok: false,
+      message: "Invalid UUID"
+    }
+  }
+
   return await fetchHandler(`${LOCATIONS_ENDPOINT}/${id}`, {
     method: "PATCH",
     body: JSON.stringify(updateLocationDto)
@@ -50,6 +61,13 @@ export async function updateLocation(
 export async function deleteLocation(
   id: string
 ): Promise<APIResponse<Location>> {
+  if (!isValidUUID(id)) {
+    return {
+      ok: false,
+      message: "Invalid UUID"
+    }
+  }
+
   return await fetchHandler(`${LOCATIONS_ENDPOINT}/${id}`, {
     method: "DELETE"
   })

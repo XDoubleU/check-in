@@ -38,22 +38,23 @@ export class SchoolsService {
     })
 
     schools.sort((a, b) => {
-      let aLocationCheckIns = 0
-      let bLocationCheckIns = 0
-
-      if (a.id !== 1) {
-        aLocationCheckIns = a.checkIns
-          .toArray()
-          .filter((checkIn) => checkIn.location.id === locationId).length
+      if (a.id === 1) {
+        return -1
       }
 
-      if (b.id !== 1) {
-        bLocationCheckIns = b.checkIns
-          .toArray()
-          .filter((checkIn) => checkIn.location.id === locationId).length
+      if (b.id === 1) {
+        return -1
       }
 
-      return aLocationCheckIns < bLocationCheckIns ? 1 : -1
+      const aLocationCheckIns = a.checkIns
+        .toArray()
+        .filter((checkIn) => checkIn.location.id === locationId).length
+
+      const bLocationCheckIns = b.checkIns
+        .toArray()
+        .filter((checkIn) => checkIn.location.id === locationId).length
+
+      return aLocationCheckIns > bLocationCheckIns ? -1 : 1
     })
 
     return schools
