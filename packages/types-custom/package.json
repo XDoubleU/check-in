@@ -11,7 +11,7 @@
     "lint:report": "eslint . --output-file eslint_report.json --format json src"
   },
   "devDependencies": {
-    "eslint": "8.39.0",
+    "eslint": "8.40.0",
     "eslint-config-custom": "1.0.0",
     "tsconfig-custom": "1.0.0",
     "typescript": "5.0.4"
