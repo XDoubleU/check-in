@@ -1,28 +1,38 @@
 import { type ErrorDto } from "types-custom"
 import { type APIResponse } from "./types"
 import Router from "next/router"
+import queryString from "query-string"
 
 export async function fetchHandler<T = undefined>(
   input: string,
-  init?: RequestInit
+  init?: RequestInit,
+  query?: queryString.StringifiableRecord
 ): Promise<APIResponse<T>> {
-  return fetchHandlerBase(true, input, init)
+  return fetchHandlerBase(true, input, init, query)
 }
 
 export async function fetchHandlerNoRefresh<T = undefined>(
   input: string,
-  init?: RequestInit
+  init?: RequestInit,
+  query?: queryString.StringifiableRecord
 ): Promise<APIResponse<T>> {
-  return fetchHandlerBase(false, input, init)
+  return fetchHandlerBase(false, input, init, query)
 }
 
 // eslint-disable-next-line max-lines-per-function
 async function fetchHandlerBase<T = undefined>(
   refresh: boolean,
   input: string,
-  init?: RequestInit
+  init?: RequestInit,
+  query: queryString.StringifiableRecord = {}
 ): Promise<APIResponse<T>> {
-  const url = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/${input}`
+  const url = queryString.stringifyUrl(
+    {
+      url: `${process.env.NEXT_PUBLIC_API_URL ?? ""}/${input}`,
+      query: query
+    },
+    { skipEmptyString: true }
+  )
 
   const fetchCall = async (): Promise<Response> => {
     return await fetch(url, {

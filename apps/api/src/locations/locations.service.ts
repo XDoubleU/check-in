@@ -98,6 +98,7 @@ export class LocationsService {
     location.capacity = capacity ?? location.capacity
     await this.em.flush()
 
+    // Need this line for recomputing available spots
     const updatedLocation = await this.refresh(location.id)
     this.wsService.addLocationUpdate(updatedLocation)
 

@@ -4,7 +4,6 @@ import {
   type School,
   type UpdateSchoolDto
 } from "types-custom"
-import Query from "./query"
 import { fetchHandler } from "./fetchHandler"
 import { type APIResponse } from "./types"
 
@@ -19,11 +18,7 @@ export async function getAllSchoolsSortedForLocation(): Promise<
 export async function getAllSchoolsPaged(
   page?: number
 ): Promise<APIResponse<GetAllPaginatedSchoolDto>> {
-  const query = new Query({
-    page
-  })
-
-  return await fetchHandler(`${SCHOOLS_ENDPOINT}${query.toString()}`)
+  return await fetchHandler(`${SCHOOLS_ENDPOINT}`, undefined, { page })
 }
 
 export async function createSchool(

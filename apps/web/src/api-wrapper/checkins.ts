@@ -1,7 +1,8 @@
 import { type CheckIn, type CreateCheckInDto } from "types-custom"
 import { fetchHandler } from "./fetchHandler"
-import Query from "./query"
 import { type APIResponse } from "./types"
+import queryString from "query-string"
+import { validate as isValidUUID } from "uuid"
 
 const CHECKINS_ENDPOINT = "checkins"
 
@@ -10,13 +11,20 @@ export async function getDataForRangeChart(
   startDate: string,
   endDate: string
 ): Promise<APIResponse<unknown[]>> {
-  const query = new Query({
-    startDate,
-    endDate
-  })
+  if (!isValidUUID(locationId)) {
+    return {
+      ok: false,
+      message: "Invalid UUID"
+    }
+  }
 
   return await fetchHandler(
-    `${CHECKINS_ENDPOINT}/range/${locationId}${query.toString()}`
+    `${CHECKINS_ENDPOINT}/range/${locationId}`,
+    undefined,
+    {
+      startDate,
+      endDate
+    }
   )
 }
 
@@ -24,12 +32,19 @@ export async function getDataForDayChart(
   locationId: string,
   date: string
 ): Promise<APIResponse<unknown[]>> {
-  const query = new Query({
-    date
-  })
+  if (!isValidUUID(locationId)) {
+    return {
+      ok: false,
+      message: "Invalid UUID"
+    }
+  }
 
   return await fetchHandler(
-    `${CHECKINS_ENDPOINT}/day/${locationId}${query.toString()}`
+    `${CHECKINS_ENDPOINT}/day/${locationId}`,
+    undefined,
+    {
+      date
+    }
   )
 }
 
@@ -38,20 +53,36 @@ export function downloadCsvForRangeChart(
   startDate: string,
   endDate: string
 ): void {
-  const query = new Query({
+  if (!isValidUUID(locationId)) {
+    return
+  }
+
+  const query = queryString.stringify({
     startDate,
     endDate
   })
 
-  window.open(`${CHECKINS_ENDPOINT}/csv/range/${locationId}${query.toString()}`)
+  open(
+    `${
+      process.env.NEXT_PUBLIC_API_URL ?? ""
+    }/${CHECKINS_ENDPOINT}/csv/range/${locationId}?${query}`
+  )
 }
 
 export function downloadCsvForDayChart(locationId: string, date: string): void {
-  const query = new Query({
+  if (!isValidUUID(locationId)) {
+    return
+  }
+
+  const query = queryString.stringify({
     date
   })
 
-  window.open(`${CHECKINS_ENDPOINT}/csv/day/${locationId}${query.toString()}`)
+  open(
+    `${
+      process.env.NEXT_PUBLIC_API_URL ?? ""
+    }/${CHECKINS_ENDPOINT}/csv/day/${locationId}?${query}`
+  )
 }
 
 export async function createCheckIn(
