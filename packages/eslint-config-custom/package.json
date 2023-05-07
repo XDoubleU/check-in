@@ -10,7 +10,7 @@
     "@typescript-eslint/eslint-plugin": "5.59.1",
     "@typescript-eslint/parser": "5.59.1",
     "eslint": "8.39.0",
-    "eslint-config-next": "13.3.4",
+    "eslint-config-next": "13.4.1",
     "eslint-config-turbo": "1.9.3",
     "eslint-plugin-deprecation": "1.4.1",
     "eslint-plugin-import": "2.27.5",
