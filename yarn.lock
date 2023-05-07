@@ -2118,13 +2118,15 @@
     markdown-table "^2.0.0"
     pug "^3.0.1"
 
-"@jscpd/html-reporter@^3.5.4":
-  version "3.5.4"
-  resolved "https://registry.yarnpkg.com/@jscpd/html-reporter/-/html-reporter-3.5.4.tgz#f35807fe9aecd048dd6ae7e63c1afd47203bdee5"
-  integrity sha512-bPy2UDCigwf8AfSaVN5Zl3J6q8w12SNwIaK2gMIxAe8UOnuGYbWAkKcR/udTBm0jTt/GkqOpxtusg0qMzcAIcg==
+"@jscpd/html-reporter@^3.5.9":
+  version "3.5.9"
+  resolved "https://registry.yarnpkg.com/@jscpd/html-reporter/-/html-reporter-3.5.9.tgz#96d5773a5133aa097dc5cfb5eb2d5652c6dce85b"
+  integrity sha512-Q2hu3B2/lCgzQvVHvdZUl2IrmXRKP08zH9xvsaDERPWjaYkWQi6FWNqOnkryMD0cl/hrXBKpx050IUUO7FmACw==
   dependencies:
+    "@jscpd/finder" "^3.5.5"
     colors "1.4.0"
     fs-extra "^9.0.1"
+    pug "^3.0.2"
 
 "@jscpd/tokenizer@^3.5.4":
   version "3.5.4"
@@ -8029,14 +8031,14 @@ js-yaml@^4.1.0:
   dependencies:
     argparse "^2.0.1"
 
-jscpd@3.5.5:
-  version "3.5.5"
-  resolved "https://registry.yarnpkg.com/jscpd/-/jscpd-3.5.5.tgz#31467d8f922734590c79e37faa0eb6a9e3fbbf4e"
-  integrity sha512-mb2xpAb+OaHBLMyb2akEwbDN0yaOdbQIjnT0ht3RNZHp6p2CVUmO1P3+f98ZgD7pzmBcajkkSVe+i39ZhFCCbQ==
+jscpd@3.5.9:
+  version "3.5.9"
+  resolved "https://registry.yarnpkg.com/jscpd/-/jscpd-3.5.9.tgz#44588cf23d1c5afbb09ea45ce15e478dae4ea5cd"
+  integrity sha512-8JJUHVBlnxdU/Hp+ZgctlUaMkAU4yqJ0Cfb+SYMSUihR96idyLg17tJDP6STFpkFVfU4/HLB1LHfeSGp38zVuA==
   dependencies:
     "@jscpd/core" "^3.5.4"
     "@jscpd/finder" "^3.5.5"
-    "@jscpd/html-reporter" "^3.5.4"
+    "@jscpd/html-reporter" "^3.5.9"
     "@jscpd/tokenizer" "^3.5.4"
     colors "1.4.0"
     commander "^5.0.0"
@@ -9744,7 +9746,7 @@ pug-walk@^2.0.0:
   resolved "https://registry.yarnpkg.com/pug-walk/-/pug-walk-2.0.0.tgz#417aabc29232bb4499b5b5069a2b2d2a24d5f5fe"
   integrity sha512-yYELe9Q5q9IQhuvqsZNwA5hfPkMJ8u92bQLIMcsMxf/VADjNtEYptU+inlufAFYcWdHlwNfZOEnOOQrZrcyJCQ==
 
-pug@^3.0.1:
+pug@^3.0.1, pug@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/pug/-/pug-3.0.2.tgz#f35c7107343454e43bc27ae0ff76c731b78ea535"
   integrity sha512-bp0I/hiK1D1vChHh6EfDxtndHji55XP/ZJKwsRqrz6lRia6ZC2OZbdAymlxdVFwd1L70ebrVJw4/eZ79skrIaw==
