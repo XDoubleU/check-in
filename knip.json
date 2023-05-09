@@ -19,7 +19,7 @@
         "src/seeders/**",
         "src/cli-config.ts"
       ],
-      "ignoreDependencies": ["ts-node"]
+      "ignoreDependencies": ["ts-node", "inquirer"]
     },
     "apps/web": {
       "ignore": ["sentry.edge.config.js"],
