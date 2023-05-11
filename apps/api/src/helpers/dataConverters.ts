@@ -34,9 +34,7 @@ export function convertRangeData(
     }
 
     schools.forEach((school) => {
-      if (entry.hasOwnProperty(school.name)) {
-        entry[school.name] = 1
-      } else {
+      if (!entry.hasOwnProperty(school.name)) {
         entry[school.name] = 0
       }
 
