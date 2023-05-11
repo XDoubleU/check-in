@@ -26,7 +26,7 @@ function fill(location){
     const yesterdayFullAt = document.createElement("p")
     yesterdayFullAt.style.marginTop = "-15px"
 
-    capacity.innerHTML = `${location.available} of the ${location.capacity} spots remaining`
+    capacity.innerHTML = `<b>${location.available}</b> of the <b>${location.capacity}</b> spots remaining`
 
     let output = "Wasn't full yesterday"
     if (location.yesterdayFullAt) {
