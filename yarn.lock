@@ -3643,12 +3643,12 @@ eslint-config-next@13.4.2:
     eslint-plugin-react "^7.31.7"
     eslint-plugin-react-hooks "^4.5.0"
 
-eslint-config-turbo@1.9.3:
-  version "1.9.3"
-  resolved "https://registry.yarnpkg.com/eslint-config-turbo/-/eslint-config-turbo-1.9.3.tgz#17299666393d5060d4b894c1e869fc8ef6e3dd8f"
-  integrity sha512-QG6jxFQkrGSpQqlFKefPdtgUfr20EbU0s4tGGIuGFOcPuJEdsY6VYZpZUxNJvmMcTGqPgMyOPjAFBKhy/DPHLA==
+eslint-config-turbo@1.9.4:
+  version "1.9.4"
+  resolved "https://registry.yarnpkg.com/eslint-config-turbo/-/eslint-config-turbo-1.9.4.tgz#7395c57b8219e536836e1b6b67e64648f7a0f642"
+  integrity sha512-pB9Jg1Zn0Qo25LLxmvcMgjBmw8sEt6rwJO8oTKjO4DEQVUAMoNHcR7bdQCdIszHV3c1tYUjbJgm0L1B9qU81nw==
   dependencies:
-    eslint-plugin-turbo "1.9.3"
+    eslint-plugin-turbo "1.9.4"
 
 eslint-import-resolver-node@^0.3.6, eslint-import-resolver-node@^0.3.7:
   version "0.3.7"
