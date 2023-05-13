@@ -1,4 +1,4 @@
-import { EntityManager, EntityRepository, QueryOrder } from "@mikro-orm/core"
+import { EntityManager, EntityRepository } from "@mikro-orm/core"
 import { InjectRepository } from "@mikro-orm/nestjs"
 import { Injectable } from "@nestjs/common"
 import { Role } from "types-custom"
@@ -37,7 +37,7 @@ export class LocationsService {
   ): Promise<LocationEntity[]> {
     return await this.locationsRepository.findAll({
       orderBy: {
-        name: QueryOrder.ASC
+        name: "asc"
       },
       limit: pageSize,
       offset: (page - 1) * pageSize
