@@ -73,7 +73,10 @@ jobs:
 
   test:
     needs: [build]
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     services:
       postgres:
         image: postgres
