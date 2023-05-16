@@ -51,11 +51,6 @@ export default function CheckIn() {
       })
     }
 
-    webSocket.onerror = (error): void => {
-      Sentry.captureException(error)
-      webSocket.close()
-    }
-
     return webSocket
   }, [])
 
