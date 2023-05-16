@@ -19,7 +19,6 @@ import {
 } from "api-wrapper"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import LoadingLayout from "layouts/LoadingLayout"
-import * as Sentry from "@sentry/nextjs"
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {
