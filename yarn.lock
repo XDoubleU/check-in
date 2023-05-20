@@ -3770,11 +3770,6 @@ eslint-plugin-sonarjs@0.19.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-sonarjs/-/eslint-plugin-sonarjs-0.19.0.tgz#6654bc1c6d24c2183891b8bfe1175004dbba1e3c"
   integrity sha512-6+s5oNk5TFtVlbRxqZN7FIGmjdPCYQKaTzFPmqieCmsU1kBYDzndTeQav0xtQNwZJWu5awWfTGe8Srq9xFOGnw==
 
-eslint-plugin-turbo@1.9.4:
-  version "1.9.4"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-turbo/-/eslint-plugin-turbo-1.9.4.tgz#24e4d97879ea38ae8611fe837ddae58f40269dd6"
-  integrity sha512-ySDJl63nIWa+j9WOAnblBWKDyaCTfGCYhSNSMCe0N5Jk01YWMEowFr2bGw31Zg0dOijioYo9ewwfLLKbJYOUmQ==
-
 eslint-plugin-turbo@1.9.8:
   version "1.9.8"
   resolved "https://registry.yarnpkg.com/eslint-plugin-turbo/-/eslint-plugin-turbo-1.9.8.tgz#b4354335e256dce44338da9619bfbbcb3cced204"
@@ -5749,10 +5744,10 @@ knex@2.4.2:
     tarn "^3.0.2"
     tildify "2.0.0"
 
-knip@2.10.4:
-  version "2.10.4"
-  resolved "https://registry.yarnpkg.com/knip/-/knip-2.10.4.tgz#6241879d3bea2bbab91d87e03a1f299a11848312"
-  integrity sha512-WEnR/Z0rqTVy2UB22JwHGTNdf17tVP1ea001zmkwEvMprUByxTa4UoWSQrkl1Kq6sjNSlqTVSQ5vINBZNXEWzw==
+knip@2.11.0:
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/knip/-/knip-2.11.0.tgz#c9f74bd4952c813024ba372d0e001591c6ca9386"
+  integrity sha512-hpnSXW3fbQQBB6QD/6qo/3npJ4Pwsk7HKCye2rwnf/FD7qrXWWgSW/ZqLr6BIzR+R0GcKkNfaLINY4tF31t4mw==
   dependencies:
     "@npmcli/map-workspaces" "^3.0.4"
     "@snyk/github-codeowners" "^1.1.0"
