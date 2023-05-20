@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@popperjs/core": "2.11.7",
-    "@sentry/browser": "7.51.2",
-    "@sentry/nextjs": "7.51.2",
+    "@sentry/browser": "7.52.1",
+    "@sentry/nextjs": "7.52.1",
     "bootstrap": "5.2.3",
     "bootstrap-icons": "1.10.5",
     "date-fns": "2.30.0",
