@@ -31,7 +31,7 @@
     "uuid": "9.0.0"
   },
   "devDependencies": {
-    "@types/node": "18.16.13",
+    "@types/node": "18.16.14",
     "@types/react": "18.2.6",
     "eslint": "8.41.0",
     "eslint-config-custom": "1.0.0",
