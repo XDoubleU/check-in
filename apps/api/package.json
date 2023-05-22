@@ -52,7 +52,7 @@
     "cookie-parser": "1.4.6",
     "date-fns": "2.30.0",
     "helmet": "7.0.0",
-    "inquirer": "9.2.5",
+    "inquirer": "9.2.6",
     "json2csv": " 6.0.0-alpha.2",
     "nest-raven": "9.2.0",
     "passport": "0.6.0",
