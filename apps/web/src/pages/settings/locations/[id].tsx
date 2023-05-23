@@ -51,7 +51,7 @@ export default function LocationDetail() {
   }, [fetchData])
 
   if (!location) {
-    return <LoadingLayout />
+    return <LoadingLayout message="User has no location" />
   }
 
   const titleButton = (

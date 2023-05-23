@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: Props) => {
         return setCurrentUser(response.data)
       })
       .then(() => setLoading(false))
-  }, [loading, setLoading])
+  }, [setLoading])
 
   return (
     <AuthContext.Provider

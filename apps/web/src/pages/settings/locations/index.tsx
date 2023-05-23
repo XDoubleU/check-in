@@ -58,6 +58,7 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
         type="password"
         placeholder="Password"
         required
+        autocomplete="new-password"
         register={register("password")}
       />
       <Form.Group className="mb-3">
@@ -65,6 +66,7 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
         <Form.Control
           type="password"
           placeholder="Repeat password"
+          autoComplete="new-password"
           required
           isInvalid={!!errors.repeatPassword}
           {...register("repeatPassword", {
