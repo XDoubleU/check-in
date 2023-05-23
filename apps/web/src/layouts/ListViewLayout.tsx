@@ -95,7 +95,7 @@ export default function ListViewLayout<
       <br />
 
       <div className="min-vh-51">
-        {!list.data && <Loader />}
+        {!list.data && <Loader message="Fetching data." />}
 
         {list.data && list.data.length == 0 ? "Nothing to see here." : ""}
 

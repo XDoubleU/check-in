@@ -94,7 +94,7 @@ export function DataLoading() {
             height: "100%"
           }}
         >
-          <Loader />
+          <Loader message="Fetching chart data." />
         </div>
       </ResponsiveContainer>
     </>

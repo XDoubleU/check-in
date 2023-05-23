@@ -1,4 +1,5 @@
 {
+  "exitCode": 1,
   "pattern": "**/*.{ts,tsx}",
   "ignore": [
     "**/*.test.ts",

@@ -55,6 +55,7 @@ export default function SignIn() {
             type="text"
             placeholder="Username"
             required
+            autocomplete="username"
             register={register("username")}
           />
           <FormInput
@@ -62,6 +63,7 @@ export default function SignIn() {
             type="password"
             placeholder="Password"
             required
+            autocomplete="current-password"
             register={register("password")}
           />
           <Form.Check

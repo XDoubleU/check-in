@@ -14,5 +14,5 @@ export default function SignOut() {
       .then(() => router.push("/signin"))
   }, [router, setUser])
 
-  return <LoadingLayout />
+  return <LoadingLayout message="Signing out." />
 }

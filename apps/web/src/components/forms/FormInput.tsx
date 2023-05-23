@@ -12,6 +12,7 @@ interface FormInputProps<T extends string> {
   register?: UseFormRegisterReturn<T>
   max?: string | number
   min?: string | number
+  autocomplete?: string
   // eslint-disable-next-line redundant-undefined/redundant-undefined
   errors?: FieldError | undefined
 }
@@ -26,6 +27,7 @@ export default function FormInput<T extends string>({
   register,
   max,
   min,
+  autocomplete,
   errors
 }: FormInputProps<T>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,6 +51,7 @@ export default function FormInput<T extends string>({
         value={value}
         max={max}
         min={min}
+        autoComplete={autocomplete}
         {...registerOrOnChange}
       ></Form.Control>
       {errors && <Alert key="danger">{errors.message}</Alert>}

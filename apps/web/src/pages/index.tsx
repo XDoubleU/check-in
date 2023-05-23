@@ -92,7 +92,7 @@ export default function CheckIn() {
   }
 
   if (!location) {
-    return <LoadingLayout />
+    return <LoadingLayout message="User has no location." />
   }
 
   return (
