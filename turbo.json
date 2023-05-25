@@ -5,6 +5,7 @@
     "PORT",
     "WEB_URL",
     "API_PORT",
+    "THROTTLE_DISABLED",
     "NEXT_PUBLIC_SENTRY_DSN",
     "NEXT_PUBLIC_API_URL",
     "API_SENTRY_DSN",

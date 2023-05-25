@@ -15,29 +15,36 @@ import { RavenInterceptor, RavenModule } from "nest-raven"
 import { WsModule } from "./ws/ws.module"
 import sharedConfig from "./shared-config"
 
-@Module({
-  imports: [
-    RavenModule,
-    MikroOrmModule.forRoot({
-      ...sharedConfig,
-      driverOptions: {
-        ...(process.env.NODE_ENV === "production" && {
-          connection: { ssl: { ca: process.env.CA_CERT } }
-        })
-      }
-    }),
+const modules = [
+  RavenModule,
+  MikroOrmModule.forRoot({
+    ...sharedConfig,
+    driverOptions: {
+      ...(process.env.NODE_ENV === "production" && {
+        connection: { ssl: { ca: process.env.CA_CERT } }
+      })
+    }
+  }),
+  CheckInsModule,
+  LocationsModule,
+  SchoolsModule,
+  AuthModule,
+  UsersModule,
+  WsModule,
+  MigrationsModule
+]
+
+if (process.env.THROTTLE_DISABLED !== "true") {
+  modules.push(
     ThrottlerModule.forRoot({
       ttl: 10, // the number of seconds that each request will last in storage
       limit: 30 // the maximum number of requests within the TTL limit
-    }),
-    CheckInsModule,
-    LocationsModule,
-    SchoolsModule,
-    AuthModule,
-    UsersModule,
-    WsModule,
-    MigrationsModule
-  ],
+    })
+  )
+}
+
+@Module({
+  imports: modules,
   providers: [
     {
       provide: APP_INTERCEPTOR,
