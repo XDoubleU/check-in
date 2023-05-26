@@ -9,5 +9,5 @@ export interface Location {
 
   get normalizedName(): string
   get available(): number
-  get yesterdayFullAt(): number | null
+  get yesterdayFullAt(): string | null
 }

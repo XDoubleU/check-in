@@ -68,7 +68,7 @@ export class LocationEntity implements MikroLocationInterface {
       )`,
     { persist: false }
   )
-  public readonly yesterdayFullAt!: number | null
+  public readonly yesterdayFullAt!: string | null
 
   public constructor(name: string, capacity: number, user: UserEntity) {
     this.name = name
