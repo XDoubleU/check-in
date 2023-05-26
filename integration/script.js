@@ -30,7 +30,7 @@ function fill(location){
 
     let output = "Wasn't full yesterday"
     if (location.yesterdayFullAt) {
-      const time = new Date(location.yesterdayFullAt).toLocaleTimeString([], {
+      const time = new Date(parseInt(location.yesterdayFullAt)).toLocaleTimeString([], {
         timeStyle: "short",
         hourCycle: "h23"
       })
