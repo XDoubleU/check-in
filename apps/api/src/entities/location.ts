@@ -54,7 +54,7 @@ export class LocationEntity implements MikroLocationInterface {
   @Formula(
     (alias) =>
       `(
-        SELECT EXTRACT(EPOCH FROM MAX(created_at)) * 1000
+        SELECT (EXTRACT(EPOCH FROM MAX(created_at)) * 1000)::numeric::bigint
         FROM "CheckIn"
         INNER JOIN (
           SELECT location_id, COUNT(*) AS total_checkins, MAX(capacity) AS max_capacity
