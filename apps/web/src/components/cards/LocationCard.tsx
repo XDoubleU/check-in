@@ -115,7 +115,7 @@ export default function LocationCard({ data, refetchData }: LocationCardProps) {
               <Card.Subtitle className="mb-2 text-muted">
                 {data.yesterdayFullAt
                   ? `Yesterday full at ${format(
-                      new Date(data.yesterdayFullAt),
+                      new Date(parseInt(data.yesterdayFullAt)),
                       "HH:mm"
                     )}`
                   : "Yesterday not full"}
