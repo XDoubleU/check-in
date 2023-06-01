@@ -13,8 +13,8 @@ import {
 } from "react"
 import { type FieldValues, type UseFormReturn } from "react-hook-form"
 import ManagerLayout from "./AdminLayout"
-import { type ICreateModalProps } from "interfaces/ICreateModalProps"
 import { type ICardProps } from "interfaces/ICardProps"
+import { type ICreateModalProps } from "interfaces/ICreateModalProps"
 
 export interface List<T> {
   data: T[] | undefined
@@ -102,7 +102,7 @@ export default function ListViewLayout<
         {list.data?.map((item) => {
           return (
             <div key={item.id}>
-              {card({ data: item, refetchData: fetchData })}
+              {card({ data: item, fetchData: fetchData })}
             </div>
           )
         })}

@@ -25,7 +25,7 @@ function CreateUserModal({ form, fetchData }: CreateUserModalProps) {
     <CreateModal<CreateUserDto, User>
       form={form}
       handler={createUser}
-      refetchData={fetchData}
+      fetchData={fetchData}
       typeName="user"
     >
       <FormInput
@@ -42,6 +42,7 @@ function CreateUserModal({ form, fetchData }: CreateUserModalProps) {
         required
         register={register("password")}
       />
+      {/* jscpd:ignore-start */}
       <Form.Group className="mb-3">
         <Form.Label>Repeat password</Form.Label>
         <Form.Control
@@ -62,6 +63,7 @@ function CreateUserModal({ form, fetchData }: CreateUserModalProps) {
           {errors.repeatPassword?.message}
         </Form.Control.Feedback>
       </Form.Group>
+      {/* jscpd:ignore-end */}
     </CreateModal>
   )
 }

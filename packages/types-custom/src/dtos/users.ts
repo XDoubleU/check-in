@@ -12,6 +12,6 @@ export interface CreateUserDto {
 }
 
 export interface UpdateUserDto {
-  username: string
+  username?: string
   password?: string
 }

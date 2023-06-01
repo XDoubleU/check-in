@@ -1,28 +1,18 @@
-import { type ReactElement, useState } from "react"
+import { useState } from "react"
 import { Modal } from "react-bootstrap"
 import CustomButton from "components/CustomButton"
-import {
-  type FieldValues,
-  type SubmitHandler,
-  type UseFormReturn
-} from "react-hook-form"
-import { type APIResponse } from "api-wrapper"
+import { type FieldValues, type SubmitHandler } from "react-hook-form"
 import BaseForm from "components/forms/BaseForm"
+import { type IModalProps } from "interfaces/IModalProps"
 
-interface UpdateModalProps<T extends FieldValues, Y> {
-  children: ReactElement | ReactElement[]
-  form: UseFormReturn<T>
-  handler: (data: T) => Promise<APIResponse<Y>>
-  refetchData: () => Promise<void>
-  typeName: string
-}
+type UpdateModalProps<T extends FieldValues, Y> = IModalProps<T, Y>
 
 // eslint-disable-next-line max-lines-per-function
 export default function UpdateModal<T extends FieldValues, Y>({
   children,
   form,
   handler,
-  refetchData,
+  fetchData,
   typeName
 }: UpdateModalProps<T, Y>) {
   const [showUpdate, setShowUpdate] = useState(false)
@@ -49,7 +39,7 @@ export default function UpdateModal<T extends FieldValues, Y>({
     } else {
       handleCloseUpdate()
       reset(data)
-      await refetchData()
+      await fetchData()
     }
   }
 

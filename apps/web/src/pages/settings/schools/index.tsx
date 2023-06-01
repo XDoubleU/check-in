@@ -17,7 +17,7 @@ function CreateSchoolModal({ form, fetchData }: CreateSchoolModalProps) {
     <CreateModal<CreateSchoolDto, School>
       form={form}
       handler={createSchool}
-      refetchData={fetchData}
+      fetchData={fetchData}
       typeName="school"
     >
       <FormInput

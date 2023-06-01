@@ -1,27 +1,20 @@
-import { type ReactElement, useState } from "react"
+import { useState } from "react"
 import { Modal } from "react-bootstrap"
 import CustomButton from "components/CustomButton"
-import {
-  type FieldValues,
-  type SubmitHandler,
-  type UseFormReturn
-} from "react-hook-form"
-import { type APIResponse } from "api-wrapper"
+import { type FieldValues, type SubmitHandler } from "react-hook-form"
 import BaseForm from "components/forms/BaseForm"
+import { type IModalProps } from "interfaces/IModalProps"
 
-interface CreateModalProps<T extends FieldValues, Y> {
-  children: ReactElement | ReactElement[]
-  form: UseFormReturn<T>
-  handler: (data: T) => Promise<APIResponse<Y>>
-  refetchData: () => Promise<void>
-  typeName: string
-}
+type CreateModalProps<T extends FieldValues, Y> = IModalProps<T, Y>
 
 // eslint-disable-next-line max-lines-per-function
-export default function CreateModal<
-  T extends FieldValues,
-  Y extends FieldValues
->({ children, form, handler, refetchData, typeName }: CreateModalProps<T, Y>) {
+export default function CreateModal<T extends FieldValues, Y>({
+  children,
+  form,
+  handler,
+  fetchData,
+  typeName
+}: CreateModalProps<T, Y>) {
   const [showCreate, setShowCreate] = useState(false)
   const handleCloseCreate = () => setShowCreate(false)
   const handleShowCreate = () => setShowCreate(true)
@@ -42,7 +35,7 @@ export default function CreateModal<
     } else {
       handleCloseCreate()
       reset()
-      await refetchData()
+      await fetchData()
     }
   }
 
