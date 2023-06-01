@@ -800,7 +800,6 @@
     tsconfig-paths "4.2.0"
     yargs "17.7.2"
 
-
 "@mikro-orm/core@5.7.10", "@mikro-orm/core@~5.7.10":
   version "5.7.10"
   resolved "https://registry.yarnpkg.com/@mikro-orm/core/-/core-5.7.10.tgz#de2b7d1b2cab2307c5f6d5119a2545b1b3f09013"
@@ -6020,7 +6019,6 @@ micromatch@^4.0.4, micromatch@^4.0.5:
   dependencies:
     braces "^3.0.2"
     picomatch "^2.3.1"
-
 
 mikro-orm@~5.7.10:
   version "5.7.10"
