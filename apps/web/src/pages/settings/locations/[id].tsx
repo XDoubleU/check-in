@@ -55,7 +55,7 @@ export default function LocationDetail() {
   }
 
   const titleButton = (
-    <LocationUpdateModal data={location} refetchData={fetchData} />
+    <LocationUpdateModal data={location} fetchData={fetchData} />
   )
 
   return (

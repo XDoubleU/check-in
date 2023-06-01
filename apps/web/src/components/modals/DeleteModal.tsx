@@ -8,14 +8,14 @@ import { type APIResponse } from "api-wrapper"
 interface DeleteModalProps<T> {
   name: string
   handler: () => Promise<APIResponse<T>>
-  refetchData: () => Promise<void>
+  fetchData: () => Promise<void>
   typeName: string
 }
 
 export default function DeleteModal<T extends FieldValues>({
   name,
   handler,
-  refetchData,
+  fetchData,
   typeName
 }: DeleteModalProps<T>) {
   const [showDelete, setShowDelete] = useState(false)
@@ -30,7 +30,7 @@ export default function DeleteModal<T extends FieldValues>({
   const onSubmit: SubmitHandler<T> = async () => {
     await handler()
     handleCloseDelete()
-    await refetchData()
+    await fetchData()
   }
 
   return (

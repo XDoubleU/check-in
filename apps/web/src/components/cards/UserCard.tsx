@@ -12,7 +12,7 @@ type UserUpdateForm = UpdateUserDto & { repeatPassword?: string }
 type UserCardProps = ICardProps<User>
 
 // eslint-disable-next-line max-lines-per-function
-function UserUpdateModal({ data, refetchData }: UserCardProps) {
+function UserUpdateModal({ data, fetchData }: UserCardProps) {
   const form = useForm<UserUpdateForm>({
     defaultValues: {
       username: data.username
@@ -33,29 +33,27 @@ function UserUpdateModal({ data, refetchData }: UserCardProps) {
     <UpdateModal<UpdateUserDto, User>
       form={form}
       handler={handleUpdate}
-      refetchData={refetchData}
+      fetchData={fetchData}
       typeName="user"
     >
       <FormInput
         label="Username"
         type="text"
         placeholder="Username"
-        required
         register={register("username")}
       />
       <FormInput
         label="Password"
         type="password"
         placeholder="Password"
-        required
         register={register("password")}
       />
+      {/* jscpd:ignore-start */}
       <Form.Group className="mb-3">
         <Form.Label>Repeat password</Form.Label>
         <Form.Control
           type="password"
           placeholder="Repeat password"
-          required
           isInvalid={!!errors.repeatPassword}
           {...register("repeatPassword", {
             validate: (val: string | undefined) => {
@@ -70,11 +68,12 @@ function UserUpdateModal({ data, refetchData }: UserCardProps) {
           {errors.repeatPassword?.message}
         </Form.Control.Feedback>
       </Form.Group>
+      {/* jscpd:ignore-end */}
     </UpdateModal>
   )
 }
 
-function UserDeleteModal({ data, refetchData }: UserCardProps) {
+function UserDeleteModal({ data, fetchData }: UserCardProps) {
   const handleDelete = () => {
     return deleteUser(data.id)
   }
@@ -83,13 +82,13 @@ function UserDeleteModal({ data, refetchData }: UserCardProps) {
     <DeleteModal
       name={data.username}
       handler={handleDelete}
-      refetchData={refetchData}
+      fetchData={fetchData}
       typeName="user"
     />
   )
 }
 
-export default function UserCard({ data, refetchData }: UserCardProps) {
+export default function UserCard({ data, fetchData }: UserCardProps) {
   return (
     <>
       <Card>
@@ -99,8 +98,8 @@ export default function UserCard({ data, refetchData }: UserCardProps) {
               <Card.Title>{data.username}</Card.Title>
             </div>
             <div className="ms-auto">
-              <UserUpdateModal data={data} refetchData={refetchData} />
-              <UserDeleteModal data={data} refetchData={refetchData} />
+              <UserUpdateModal data={data} fetchData={fetchData} />
+              <UserDeleteModal data={data} fetchData={fetchData} />
             </div>
           </div>
         </Card.Body>

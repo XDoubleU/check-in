@@ -15,7 +15,7 @@ type LocationUpdateForm = UpdateLocationDto & { repeatPassword?: string }
 type LocationCardProps = ICardProps<LocationWithUsername>
 
 // eslint-disable-next-line max-lines-per-function
-export function LocationUpdateModal({ data, refetchData }: LocationCardProps) {
+export function LocationUpdateModal({ data, fetchData }: LocationCardProps) {
   const form = useForm<LocationUpdateForm>({
     defaultValues: {
       name: data.name,
@@ -38,7 +38,7 @@ export function LocationUpdateModal({ data, refetchData }: LocationCardProps) {
     <UpdateModal<UpdateLocationDto, Location>
       form={form}
       handler={handleUpdate}
-      refetchData={refetchData}
+      fetchData={fetchData}
       typeName="location"
     >
       <FormInput
@@ -83,7 +83,7 @@ export function LocationUpdateModal({ data, refetchData }: LocationCardProps) {
   )
 }
 
-function LocationDeleteModal({ data, refetchData }: LocationCardProps) {
+function LocationDeleteModal({ data, fetchData }: LocationCardProps) {
   const handleDelete = () => {
     return deleteLocation(data.id)
   }
@@ -92,13 +92,13 @@ function LocationDeleteModal({ data, refetchData }: LocationCardProps) {
     <DeleteModal
       name={data.name}
       handler={handleDelete}
-      refetchData={refetchData}
+      fetchData={fetchData}
       typeName="location"
     />
   )
 }
 
-export default function LocationCard({ data, refetchData }: LocationCardProps) {
+export default function LocationCard({ data, fetchData }: LocationCardProps) {
   return (
     <>
       <Card>
@@ -122,8 +122,8 @@ export default function LocationCard({ data, refetchData }: LocationCardProps) {
               </Card.Subtitle>
             </div>
             <div className="ms-auto">
-              <LocationUpdateModal data={data} refetchData={refetchData} />
-              <LocationDeleteModal data={data} refetchData={refetchData} />
+              <LocationUpdateModal data={data} fetchData={fetchData} />
+              <LocationDeleteModal data={data} fetchData={fetchData} />
             </div>
           </div>
         </Card.Body>

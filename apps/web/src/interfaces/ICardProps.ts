@@ -1,4 +1,4 @@
 export interface ICardProps<T> {
   data: T
-  refetchData: () => Promise<void>
+  fetchData: () => Promise<void>
 }

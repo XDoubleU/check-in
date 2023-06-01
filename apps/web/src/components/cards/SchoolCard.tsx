@@ -9,7 +9,7 @@ import { type ICardProps } from "interfaces/ICardProps"
 
 type SchoolCardProps = ICardProps<School>
 
-function SchoolUpdateModal({ data, refetchData }: SchoolCardProps) {
+function SchoolUpdateModal({ data, fetchData }: SchoolCardProps) {
   const form = useForm<UpdateSchoolDto>({
     defaultValues: {
       name: data.name
@@ -26,7 +26,7 @@ function SchoolUpdateModal({ data, refetchData }: SchoolCardProps) {
     <UpdateModal<UpdateSchoolDto, School>
       form={form}
       handler={handleUpdate}
-      refetchData={refetchData}
+      fetchData={fetchData}
       typeName="school"
     >
       <FormInput
@@ -39,7 +39,7 @@ function SchoolUpdateModal({ data, refetchData }: SchoolCardProps) {
   )
 }
 
-function SchoolDeleteModal({ data, refetchData }: SchoolCardProps) {
+function SchoolDeleteModal({ data, fetchData }: SchoolCardProps) {
   const handleDelete = () => {
     return deleteSchool(data.id)
   }
@@ -48,13 +48,13 @@ function SchoolDeleteModal({ data, refetchData }: SchoolCardProps) {
     <DeleteModal
       name={data.name}
       handler={handleDelete}
-      refetchData={refetchData}
+      fetchData={fetchData}
       typeName="school"
     />
   )
 }
 
-export default function SchoolCard({ data, refetchData }: SchoolCardProps) {
+export default function SchoolCard({ data, fetchData }: SchoolCardProps) {
   return (
     <>
       <Card>
@@ -64,8 +64,8 @@ export default function SchoolCard({ data, refetchData }: SchoolCardProps) {
               <Card.Title>{data.name}</Card.Title>
             </div>
             <div className="ms-auto">
-              <SchoolUpdateModal data={data} refetchData={refetchData} />
-              <SchoolDeleteModal data={data} refetchData={refetchData} />
+              <SchoolUpdateModal data={data} fetchData={fetchData} />
+              <SchoolDeleteModal data={data} fetchData={fetchData} />
             </div>
           </div>
         </Card.Body>
