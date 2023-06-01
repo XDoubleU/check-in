@@ -21,7 +21,7 @@ async function bootstrap(): Promise<void> {
       debug: process.env.NODE_ENV === "development",
       environment: process.env.NODE_ENV ?? "unknown",
       release: process.env.RELEASE ?? "unknown",
-      tracesSampleRate: 1.0,
+      tracesSampleRate: 0.7,
       integrations: [
         // enable HTTP calls tracing
         new Sentry.Integrations.Http({ tracing: true }),
