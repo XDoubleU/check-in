@@ -16,7 +16,7 @@ Sentry.init({
   // `release` value here - use the environment variable `SENTRY_RELEASE`, so
   // that it will also get attached to your source maps,
 
-  replaysSessionSampleRate: 0.3,
+  replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   integrations: [new Replay({
     maskAllText: false,
