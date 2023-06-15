@@ -3,6 +3,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   NotFoundException,
@@ -47,10 +48,9 @@ export class SchoolsController {
   @Roles(Role.Manager)
   @Get()
   public async getAllPaged(
-    @Query("page") queryPage?: number
+    @Query("page", new DefaultValuePipe(undefined)) queryPage?: number
   ): Promise<MikroGetAllPaginatedSchoolDto> {
     const pageSize = 4
-    queryPage = Number.isNaN(queryPage) ? undefined : queryPage
     const current = queryPage ?? 1
 
     if (current <= 0) {
