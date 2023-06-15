@@ -4,6 +4,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   NotFoundException,
@@ -71,10 +72,9 @@ export class LocationsController {
   @Roles(Role.Manager)
   @Get()
   public async getAll(
-    @Query("page") queryPage?: number
+    @Query("page", new DefaultValuePipe(undefined)) queryPage?: number
   ): Promise<MikroGetAllPaginatedLocationDto> {
     const pageSize = 3
-    queryPage = Number.isNaN(queryPage) ? undefined : queryPage
     const current = queryPage ?? 1
 
     if (current <= 0) {
