@@ -898,19 +898,19 @@
     webpack "5.87.0"
     webpack-node-externals "3.0.0"
 
-"@nestjs/common@10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-10.0.0.tgz#368959074975326b893893b7c4378d52bf9c2671"
-  integrity sha512-Fa2GDQJrO5TTTcpISWfm0pdPS62V+8YbxeG5CA01zMUI+dCO3v3oFf+BSjqCGUUo7GDNzDsjAejwGXuqA54RPw==
+"@nestjs/common@10.0.2":
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-10.0.2.tgz#8ecafc0c88d51579581f09898474d2431988d5aa"
+  integrity sha512-pws0Xtlt6olOleJiMH1/QxKYjV4eZbNMBvVrBraCmKMnrLG2HcVPlANuyPWOB18sz5s8u5/qCKJxuuP9uNIRqQ==
   dependencies:
     uid "2.0.2"
     iterare "1.2.1"
     tslib "2.5.3"
 
-"@nestjs/core@10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-10.0.0.tgz#265147262c01ebec3f95cbaed7f9e5504e8a4faa"
-  integrity sha512-HFTdj4vsF+2qOaq97ZPRDle6Q/KyL5lmMah0/ZR0ie+e1/tnlvmlqw589xFACTemLJFFOjZMy763v+icO9u72w==
+"@nestjs/core@10.0.2":
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-10.0.2.tgz#1aed727297417cfd03d6642c2d5e7b58ff57e780"
+  integrity sha512-Z84z7xJ5n6Noffl8brT7Z2tuW6pP46zWJk8NECSyon5iGQti+QemkE7lkx/MiCTe9oCB0L/S30UR8A2bAbOfDg==
   dependencies:
     uid "2.0.2"
     "@nuxtjs/opencollective" "0.3.2"
@@ -957,10 +957,10 @@
   resolved "https://registry.yarnpkg.com/@nestjs/passport/-/passport-10.0.0.tgz#92d36d4b8796b373da3f4d1a055db03cb246b127"
   integrity sha512-IlKKc6M7JOe+4dBbW6gZsXBSD05ZYgwfGf3GJhgCmUGYVqffpDdALQSS6JftnExrE+12rACoEmHkzYwKAGVK0Q==
 
-"@nestjs/platform-express@10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/platform-express/-/platform-express-10.0.0.tgz#2178f29e5061cf3fa6b590ba4b525837c3e4ee23"
-  integrity sha512-jOQBPVpk7B4JFXZZwxHSsY6odIqZlea9CbqKzu/hfDyqRv+AwuJk5gprvvL6RpWAHNyRMH1r5/14bqcXD3+WGw==
+"@nestjs/platform-express@10.0.2":
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/platform-express/-/platform-express-10.0.2.tgz#5d813c4d469f55ebdf053f9953f064f55b534f8d"
+  integrity sha512-VfPkstVqdeLkIrc/U1vyAO2OebV+myPgxv4vgxdvSSf6rSOWwqmTaWA6zHjZA5CYCmNf5cTGVXugCwz8cvn5KA==
   dependencies:
     body-parser "1.20.2"
     cors "2.8.5"
@@ -968,10 +968,10 @@
     multer "1.4.4-lts.1"
     tslib "2.5.3"
 
-"@nestjs/platform-ws@10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/platform-ws/-/platform-ws-10.0.0.tgz#e374a029a21c1b0b6a9c72b35b57aa8b92772f5f"
-  integrity sha512-kDcrTzegvPl9m509OqVXmUk2Cxlntd1Z2cQUV+SG1DPTfk7zv+biIr6I5Y7kc5sW4jS/lnxteuXA5OJ0IXXfPg==
+"@nestjs/platform-ws@10.0.2":
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/platform-ws/-/platform-ws-10.0.2.tgz#5318e26d6ab86a19868e7aee78fd027946942241"
+  integrity sha512-WR3i7ukB5owwtxb0VXqK5HReGYlMLdns15GIVWSMnAfvRrgpXUQp2i4fhaCM1B/p87AHGXCoDDyO3KTt3qBiiQ==
   dependencies:
     tslib "2.5.3"
     ws "8.13.0"
@@ -987,10 +987,10 @@
     jsonc-parser "3.2.0"
     pluralize "8.0.0"
 
-"@nestjs/testing@10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/testing/-/testing-10.0.0.tgz#0dbb293d866c1d94edf48d2d9e7c4e4585ff4c0b"
-  integrity sha512-U5q3+svkddpdSk51ZFCEnFpQuWxAwE4ahsX77FrqqCAYidr7HUtL/BHYOVzI5H9vUH6BvJxMbfo3tiUXQl/2aA==
+"@nestjs/testing@10.0.2":
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/testing/-/testing-10.0.2.tgz#7d38665c2e1e629d0f37bdfae2998aa68faf6669"
+  integrity sha512-Fjj5dGcAW0MSvZI3RzVhZtGU49ZOYysHyOx8spOXWeu2jDr4B+ChkAYJDuZSx9U0x/1ONp3RNZau6gWgG8UO9w==
   dependencies:
     tslib "2.5.3"
 
@@ -1001,10 +1001,10 @@
   dependencies:
     md5 "^2.2.1"
 
-"@nestjs/websockets@10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@nestjs/websockets/-/websockets-10.0.0.tgz#06acace22c7093c345960104b8b7ba67e8b4f193"
-  integrity sha512-Qv7KKdJ7bNnR2jaA8rXhhqTuwbFoAV29TKA1EZIUWGL6OHb2do/JB14mJ9yDQfi1fbfb0xjxWno7iPgaO+LHUw==
+"@nestjs/websockets@10.0.2":
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/@nestjs/websockets/-/websockets-10.0.2.tgz#a5db76edf59a0298f9d2d0e3280a7337589b1f2c"
+  integrity sha512-zBRVoMZSfG4/zR2TKPPOtBq2BWE4gwi+3h17bSImQellvAxi5QI20FJcBGIFMUFeJbQDywXaCzgh6R/mezKSTA==
   dependencies:
     iterare "1.2.1"
     object-hash "3.0.0"
