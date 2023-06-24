@@ -26,7 +26,7 @@
     "react-hook-form": "7.45.0",
     "react-spinners": "0.13.8",
     "recharts": "2.7.2",
-    "sass": "1.63.4",
+    "sass": "1.63.6",
     "types-custom": "1.0.0",
     "uuid": "9.0.0"
   },
