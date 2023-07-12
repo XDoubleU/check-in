@@ -28,7 +28,7 @@
     "@mikro-orm/postgresql": "5.7.12",
     "@mikro-orm/reflection": "5.7.12",
     "@mikro-orm/seeder": "5.7.12",
-    "@nestjs/cli": "10.1.0",
+    "@nestjs/cli": "10.1.8",
     "@nestjs/common": "10.0.5",
     "@nestjs/core": "10.0.5",
     "@nestjs/jwt": "10.1.0",
