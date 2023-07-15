@@ -8,5 +8,5 @@
   "labels": ["dependencies"],
   "dependencyDashboardLabels": ["dependencies"],
   "lockFileMaintenance": { "enabled": true },
-  "schedule": ["every first day of the month"]
+  "schedule": ["monthly"]
 }
