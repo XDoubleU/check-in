@@ -18,9 +18,9 @@ Originally developed for Brugge Studentenstad, a non-profit organization that ar
 ## How to run locally?
 
 1. Clone the repo
-2. Install all necessary packages using `yarn install`
-3. Compile the packages in the monorepo using `yarn build`
-4. Start the web-client and the API using `yarn dev`
+2. Start the web-client, API and database using `docker-compose up --build`
+3. Apply migrations to database (in `api` dir) using `make db/migrations/up db=postgres://postgres@postgres/postgres`
+4. Create admin user (in `api` dir) using `make run/cli/createadmin db=postgres://postgres@postgres/postgres u=admin p=admin`
 5. Go to `http://localhost:3000` for the web-client and `http://localhost:8000` for the API
 
 ## Websocket integration

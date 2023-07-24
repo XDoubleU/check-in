@@ -1,0 +1,57 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "export": "next build && next export",
+    "format": "prettier --write ./**/*.{ts,tsx}",
+    "lint": "next lint && tsc --noEmit && jscpd --config jscpd.json && knip && prettier --check ./**/*.{ts,tsx} && npmPkgJsonLint .",
+    "lint:fix": "next lint --fix",
+    "lint:report": "eslint . --output-file eslint_report.json --format json src",
+    "swag": "npx openapi-typescript@5.4 ./../api/docs/swagger.json -o ./src/api-wrapper/types/schema.d.ts --export-type"
+  },
+  "dependencies": {
+    "@popperjs/core": "2.11.8",
+    "@sentry/browser": "7.58.1",
+    "@sentry/nextjs": "7.58.1",
+    "bootstrap": "5.3.0",
+    "bootstrap-icons": "1.10.5",
+    "date-fns": "2.30.0",
+    "next": "13.4.10",
+    "prop-types": "15.8.1",
+    "query-string": "8.1.0",
+    "react": "18.2.0",
+    "react-bootstrap": "2.8.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "7.45.1",
+    "react-spinners": "0.13.8",
+    "recharts": "2.7.2",
+    "sass": "1.63.6",
+    "uuid": "9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.4.2",
+    "@types/react": "18.2.15",
+    "@types/uuid": "9.0.2",
+    "@typescript-eslint/eslint-plugin": "6.1.0",
+    "@typescript-eslint/parser": "6.1.0",
+    "eslint": "8.45.0",
+    "eslint-config-next": "13.4.12",
+    "eslint-import-resolver-typescript": "3.5.5",
+    "eslint-plugin-deprecation": "1.4.1",
+    "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-redundant-undefined": "0.4.0",
+    "eslint-plugin-sonarjs": "0.19.0",
+    "jscpd": "3.5.9",
+    "knip": "2.15.5",
+    "npm-package-json-lint": "7.0.0",
+    "openapi-typescript": "6.3.7",
+    "prettier": "3.0.0",
+    "typescript": "5.1.6"
+  },
+  "engines": {
+    "node": "16.20.x || 18.16.x",
+    "yarn": "1.x"
+  }
+}
