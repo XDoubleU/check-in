@@ -32,7 +32,7 @@ An example on how to use the websocket integration on your own website can be fo
 Pull requests are welcome. For major changes, please open an issue first
 to discuss what you would like to change.
 
-Please make sure to update tests as appropriate.
+For more information please read [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## License
 
