@@ -10,6 +10,7 @@ import (
 	"check-in/api/internal/assert"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
+	"check-in/api/internal/models"
 	"check-in/api/internal/tests"
 )
 
@@ -34,10 +35,19 @@ func TestSignInUser(t *testing.T) {
 	)
 	rs, _ := ts.Client().Do(req)
 
+	var rsData models.User
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 	assert.Equal(t, len(rs.Header.Values("set-cookie")), 2)
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 	assert.Contains(t, rs.Header.Values("set-cookie")[1], "refreshToken")
+
+	assert.Equal(t, rsData.ID, fixtureData.DefaultUser.ID)
+	assert.Equal(t, rsData.Username, fixtureData.DefaultUser.Username)
+	assert.Equal(t, rsData.Role, fixtureData.DefaultUser.Role)
+	assert.Equal(t, len(rsData.PasswordHash), 0)
 }
 
 func TestSignInUserNoRefresh(t *testing.T) {
@@ -61,9 +71,18 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	)
 	rs, _ := ts.Client().Do(req)
 
+	var rsData models.User
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 	assert.Equal(t, len(rs.Header.Values("set-cookie")), 1)
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
+
+	assert.Equal(t, rsData.ID, fixtureData.DefaultUser.ID)
+	assert.Equal(t, rsData.Username, fixtureData.DefaultUser.Username)
+	assert.Equal(t, rsData.Role, fixtureData.DefaultUser.Role)
+	assert.Equal(t, len(rsData.PasswordHash), 0)
 }
 
 func TestSignInAdmin(t *testing.T) {
@@ -87,9 +106,18 @@ func TestSignInAdmin(t *testing.T) {
 	)
 	rs, _ := ts.Client().Do(req)
 
+	var rsData models.User
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 	assert.Equal(t, len(rs.Header.Values("set-cookie")), 1)
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
+
+	assert.Equal(t, rsData.ID, fixtureData.AdminUser.ID)
+	assert.Equal(t, rsData.Username, fixtureData.AdminUser.Username)
+	assert.Equal(t, rsData.Role, fixtureData.AdminUser.Role)
+	assert.Equal(t, len(rsData.PasswordHash), 0)
 }
 
 func TestSignInInexistentUser(t *testing.T) {

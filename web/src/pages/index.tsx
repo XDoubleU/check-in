@@ -78,17 +78,19 @@ export default function CheckIn() {
   const onClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     void createCheckIn({
       schoolId: parseInt((event.target as HTMLButtonElement).value)
-    }).then(() => {
-      handleClose()
-
-      setTimeout(() => {
-        setDisabled(true)
-      })
-
-      setTimeout(function () {
-        setDisabled(false)
-      }, 1500)
     })
+
+    setAvailable(available - 1)
+
+    handleClose()
+
+    setTimeout(() => {
+      setDisabled(true)
+    })
+
+    setTimeout(function () {
+      setDisabled(false)
+    }, 1500)
   }
 
   if (!location) {

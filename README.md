@@ -25,7 +25,7 @@ Originally developed for Brugge Studentenstad, a non-profit organization that ar
 
 ## Websocket integration
 
-An example on how to use the websocket integration on your own website can be found [here](https://github.com/XDoubleU/check-in/blob/main/integration/script.js).
+An example on how to use the websocket integration on your own website can be found [here](./integration/script.js).
 
 ## Contributing
 
@@ -36,4 +36,4 @@ For more information please read the [CONTRIBUTING](./CONTRIBUTING.md) document.
 
 ## License
 
-[GPLv3](https://github.com/XDoubleU/check-in/blob/main/LICENSE)
+[GPLv3](./LICENSE)

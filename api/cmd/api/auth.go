@@ -31,7 +31,7 @@ func (app *application) authRoutes(router *httprouter.Router) {
 // @Summary	Sign in a user
 // @Tags		auth
 // @Param		signInDto	body		SignInDto	true	"SignInDto"
-// @Success	200			{object}	nil
+// @Success	200	{object}	User
 // @Failure	400			{object}	ErrorDto
 // @Failure	401			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
@@ -84,24 +84,27 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, accessTokenCookie)
 
-	if user.Role == models.AdminRole || !signInDto.RememberMe {
-		return
+	if user.Role != models.AdminRole && signInDto.RememberMe {
+		var refreshTokenCookie *http.Cookie
+		refreshTokenCookie, err = app.services.Auth.CreateCookie(
+			r.Context(),
+			models.RefreshScope,
+			user.ID,
+			app.config.RefreshExpiry,
+			secure,
+		)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		http.SetCookie(w, refreshTokenCookie)
 	}
 
-	var refreshTokenCookie *http.Cookie
-	refreshTokenCookie, err = app.services.Auth.CreateCookie(
-		r.Context(),
-		models.RefreshScope,
-		user.ID,
-		app.config.RefreshExpiry,
-		secure,
-	)
+	err = helpers.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
-		return
 	}
-
-	http.SetCookie(w, refreshTokenCookie)
 }
 
 // @Summary	Sign out a user

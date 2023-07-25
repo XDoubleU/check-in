@@ -27,7 +27,16 @@ func Connect(dsn string, maxConns int, maxIdleTime string) (*pgxpool.Pool, error
 	)
 	defer cancel()
 
-	err = db.Ping(ctx)
+	for i := 0; i < 3; i++ {
+		err = db.Ping(ctx)
+		
+		if err == nil {
+			break
+		}
+
+		time.Sleep(30*time.Second) //nolint:gomnd //no magic number
+	}
+
 	if err != nil {
 		return nil, errors.New("can't connect to database")
 	}

@@ -12,7 +12,7 @@ RUN yarn export
 # stage-1: serve static HTML files
 FROM nginx:alpine
 
-COPY ./nginx-docker.conf /etc/nginx/conf.d/default.conf
+COPY --link ./nginx-docker.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /usr/share/nginx/html
 
