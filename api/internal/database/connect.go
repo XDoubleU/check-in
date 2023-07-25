@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"strconv"
 	"time"
@@ -28,7 +29,7 @@ func Connect(dsn string, maxConns int, maxIdleTime string) (*pgxpool.Pool, error
 
 	err = db.Ping(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("can't connect to database")
 	}
 
 	return db, nil

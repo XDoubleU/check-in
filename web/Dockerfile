@@ -1,5 +1,5 @@
-# Stage 0: generate static HTML files
-FROM node:18.16-alpine AS base
+# stage-0: generate static HTML files
+FROM node:18.16-alpine
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ RUN yarn --frozen-lockfile
 COPY --link  . .
 RUN yarn export
 
-# Stage 1: serve static HTML files
+# stage-1: serve static HTML files
 FROM nginx:alpine
 
 COPY ./nginx-docker.conf /etc/nginx/conf.d/default.conf

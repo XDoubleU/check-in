@@ -1,4 +1,4 @@
-FROM golang:1.20 as base
+FROM golang:1.20
 
 WORKDIR /app
 
@@ -10,5 +10,4 @@ RUN go mod download
 RUN make build
 
 EXPOSE 8000
-
-CMD ["/api"]
+CMD ["./bin/api"]

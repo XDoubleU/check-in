@@ -20,7 +20,7 @@ services:
       - ENV=dev
       - PORT=8000
       - WEB_URL=http://localhost:3000
-      - DB_DSN=postgres://postgres@postgres/postgres
+      - DB_DSN=postgres://postgres@db/postgres
       # Necessary when using Sentry
       # - RELEASE=${_self.COMMIT_HASH}
       # - SENTRY_DSN=
