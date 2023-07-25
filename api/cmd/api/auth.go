@@ -31,7 +31,7 @@ func (app *application) authRoutes(router *httprouter.Router) {
 // @Summary	Sign in a user
 // @Tags		auth
 // @Param		signInDto	body		SignInDto	true	"SignInDto"
-// @Success	200	{object}	User
+// @Success	200			{object}	User
 // @Failure	400			{object}	ErrorDto
 // @Failure	401			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto

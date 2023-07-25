@@ -10,6 +10,7 @@ import (
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/database"
+	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/services"
 	"check-in/api/internal/tests"
@@ -174,45 +175,64 @@ func locationFixtures(services services.Services) error {
 
 	fixtureData.AmountOfLocations = 0
 
-	fixtureData.DefaultLocation, err = services.Locations.Create(context.Background(),
-		"TestLocation", 20, fixtureData.DefaultUser.ID)
+	fixtureData.DefaultLocation, err = services.Locations.Create(
+		context.Background(),
+		"TestLocation",
+		20,
+		fixtureData.DefaultUser.ID,
+	)
 	if err != nil {
 		return err
 	}
 	fixtureData.AmountOfLocations++
 
 	for i := 0; i < 5; i++ {
+		newCap := fixtureData.DefaultLocation.Capacity + 1
+		err = services.Locations.Update(
+			context.Background(),
+			fixtureData.DefaultLocation,
+			&fixtureData.AdminUser,
+			dtos.UpdateLocationDto{
+				Capacity: &newCap,
+			},
+		)
+		if err != nil {
+			return err
+		}
+
 		_, err = services.CheckIns.Create(
 			context.Background(),
-			fixtureData.DefaultLocation.ID,
-			1,
-			fixtureData.DefaultLocation.Capacity+int64(i),
+			fixtureData.DefaultLocation,
+			&models.School{ID: 1},
 		)
 		if err != nil {
 			return err
 		}
 	}
 
-	fixtureData.DefaultLocation.Available -= 5
-
 	for i := 0; i < 20; i++ {
 		var location *models.Location
-		location, err = services.Locations.Create(context.Background(),
-			fmt.Sprintf("TestLocation%d", i), 20, fixtureData.DefaultUsers[i].ID)
+		location, err = services.Locations.Create(
+			context.Background(),
+			fmt.Sprintf("TestLocation%d", i),
+			20,
+			fixtureData.DefaultUsers[i].ID,
+		)
 		if err != nil {
 			return err
 		}
 		fixtureData.AmountOfLocations++
 
 		for j := 0; j < 5; j++ {
-			_, err = services.CheckIns.Create(context.Background(),
-				location.ID, 1, location.Capacity)
+			_, err = services.CheckIns.Create(
+				context.Background(),
+				location,
+				&models.School{ID: 1},
+			)
 			if err != nil {
 				return err
 			}
 		}
-
-		location.Available -= 5
 
 		fixtureData.Locations = append(fixtureData.Locations, *location)
 	}

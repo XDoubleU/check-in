@@ -58,9 +58,8 @@ func (service CheckInService) GetAllInRange(
 
 func (service CheckInService) Create(
 	ctx context.Context,
-	locationID string,
-	schoolID int64,
-	capacity int64,
+	location *models.Location,
+	school *models.School,
 ) (*models.CheckIn, error) {
 	query := `
 		INSERT INTO check_ins (location_id, school_id, capacity)
@@ -69,22 +68,24 @@ func (service CheckInService) Create(
 	`
 
 	checkIn := models.CheckIn{
-		LocationID: locationID,
-		SchoolID:   schoolID,
-		Capacity:   capacity,
+		LocationID: location.ID,
+		SchoolID:   school.ID,
+		Capacity:   location.Capacity,
 	}
 
 	err := service.db.QueryRow(
 		ctx,
 		query,
-		locationID,
-		schoolID,
-		capacity,
+		location.ID,
+		school.ID,
+		location.Capacity,
 	).Scan(&checkIn.ID, &checkIn.CreatedAt)
 
 	if err != nil {
 		return nil, handleError(err)
 	}
+
+	location.Available--
 
 	return &checkIn, nil
 }

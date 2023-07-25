@@ -141,7 +141,7 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 		assert.Equal(
 			t,
 			rsData[startDate.AddDate(0, 0, 1).Unix()].Capacity,
-			fixtureData.DefaultLocation.Capacity+4,
+			fixtureData.DefaultLocation.Capacity,
 		)
 		assert.Equal(t, rsData[startDate.AddDate(0, 0, 1).Unix()].Schools["Andere"], 5)
 
@@ -453,7 +453,7 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 		assert.Equal(
 			t,
 			rsData[checkInDate].Capacity,
-			fixtureData.DefaultLocation.Capacity+4,
+			fixtureData.DefaultLocation.Capacity,
 		)
 		assert.Equal(t, rsData[checkInDate].Schools["Andere"], 5)
 	}

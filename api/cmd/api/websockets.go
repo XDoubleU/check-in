@@ -22,7 +22,7 @@ func (app *application) websocketsRoutes(router *httprouter.Router) {
 // @Summary	WebSocket for receiving update events
 // @Tags		websocket
 // @Param		subscribeMessageDto	body		SubscribeMessageDto	true	"SubscribeMessageDto"
-// @Success	200	{object}	LocationUpdateEvent
+// @Success	200					{object}	LocationUpdateEvent
 // @Router		/ws [get].
 func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := websocket.Accept(w, r, nil)

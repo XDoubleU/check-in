@@ -6,7 +6,7 @@ type SignInDto struct {
 	Username   string `json:"username"`
 	Password   string `json:"password"`
 	RememberMe bool   `json:"rememberMe"`
-} // @name SignInDto
+} //	@name	SignInDto
 
 func ValidateSignInDto(v *validator.Validator, signInDto SignInDto) {
 	v.Check(signInDto.Username != "", "username", "must be provided")

@@ -15,7 +15,7 @@ type Location struct {
 	Capacity        int64              `json:"capacity"`
 	YesterdayFullAt pgtype.Timestamptz `json:"yesterdayFullAt" swaggertype:"string"`
 	UserID          string             `json:"userId"`
-} //@name Location
+} //	@name	Location
 
 func (location *Location) NormalizeName() error {
 	output, err := normalize(location.Name)

@@ -8,7 +8,7 @@ import (
 type SubscribeMessageDto struct {
 	Subject        models.WebSocketSubject `json:"subject"`
 	NormalizedName string                  `json:"normalizedName"`
-} // @name SubscribeMessageDto
+} //	@name	SubscribeMessageDto
 
 func ValidateSubscribeMessageDto(
 	v *validator.Validator,

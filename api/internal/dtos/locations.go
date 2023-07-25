@@ -8,13 +8,13 @@ import (
 type CheckInsLocationEntryRaw struct {
 	Capacity int64
 	Schools  map[string]int
-} // @name CheckInsLocationEntryRaw
+} //	@name	CheckInsLocationEntryRaw
 
 type CheckInsLocationEntryCsv struct {
 	Datetime int64
 	Capacity int64
 	Schools  map[string]int
-} // @name CheckInsLocationEntryCsv
+} //	@name	CheckInsLocationEntryCsv
 
 func ConvertCheckInsLocationEntryRawMapToCsv(
 	entries map[int64]*CheckInsLocationEntryRaw,
@@ -35,21 +35,21 @@ func ConvertCheckInsLocationEntryRawMapToCsv(
 
 type PaginatedLocationsDto struct {
 	PaginatedResultDto[models.Location]
-} // @name PaginatedLocationsDto
+} //	@name	PaginatedLocationsDto
 
 type CreateLocationDto struct {
 	Name     string `json:"name"`
 	Capacity int64  `json:"capacity"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-} // @name CreateLocationDto
+} //	@name	CreateLocationDto
 
 type UpdateLocationDto struct {
 	Name     *string `json:"name"`
 	Capacity *int64  `json:"capacity"`
 	Username *string `json:"username"`
 	Password *string `json:"password"`
-} // @name UpdateLocationDto
+} //	@name	UpdateLocationDto
 
 func ValidateCreateLocationDto(
 	v *validator.Validator,

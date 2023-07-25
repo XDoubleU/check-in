@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -21,20 +22,25 @@ func Connect(dsn string, maxConns int, maxIdleTime string) (*pgxpool.Pool, error
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		5*time.Second, //nolint:gomnd //no magic number
-	)
-	defer cancel()
-
 	for i := 0; i < 3; i++ {
+		ctx, cancel := context.WithTimeout(
+			context.Background(),
+			5*time.Second, //nolint:gomnd //no magic number
+		)
+		defer cancel()
+
 		err = db.Ping(ctx)
-		
-		if err == nil {
+
+		if err == nil || i == 2 {
 			break
 		}
 
-		time.Sleep(30*time.Second) //nolint:gomnd //no magic number
+		retryTime := 15 * time.Second //nolint:gomnd //no magic number
+		fmt.Printf(                   //nolint:forbidigo //allowed printf
+			"can't connect to database, retrying in %s",
+			retryTime,
+		)
+		time.Sleep(retryTime)
 	}
 
 	if err != nil {

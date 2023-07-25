@@ -102,16 +102,14 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 
 	checkIn, err := app.services.CheckIns.Create(
 		r.Context(),
-		location.ID,
-		school.ID,
-		location.Capacity,
+		location,
+		school,
 	)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	location, _ = app.services.Locations.GetByID(r.Context(), location.ID)
 	app.services.WebSockets.AddUpdateEvent(*location)
 
 	err = helpers.WriteJSON(w, http.StatusCreated, checkIn, nil)

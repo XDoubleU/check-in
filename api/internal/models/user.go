@@ -6,7 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Roles string //@name Roles
+type Roles string //	@name	Roles
 
 const (
 	DefaultRole Roles = "default"
@@ -19,7 +19,7 @@ type User struct {
 	Username     string `json:"username"`
 	PasswordHash []byte `json:"-"`
 	Role         Roles  `json:"role"`
-}  // @name User
+} //	@name	User
 
 func HashPassword(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword(

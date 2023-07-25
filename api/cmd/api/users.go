@@ -170,7 +170,7 @@ func (app *application) createManagerUserHandler(
 
 // @Summary	Update user
 // @Tags		users
-// @Param		id				path		string				true	"User ID"
+// @Param		id				path		string			true	"User ID"
 // @Param		updateUserDto	body		UpdateUserDto	true	"UpdateUserDto"
 // @Success	200				{object}	User
 // @Failure	400				{object}	ErrorDto

@@ -108,7 +108,7 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 // @Summary	Update school
 // @Tags		schools
-// @Param		id			path		int				true	"School ID"
+// @Param		id			path		int			true	"School ID"
 // @Param		schoolDto	body		SchoolDto	true	"SchoolDto"
 // @Success	200			{object}	School
 // @Failure	400			{object}	ErrorDto

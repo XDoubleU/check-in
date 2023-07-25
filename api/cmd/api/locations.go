@@ -37,12 +37,12 @@ func (app *application) locationsRoutes(router *httprouter.Router) {
 	)
 	router.HandlerFunc(
 		http.MethodGet,
-		"/locations/",
+		"/locations",
 		app.authAccess(managerAndAdminRole, app.getPaginatedLocationsHandler),
 	)
 	router.HandlerFunc(
 		http.MethodPost,
-		"/locations/",
+		"/locations",
 		app.authAccess(managerAndAdminRole, app.createLocationHandler),
 	)
 	router.HandlerFunc(
@@ -214,8 +214,8 @@ func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 	}
 
 	checkInEntries := app.services.Locations.GetCheckInsEntriesRange(
-		*startDate,
-		*endDate,
+		startDate,
+		endDate,
 		checkIns,
 		schools,
 	)
@@ -394,7 +394,7 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 
 // @Summary	Update location
 // @Tags		locations
-// @Param		id					path		string					true	"Location ID"
+// @Param		id					path		string				true	"Location ID"
 // @Param		updateLocationDto	body		UpdateLocationDto	true	"UpdateLocationDto"
 // @Success	200					{object}	models.Location
 // @Failure	400					{object}	ErrorDto

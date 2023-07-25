@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
 	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
@@ -47,15 +49,15 @@ func (service LocationService) GetCheckInsEntriesDay(
 }
 
 func (service LocationService) GetCheckInsEntriesRange(
-	startDate time.Time,
-	endDate time.Time,
+	startDate *time.Time,
+	endDate *time.Time,
 	checkIns []*models.CheckIn,
 	schools []*models.School,
 ) map[int64]*dtos.CheckInsLocationEntryRaw {
 	schoolsIDNameMap, _ := getSchoolMaps(schools)
 
 	checkInEntries := make(map[int64]*dtos.CheckInsLocationEntryRaw)
-	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
+	for d := *startDate; !d.After(*endDate); d = d.AddDate(0, 0, 1) {
 		dVal := helpers.StartOfDay(&d)
 
 		_, schoolsMap := getSchoolMaps(schools)
@@ -155,7 +157,23 @@ func (service LocationService) GetAllPaginated(
 	offset int64,
 ) ([]*models.Location, error) {
 	query := `
-		SELECT id, name, capacity
+		SELECT id, name, capacity, user_id,
+		(capacity - (SELECT COUNT(*) 
+								FROM check_ins 
+								WHERE DATE(check_ins.created_at) = DATE(NOW()) 
+								AND check_ins.location_id = locations.id)),
+		(SELECT MAX(check_ins.created_at) 
+				FROM check_ins
+				INNER JOIN (
+					SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
+					FROM check_ins
+					WHERE DATE(created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+					GROUP BY location_id
+				) daily_stats ON check_ins.location_id = daily_stats.location_id
+				WHERE check_ins.location_id = locations.id
+				AND DATE(check_ins.created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+				AND daily_stats.total_check_ins >= daily_stats.max_capacity
+		)
 		FROM locations
 		ORDER BY name
 		LIMIT $1 OFFSET $2
@@ -175,8 +193,16 @@ func (service LocationService) GetAllPaginated(
 			&location.ID,
 			&location.Name,
 			&location.Capacity,
+			&location.UserID,
+			&location.Available,
+			&location.YesterdayFullAt,
 		)
 
+		if err != nil {
+			return nil, handleError(err)
+		}
+
+		err = location.NormalizeName()
 		if err != nil {
 			return nil, handleError(err)
 		}
@@ -200,7 +226,19 @@ func (service LocationService) GetByID(
 		(capacity - (SELECT COUNT(*) 
 								FROM check_ins 
 								WHERE DATE(check_ins.created_at) = DATE(NOW()) 
-								AND check_ins.location_id = locations.id))
+								AND check_ins.location_id = locations.id)),
+		(SELECT MAX(check_ins.created_at) 
+				FROM check_ins
+				INNER JOIN (
+					SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
+					FROM check_ins
+					WHERE DATE(created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+					GROUP BY location_id
+				) daily_stats ON check_ins.location_id = daily_stats.location_id
+				WHERE check_ins.location_id = locations.id
+				AND DATE(check_ins.created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+				AND daily_stats.total_check_ins >= daily_stats.max_capacity
+		)
 		FROM locations
 		WHERE locations.id = $1
 	`
@@ -213,7 +251,13 @@ func (service LocationService) GetByID(
 		ctx,
 		query,
 		id,
-	).Scan(&location.Name, &location.Capacity, &location.UserID, &location.Available)
+	).Scan(
+		&location.Name,
+		&location.Capacity,
+		&location.UserID,
+		&location.Available,
+		&location.YesterdayFullAt,
+	)
 
 	if err != nil {
 		return nil, handleError(err)
@@ -248,7 +292,7 @@ func (service LocationService) GetByUserID(
 				WHERE check_ins.location_id = locations.id
 				AND DATE(check_ins.created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
 				AND daily_stats.total_check_ins >= daily_stats.max_capacity
-			)
+		)
 		FROM locations
 		WHERE locations.user_id = $1
 	`
@@ -350,11 +394,18 @@ func (service LocationService) Update(
 	user *models.User,
 	updateLocationDto dtos.UpdateLocationDto,
 ) error {
+	locationChanged := false
+	userChanged := false
+
 	if updateLocationDto.Name != nil {
+		locationChanged = true
+
 		location.Name = *updateLocationDto.Name
 	}
 
 	if updateLocationDto.Capacity != nil {
+		locationChanged = true
+
 		diff := *updateLocationDto.Capacity - location.Capacity
 		location.Available += diff
 
@@ -366,10 +417,14 @@ func (service LocationService) Update(
 	}
 
 	if updateLocationDto.Username != nil {
+		userChanged = true
+
 		user.Username = *updateLocationDto.Username
 	}
 
 	if updateLocationDto.Password != nil {
+		userChanged = true
+
 		passwordHash, _ := models.HashPassword(*updateLocationDto.Password)
 		user.PasswordHash = passwordHash
 	}
@@ -380,11 +435,39 @@ func (service LocationService) Update(
 		return handleError(err)
 	}
 
+	if locationChanged {
+		err = updateLocation(ctx, tx, location)
+		if err != nil {
+			return err
+		}
+	}
+
+	if userChanged {
+		err = updateUser(ctx, tx, user)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = location.NormalizeName()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) error {
 	queryLocation := `
-		UPDATE locations
-		SET name = $2, capacity = $3
-		WHERE id = $1
-	`
+			UPDATE locations
+			SET name = $2, capacity = $3
+			WHERE id = $1
+		`
 
 	resultLocation, err := tx.Exec(
 		ctx,
@@ -403,11 +486,15 @@ func (service LocationService) Update(
 		return ErrRecordNotFound
 	}
 
+	return nil
+}
+
+func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 	queryUser := `
-		UPDATE users
-		SET username = $2, password_hash = $3
-		WHERE id = $1 AND role = 'default'
-	`
+			UPDATE users
+			SET username = $2, password_hash = $3
+			WHERE id = $1 AND role = 'default'
+		`
 
 	resultUser, err := tx.Exec(
 		ctx,
@@ -421,19 +508,9 @@ func (service LocationService) Update(
 		return handleError(err)
 	}
 
-	rowsAffected = resultUser.RowsAffected()
+	rowsAffected := resultUser.RowsAffected()
 	if rowsAffected == 0 {
 		return ErrRecordNotFound
-	}
-
-	err = tx.Commit(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = location.NormalizeName()
-	if err != nil {
-		return err
 	}
 
 	return nil

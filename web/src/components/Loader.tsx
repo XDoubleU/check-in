@@ -15,8 +15,8 @@ export default function Loader({ message }: LoaderProps) {
 
   return (
     <div style={style}>
-      <BarLoader color="red" />
       <p>{message}</p>
+      <BarLoader color="red" />
     </div>
   )
 }

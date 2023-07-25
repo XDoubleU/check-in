@@ -5,17 +5,19 @@ import (
 	"check-in/api/internal/validator"
 )
 
-type PaginatedUsersDto = PaginatedResultDto[models.User] // @name PaginatedUsersDto
+type PaginatedUsersDto struct {
+	PaginatedResultDto[models.User]
+} //	@name	PaginatedUsersDto
 
 type CreateUserDto struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-} // @name CreateUserDto
+} //	@name	CreateUserDto
 
 type UpdateUserDto struct {
 	Username *string `json:"username"`
 	Password *string `json:"password"`
-} // @name UpdateUserDto
+} //	@name	UpdateUserDto
 
 func ValidateCreateUserDto(v *validator.Validator, createUserDto CreateUserDto) {
 	v.Check(createUserDto.Username != "", "username", "must be provided")

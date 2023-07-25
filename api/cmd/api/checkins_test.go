@@ -22,21 +22,21 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
+	defaultLocation := *fixtureData.DefaultLocation
+
 	for i := 0; i < 10; i++ {
 		_, _ = testApp.services.CheckIns.Create(
 			context.Background(),
-			fixtureData.DefaultLocation.ID,
-			1,
-			fixtureData.DefaultLocation.Capacity,
+			&defaultLocation,
+			&models.School{ID: 1},
 		)
 	}
 
 	for i := 0; i < 10; i++ {
 		_, _ = testApp.services.CheckIns.Create(
 			context.Background(),
-			fixtureData.DefaultLocation.ID,
-			fixtureData.Schools[0].ID,
-			fixtureData.DefaultLocation.Capacity,
+			&defaultLocation,
+			&fixtureData.Schools[0],
 		)
 	}
 

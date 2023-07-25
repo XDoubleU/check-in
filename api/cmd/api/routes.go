@@ -10,6 +10,7 @@ import (
 
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
+
 	helmet := helmet.Default()
 
 	sentryHandler := app.getSentryHandler()

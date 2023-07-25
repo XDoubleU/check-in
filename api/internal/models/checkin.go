@@ -8,4 +8,4 @@ type CheckIn struct {
 	SchoolID   int64     `json:"schoolId"`
 	Capacity   int64     `json:"capacity"`
 	CreatedAt  time.Time `json:"createdAt"`
-} // @name CheckIn
+} //	@name	CheckIn
