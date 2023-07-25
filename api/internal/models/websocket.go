@@ -6,7 +6,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type WebSocketSubject string
+type WebSocketSubject string // @name WebSocketSubject
 
 const (
 	AllLocations   WebSocketSubject = "all-locations"

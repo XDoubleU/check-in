@@ -29,8 +29,10 @@ export type Roles = DeepRequired<definitions["Roles"]>
 export type School = DeepRequired<definitions["School"]>
 export type SchoolDto = DeepRequired<definitions["SchoolDto"]>
 export type SignInDto = DeepRequired<definitions["SignInDto"]>
+export type SubscribeMessageDto = definitions["SubscribeMessageDto"]
 export type UpdateLocationDto = definitions["UpdateLocationDto"]
 export type UpdateUserDto = definitions["UpdateUserDto"]
 export type User = DeepRequired<definitions["User"]>
+export type WebSocketSubject = DeepRequired<definitions["WebSocketSubject"]>
 
 export const DATE_FORMAT = "yyyymmdd"

@@ -2,6 +2,7 @@ import { type APIResponse } from "./types"
 import Router from "next/router"
 import queryString from "query-string"
 import { type ErrorDto } from "./types/apiTypes"
+import { refreshTokens } from "./auth"
 
 export async function fetchHandler<T = undefined>(
   input: string,
@@ -87,12 +88,4 @@ async function fetchHandlerBase<T = undefined>(
   return {
     ok: response.ok
   }
-}
-
-async function refreshTokens(): Promise<Response> {
-  const url = `${process.env.NEXT_PUBLIC_API_URL ?? ""}/auth/refresh`
-
-  return await fetch(url, {
-    credentials: "include"
-  })
 }

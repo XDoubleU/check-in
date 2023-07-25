@@ -1,4 +1,4 @@
-import { type Location } from "./types/apiTypes"
+import { type SubscribeMessageDto, type Location } from "./types/apiTypes"
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const WS_URL = process.env.NEXT_PUBLIC_API_URL?.replace("http", "ws") ?? ""
@@ -7,14 +7,12 @@ export function checkinsWebsocket(location: Location): WebSocket {
   const webSocket = new WebSocket(WS_URL)
 
   webSocket.onopen = (): void => {
-    webSocket.send(
-      JSON.stringify({
-        event: "single-location",
-        data: {
-          normalizedName: location.normalizedName
-        }
-      })
-    )
+    const message: SubscribeMessageDto = {
+      subject: "single-location",
+      normalizedName: location.normalizedName
+    }
+
+    webSocket.send(JSON.stringify(message))
   }
 
   return webSocket

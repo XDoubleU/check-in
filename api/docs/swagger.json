@@ -1035,6 +1035,17 @@
                     "websocket"
                 ],
                 "summary": "WebSocket for receiving update events",
+                "parameters": [
+                    {
+                        "description": "SubscribeMessageDto",
+                        "name": "subscribeMessageDto",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SubscribeMessageDto"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1274,6 +1285,17 @@
                 }
             }
         },
+        "SubscribeMessageDto": {
+            "type": "object",
+            "properties": {
+                "normalizedName": {
+                    "type": "string"
+                },
+                "subject": {
+                    "$ref": "#/definitions/WebSocketSubject"
+                }
+            }
+        },
         "UpdateLocationDto": {
             "type": "object",
             "properties": {
@@ -1315,6 +1337,17 @@
                     "type": "string"
                 }
             }
+        },
+        "WebSocketSubject": {
+            "type": "string",
+            "enum": [
+                "all-locations",
+                "single-location"
+            ],
+            "x-enum-varnames": [
+                "AllLocations",
+                "SingleLocation"
+            ]
         }
     }
 }

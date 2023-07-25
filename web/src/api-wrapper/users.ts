@@ -11,7 +11,7 @@ import {
 const USERS_ENDPOINT = "users"
 
 export async function getMyUser(): Promise<APIResponse<User>> {
-  return await fetchHandler(`${USERS_ENDPOINT}/me`)
+  return await fetchHandler(`current-user`)
 }
 
 export async function getUser(id: string): Promise<APIResponse<User>> {

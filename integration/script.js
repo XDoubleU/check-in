@@ -1,17 +1,19 @@
 const webSocket = new WebSocket("ws://localhost:8000")
 
 webSocket.onopen = async () => {
-  const response = await fetch("http://localhost:8000/locations/ws/")
-  const data = await response.json()
-
-  data.forEach((location) => {
-    fill(location)
-  })
+  webSocket.send(
+    JSON.stringify({
+      subject: "all-locations"
+    })
+  )
 }
 
 webSocket.onmessage = (event) => {
   const data = JSON.parse(event.data)
-  fill(data)
+  
+  data.forEach((location) => {
+    fill(location)
+  })
 }
 
 window.onbeforeunload = () => {

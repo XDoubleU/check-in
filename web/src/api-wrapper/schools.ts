@@ -8,12 +8,6 @@ import { type APIResponse } from "./types"
 
 const SCHOOLS_ENDPOINT = "schools"
 
-export async function getAllSchoolsSortedForLocation(): Promise<
-  APIResponse<School[]>
-> {
-  return await fetchHandler(`${SCHOOLS_ENDPOINT}/location`)
-}
-
 export async function getAllSchoolsPaged(
   page?: number
 ): Promise<APIResponse<PaginatedSchoolsDto>> {

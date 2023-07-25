@@ -14,3 +14,11 @@ export async function signIn(signInDto: SignInDto): Promise<APIResponse<User>> {
 export async function signOut(): Promise<void> {
   await fetchHandlerNoRefresh(`${AUTH_ENDPOINT}/signout`)
 }
+
+export async function refreshTokens(): Promise<Response> {
+  const url = `${AUTH_ENDPOINT}/refresh`
+
+  return await fetch(url, {
+    credentials: "include"
+  })
+}

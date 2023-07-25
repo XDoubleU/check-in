@@ -638,6 +638,12 @@ export type paths = {
   };
   "/ws": {
     get: {
+      parameters: {
+        body: {
+          /** SubscribeMessageDto */
+          subscribeMessageDto: definitions["SubscribeMessageDto"];
+        };
+      };
       responses: {
         /** OK */
         200: {
@@ -724,6 +730,10 @@ export type definitions = {
     rememberMe?: boolean;
     username?: string;
   };
+  SubscribeMessageDto: {
+    normalizedName?: string;
+    subject?: definitions["WebSocketSubject"];
+  };
   UpdateLocationDto: {
     capacity?: number;
     name?: string;
@@ -739,6 +749,8 @@ export type definitions = {
     role?: definitions["Roles"];
     username?: string;
   };
+  /** @enum {string} */
+  WebSocketSubject: "all-locations" | "single-location";
 };
 
 export type operations = {};

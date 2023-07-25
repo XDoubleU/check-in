@@ -8,11 +8,95 @@ import {
   type PaginatedLocationsDto,
   type UpdateLocationDto
 } from "./types/apiTypes"
+import queryString from "query-string"
 
 const LOCATIONS_ENDPOINT = "locations"
 
+export async function getDataForRangeChart(
+  locationId: string,
+  startDate: string,
+  endDate: string
+): Promise<APIResponse<unknown[]>> {
+  if (!isValidUUID(locationId)) {
+    return {
+      ok: false,
+      message: "Invalid UUID"
+    }
+  }
+
+  return await fetchHandler(
+    `${LOCATIONS_ENDPOINT}/${locationId}/checkins/range`,
+    undefined,
+    {
+      startDate,
+      endDate,
+      returnType: "raw"
+    }
+  )
+}
+
+export async function getDataForDayChart(
+  locationId: string,
+  date: string
+): Promise<APIResponse<unknown[]>> {
+  if (!isValidUUID(locationId)) {
+    return {
+      ok: false,
+      message: "Invalid UUID"
+    }
+  }
+
+  return await fetchHandler(
+    `${LOCATIONS_ENDPOINT}/${locationId}/checkins/day`,
+    undefined,
+    {
+      date,
+      returnType: "raw"
+    }
+  )
+}
+
+export function downloadCsvForRangeChart(
+  locationId: string,
+  startDate: string,
+  endDate: string
+): void {
+  if (!isValidUUID(locationId)) {
+    return
+  }
+
+  const query = queryString.stringify({
+    startDate,
+    endDate,
+    returnType: "csv"
+  })
+
+  open(
+    `${
+      process.env.NEXT_PUBLIC_API_URL ?? ""
+    }/${LOCATIONS_ENDPOINT}/${locationId}/checkins/range?${query}`
+  )
+}
+
+export function downloadCsvForDayChart(locationId: string, date: string): void {
+  if (!isValidUUID(locationId)) {
+    return
+  }
+
+  const query = queryString.stringify({
+    date,
+    returnType: "csv"
+  })
+
+  open(
+    `${
+      process.env.NEXT_PUBLIC_API_URL ?? ""
+    }/${LOCATIONS_ENDPOINT}/${locationId}/checkins/day?${query}`
+  )
+}
+
 export async function getMyLocation(): Promise<APIResponse<Location>> {
-  return await fetchHandler(`${LOCATIONS_ENDPOINT}/me`)
+  return await fetchHandler(`current-location`)
 }
 
 export async function getAllLocations(
