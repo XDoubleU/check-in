@@ -8,11 +8,12 @@ import { useAuth } from "contexts/authContext"
 import BaseForm from "components/forms/BaseForm"
 import FormInput from "components/forms/FormInput"
 import { type SignInDto } from "api-wrapper/types/apiTypes"
+import { Redirecter } from "components/Redirecter"
 
 // eslint-disable-next-line max-lines-per-function
 export default function SignIn() {
-  const router = useRouter()
   const { setUser } = useAuth()
+  const router = useRouter()
 
   const {
     register,
@@ -41,42 +42,44 @@ export default function SignIn() {
   }
 
   return (
-    <BaseLayout title="Sign In" showLinks={true}>
-      <Col md={4} style={{ margin: "auto" }}>
-        <h1 className="text-center">Sign In</h1>
-        <br />
+    <Redirecter>
+      <BaseLayout title="Sign In" showLinks={true}>
+        <Col md={4} style={{ margin: "auto" }}>
+          <h1 className="text-center">Sign In</h1>
+          <br />
 
-        <BaseForm
-          className={styles.customForm}
-          onSubmit={handleSubmit(onSubmit)}
-          errors={errors}
-          submitBtnText="Sign In"
-        >
-          <FormInput
-            label="Username"
-            type="text"
-            placeholder="Username"
-            required
-            autocomplete="username"
-            register={register("username")}
-          />
-          <FormInput
-            label="Password"
-            type="password"
-            placeholder="Password"
-            required
-            autocomplete="current-password"
-            register={register("password")}
-          />
-          <Form.Check
-            label="Remember me"
-            type="checkbox"
-            {...register("rememberMe")}
-          ></Form.Check>
-        </BaseForm>
-        <br />
-        <br />
-      </Col>
-    </BaseLayout>
+          <BaseForm
+            className={styles.customForm}
+            onSubmit={handleSubmit(onSubmit)}
+            errors={errors}
+            submitBtnText="Sign In"
+          >
+            <FormInput
+              label="Username"
+              type="text"
+              placeholder="Username"
+              required
+              autocomplete="username"
+              register={register("username")}
+            />
+            <FormInput
+              label="Password"
+              type="password"
+              placeholder="Password"
+              required
+              autocomplete="current-password"
+              register={register("password")}
+            />
+            <Form.Check
+              label="Remember me"
+              type="checkbox"
+              {...register("rememberMe")}
+            ></Form.Check>
+          </BaseForm>
+          <br />
+          <br />
+        </Col>
+      </BaseLayout>
+    </Redirecter>
   )
 }

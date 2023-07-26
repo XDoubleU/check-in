@@ -21,16 +21,13 @@ export async function getUser(id: string): Promise<APIResponse<User>> {
 export async function getAllUsersPaged(
   page?: number
 ): Promise<APIResponse<PaginatedUsersDto>> {
-  return await fetchHandler(`${USERS_ENDPOINT}`, undefined, { page })
+  return await fetchHandler(`${USERS_ENDPOINT}`, undefined, undefined, { page })
 }
 
 export async function createUser(
   createUserDto: CreateUserDto
 ): Promise<APIResponse<User>> {
-  return await fetchHandler(USERS_ENDPOINT, {
-    method: "POST",
-    body: JSON.stringify(createUserDto)
-  })
+  return await fetchHandler(`${USERS_ENDPOINT}`, "POST", createUserDto)
 }
 
 export async function updateUser(
@@ -44,10 +41,7 @@ export async function updateUser(
     }
   }
 
-  return await fetchHandler(`${USERS_ENDPOINT}/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(updateUserDto)
-  })
+  return await fetchHandler(`${USERS_ENDPOINT}/${id}`, "PATCH", updateUserDto)
 }
 
 export async function deleteUser(id: string): Promise<APIResponse<User>> {
@@ -58,7 +52,5 @@ export async function deleteUser(id: string): Promise<APIResponse<User>> {
     }
   }
 
-  return await fetchHandler(`${USERS_ENDPOINT}/${id}`, {
-    method: "DELETE"
-  })
+  return await fetchHandler(`${USERS_ENDPOINT}/${id}`, "DELETE")
 }

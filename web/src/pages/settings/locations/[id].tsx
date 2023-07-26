@@ -8,11 +8,12 @@ import { type LocationWithUsername } from "."
 import { useAuth } from "contexts/authContext"
 import Charts from "components/charts/Charts"
 import { type User } from "api-wrapper/types/apiTypes"
+import { Redirecter } from "components/Redirecter"
 
 // eslint-disable-next-line max-lines-per-function
 export default function LocationDetail() {
-  const router = useRouter()
   const { user } = useAuth()
+  const router = useRouter()
   const [location, updateLocation] = useState<LocationWithUsername>()
 
   const fetchData = useCallback(async () => {
@@ -58,8 +59,10 @@ export default function LocationDetail() {
   )
 
   return (
-    <ManagerLayout title={location.name} titleButton={titleButton}>
-      <Charts locationId={location.id} />
-    </ManagerLayout>
+    <Redirecter>
+      <ManagerLayout title={location.name} titleButton={titleButton}>
+        <Charts locationId={location.id} />
+      </ManagerLayout>
+    </Redirecter>
   )
 }

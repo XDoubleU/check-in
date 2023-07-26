@@ -30,7 +30,9 @@ export type paths = {
       };
       responses: {
         /** OK */
-        200: unknown;
+        200: {
+          schema: definitions["User"];
+        };
         /** Bad Request */
         400: {
           schema: definitions["ErrorDto"];
@@ -716,7 +718,7 @@ export type definitions = {
     total?: number;
   };
   /** @enum {string} */
-  Roles: "default" | "manager" | "admin";
+  Role: "default" | "manager" | "admin";
   School: {
     id?: number;
     name?: string;
@@ -746,7 +748,8 @@ export type definitions = {
   };
   User: {
     id?: string;
-    role?: definitions["Roles"];
+    location?: definitions["Location"];
+    role?: definitions["Role"];
     username?: string;
   };
   /** @enum {string} */

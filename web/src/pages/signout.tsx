@@ -3,10 +3,11 @@ import LoadingLayout from "layouts/LoadingLayout"
 import { signOut } from "api-wrapper"
 import { useRouter } from "next/router"
 import { useEffect } from "react"
+import { Redirecter } from "components/Redirecter"
 
 export default function SignOut() {
-  const router = useRouter()
   const { setUser } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
     void signOut()
@@ -14,5 +15,9 @@ export default function SignOut() {
       .then(() => router.push("/signin"))
   }, [router, setUser])
 
-  return <LoadingLayout message="Signing out." />
+  return (
+    <Redirecter>
+      <LoadingLayout message="Signing out." />
+    </Redirecter>
+  )
 }

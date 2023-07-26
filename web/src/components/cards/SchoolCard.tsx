@@ -63,10 +63,12 @@ export default function SchoolCard({ data, fetchData }: SchoolCardProps) {
             <div>
               <Card.Title>{data.name}</Card.Title>
             </div>
-            <div className="ms-auto">
-              <SchoolUpdateModal data={data} fetchData={fetchData} />
-              <SchoolDeleteModal data={data} fetchData={fetchData} />
-            </div>
+            {!data.readOnly && (
+              <div className="ms-auto">
+                <SchoolUpdateModal data={data} fetchData={fetchData} />
+                <SchoolDeleteModal data={data} fetchData={fetchData} />
+              </div>
+            )}
           </div>
         </Card.Body>
       </Card>

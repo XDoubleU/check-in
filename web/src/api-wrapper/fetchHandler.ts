@@ -4,29 +4,50 @@ import queryString from "query-string"
 import { type ErrorDto } from "./types/apiTypes"
 import { refreshTokens } from "./auth"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function stringifyReplacer(_key: any, value: any): any {
+  if (typeof value === "boolean") value = Boolean(value)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  else if (!isNaN(value)) value = Number(value)
+  return value
+}
+
 export async function fetchHandler<T = undefined>(
   input: string,
-  init?: RequestInit,
+  method?: string,
+  body?: unknown,
   query?: queryString.StringifiableRecord
 ): Promise<APIResponse<T>> {
-  return fetchHandlerBase(true, input, init, query)
+  return fetchHandlerBase(true, input, method, body, query)
 }
 
 export async function fetchHandlerNoRefresh<T = undefined>(
   input: string,
-  init?: RequestInit,
+  method?: string,
+  body?: unknown,
   query?: queryString.StringifiableRecord
 ): Promise<APIResponse<T>> {
-  return fetchHandlerBase(false, input, init, query)
+  return fetchHandlerBase(false, input, method, body, query)
 }
 
 // eslint-disable-next-line max-lines-per-function
 async function fetchHandlerBase<T = undefined>(
   refresh: boolean,
   input: string,
-  init?: RequestInit,
+  method?: string,
+  body?: unknown,
   query: queryString.StringifiableRecord = {}
 ): Promise<APIResponse<T>> {
+  const init: RequestInit = {}
+
+  if (method) {
+    init.method = method
+  }
+
+  if (body) {
+    init.body = JSON.stringify(body, stringifyReplacer)
+  }
+
   const url = queryString.stringifyUrl(
     {
       url: `${process.env.NEXT_PUBLIC_API_URL ?? ""}/${input}`,

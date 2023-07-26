@@ -5,10 +5,11 @@ import { type SignInDto, type User } from "./types/apiTypes"
 const AUTH_ENDPOINT = "auth"
 
 export async function signIn(signInDto: SignInDto): Promise<APIResponse<User>> {
-  return await fetchHandlerNoRefresh(`${AUTH_ENDPOINT}/signin`, {
-    method: "POST",
-    body: JSON.stringify(signInDto)
-  })
+  return await fetchHandlerNoRefresh(
+    `${AUTH_ENDPOINT}/signin`,
+    "POST",
+    signInDto
+  )
 }
 
 export async function signOut(): Promise<void> {

@@ -1,5 +1,6 @@
 import { getMyUser } from "api-wrapper"
 import { type User } from "api-wrapper/types/apiTypes"
+import { useRouter } from "next/router"
 import React, {
   useState,
   type SetStateAction,
@@ -11,8 +12,8 @@ import React, {
 
 interface AuthContextProps {
   user: User | undefined
-  loadingUser: boolean
   setUser: Dispatch<SetStateAction<User | undefined>>
+  loadingUser: boolean
 }
 
 interface Props {
@@ -22,9 +23,9 @@ interface Props {
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const AuthContext = React.createContext<AuthContextProps>({
   user: undefined,
-  loadingUser: true,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setUser: () => {}
+  setUser: () => {},
+  loadingUser: true
 })
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -33,6 +34,7 @@ export function useAuth(): AuthContextProps {
 }
 
 export const AuthProvider = ({ children }: Props) => {
+  const router = useRouter()
   const [currentUser, setCurrentUser] = useState<User | undefined>()
   const [loading, setLoading] = useState(true)
 
@@ -42,17 +44,18 @@ export const AuthProvider = ({ children }: Props) => {
         if (!response.ok) {
           return
         }
-        return setCurrentUser(response.data)
+        setCurrentUser(response.data)
+        return response.data
       })
       .then(() => setLoading(false))
-  }, [setLoading])
+  }, [router, setLoading])
 
   return (
     <AuthContext.Provider
       value={{
         user: currentUser,
-        loadingUser: loading,
-        setUser: setCurrentUser
+        setUser: setCurrentUser,
+        loadingUser: loading
       }}
     >
       {children}

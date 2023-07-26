@@ -42,20 +42,16 @@ export default function Navigation() {
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
           <Nav className="me-auto mb-2 mb-lg-0">
-            {
-              // eslint-disable-next-line no-warning-comments
-              //TODO: fix
-              /*user?.role === "default" && user.locationId ? (
+            {user?.role === "default" && user.location ? (
               <NavItem
                 active={true}
-                href={`/settings/locations/${user.locationId}`}
+                href={`/settings/locations/${user.location.id}`}
               >
                 My location
               </NavItem>
             ) : (
               <></>
-            )*/
-            }
+            )}
             {user?.role === "manager" || user?.role === "admin" ? (
               <>
                 <NavItem href="/settings/locations">Locations</NavItem>
@@ -66,7 +62,7 @@ export default function Navigation() {
             )}
             {user?.role === "admin" ? (
               <>
-                <NavItem href="/admin/users">Users</NavItem>
+                <NavItem href="/settings/users">Users</NavItem>
               </>
             ) : (
               <></>

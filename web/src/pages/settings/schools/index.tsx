@@ -6,7 +6,12 @@ import CreateModal from "components/modals/CreateModal"
 import FormInput from "components/forms/FormInput"
 import ListViewLayout, { type List } from "layouts/ListViewLayout"
 import { type ICreateModalProps } from "interfaces/ICreateModalProps"
-import { type School, type SchoolDto } from "api-wrapper/types/apiTypes"
+import {
+  type Role,
+  type School,
+  type SchoolDto
+} from "api-wrapper/types/apiTypes"
+import { Redirecter } from "components/Redirecter"
 
 export type CreateSchoolModalProps = ICreateModalProps<SchoolDto>
 
@@ -34,6 +39,8 @@ function CreateSchoolModal({ form, fetchData }: CreateSchoolModalProps) {
 type SchoolList = List<School>
 
 export default function SchoolListView() {
+  const redirects = new Map<Role, string>([["default", "/settings"]])
+
   const [schoolList, setSchoolList] = useState<SchoolList>({
     data: undefined,
     pagination: {
@@ -45,14 +52,16 @@ export default function SchoolListView() {
   const form = useForm<SchoolDto>()
 
   return (
-    <ListViewLayout
-      title="Schools"
-      form={form}
-      list={schoolList}
-      setList={setSchoolList}
-      apiCall={getAllSchoolsPaged}
-      createModal={CreateSchoolModal}
-      card={SchoolCard}
-    />
+    <Redirecter redirects={redirects}>
+      <ListViewLayout
+        title="Schools"
+        form={form}
+        list={schoolList}
+        setList={setSchoolList}
+        apiCall={getAllSchoolsPaged}
+        createModal={CreateSchoolModal}
+        card={SchoolCard}
+      />
+    </Redirecter>
   )
 }

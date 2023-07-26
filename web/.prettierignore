@@ -2,5 +2,3 @@ dist
 coverage
 node_modules
 *.d.ts
-apps/api/src/migration-files
-apps/api/src/seeders

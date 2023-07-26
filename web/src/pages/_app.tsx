@@ -7,7 +7,6 @@ import { type AppProps } from "next/app"
 import Head from "next/head"
 import { useEffect } from "react"
 import { AuthProvider } from "contexts/authContext"
-import { RedirectsProvider } from "contexts/redirectsContext"
 
 export default function App({
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -26,9 +25,7 @@ export default function App({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <AuthProvider>
-        <RedirectsProvider>
-          <Component {...pageProps} />
-        </RedirectsProvider>
+        <Component {...pageProps} />
       </AuthProvider>
     </main>
   )

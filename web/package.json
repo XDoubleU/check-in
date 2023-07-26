@@ -53,5 +53,41 @@
   "engines": {
     "node": "16.20.x || 18.16.x",
     "yarn": "1.x"
+  },
+  "npmpackagejsonlint": {
+    "rules": {
+      "prefer-absolute-version-dependencies": "error",
+      "prefer-alphabetical-dependencies": "error",
+      "prefer-absolute-version-devDependencies": "error",
+      "prefer-alphabetical-devDependencies": "error"
+    }
+  },
+  "jscpd": {
+    "exitCode": 1,
+    "pattern": "**/*.{ts,tsx}",
+    "ignore": [
+      "**/*.test.ts",
+      "**/dist/**",
+      "**/coverage/**",
+      "**/node_modules/**"
+    ],
+    "format": [
+      "javascript",
+      "typescript",
+      "tsx"
+    ]
+  },
+  "knip": {
+    "exclude": [
+      "classMembers",
+      "enumMembers"
+    ],
+    "ignore": ["src/api-wrapper/types/*", ".yarn"],
+    "ignoreDependencies": ["styles"]
+  },
+  "prettier": {
+    "parser": "typescript",
+    "semi": false,
+    "trailingComma": "none"
   }
 }

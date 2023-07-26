@@ -1,8 +1,0 @@
-{
-  "exclude": [
-    "classMembers",
-    "enumMembers"
-  ],
-  "ignore": ["src/api-wrapper/types/*", ".yarn"],
-  "ignoreDependencies": ["styles"]
-}

@@ -27,6 +27,7 @@ export async function getDataForRangeChart(
   return await fetchHandler(
     `${LOCATIONS_ENDPOINT}/${locationId}/checkins/range`,
     undefined,
+    undefined,
     {
       startDate,
       endDate,
@@ -48,6 +49,7 @@ export async function getDataForDayChart(
 
   return await fetchHandler(
     `${LOCATIONS_ENDPOINT}/${locationId}/checkins/day`,
+    undefined,
     undefined,
     {
       date,
@@ -102,7 +104,9 @@ export async function getMyLocation(): Promise<APIResponse<Location>> {
 export async function getAllLocations(
   page?: number
 ): Promise<APIResponse<PaginatedLocationsDto>> {
-  return await fetchHandler(`${LOCATIONS_ENDPOINT}`, undefined, { page })
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}`, undefined, undefined, {
+    page
+  })
 }
 
 export async function getLocation(id: string): Promise<APIResponse<Location>> {
@@ -119,10 +123,7 @@ export async function getLocation(id: string): Promise<APIResponse<Location>> {
 export async function createLocation(
   createLocationDto: CreateLocationDto
 ): Promise<APIResponse<Location>> {
-  return await fetchHandler(LOCATIONS_ENDPOINT, {
-    method: "POST",
-    body: JSON.stringify(createLocationDto)
-  })
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}`, "POST", createLocationDto)
 }
 
 export async function updateLocation(
@@ -136,10 +137,11 @@ export async function updateLocation(
     }
   }
 
-  return await fetchHandler(`${LOCATIONS_ENDPOINT}/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(updateLocationDto)
-  })
+  return await fetchHandler(
+    `${LOCATIONS_ENDPOINT}/${id}`,
+    "PATCH",
+    updateLocationDto
+  )
 }
 
 export async function deleteLocation(
@@ -152,7 +154,5 @@ export async function deleteLocation(
     }
   }
 
-  return await fetchHandler(`${LOCATIONS_ENDPOINT}/${id}`, {
-    method: "DELETE"
-  })
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}/${id}`, "DELETE")
 }

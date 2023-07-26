@@ -7,7 +7,12 @@ import ListViewLayout, { type List } from "layouts/ListViewLayout"
 import { type ICreateModalProps } from "interfaces/ICreateModalProps"
 import { Form } from "react-bootstrap"
 import UserCard from "components/cards/UserCard"
-import { type User, type CreateUserDto } from "api-wrapper/types/apiTypes"
+import {
+  type User,
+  type CreateUserDto,
+  type Role
+} from "api-wrapper/types/apiTypes"
+import { Redirecter } from "components/Redirecter"
 
 type CreateUserForm = CreateUserDto & { repeatPassword?: string }
 
@@ -71,6 +76,11 @@ function CreateUserModal({ form, fetchData }: CreateUserModalProps) {
 type UserList = List<User>
 
 export default function UserListView() {
+  const redirects = new Map<Role, string>([
+    ["manager", "/settings"],
+    ["default", "/settings"]
+  ])
+
   const [userList, setUserList] = useState<UserList>({
     data: undefined,
     pagination: {
@@ -82,14 +92,16 @@ export default function UserListView() {
   const form = useForm<CreateUserDto>()
 
   return (
-    <ListViewLayout
-      title="Users"
-      form={form}
-      list={userList}
-      setList={setUserList}
-      apiCall={getAllUsersPaged}
-      createModal={CreateUserModal}
-      card={UserCard}
-    />
+    <Redirecter redirects={redirects}>
+      <ListViewLayout
+        title="Users"
+        form={form}
+        list={userList}
+        setList={setUserList}
+        apiCall={getAllUsersPaged}
+        createModal={CreateUserModal}
+        card={UserCard}
+      />
+    </Redirecter>
   )
 }

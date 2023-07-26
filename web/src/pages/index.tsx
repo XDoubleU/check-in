@@ -13,13 +13,20 @@ import {
 } from "api-wrapper"
 import LoadingLayout from "layouts/LoadingLayout"
 import {
+  type Role,
   type Location,
   type LocationUpdateEvent,
   type School
 } from "api-wrapper/types/apiTypes"
+import { Redirecter } from "components/Redirecter"
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {
+  const redirects = new Map<Role, string>([
+    ["admin", "/settings"],
+    ["manager", "/settings"]
+  ])
+
   const [location, setLocation] = useState<Location | undefined>()
   const [available, setAvailable] = useState(0)
   const [schools, setSchools] = useState(new Array<School>())
@@ -98,68 +105,70 @@ export default function CheckIn() {
   }
 
   return (
-    <BaseLayout>
-      <Modal
-        show={showSchools}
-        onHide={handleClose}
-        backdrop="static"
-        fullscreen={true}
-        scrollable={true}
-      >
-        <div className={styles.modalContent}>
-          <Modal.Body style={{ maxHeight: "100vh" }}>
-            <h1 className="bold" style={{ fontSize: "4rem" }}>
-              KIES JE SCHOOL:
-            </h1>
-            <h2 style={{ fontSize: "3rem" }}>(scroll voor meer opties)</h2>
-            <br />
-            {schools.map((school) => {
-              return (
-                <CustomButton
-                  key={school.id}
-                  value={school.id}
-                  onClick={onClick}
-                  className={`${styles.btnSchool} bold`}
-                >
-                  {school.name.toUpperCase()}
-                </CustomButton>
-              )
-            })}
-          </Modal.Body>
-        </div>
-      </Modal>
-
-      <div className="d-flex align-items-center min-vh-80">
-        <Container className="text-center">
-          <h1 className="bold" style={{ fontSize: "5rem" }}>
-            Welkom bij {location.name}!
-          </h1>
-          <br />
-          {available <= 0 ? (
-            <Button className={`${styles.btnCheckIn} bold text-white`}>
-              VOLZET
-            </Button>
-          ) : (
-            <>
-              <h2>
-                Nog{" "}
-                <span id="count" className="bold">
-                  {available}
-                </span>{" "}
-                plekken vrij
-              </h2>
+    <Redirecter redirects={redirects}>
+      <BaseLayout>
+        <Modal
+          show={showSchools}
+          onHide={handleClose}
+          backdrop="static"
+          fullscreen={true}
+          scrollable={true}
+        >
+          <div className={styles.modalContent}>
+            <Modal.Body style={{ maxHeight: "100vh" }}>
+              <h1 className="bold" style={{ fontSize: "4rem" }}>
+                KIES JE SCHOOL:
+              </h1>
+              <h2 style={{ fontSize: "3rem" }}>(scroll voor meer opties)</h2>
               <br />
-              <Button
-                className={`${styles.btnCheckIn} bold text-white`}
-                onClick={() => loadSchools()}
-                disabled={isDisabled}
-              >
-                CHECK-IN
+              {schools.map((school) => {
+                return (
+                  <CustomButton
+                    key={school.id}
+                    value={school.id}
+                    onClick={onClick}
+                    className={`${styles.btnSchool} bold`}
+                  >
+                    {school.name.toUpperCase()}
+                  </CustomButton>
+                )
+              })}
+            </Modal.Body>
+          </div>
+        </Modal>
+
+        <div className="d-flex align-items-center min-vh-80">
+          <Container className="text-center">
+            <h1 className="bold" style={{ fontSize: "5rem" }}>
+              Welkom bij {location.name}!
+            </h1>
+            <br />
+            {available <= 0 ? (
+              <Button className={`${styles.btnCheckIn} bold text-white`}>
+                VOLZET
               </Button>
-            </>
-          )}
-        </Container>
-      </div>
-    </BaseLayout>
+            ) : (
+              <>
+                <h2>
+                  Nog{" "}
+                  <span id="count" className="bold">
+                    {available}
+                  </span>{" "}
+                  plekken vrij
+                </h2>
+                <br />
+                <Button
+                  className={`${styles.btnCheckIn} bold text-white`}
+                  onClick={() => loadSchools()}
+                  disabled={isDisabled}
+                >
+                  CHECK-IN
+                </Button>
+              </>
+            )}
+          </Container>
+        </div>
+      </BaseLayout>
+    </Redirecter>
   )
 }

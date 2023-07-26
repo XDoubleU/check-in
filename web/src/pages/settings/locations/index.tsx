@@ -8,10 +8,12 @@ import { useCallback, useState } from "react"
 import LocationCard from "components/cards/LocationCard"
 import { type ICreateModalProps } from "interfaces/ICreateModalProps"
 import {
+  type Role,
   type CreateLocationDto,
   type Location,
   type PaginatedLocationsDto
 } from "api-wrapper/types/apiTypes"
+import { Redirecter } from "components/Redirecter"
 
 type CreateLocationForm = CreateLocationDto & { repeatPassword?: string }
 
@@ -96,6 +98,7 @@ type LocationList = List<LocationWithUsername>
 
 // eslint-disable-next-line max-lines-per-function
 export default function LocationListView() {
+  const redirects = new Map<Role, string>([["default", "/settings"]])
   const [locationList, setLocationList] = useState<LocationList>({
     data: undefined,
     pagination: {
@@ -141,15 +144,17 @@ export default function LocationListView() {
   )
 
   return (
-    <ListViewLayout
-      title="Locations"
-      form={form}
-      list={locationList}
-      setList={setLocationList}
-      apiCall={getAllLocations}
-      preprocessList={preprocessList}
-      createModal={CreateLocationModal}
-      card={LocationCard}
-    />
+    <Redirecter redirects={redirects}>
+      <ListViewLayout
+        title="Locations"
+        form={form}
+        list={locationList}
+        setList={setLocationList}
+        apiCall={getAllLocations}
+        preprocessList={preprocessList}
+        createModal={CreateLocationModal}
+        card={LocationCard}
+      />
+    </Redirecter>
   )
 }

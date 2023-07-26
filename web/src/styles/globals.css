@@ -31,3 +31,7 @@
   border-color: rgba(var(--bs-primary-rgb), 0.8) !important;
   box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.4) !important;
 }
+
+.page-link:focus {   
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.4) !important;
+}

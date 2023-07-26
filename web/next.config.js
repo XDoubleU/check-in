@@ -19,7 +19,6 @@ const nextConfig = {
   sassOptions: {
     includePaths: ["./styles"],
   },
-  trailingSlash: true,
 }
 
 module.exports = nextConfig
