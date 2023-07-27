@@ -6,14 +6,14 @@ import (
 )
 
 type CheckInsLocationEntryRaw struct {
-	Capacity int64
-	Schools  map[string]int
+	Capacity int64          `json:"capacity"`
+	Schools  map[string]int `json:"schools"`
 } //	@name	CheckInsLocationEntryRaw
 
 type CheckInsLocationEntryCsv struct {
-	Datetime int64
-	Capacity int64
-	Schools  map[string]int
+	Datetime int64          `json:"datetime"`
+	Capacity int64          `json:"capacity"`
+	Schools  map[string]int `json:"schools"`
 } //	@name	CheckInsLocationEntryCsv
 
 func ConvertCheckInsLocationEntryRawMapToCsv(

@@ -11,6 +11,15 @@ import {
 } from "recharts"
 import Loader from "components/Loader"
 
+export type ChartDataEntry = {
+  [name: string]: number,
+  datetime: number,
+  capacity: number
+}
+export type ChartData = ChartDataEntry[]
+
+export const WEB_DATE_FORMAT = "yyyy-MM-dd"
+
 const RESPONSIVE_CONTAINER_PROPS = {
   width: "100%",
   height: 500,
@@ -102,8 +111,8 @@ export function DataLoading() {
 }
 
 interface SharedComposedChartProps {
-  data: unknown[]
-  xAxisTickFomatter: (datetime: Date) => string
+  data: ChartData
+  xAxisTickFomatter: (datetime: number) => string
   children: ReactNode
 }
 
@@ -116,7 +125,7 @@ export function SharedComposedChart({
     <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
       <ComposedChart data={data} {...CHART_PROPS}>
         <CartesianGrid strokeDasharray="3 3" />
-        <Tooltip />
+        <Tooltip labelFormatter={xAxisTickFomatter} />
         <Legend />
         <YAxis />
         <XAxis dataKey="datetime" tickFormatter={xAxisTickFomatter} />

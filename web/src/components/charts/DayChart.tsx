@@ -4,18 +4,25 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
 import { Col, Row } from "react-bootstrap"
 import { Area } from "recharts"
 import FormInput from "components/forms/FormInput"
-import { convertDates, extractAllSchools } from "./dataProcessing"
-import { COLORS, DataLoading, NoDataFound, SharedComposedChart } from "./Shared"
+import { convertToChartData, extractAllSchools } from "./dataProcessing"
+import {
+  COLORS,
+  type ChartData,
+  DataLoading,
+  NoDataFound,
+  SharedComposedChart,
+  WEB_DATE_FORMAT
+} from "./Shared"
 
 interface DayChartProps extends FilterProps {
   locationId: string
-  dayData: unknown[]
-  setDayData: Dispatch<SetStateAction<unknown[]>>
+  dayData: ChartData
+  setDayData: Dispatch<SetStateAction<ChartData>>
 }
 
 interface FilterProps {
-  date: string
-  setDate: Dispatch<SetStateAction<string>>
+  date: Date
+  setDate: Dispatch<SetStateAction<Date>>
 }
 
 function Filter({ date, setDate }: FilterProps) {
@@ -25,8 +32,8 @@ function Filter({ date, setDate }: FilterProps) {
         <FormInput
           label="Date"
           type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+          value={format(date, WEB_DATE_FORMAT)}
+          onChange={(e) => setDate(new Date(e.target.value))}
         />
       </Col>
       <Col></Col>
@@ -46,13 +53,17 @@ export default function DayChart({
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    void getDataForDayChart(locationId, date).then((response) => {
-      let data = response.data ?? []
-      data = convertDates(data)
-      setDayData(response.data ?? [])
-      setSchools(extractAllSchools(data))
-      setLoading(false)
-    })
+    void getDataForDayChart(locationId, date)
+      .then((response) => {
+        if (!response.ok || !response.data || Object.keys(response.data).length == 0) {
+          return
+        }
+
+        const newData = convertToChartData(response.data)
+        setDayData(newData)
+        setSchools(extractAllSchools(response.data))
+      })
+      .then(() => setLoading(false))
   }, [date, locationId, setDayData])
 
   if (loading) {
@@ -78,7 +89,7 @@ export default function DayChart({
       <Filter date={date} setDate={setDate} />
       <SharedComposedChart
         data={dayData}
-        xAxisTickFomatter={(datetime: Date) => format(datetime, "HH:mm")}
+        xAxisTickFomatter={(datetime: number) => format(new Date(datetime), "HH:mm")}
       >
         {schools.map((school, index) => {
           return (

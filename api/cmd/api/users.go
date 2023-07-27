@@ -44,12 +44,12 @@ func (app *application) usersRoutes(router *httprouter.Router) {
 	)
 }
 
-//	@Summary	Get info of logged in user
-//	@Tags		users
-//	@Success	200	{object}	User
-//	@Failure	401	{object}	ErrorDto
-//	@Failure	500	{object}	ErrorDto
-//	@Router		/current-user [get].
+// @Summary	Get info of logged in user
+// @Tags		users
+// @Success	200	{object}	User
+// @Failure	401	{object}	ErrorDto
+// @Failure	500	{object}	ErrorDto
+// @Router		/current-user [get].
 func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	r *http.Request) {
 	user := app.contextGetUser(r)
@@ -60,15 +60,15 @@ func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	}
 }
 
-//	@Summary	Get single user
-//	@Tags		users
-//	@Param		id	path		string	true	"User ID"
-//	@Success	200	{object}	User
-//	@Failure	400	{object}	ErrorDto
-//	@Failure	401	{object}	ErrorDto
-//	@Failure	404	{object}	ErrorDto
-//	@Failure	500	{object}	ErrorDto
-//	@Router		/users/{id} [get].
+// @Summary	Get single user
+// @Tags		users
+// @Param		id	path		string	true	"User ID"
+// @Success	200	{object}	User
+// @Failure	400	{object}	ErrorDto
+// @Failure	401	{object}	ErrorDto
+// @Failure	404	{object}	ErrorDto
+// @Failure	500	{object}	ErrorDto
+// @Router		/users/{id} [get].
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadUUIDURLParam(r)
 	if err != nil {
@@ -88,14 +88,14 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//	@Summary	Get all users paginated
-//	@Tags		users
-//	@Param		page	query		int	false	"Page to fetch"
-//	@Success	200		{object}	PaginatedUsersDto
-//	@Failure	400		{object}	ErrorDto
-//	@Failure	401		{object}	ErrorDto
-//	@Failure	500		{object}	ErrorDto
-//	@Router		/users [get].
+// @Summary	Get all users paginated
+// @Tags		users
+// @Param		page	query		int	false	"Page to fetch"
+// @Success	200		{object}	PaginatedUsersDto
+// @Failure	400		{object}	ErrorDto
+// @Failure	401		{object}	ErrorDto
+// @Failure	500		{object}	ErrorDto
+// @Router		/users [get].
 func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
@@ -123,15 +123,15 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 	}
 }
 
-//	@Summary	Create user
-//	@Tags		users
-//	@Param		createUserDto	body		CreateUserDto	true	"CreateUserDto"
-//	@Success	201				{object}	User
-//	@Failure	400				{object}	ErrorDto
-//	@Failure	401				{object}	ErrorDto
-//	@Failure	409				{object}	ErrorDto
-//	@Failure	500				{object}	ErrorDto
-//	@Router		/users [post].
+// @Summary	Create user
+// @Tags		users
+// @Param		createUserDto	body		CreateUserDto	true	"CreateUserDto"
+// @Success	201				{object}	User
+// @Failure	400				{object}	ErrorDto
+// @Failure	401				{object}	ErrorDto
+// @Failure	409				{object}	ErrorDto
+// @Failure	500				{object}	ErrorDto
+// @Router		/users [post].
 func (app *application) createManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -168,16 +168,16 @@ func (app *application) createManagerUserHandler(
 	}
 }
 
-//	@Summary	Update user
-//	@Tags		users
-//	@Param		id				path		string			true	"User ID"
-//	@Param		updateUserDto	body		UpdateUserDto	true	"UpdateUserDto"
-//	@Success	200				{object}	User
-//	@Failure	400				{object}	ErrorDto
-//	@Failure	401				{object}	ErrorDto
-//	@Failure	409				{object}	ErrorDto
-//	@Failure	500				{object}	ErrorDto
-//	@Router		/users/{id} [patch].
+// @Summary	Update user
+// @Tags		users
+// @Param		id				path		string			true	"User ID"
+// @Param		updateUserDto	body		UpdateUserDto	true	"UpdateUserDto"
+// @Success	200				{object}	User
+// @Failure	400				{object}	ErrorDto
+// @Failure	401				{object}	ErrorDto
+// @Failure	409				{object}	ErrorDto
+// @Failure	500				{object}	ErrorDto
+// @Router		/users/{id} [patch].
 func (app *application) updateManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -226,15 +226,15 @@ func (app *application) updateManagerUserHandler(
 	}
 }
 
-//	@Summary	Delete user
-//	@Tags		users
-//	@Param		id	path		string	true	"User ID"
-//	@Success	200	{object}	User
-//	@Failure	400	{object}	ErrorDto
-//	@Failure	401	{object}	ErrorDto
-//	@Failure	404	{object}	ErrorDto
-//	@Failure	500	{object}	ErrorDto
-//	@Router		/users/{id} [delete].
+// @Summary	Delete user
+// @Tags		users
+// @Param		id	path		string	true	"User ID"
+// @Success	200	{object}	User
+// @Failure	400	{object}	ErrorDto
+// @Failure	401	{object}	ErrorDto
+// @Failure	404	{object}	ErrorDto
+// @Failure	500	{object}	ErrorDto
+// @Router		/users/{id} [delete].
 func (app *application) deleteManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,

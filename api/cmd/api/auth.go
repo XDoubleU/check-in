@@ -28,14 +28,14 @@ func (app *application) authRoutes(router *httprouter.Router) {
 	)
 }
 
-//	@Summary	Sign in a user
-//	@Tags		auth
-//	@Param		signInDto	body		SignInDto	true	"SignInDto"
-//	@Success	200			{object}	User
-//	@Failure	400			{object}	ErrorDto
-//	@Failure	401			{object}	ErrorDto
-//	@Failure	500			{object}	ErrorDto
-//	@Router		/auth/signin [post].
+// @Summary	Sign in a user
+// @Tags		auth
+// @Param		signInDto	body		SignInDto	true	"SignInDto"
+// @Success	200			{object}	User
+// @Failure	400			{object}	ErrorDto
+// @Failure	401			{object}	ErrorDto
+// @Failure	500			{object}	ErrorDto
+// @Router		/auth/signin [post].
 func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 	var signInDto dtos.SignInDto
 
@@ -107,11 +107,11 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//	@Summary	Sign out a user
-//	@Tags		auth
-//	@Success	200	{object}	nil
-//	@Failure	401	{object}	ErrorDto
-//	@Router		/auth/signout [get].
+// @Summary	Sign out a user
+// @Tags		auth
+// @Success	200	{object}	nil
+// @Failure	401	{object}	ErrorDto
+// @Router		/auth/signout [get].
 func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 	accessToken, _ := r.Cookie("accessToken")
 	refreshToken, _ := r.Cookie("refreshToken")
@@ -143,12 +143,12 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, deleteRefreshToken)
 }
 
-//	@Summary	Refresh access token
-//	@Tags		auth
-//	@Success	200	{object}	nil
-//	@Failure	401	{object}	ErrorDto
-//	@Failure	500	{object}	ErrorDto
-//	@Router		/auth/refresh [get].
+// @Summary	Refresh access token
+// @Tags		auth
+// @Success	200	{object}	nil
+// @Failure	401	{object}	ErrorDto
+// @Failure	500	{object}	ErrorDto
+// @Router		/auth/refresh [get].
 func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.contextGetUser(r)
 	secure := app.config.Env == config.ProdEnv

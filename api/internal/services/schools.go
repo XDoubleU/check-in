@@ -32,6 +32,7 @@ func (service SchoolService) GetAll(ctx context.Context) ([]*models.School, erro
 	query := `
 		SELECT id, name
 		FROM schools
+		ORDER BY name ASC
 	`
 
 	rows, err := service.db.Query(ctx, query)

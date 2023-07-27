@@ -12,6 +12,9 @@ services:
   
   api:
     build: ./api
+    #TODO: check if this decreases used disk space
+    volumes:
+      - ./api:/usr/src/api
     ports: 
       - "8000:8000"
     depends_on:
@@ -30,6 +33,9 @@ services:
   
   web:
     build: ./web
+    #TODO: check if this decreases used disk space
+    volumes:
+      - ./web:/usr/src/web
     ports:
       - "3000:3000"
     depends_on:

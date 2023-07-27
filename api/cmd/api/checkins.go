@@ -57,15 +57,15 @@ func (app *application) getSortedSchoolsHandler(
 	}
 }
 
-//	@Summary	Create check-in at location of logged in user
-//	@Tags		checkins
-//	@Param		checkInDto	body		CheckInDto	true	"CheckInDto"
-//	@Success	201			{object}	CheckIn
-//	@Failure	400			{object}	ErrorDto
-//	@Failure	401			{object}	ErrorDto
-//	@Failure	404			{object}	ErrorDto
-//	@Failure	500			{object}	ErrorDto
-//	@Router		/checkins [post].
+// @Summary	Create check-in at location of logged in user
+// @Tags		checkins
+// @Param		checkInDto	body		CheckInDto	true	"CheckInDto"
+// @Success	201			{object}	CheckIn
+// @Failure	400			{object}	ErrorDto
+// @Failure	401			{object}	ErrorDto
+// @Failure	404			{object}	ErrorDto
+// @Failure	500			{object}	ErrorDto
+// @Router		/checkins [post].
 func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
 	var checkInDto dtos.CheckInDto
 

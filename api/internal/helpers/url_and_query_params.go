@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -77,16 +76,12 @@ func ReadDateQueryParam(
 		return defaultValue, nil
 	}
 
-	if !strings.Contains(param, "+") {
-		return nil, fmt.Errorf(
-			"invalid %s query param, needs timezone (yyyy-mm-dd+tz)",
-			name,
-		)
-	}
-
 	value, err := time.Parse(constants.DateFormat, param)
 	if err != nil {
-		return nil, fmt.Errorf("invalid %s query param", name)
+		return nil, fmt.Errorf(
+			"invalid %s query param, needs timezone (yyyy-MM-ddx)",
+			name,
+		)
 	}
 
 	return &value, nil

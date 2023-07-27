@@ -140,15 +140,19 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-		assert.Equal(t, rsData[startDate.Unix()].Capacity, 0)
-		assert.Equal(t, rsData[startDate.Unix()].Schools["Andere"], 0)
+		assert.Equal(t, rsData[startDate.Unix()*1000].Capacity, 0)
+		assert.Equal(t, rsData[startDate.Unix()*1000].Schools["Andere"], 0)
 
 		assert.Equal(
 			t,
-			rsData[startDate.AddDate(0, 0, 1).Unix()].Capacity,
+			rsData[startDate.AddDate(0, 0, 1).Unix()*1000].Capacity,
 			fixtureData.DefaultLocation.Capacity,
 		)
-		assert.Equal(t, rsData[startDate.AddDate(0, 0, 1).Unix()].Schools["Andere"], 5)
+		assert.Equal(
+			t,
+			rsData[startDate.AddDate(0, 0, 1).Unix()*1000].Schools["Andere"],
+			5,
+		)
 
 		assert.Equal(t, rsData[endDate.Unix()].Capacity, 0)
 		assert.Equal(t, rsData[endDate.Unix()].Schools["Andere"], 0)

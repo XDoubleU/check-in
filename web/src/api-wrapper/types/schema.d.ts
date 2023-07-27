@@ -274,7 +274,7 @@ export type paths = {
         query: {
           /** ReturnType ('raw' or 'csv') */
           returnType: string;
-          /** Date (format: 'yyyy-mm-dd') */
+          /** Date (format: 'yyyy-MM-ddx') */
           date: string;
         };
       };
@@ -312,9 +312,9 @@ export type paths = {
         query: {
           /** ReturnType ('raw' or 'csv') */
           returnType: string;
-          /** StartDate (format: 'yyyy-mm-dd') */
+          /** StartDate (format: 'yyyy-MM-ddx') */
           startDate: string;
-          /** EndDate (format: 'yyyy-mm-dd') */
+          /** EndDate (format: 'yyyy-MM-ddx') */
           endDate: string;
         };
       };

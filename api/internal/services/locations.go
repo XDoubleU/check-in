@@ -28,7 +28,7 @@ const availableQuery = `
 `
 
 const yesterdayFullAtQuery = `
-	(	SELECT MAX(check_ins.created_at) 
+	(	SELECT MAX(check_ins.created_at)
 		FROM check_ins
 		INNER JOIN (
 			SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
@@ -44,6 +44,7 @@ const yesterdayFullAtQuery = `
 `
 
 func (service LocationService) GetCheckInsEntriesDay(
+	date *time.Time,
 	checkIns []*models.CheckIn,
 	schools []*models.School,
 ) map[int64]*dtos.CheckInsLocationEntryRaw {
@@ -68,8 +69,10 @@ func (service LocationService) GetCheckInsEntriesDay(
 			checkInEntry.Schools[schoolName] += lastEntry.Schools[schoolName]
 		}
 
-		checkInEntries[checkIn.CreatedAt.Unix()] = checkInEntry
-		lastEntry = checkInEntries[checkIn.CreatedAt.Unix()]
+		// Struggling with timezones
+		checkIn.CreatedAt.Time = checkIn.CreatedAt.Time.In(date.Location())
+		checkInEntries[checkIn.CreatedAt.Time.Unix()*1000] = checkInEntry
+		lastEntry = checkInEntries[checkIn.CreatedAt.Time.Unix()*1000]
 	}
 
 	return checkInEntries
@@ -94,14 +97,17 @@ func (service LocationService) GetCheckInsEntriesRange(
 			Schools:  schoolsMap,
 		}
 
-		checkInEntries[dVal.Unix()] = checkInEntry
+		// Multiply by 1000 to get milliseconds
+		checkInEntries[dVal.Unix()*1000] = checkInEntry
 	}
 
 	for _, checkIn := range checkIns {
-		datetime := helpers.StartOfDay(&checkIn.CreatedAt)
+		// Struggling with timezones
+		checkIn.CreatedAt.Time = checkIn.CreatedAt.Time.In(startDate.Location())
+		datetime := helpers.StartOfDay(&checkIn.CreatedAt.Time)
 		schoolName := schoolsIDNameMap[checkIn.SchoolID]
 
-		checkInEntry := checkInEntries[datetime.Unix()]
+		checkInEntry := checkInEntries[datetime.Unix()*1000]
 
 		checkInEntry.Schools[schoolName]++
 

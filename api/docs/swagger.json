@@ -449,7 +449,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "Date (format: 'yyyy-mm-dd')",
+                        "description": "Date (format: 'yyyy-MM-ddx')",
                         "name": "date",
                         "in": "query",
                         "required": true
@@ -515,14 +515,14 @@
                     },
                     {
                         "type": "string",
-                        "description": "StartDate (format: 'yyyy-mm-dd')",
+                        "description": "StartDate (format: 'yyyy-MM-ddx')",
                         "name": "startDate",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "EndDate (format: 'yyyy-mm-dd')",
+                        "description": "EndDate (format: 'yyyy-MM-ddx')",
                         "name": "endDate",
                         "in": "query",
                         "required": true

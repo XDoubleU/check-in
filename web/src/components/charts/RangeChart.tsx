@@ -2,23 +2,29 @@ import { getDataForRangeChart } from "api-wrapper"
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react"
 import { Row, Col } from "react-bootstrap"
 import { Bar } from "recharts"
-import { COLORS, DataLoading, NoDataFound, SharedComposedChart } from "./Shared"
-import { convertDates, extractAllSchools } from "./dataProcessing"
+import {
+  COLORS,
+  type ChartData,
+  DataLoading,
+  NoDataFound,
+  SharedComposedChart,
+  WEB_DATE_FORMAT
+} from "./Shared"
+import { convertToChartData, extractAllSchools } from "./dataProcessing"
 import { format } from "date-fns"
 import FormInput from "components/forms/FormInput"
-import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
 
 interface RangeChartProps extends FilterProps {
   locationId: string
-  rangeData: unknown[]
-  setRangeData: Dispatch<SetStateAction<unknown[]>>
+  rangeData: ChartData
+  setRangeData: Dispatch<SetStateAction<ChartData>>
 }
 
 interface FilterProps {
-  startDate: string
-  endDate: string
-  setStartDate: Dispatch<SetStateAction<string>>
-  setEndDate: Dispatch<SetStateAction<string>>
+  startDate: Date
+  endDate: Date
+  setStartDate: Dispatch<SetStateAction<Date>>
+  setEndDate: Dispatch<SetStateAction<Date>>
 }
 
 function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
@@ -28,18 +34,18 @@ function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
         <FormInput
           label="Start date"
           type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          max={endDate}
+          value={format(startDate, WEB_DATE_FORMAT)}
+          onChange={(e) => setStartDate(new Date(e.target.value))}
+          max={format(endDate, WEB_DATE_FORMAT)}
         />
       </Col>
       <Col>
         <FormInput
           label="End date"
           type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          min={startDate}
+          value={format(endDate, WEB_DATE_FORMAT)}
+          onChange={(e) => setEndDate(new Date(e.target.value))}
+          min={format(startDate, WEB_DATE_FORMAT)}
         />
       </Col>
     </Row>
@@ -60,15 +66,17 @@ export default function RangeChart({
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    void getDataForRangeChart(locationId, startDate, endDate).then(
-      (response) => {
-        let data = response.data ?? []
-        data = convertDates(data)
-        setRangeData(data)
-        setSchools(extractAllSchools(data))
-        setLoading(false)
-      }
-    )
+    void getDataForRangeChart(locationId, startDate, endDate)
+      .then((response) => {
+        if (!response.ok || !response.data || Object.keys(response.data).length == 0) {
+          return
+        }
+
+        const newdata = convertToChartData(response.data)
+        setRangeData(newdata)
+        setSchools(extractAllSchools(response.data))
+      })
+      .then(() => setLoading(false))
   }, [startDate, endDate, setRangeData, locationId])
 
   if (loading) {
@@ -109,7 +117,7 @@ export default function RangeChart({
       />
       <SharedComposedChart
         data={rangeData}
-        xAxisTickFomatter={(datetime: Date) => format(datetime, DATE_FORMAT)}
+        xAxisTickFomatter={(datetime: number) => format(new Date(datetime), WEB_DATE_FORMAT)}
       >
         {schools.map((school, index) => {
           return (

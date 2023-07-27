@@ -1,28 +1,28 @@
 import { useState } from "react"
 import { Tab, Tabs } from "react-bootstrap"
-import { startOfISOWeek, endOfISOWeek, format } from "date-fns"
+import { startOfISOWeek, endOfISOWeek } from "date-fns"
 import CustomButton from "components/CustomButton"
 import RangeChart from "./RangeChart"
 import DayChart from "./DayChart"
 import { downloadCsvForDayChart, downloadCsvForRangeChart } from "api-wrapper"
-import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
+import { type ChartData } from "./Shared"
 
 interface ChartProps {
   locationId: string
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-function getDates(): string[] {
+function getDates(): Date[] {
   const date = new Date()
-  const weekStart = format(startOfISOWeek(date), DATE_FORMAT)
-  const weekEnd = format(endOfISOWeek(date), DATE_FORMAT)
+  const weekStart = startOfISOWeek(date)
+  const weekEnd = endOfISOWeek(date)
 
   return [weekStart, weekEnd]
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-function getDate(): string {
-  return format(new Date(), DATE_FORMAT)
+function getDate(): Date {
+  return new Date()
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -33,8 +33,8 @@ export default function Charts({ locationId }: ChartProps) {
   const [endDate, setEndDate] = useState(weekEnd)
   const [date, setDate] = useState(getDate())
 
-  const [rangeData, setRangeData] = useState<unknown[]>([])
-  const [dayData, setDayData] = useState<unknown[]>([])
+  const [rangeData, setRangeData] = useState<ChartData>([])
+  const [dayData, setDayData] = useState<ChartData>([])
 
   return (
     <Tabs

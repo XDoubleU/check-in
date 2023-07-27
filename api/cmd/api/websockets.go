@@ -21,14 +21,15 @@ func (app *application) websocketsRoutes(router *httprouter.Router) {
 	router.HandlerFunc(http.MethodGet, "/", app.webSocketHandler)
 }
 
-//	@Summary	WebSocket for receiving update events
-//	@Tags		websocket
-//	@Param		subscribeMessageDto	body		SubscribeMessageDto	true	"SubscribeMessageDto"
-//	@Success	200					{object}	LocationUpdateEvent
-//	@Router		/ws [get].
+// @Summary	WebSocket for receiving update events
+// @Tags		websocket
+// @Param		subscribeMessageDto	body		SubscribeMessageDto	true	"SubscribeMessageDto"
+// @Success	200					{object}	LocationUpdateEvent
+// @Router		/ws [get].
 func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request) {
 	url := strings.Split(app.config.WebURL, "://")[1]
 
+	//TODO: also allow each manager to have one url && add these in accept options
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
 		OriginPatterns: []string{url},
 	})

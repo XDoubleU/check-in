@@ -3,20 +3,23 @@ import { fetchHandler } from "./fetchHandler"
 import { type APIResponse } from "./types"
 import { validate as isValidUUID } from "uuid"
 import {
+  type CheckInsLocationEntryRawMap,
   type CreateLocationDto,
   type Location,
   type PaginatedLocationsDto,
   type UpdateLocationDto
 } from "./types/apiTypes"
 import queryString from "query-string"
+import { API_DATE_FORMAT } from "api-wrapper/types/apiTypes"
+import { format } from "date-fns"
 
 const LOCATIONS_ENDPOINT = "locations"
 
 export async function getDataForRangeChart(
   locationId: string,
-  startDate: string,
-  endDate: string
-): Promise<APIResponse<unknown[]>> {
+  startDate: Date,
+  endDate: Date
+): Promise<APIResponse<CheckInsLocationEntryRawMap>> {
   if (!isValidUUID(locationId)) {
     return {
       ok: false,
@@ -29,8 +32,8 @@ export async function getDataForRangeChart(
     undefined,
     undefined,
     {
-      startDate,
-      endDate,
+      startDate: format(startDate, API_DATE_FORMAT),
+      endDate: format(endDate, API_DATE_FORMAT),
       returnType: "raw"
     }
   )
@@ -38,8 +41,8 @@ export async function getDataForRangeChart(
 
 export async function getDataForDayChart(
   locationId: string,
-  date: string
-): Promise<APIResponse<unknown[]>> {
+  date: Date
+): Promise<APIResponse<CheckInsLocationEntryRawMap>> {
   if (!isValidUUID(locationId)) {
     return {
       ok: false,
@@ -52,7 +55,7 @@ export async function getDataForDayChart(
     undefined,
     undefined,
     {
-      date,
+      date: format(date, API_DATE_FORMAT),
       returnType: "raw"
     }
   )
@@ -60,16 +63,16 @@ export async function getDataForDayChart(
 
 export function downloadCsvForRangeChart(
   locationId: string,
-  startDate: string,
-  endDate: string
+  startDate: Date,
+  endDate: Date
 ): void {
   if (!isValidUUID(locationId)) {
     return
   }
 
   const query = queryString.stringify({
-    startDate,
-    endDate,
+    startDate: format(startDate, API_DATE_FORMAT),
+    endDate: format(endDate, API_DATE_FORMAT),
     returnType: "csv"
   })
 
@@ -80,13 +83,13 @@ export function downloadCsvForRangeChart(
   )
 }
 
-export function downloadCsvForDayChart(locationId: string, date: string): void {
+export function downloadCsvForDayChart(locationId: string, date: Date): void {
   if (!isValidUUID(locationId)) {
     return
   }
 
   const query = queryString.stringify({
-    date,
+    date: format(date, API_DATE_FORMAT),
     returnType: "csv"
   })
 

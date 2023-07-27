@@ -34,14 +34,14 @@ func (app *application) schoolsRoutes(router *httprouter.Router) {
 	)
 }
 
-//	@Summary	Get all schools paginated
-//	@Tags		schools
-//	@Param		page	query		int	false	"Page to fetch"
-//	@Success	200		{object}	PaginatedSchoolsDto
-//	@Failure	400		{object}	ErrorDto
-//	@Failure	401		{object}	ErrorDto
-//	@Failure	500		{object}	ErrorDto
-//	@Router		/schools [get].
+// @Summary	Get all schools paginated
+// @Tags		schools
+// @Param		page	query		int	false	"Page to fetch"
+// @Success	200		{object}	PaginatedSchoolsDto
+// @Failure	400		{object}	ErrorDto
+// @Failure	401		{object}	ErrorDto
+// @Failure	500		{object}	ErrorDto
+// @Router		/schools [get].
 func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
@@ -69,15 +69,15 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 	}
 }
 
-//	@Summary	Create school
-//	@Tags		schools
-//	@Param		schoolDto	body		SchoolDto	true	"SchoolDto"
-//	@Success	201			{object}	School
-//	@Failure	400			{object}	ErrorDto
-//	@Failure	401			{object}	ErrorDto
-//	@Failure	409			{object}	ErrorDto
-//	@Failure	500			{object}	ErrorDto
-//	@Router		/schools [post].
+// @Summary	Create school
+// @Tags		schools
+// @Param		schoolDto	body		SchoolDto	true	"SchoolDto"
+// @Success	201			{object}	School
+// @Failure	400			{object}	ErrorDto
+// @Failure	401			{object}	ErrorDto
+// @Failure	409			{object}	ErrorDto
+// @Failure	500			{object}	ErrorDto
+// @Router		/schools [post].
 func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	var schoolDto dtos.SchoolDto
 
@@ -106,16 +106,16 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-//	@Summary	Update school
-//	@Tags		schools
-//	@Param		id			path		int			true	"School ID"
-//	@Param		schoolDto	body		SchoolDto	true	"SchoolDto"
-//	@Success	200			{object}	School
-//	@Failure	400			{object}	ErrorDto
-//	@Failure	401			{object}	ErrorDto
-//	@Failure	409			{object}	ErrorDto
-//	@Failure	500			{object}	ErrorDto
-//	@Router		/schools/{id} [patch].
+// @Summary	Update school
+// @Tags		schools
+// @Param		id			path		int			true	"School ID"
+// @Param		schoolDto	body		SchoolDto	true	"SchoolDto"
+// @Success	200			{object}	School
+// @Failure	400			{object}	ErrorDto
+// @Failure	401			{object}	ErrorDto
+// @Failure	409			{object}	ErrorDto
+// @Failure	500			{object}	ErrorDto
+// @Router		/schools/{id} [patch].
 func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	var schoolDto dtos.SchoolDto
 
@@ -156,15 +156,15 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-//	@Summary	Delete school
-//	@Tags		schools
-//	@Param		id	path		int	true	"School ID"
-//	@Success	200	{object}	School
-//	@Failure	400	{object}	ErrorDto
-//	@Failure	401	{object}	ErrorDto
-//	@Failure	404	{object}	ErrorDto
-//	@Failure	500	{object}	ErrorDto
-//	@Router		/schools/{id} [delete].
+// @Summary	Delete school
+// @Tags		schools
+// @Param		id	path		int	true	"School ID"
+// @Success	200	{object}	School
+// @Failure	400	{object}	ErrorDto
+// @Failure	401	{object}	ErrorDto
+// @Failure	404	{object}	ErrorDto
+// @Failure	500	{object}	ErrorDto
+// @Router		/schools/{id} [delete].
 func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadIntURLParam(r)
 	if err != nil {
