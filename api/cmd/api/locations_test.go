@@ -80,18 +80,23 @@ func TestYesterdayFullAt(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-location", nil)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req, _ := http.NewRequest(
+		http.MethodGet,
+		ts.URL+"/locations/"+fixtureData.DefaultLocation.ID,
+		nil,
+	)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
 	var rsData models.Location
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
+	assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 	assert.Equal(t, rsData.YesterdayFullAt.Valid, true)
 	assert.Equal(t, rsData.YesterdayFullAt.Time.Day(), fullTime.Day())
 	assert.Equal(t, rsData.YesterdayFullAt.Time.Hour(), fullTime.Hour())
-	assert.Equal(t, rsData.YesterdayFullAt.Time.Minute(), fullTime.Minute())
 }
 
 func TestGetCheckInsLocationRangeRaw(t *testing.T) {
@@ -107,7 +112,7 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 	endDate := time.Now().AddDate(0, 0, 1)
 	endDate = *helpers.StartOfDay(&endDate)
 
-	users := []http.Cookie{
+	users := []*http.Cookie{
 		tokens.AdminAccessToken,
 		tokens.ManagerAccessToken,
 		tokens.DefaultAccessToken,
@@ -119,7 +124,7 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/range",
 			nil,
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		query := req.URL.Query()
 		query.Add("startDate", startDate.Format(constants.DateFormat))
@@ -160,7 +165,7 @@ func TestGetCheckInsLocationRangeCsv(t *testing.T) {
 	startDate := time.Now().Format(constants.DateFormat)
 	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
 
-	users := []http.Cookie{
+	users := []*http.Cookie{
 		tokens.AdminAccessToken,
 		tokens.ManagerAccessToken,
 		tokens.DefaultAccessToken,
@@ -172,7 +177,7 @@ func TestGetCheckInsLocationRangeCsv(t *testing.T) {
 			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/range",
 			nil,
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		query := req.URL.Query()
 		query.Add("startDate", startDate)
@@ -204,7 +209,7 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 		ts.URL+"/locations/"+id.String()+"/checkins/range",
 		nil,
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
 	query.Add("startDate", startDate)
@@ -241,7 +246,7 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/range",
 		nil,
 	)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	query := req.URL.Query()
 	query.Add("startDate", startDate)
@@ -277,7 +282,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/range",
 		nil,
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
 	query.Add("endDate", endDate)
@@ -308,7 +313,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/range",
 		nil,
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
 	query.Add("startDate", startDate)
@@ -340,7 +345,7 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/range",
 		nil,
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
 	query.Add("startDate", startDate)
@@ -372,7 +377,7 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 		ts.URL+"/locations/8000/checkins/range",
 		nil,
 	)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	query := req.URL.Query()
 	query.Add("startDate", startDate)
@@ -417,7 +422,7 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 
 	date := time.Now()
 
-	users := []http.Cookie{
+	users := []*http.Cookie{
 		tokens.AdminAccessToken,
 		tokens.ManagerAccessToken,
 		tokens.DefaultAccessToken,
@@ -429,7 +434,7 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/day",
 			nil,
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		query := req.URL.Query()
 		query.Add("date", date.Format(constants.DateFormat))
@@ -468,7 +473,7 @@ func TestGetCheckInsLocationDayCsv(t *testing.T) {
 
 	date := time.Now().Format(constants.DateFormat)
 
-	users := []http.Cookie{
+	users := []*http.Cookie{
 		tokens.AdminAccessToken,
 		tokens.ManagerAccessToken,
 		tokens.DefaultAccessToken,
@@ -480,7 +485,7 @@ func TestGetCheckInsLocationDayCsv(t *testing.T) {
 			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/day",
 			nil,
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		query := req.URL.Query()
 		query.Add("date", date)
@@ -510,7 +515,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 		ts.URL+"/locations/"+id.String()+"/checkins/day",
 		nil,
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
 	query.Add("date", date)
@@ -545,7 +550,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/day",
 		nil,
 	)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	query := req.URL.Query()
 	query.Add("date", date)
@@ -578,7 +583,7 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/day",
 		nil,
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
 	query.Add("returnType", "raw")
@@ -608,7 +613,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/day",
 		nil,
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
 	query.Add("date", date)
@@ -638,7 +643,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 		ts.URL+"/locations/8000/checkins/day",
 		nil,
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
 	query.Add("date", date)
@@ -673,55 +678,6 @@ func TestGetCheckInsLocationDayAccess(t *testing.T) {
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 }
 
-func TestGetLocationLoggedInUser(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-location", nil)
-	req.AddCookie(&tokens.DefaultAccessToken)
-
-	rs, _ := ts.Client().Do(req)
-
-	var rsData models.Location
-	_ = helpers.ReadJSON(rs.Body, &rsData)
-
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
-	assert.Equal(t, rsData.ID, fixtureData.DefaultLocation.ID)
-	assert.Equal(t, rsData.Name, fixtureData.DefaultLocation.Name)
-	assert.Equal(t, rsData.NormalizedName, fixtureData.DefaultLocation.NormalizedName)
-	assert.Equal(t, rsData.Available, fixtureData.DefaultLocation.Available)
-	assert.Equal(t, rsData.Capacity, fixtureData.DefaultLocation.Capacity)
-	assert.Equal(t, rsData.YesterdayFullAt, fixtureData.DefaultLocation.YesterdayFullAt)
-	assert.Equal(t, rsData.UserID, fixtureData.DefaultLocation.UserID)
-}
-
-func TestGetLocationLoggedInUserAccess(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
-	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-location", nil)
-
-	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-location", nil)
-	req2.AddCookie(&tokens.ManagerAccessToken)
-
-	req3, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-location", nil)
-	req3.AddCookie(&tokens.AdminAccessToken)
-
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-	rs3, _ := ts.Client().Do(req3)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
-	assert.Equal(t, rs3.StatusCode, http.StatusForbidden)
-}
-
 func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
@@ -729,11 +685,14 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{tokens.AdminAccessToken, tokens.ManagerAccessToken}
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
 
 	for _, user := range users {
 		req, _ := http.NewRequest(http.MethodGet, ts.URL+"/locations", nil)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -741,6 +700,7 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 		assert.Equal(t, rsData.Pagination.Current, 1)
 		assert.Equal(
 			t,
@@ -748,6 +708,22 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 			int64(math.Ceil(float64(fixtureData.AmountOfLocations)/3)),
 		)
 		assert.Equal(t, len(rsData.Data), 3)
+
+		assert.Equal(t, rsData.Data[0].ID, fixtureData.DefaultLocation.ID)
+		assert.Equal(t, rsData.Data[0].Name, fixtureData.DefaultLocation.Name)
+		assert.Equal(
+			t,
+			rsData.Data[0].NormalizedName,
+			fixtureData.DefaultLocation.NormalizedName,
+		)
+		assert.Equal(t, rsData.Data[0].Available, fixtureData.DefaultLocation.Available)
+		assert.Equal(t, rsData.Data[0].Capacity, fixtureData.DefaultLocation.Capacity)
+		assert.Equal(
+			t,
+			rsData.Data[0].YesterdayFullAt,
+			fixtureData.DefaultLocation.YesterdayFullAt,
+		)
+		assert.Equal(t, rsData.Data[0].UserID, fixtureData.DefaultLocation.UserID)
 	}
 }
 
@@ -759,7 +735,7 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/locations?page=2", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -767,6 +743,7 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 	assert.Equal(t, rsData.Pagination.Current, 2)
 	assert.Equal(
 		t,
@@ -774,6 +751,22 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 		int64(math.Ceil(float64(fixtureData.AmountOfLocations)/3)),
 	)
 	assert.Equal(t, len(rsData.Data), 3)
+
+	assert.Equal(t, rsData.Data[0].ID, fixtureData.Locations[10].ID)
+	assert.Equal(t, rsData.Data[0].Name, fixtureData.Locations[10].Name)
+	assert.Equal(
+		t,
+		rsData.Data[0].NormalizedName,
+		fixtureData.Locations[10].NormalizedName,
+	)
+	assert.Equal(t, rsData.Data[0].Available, fixtureData.Locations[10].Available)
+	assert.Equal(t, rsData.Data[0].Capacity, fixtureData.Locations[10].Capacity)
+	assert.Equal(
+		t,
+		rsData.Data[0].YesterdayFullAt,
+		fixtureData.Locations[10].YesterdayFullAt,
+	)
+	assert.Equal(t, rsData.Data[0].UserID, fixtureData.Locations[10].UserID)
 }
 
 func TestGetPaginatedLocationsPageZero(t *testing.T) {
@@ -784,7 +777,7 @@ func TestGetPaginatedLocationsPageZero(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/locations?page=0", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -805,7 +798,7 @@ func TestGetPaginatedLocationsAccess(t *testing.T) {
 	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/locations", nil)
 
 	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/locations", nil)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -821,7 +814,7 @@ func TestGetLocation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{
+	users := []*http.Cookie{
 		tokens.AdminAccessToken,
 		tokens.ManagerAccessToken,
 		tokens.DefaultAccessToken,
@@ -833,7 +826,7 @@ func TestGetLocation(t *testing.T) {
 			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID,
 			nil,
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -868,7 +861,7 @@ func TestGetLocationNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/locations/"+id.String(), nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -895,7 +888,7 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID,
 		nil,
 	)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -918,7 +911,7 @@ func TestGetLocationNotUUID(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/locations/8000", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -954,7 +947,10 @@ func TestCreateLocation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{tokens.AdminAccessToken, tokens.ManagerAccessToken}
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
 
 	for i, user := range users {
 		unique := fmt.Sprintf("test%d", i)
@@ -973,7 +969,7 @@ func TestCreateLocation(t *testing.T) {
 			ts.URL+"/locations",
 			bytes.NewReader(body),
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -1011,7 +1007,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 		ts.URL+"/locations",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1046,7 +1042,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 		ts.URL+"/locations",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1081,7 +1077,7 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 		ts.URL+"/locations",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1116,7 +1112,7 @@ func TestCreateLocationInvalidCapacity(t *testing.T) {
 		ts.URL+"/locations",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1141,7 +1137,7 @@ func TestCreateLocationAccess(t *testing.T) {
 	req1, _ := http.NewRequest(http.MethodPost, ts.URL+"/locations", nil)
 
 	req2, _ := http.NewRequest(http.MethodPost, ts.URL+"/locations", nil)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -1157,7 +1153,10 @@ func TestUpdateLocation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{tokens.AdminAccessToken, tokens.ManagerAccessToken}
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
 
 	for i, user := range users {
 		unique := fmt.Sprintf("test%d", i)
@@ -1177,7 +1176,7 @@ func TestUpdateLocation(t *testing.T) {
 			ts.URL+"/locations/"+fixtureData.Locations[0].ID,
 			bytes.NewReader(body),
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -1217,7 +1216,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID,
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1254,7 +1253,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID,
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1291,7 +1290,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID,
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1328,7 +1327,7 @@ func TestUpdateLocationInvalidCapacity(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID,
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1367,7 +1366,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 		ts.URL+"/locations/"+id.String(),
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1404,7 +1403,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID,
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1442,7 +1441,7 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 		ts.URL+"/locations/8000",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1478,7 +1477,10 @@ func TestDeleteLocation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{tokens.AdminAccessToken, tokens.ManagerAccessToken}
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
 
 	for i, user := range users {
 		req, _ := http.NewRequest(
@@ -1486,7 +1488,7 @@ func TestDeleteLocation(t *testing.T) {
 			ts.URL+"/locations/"+fixtureData.Locations[i].ID,
 			nil,
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -1517,7 +1519,7 @@ func TestDeleteLocationNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/locations/"+id.String(), nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1540,7 +1542,7 @@ func TestDeleteLocationNotUUID(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/locations/8000", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -1569,7 +1571,7 @@ func TestDeleteLocationAccess(t *testing.T) {
 		ts.URL+"/locations/"+fixtureData.Locations[0].ID,
 		nil,
 	)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)

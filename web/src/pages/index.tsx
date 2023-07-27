@@ -8,8 +8,7 @@ import CustomButton from "components/CustomButton"
 import {
   checkinsWebsocket,
   createCheckIn,
-  getAllSchoolsSortedForLocation,
-  getMyLocation
+  getAllSchoolsSortedForLocation
 } from "api-wrapper"
 import LoadingLayout from "layouts/LoadingLayout"
 import {
@@ -18,7 +17,7 @@ import {
   type LocationUpdateEvent,
   type School
 } from "api-wrapper/types/apiTypes"
-import { Redirecter } from "components/Redirecter"
+import { AuthRedirecter, useAuth } from "contexts/authContext"
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {
@@ -27,7 +26,7 @@ export default function CheckIn() {
     ["manager", "/settings"]
   ])
 
-  const [location, setLocation] = useState<Location | undefined>()
+  const { user } = useAuth()
   const [available, setAvailable] = useState(0)
   const [schools, setSchools] = useState(new Array<School>())
   const [isDisabled, setDisabled] = useState(false)
@@ -57,23 +56,18 @@ export default function CheckIn() {
   }, [])
 
   useEffect(() => {
-    void getMyLocation()
-      .then((response) => response.data)
-      .then((apiLocation) => {
-        if (!apiLocation) return
+    let webSocket: WebSocket
+    if (user?.location) {
+      setAvailable(user.location.available)
+      webSocket = connectWebSocket(user.location)
+    }
 
-        setLocation(apiLocation)
-        setAvailable(apiLocation.available)
-
-        const webSocket = connectWebSocket(apiLocation)
-
-        return () => {
-          if (webSocket.readyState === 1) {
-            webSocket.close()
-          }
-        }
-      })
-  }, [connectWebSocket])
+    return () => {
+      if (webSocket.readyState === 1) {
+        webSocket.close()
+      }
+    }
+  }, [connectWebSocket, user?.location])
 
   const loadSchools = async () => {
     const response = await getAllSchoolsSortedForLocation()
@@ -100,75 +94,75 @@ export default function CheckIn() {
     }, 1500)
   }
 
-  if (!location) {
-    return <LoadingLayout message="User has no location." />
-  }
-
   return (
-    <Redirecter redirects={redirects}>
-      <BaseLayout>
-        <Modal
-          show={showSchools}
-          onHide={handleClose}
-          backdrop="static"
-          fullscreen={true}
-          scrollable={true}
-        >
-          <div className={styles.modalContent}>
-            <Modal.Body style={{ maxHeight: "100vh" }}>
-              <h1 className="bold" style={{ fontSize: "4rem" }}>
-                KIES JE SCHOOL:
-              </h1>
-              <h2 style={{ fontSize: "3rem" }}>(scroll voor meer opties)</h2>
-              <br />
-              {schools.map((school) => {
-                return (
-                  <CustomButton
-                    key={school.id}
-                    value={school.id}
-                    onClick={onClick}
-                    className={`${styles.btnSchool} bold`}
-                  >
-                    {school.name.toUpperCase()}
-                  </CustomButton>
-                )
-              })}
-            </Modal.Body>
-          </div>
-        </Modal>
-
-        <div className="d-flex align-items-center min-vh-80">
-          <Container className="text-center">
-            <h1 className="bold" style={{ fontSize: "5rem" }}>
-              Welkom bij {location.name}!
-            </h1>
-            <br />
-            {available <= 0 ? (
-              <Button className={`${styles.btnCheckIn} bold text-white`}>
-                VOLZET
-              </Button>
-            ) : (
-              <>
-                <h2>
-                  Nog{" "}
-                  <span id="count" className="bold">
-                    {available}
-                  </span>{" "}
-                  plekken vrij
-                </h2>
+    <AuthRedirecter redirects={redirects}>
+      {!user?.location ? (
+        <LoadingLayout message="User has no location." />
+      ) : (
+        <BaseLayout>
+          <Modal
+            show={showSchools}
+            onHide={handleClose}
+            backdrop="static"
+            fullscreen={true}
+            scrollable={true}
+          >
+            <div className={styles.modalContent}>
+              <Modal.Body style={{ maxHeight: "100vh" }}>
+                <h1 className="bold" style={{ fontSize: "4rem" }}>
+                  KIES JE SCHOOL:
+                </h1>
+                <h2 style={{ fontSize: "3rem" }}>(scroll voor meer opties)</h2>
                 <br />
-                <Button
-                  className={`${styles.btnCheckIn} bold text-white`}
-                  onClick={() => loadSchools()}
-                  disabled={isDisabled}
-                >
-                  CHECK-IN
+                {schools.map((school) => {
+                  return (
+                    <CustomButton
+                      key={school.id}
+                      value={school.id}
+                      onClick={onClick}
+                      className={`${styles.btnSchool} bold`}
+                    >
+                      {school.name.toUpperCase()}
+                    </CustomButton>
+                  )
+                })}
+              </Modal.Body>
+            </div>
+          </Modal>
+
+          <div className="d-flex align-items-center min-vh-80">
+            <Container className="text-center">
+              <h1 className="bold" style={{ fontSize: "5rem" }}>
+                Welkom bij {user?.location?.name}!
+              </h1>
+              <br />
+              {available <= 0 ? (
+                <Button className={`${styles.btnCheckIn} bold text-white`}>
+                  VOLZET
                 </Button>
-              </>
-            )}
-          </Container>
-        </div>
-      </BaseLayout>
-    </Redirecter>
+              ) : (
+                <>
+                  <h2>
+                    Nog{" "}
+                    <span id="count" className="bold">
+                      {available}
+                    </span>{" "}
+                    plekken vrij
+                  </h2>
+                  <br />
+                  <Button
+                    className={`${styles.btnCheckIn} bold text-white`}
+                    onClick={() => loadSchools()}
+                    disabled={isDisabled}
+                  >
+                    CHECK-IN
+                  </Button>
+                </>
+              )}
+            </Container>
+          </div>
+        </BaseLayout>
+      )}
+    </AuthRedirecter>
   )
 }

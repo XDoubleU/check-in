@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -19,30 +21,34 @@ func (app *application) websocketsRoutes(router *httprouter.Router) {
 	router.HandlerFunc(http.MethodGet, "/", app.webSocketHandler)
 }
 
-// @Summary	WebSocket for receiving update events
-// @Tags		websocket
-// @Param		subscribeMessageDto	body		SubscribeMessageDto	true	"SubscribeMessageDto"
-// @Success	200					{object}	LocationUpdateEvent
-// @Router		/ws [get].
+//	@Summary	WebSocket for receiving update events
+//	@Tags		websocket
+//	@Param		subscribeMessageDto	body		SubscribeMessageDto	true	"SubscribeMessageDto"
+//	@Success	200					{object}	LocationUpdateEvent
+//	@Router		/ws [get].
 func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := websocket.Accept(w, r, nil)
+	url := strings.Split(app.config.WebURL, "://")[1]
+
+	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
+		OriginPatterns: []string{url},
+	})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
-	defer unsubAndClose(conn, app)
+	defer app.unsubAndClose(conn)
 
 	var msg dtos.SubscribeMessageDto
 	err = wsjson.Read(r.Context(), conn, &msg)
 	if err != nil {
-		handleError(err)
+		app.handleWsError(r.Context(), conn, err)
 		return
 	}
 
 	v := validator.New()
 
 	if dtos.ValidateSubscribeMessageDto(v, msg); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		app.handleWsError(r.Context(), conn, errors.New(v.Errors["normalizedName"]))
 		return
 	}
 
@@ -70,7 +76,7 @@ func allLocationsHandler(
 
 	err := wsjson.Write(ctx, conn, locationUpdateEventDtos)
 	if err != nil {
-		handleError(err)
+		app.handleWsError(ctx, conn, err)
 		return
 	}
 
@@ -79,7 +85,7 @@ func allLocationsHandler(
 		if len(updateEvents) > 0 {
 			err = wsjson.Write(ctx, conn, updateEvents)
 			if err != nil {
-				handleError(err)
+				app.handleWsError(ctx, conn, err)
 				return
 			}
 		}
@@ -103,7 +109,7 @@ func singleLocationHandler(
 		if updateEvent.NormalizedName == msg.NormalizedName {
 			err := wsjson.Write(ctx, conn, updateEvent)
 			if err != nil {
-				handleError(err)
+				app.handleWsError(ctx, conn, err)
 				return
 			}
 		}
@@ -114,14 +120,23 @@ func singleLocationHandler(
 	}
 }
 
-func handleError(err error) {
+func (app *application) handleWsError(
+	ctx context.Context,
+	conn *websocket.Conn,
+	err error,
+) {
 	if websocket.CloseStatus(err) != websocket.StatusNormalClosure &&
 		websocket.CloseStatus(err) != websocket.StatusGoingAway {
+		app.unsubAndClose(conn)
+		err = wsjson.Write(ctx, conn, err)
+		if err != nil {
+			app.logError(err)
+		}
 		return
 	}
 }
 
-func unsubAndClose(conn *websocket.Conn, app *application) {
+func (app *application) unsubAndClose(conn *websocket.Conn) {
 	app.services.WebSockets.RemoveSubscriber(conn)
 	conn.Close(websocket.StatusInternalError, "")
 }

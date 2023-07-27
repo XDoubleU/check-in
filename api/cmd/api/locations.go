@@ -27,11 +27,6 @@ func (app *application) locationsRoutes(router *httprouter.Router) {
 	)
 	router.HandlerFunc(
 		http.MethodGet,
-		"/current-location",
-		app.authAccess(defaultRole, app.getLocationLoggedInUserHandler),
-	)
-	router.HandlerFunc(
-		http.MethodGet,
 		"/locations/:id",
 		app.authAccess(allRoles, app.getLocationHandler),
 	)
@@ -57,17 +52,17 @@ func (app *application) locationsRoutes(router *httprouter.Router) {
 	)
 }
 
-// @Summary	Get all check-ins at location for a specified day in a specified format
-// @Tags		locations
-// @Param		id			path		string	true	"Location ID"
-// @Param		returnType	query		string	true	"ReturnType ('raw' or 'csv')"
-// @Param		date		query		string	true	"Date (format: 'yyyy-mm-dd')"
-// @Success	200			{object}	[]CheckInsLocationEntryRaw
-// @Failure	400			{object}	ErrorDto
-// @Failure	401			{object}	ErrorDto
-// @Failure	404			{object}	ErrorDto
-// @Failure	500			{object}	ErrorDto
-// @Router		/locations/{id}/checkins/day [get].
+//	@Summary	Get all check-ins at location for a specified day in a specified format
+//	@Tags		locations
+//	@Param		id			path		string	true	"Location ID"
+//	@Param		returnType	query		string	true	"ReturnType ('raw' or 'csv')"
+//	@Param		date		query		string	true	"Date (format: 'yyyy-mm-dd')"
+//	@Success	200			{object}	[]CheckInsLocationEntryRaw
+//	@Failure	400			{object}	ErrorDto
+//	@Failure	401			{object}	ErrorDto
+//	@Failure	404			{object}	ErrorDto
+//	@Failure	500			{object}	ErrorDto
+//	@Router		/locations/{id}/checkins/day [get].
 func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	r *http.Request) {
 	id, err := helpers.ReadUUIDURLParam(r)
@@ -139,18 +134,18 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	}
 }
 
-// @Summary	Get all check-ins at location for a specified range in a specified format
-// @Tags		locations
-// @Param		id			path		string	true	"Location ID"
-// @Param		returnType	query		string	true	"ReturnType ('raw' or 'csv')"
-// @Param		startDate	query		string	true	"StartDate (format: 'yyyy-mm-dd')"
-// @Param		endDate		query		string	true	"EndDate (format: 'yyyy-mm-dd')"
-// @Success	200			{object}	[]CheckInsLocationEntryRaw
-// @Failure	400			{object}	ErrorDto
-// @Failure	401			{object}	ErrorDto
-// @Failure	404			{object}	ErrorDto
-// @Failure	500			{object}	ErrorDto
-// @Router		/locations/{id}/checkins/range [get].
+//	@Summary	Get all check-ins at location for a specified range in a specified format
+//	@Tags		locations
+//	@Param		id			path		string	true	"Location ID"
+//	@Param		returnType	query		string	true	"ReturnType ('raw' or 'csv')"
+//	@Param		startDate	query		string	true	"StartDate (format: 'yyyy-mm-dd')"
+//	@Param		endDate		query		string	true	"EndDate (format: 'yyyy-mm-dd')"
+//	@Success	200			{object}	[]CheckInsLocationEntryRaw
+//	@Failure	400			{object}	ErrorDto
+//	@Failure	401			{object}	ErrorDto
+//	@Failure	404			{object}	ErrorDto
+//	@Failure	500			{object}	ErrorDto
+//	@Router		/locations/{id}/checkins/range [get].
 func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 	r *http.Request) {
 	id, err := helpers.ReadUUIDURLParam(r)
@@ -234,37 +229,15 @@ func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 	}
 }
 
-// @Summary	Get location of logged in user
-// @Tags		locations
-// @Success	200	{object}	models.Location
-// @Failure	401	{object}	ErrorDto
-// @Failure	500	{object}	ErrorDto
-// @Router		/current-location [get].
-func (app *application) getLocationLoggedInUserHandler(w http.ResponseWriter,
-	r *http.Request) {
-	user := app.contextGetUser(r)
-
-	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	err = helpers.WriteJSON(w, http.StatusOK, location, nil)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-	}
-}
-
-// @Summary	Get single location
-// @Tags		locations
-// @Param		id	path		string	true	"Location ID"
-// @Success	200	{object}	models.Location
-// @Failure	400	{object}	ErrorDto
-// @Failure	401	{object}	ErrorDto
-// @Failure	404	{object}	ErrorDto
-// @Failure	500	{object}	ErrorDto
-// @Router		/locations/{id} [get].
+//	@Summary	Get single location
+//	@Tags		locations
+//	@Param		id	path		string	true	"Location ID"
+//	@Success	200	{object}	models.Location
+//	@Failure	400	{object}	ErrorDto
+//	@Failure	401	{object}	ErrorDto
+//	@Failure	404	{object}	ErrorDto
+//	@Failure	500	{object}	ErrorDto
+//	@Router		/locations/{id} [get].
 func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadUUIDURLParam(r)
 	if err != nil {
@@ -286,14 +259,14 @@ func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// @Summary	Get all locations paginated
-// @Tags		locations
-// @Param		page	query		int	false	"Page to fetch"
-// @Success	200		{object}	dtos.PaginatedLocationsDto
-// @Failure	400		{object}	ErrorDto
-// @Failure	401		{object}	ErrorDto
-// @Failure	500		{object}	ErrorDto
-// @Router		/locations [get].
+//	@Summary	Get all locations paginated
+//	@Tags		locations
+//	@Param		page	query		int	false	"Page to fetch"
+//	@Success	200		{object}	dtos.PaginatedLocationsDto
+//	@Failure	400		{object}	ErrorDto
+//	@Failure	401		{object}	ErrorDto
+//	@Failure	500		{object}	ErrorDto
+//	@Router		/locations [get].
 func (app *application) getPaginatedLocationsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 3
@@ -321,15 +294,15 @@ func (app *application) getPaginatedLocationsHandler(w http.ResponseWriter,
 	}
 }
 
-// @Summary	Create location
-// @Tags		locations
-// @Param		createLocationDto	body		CreateLocationDto	true	"CreateLocationDto"
-// @Success	201					{object}	models.Location
-// @Failure	400					{object}	ErrorDto
-// @Failure	401					{object}	ErrorDto
-// @Failure	409					{object}	ErrorDto
-// @Failure	500					{object}	ErrorDto
-// @Router		/locations [post].
+//	@Summary	Create location
+//	@Tags		locations
+//	@Param		createLocationDto	body		CreateLocationDto	true	"CreateLocationDto"
+//	@Success	201					{object}	models.Location
+//	@Failure	400					{object}	ErrorDto
+//	@Failure	401					{object}	ErrorDto
+//	@Failure	409					{object}	ErrorDto
+//	@Failure	500					{object}	ErrorDto
+//	@Router		/locations [post].
 func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Request) {
 	var createLocationDto dtos.CreateLocationDto
 
@@ -392,16 +365,16 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
-// @Summary	Update location
-// @Tags		locations
-// @Param		id					path		string				true	"Location ID"
-// @Param		updateLocationDto	body		UpdateLocationDto	true	"UpdateLocationDto"
-// @Success	200					{object}	models.Location
-// @Failure	400					{object}	ErrorDto
-// @Failure	401					{object}	ErrorDto
-// @Failure	409					{object}	ErrorDto
-// @Failure	500					{object}	ErrorDto
-// @Router		/locations/{id} [patch].
+//	@Summary	Update location
+//	@Tags		locations
+//	@Param		id					path		string				true	"Location ID"
+//	@Param		updateLocationDto	body		UpdateLocationDto	true	"UpdateLocationDto"
+//	@Success	200					{object}	models.Location
+//	@Failure	400					{object}	ErrorDto
+//	@Failure	401					{object}	ErrorDto
+//	@Failure	409					{object}	ErrorDto
+//	@Failure	500					{object}	ErrorDto
+//	@Router		/locations/{id} [patch].
 func (app *application) updateLocationHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var updateLocationDto dtos.UpdateLocationDto
@@ -506,15 +479,15 @@ func (app *application) checkForConflictsOnUpdate(
 	return false
 }
 
-// @Summary	Delete location
-// @Tags		locations
-// @Param		id	path		string	true	"Location ID"
-// @Success	200	{object}	models.Location
-// @Failure	400	{object}	ErrorDto
-// @Failure	401	{object}	ErrorDto
-// @Failure	404	{object}	ErrorDto
-// @Failure	500	{object}	ErrorDto
-// @Router		/locations/{id} [delete].
+//	@Summary	Delete location
+//	@Tags		locations
+//	@Param		id	path		string	true	"Location ID"
+//	@Success	200	{object}	models.Location
+//	@Failure	400	{object}	ErrorDto
+//	@Failure	401	{object}	ErrorDto
+//	@Failure	404	{object}	ErrorDto
+//	@Failure	500	{object}	ErrorDto
+//	@Router		/locations/{id} [delete].
 func (app *application) deleteLocationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadUUIDURLParam(r)
 	if err != nil {

@@ -38,4 +38,4 @@ export type User = PartialBy<DeepRequired<definitions["User"]>, "location">
 
 export type WebSocketSubject = DeepRequired<definitions["WebSocketSubject"]>
 
-export const DATE_FORMAT = "yyyy-MM-dd"
+export const DATE_FORMAT = "yyyy-MM-ddx"

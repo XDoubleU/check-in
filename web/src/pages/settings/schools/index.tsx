@@ -11,7 +11,7 @@ import {
   type School,
   type SchoolDto
 } from "api-wrapper/types/apiTypes"
-import { Redirecter } from "components/Redirecter"
+import { AuthRedirecter } from "contexts/authContext"
 
 export type CreateSchoolModalProps = ICreateModalProps<SchoolDto>
 
@@ -52,7 +52,7 @@ export default function SchoolListView() {
   const form = useForm<SchoolDto>()
 
   return (
-    <Redirecter redirects={redirects}>
+    <AuthRedirecter redirects={redirects}>
       <ListViewLayout
         title="Schools"
         form={form}
@@ -62,6 +62,6 @@ export default function SchoolListView() {
         createModal={CreateSchoolModal}
         card={SchoolCard}
       />
-    </Redirecter>
+    </AuthRedirecter>
   )
 }

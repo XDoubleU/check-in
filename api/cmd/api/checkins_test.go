@@ -36,7 +36,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 		_, _ = testApp.services.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
-			&fixtureData.Schools[0],
+			fixtureData.Schools[0],
 		)
 	}
 
@@ -44,7 +44,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/checkins/schools", nil)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -66,10 +66,10 @@ func TestGetSortedSchoolsAccess(t *testing.T) {
 	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/checkins/schools", nil)
 
 	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/checkins/schools", nil)
-	req2.AddCookie(&tokens.ManagerAccessToken)
+	req2.AddCookie(tokens.ManagerAccessToken)
 
 	req3, _ := http.NewRequest(http.MethodGet, ts.URL+"/checkins/schools", nil)
-	req3.AddCookie(&tokens.AdminAccessToken)
+	req3.AddCookie(tokens.AdminAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -97,7 +97,7 @@ func TestCreateCheckIn(t *testing.T) {
 		ts.URL+"/checkins",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -132,7 +132,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 		ts.URL+"/checkins",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -170,7 +170,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 			ts.URL+"/checkins",
 			bytes.NewReader(body),
 		)
-		req.AddCookie(&tokens.DefaultAccessToken)
+		req.AddCookie(tokens.DefaultAccessToken)
 
 		rs, _ = ts.Client().Do(req)
 	}
@@ -199,7 +199,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 		ts.URL+"/checkins",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -231,7 +231,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 		ts.URL+"/checkins",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -256,10 +256,10 @@ func TestCreateCheckInAccess(t *testing.T) {
 	req1, _ := http.NewRequest(http.MethodPost, ts.URL+"/checkins", nil)
 
 	req2, _ := http.NewRequest(http.MethodPost, ts.URL+"/checkins", nil)
-	req2.AddCookie(&tokens.ManagerAccessToken)
+	req2.AddCookie(tokens.ManagerAccessToken)
 
 	req3, _ := http.NewRequest(http.MethodPost, ts.URL+"/checkins", nil)
-	req3.AddCookie(&tokens.AdminAccessToken)
+	req3.AddCookie(tokens.AdminAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)

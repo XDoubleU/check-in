@@ -15,7 +15,8 @@ import (
 )
 
 type AuthService struct {
-	db database.DB
+	db        database.DB
+	locations LocationService
 }
 
 func (service AuthService) GetCookieName(scope models.Scope) string {
@@ -99,7 +100,7 @@ func (service AuthService) GetToken(
 		SELECT tokens.used, users.id, users.username, users.role, users.password_hash
 		FROM users
 		INNER JOIN tokens
-		ON users.id = tokens.user_id
+		ON tokens.user_id = users.id
 		WHERE tokens.hash = $1
 		AND tokens.scope = $2
 		AND tokens.expiry > $3
@@ -107,14 +108,24 @@ func (service AuthService) GetToken(
 
 	args := []any{tokenHash[:], scope, time.Now()}
 
-	var user models.User
 	var token models.Token
+	var user models.User
 
 	err := service.db.QueryRow(ctx, query, args...).
 		Scan(&token.Used, &user.ID, &user.Username, &user.Role, &user.PasswordHash)
 
 	if err != nil {
 		return nil, nil, handleError(err)
+	}
+
+	if user.Role == models.DefaultRole {
+		var location *models.Location
+		location, err = service.locations.GetByUserID(ctx, user.ID)
+		if err != nil {
+			return nil, nil, handleError(err)
+		}
+
+		user.Location = location
 	}
 
 	return &token, &user, nil

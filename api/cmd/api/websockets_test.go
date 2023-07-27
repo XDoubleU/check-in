@@ -61,7 +61,7 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 			ts.URL+"/checkins",
 			bytes.NewReader(body),
 		)
-		req.AddCookie(&tokens.DefaultAccessToken)
+		req.AddCookie(tokens.DefaultAccessToken)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -119,7 +119,7 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 		body, _ := json.Marshal(data)
 		req, _ := http.NewRequest(http.MethodPatch,
 			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID, bytes.NewReader(body))
-		req.AddCookie(&tokens.DefaultAccessToken)
+		req.AddCookie(tokens.DefaultAccessToken)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -165,7 +165,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 		body, _ := json.Marshal(data)
 		req, _ := http.NewRequest(http.MethodPost,
 			ts.URL+"/checkins", bytes.NewReader(body))
-		req.AddCookie(&tokens.DefaultAccessToken)
+		req.AddCookie(tokens.DefaultAccessToken)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -217,7 +217,7 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 		body, _ := json.Marshal(data)
 		req, _ := http.NewRequest(http.MethodPatch,
 			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID, bytes.NewReader(body))
-		req.AddCookie(&tokens.DefaultAccessToken)
+		req.AddCookie(tokens.DefaultAccessToken)
 
 		rs, _ := ts.Client().Do(req)
 

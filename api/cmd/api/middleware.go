@@ -28,16 +28,6 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) enableCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", app.config.WebURL)
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-		next.ServeHTTP(w, r)
-	})
-}
-
 func (app *application) rateLimit(next http.Handler) http.Handler {
 	var rps rate.Limit = 10
 	var bucketSize = 30
@@ -95,7 +85,7 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) authAccess(allowedRoles []models.Roles,
+func (app *application) authAccess(allowedRoles []models.Role,
 	next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenCookie, err := r.Cookie("accessToken")
@@ -105,8 +95,11 @@ func (app *application) authAccess(allowedRoles []models.Roles,
 			return
 		}
 
-		_, user, err := app.services.Auth.GetToken(r.Context(),
-			models.AccessScope, tokenCookie.Value)
+		_, user, err := app.services.Auth.GetToken(
+			r.Context(),
+			models.AccessScope,
+			tokenCookie.Value,
+		)
 		if err != nil {
 			switch {
 			case errors.Is(err, services.ErrRecordNotFound):

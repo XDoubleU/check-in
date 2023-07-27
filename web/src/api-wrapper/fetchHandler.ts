@@ -1,5 +1,4 @@
 import { type APIResponse } from "./types"
-import Router from "next/router"
 import queryString from "query-string"
 import { type ErrorDto } from "./types/apiTypes"
 import { refreshTokens } from "./auth"
@@ -73,13 +72,8 @@ async function fetchHandlerBase<T = undefined>(
   if (refresh && response.status === 401) {
     // refresh tokens
     const refreshResponse = await refreshTokens()
-    // if refreshing the tokens still gives a 401 the user isn't logged in
-    if (refreshResponse.status === 401) {
-      await Router.push("signin")
-      response = refreshResponse
-    }
-    // else retry the original call
-    else {
+    // if refreshing the tokens returns 200, retry the original call
+    if (refreshResponse.status === 200) {
       response = await fetchCall()
     }
   }

@@ -24,11 +24,14 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{tokens.AdminAccessToken, tokens.ManagerAccessToken}
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
 
 	for _, user := range users {
 		req, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools", nil)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -36,6 +39,7 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 		assert.Equal(t, rsData.Pagination.Current, 1)
 		assert.Equal(
 			t,
@@ -43,6 +47,10 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 			int64(math.Ceil(float64(fixtureData.AmountOfLocations)/4)),
 		)
 		assert.Equal(t, len(rsData.Data), 4)
+
+		assert.Equal(t, rsData.Data[0].ID, 1)
+		assert.Equal(t, rsData.Data[0].Name, "Andere")
+		assert.Equal(t, rsData.Data[0].ReadOnly, true)
 	}
 }
 
@@ -54,7 +62,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools?page=2", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -62,6 +70,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 	assert.Equal(t, rsData.Pagination.Current, 2)
 	assert.Equal(
 		t,
@@ -69,6 +78,10 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 		int64(math.Ceil(float64(fixtureData.AmountOfLocations)/4)),
 	)
 	assert.Equal(t, len(rsData.Data), 4)
+
+	assert.Equal(t, rsData.Data[0].ID, fixtureData.Schools[11].ID)
+	assert.Equal(t, rsData.Data[0].Name, fixtureData.Schools[11].Name)
+	assert.Equal(t, rsData.Data[0].ReadOnly, fixtureData.Schools[11].ReadOnly)
 }
 
 func TestGetPaginatedSchoolsPageZero(t *testing.T) {
@@ -79,7 +92,7 @@ func TestGetPaginatedSchoolsPageZero(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools?page=0", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -100,7 +113,7 @@ func TestGetPaginatedSchoolsAccess(t *testing.T) {
 	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools", nil)
 
 	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools", nil)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -116,7 +129,10 @@ func TestCreateSchool(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{tokens.AdminAccessToken, tokens.ManagerAccessToken}
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
 
 	for i, user := range users {
 		unique := fmt.Sprintf("test%d", i)
@@ -131,7 +147,7 @@ func TestCreateSchool(t *testing.T) {
 			ts.URL+"/schools",
 			bytes.NewReader(body),
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -157,7 +173,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 
 	body, _ := json.Marshal(data)
 	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/schools", bytes.NewReader(body))
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -185,7 +201,7 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 
 	body, _ := json.Marshal(data)
 	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/schools", bytes.NewReader(body))
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -210,7 +226,7 @@ func TestCreateSchoolAccess(t *testing.T) {
 	req1, _ := http.NewRequest(http.MethodPost, ts.URL+"/schools", nil)
 
 	req2, _ := http.NewRequest(http.MethodPost, ts.URL+"/schools", nil)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -226,7 +242,10 @@ func TestUpdateSchool(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{tokens.AdminAccessToken, tokens.ManagerAccessToken}
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
 
 	for i, user := range users {
 		unique := fmt.Sprintf("test%d", i)
@@ -241,7 +260,7 @@ func TestUpdateSchool(t *testing.T) {
 			ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
 			bytes.NewReader(body),
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -272,7 +291,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -304,7 +323,7 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 		ts.URL+"/schools/1",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -332,7 +351,7 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 		ts.URL+"/schools/8000",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -360,7 +379,7 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 		ts.URL+"/schools/aaaa",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -388,7 +407,7 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -421,7 +440,7 @@ func TestUpdateSchoolAccess(t *testing.T) {
 		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
 		nil,
 	)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -437,7 +456,10 @@ func TestDeleteSchool(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{tokens.AdminAccessToken, tokens.ManagerAccessToken}
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
 
 	for i, user := range users {
 		req, _ := http.NewRequest(
@@ -445,7 +467,7 @@ func TestDeleteSchool(t *testing.T) {
 			ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[i].ID, 10),
 			nil,
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -467,7 +489,7 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/schools/1", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -486,7 +508,7 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/schools/8000", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -505,7 +527,7 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/schools/aaaa", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -534,7 +556,7 @@ func TestDeleteSchoolAccess(t *testing.T) {
 		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
 		nil,
 	)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)

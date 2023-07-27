@@ -221,8 +221,8 @@ func TestSignOut(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/signout", nil)
-	req.AddCookie(&tokens.DefaultAccessToken)
-	req.AddCookie(&tokens.DefaultRefreshToken)
+	req.AddCookie(tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultRefreshToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -239,7 +239,7 @@ func TestSignOutNoRefresh(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/signout", nil)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -269,7 +269,7 @@ func TestRefresh(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/refresh", nil)
-	req.AddCookie(&tokens.DefaultRefreshToken)
+	req.AddCookie(tokens.DefaultRefreshToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -286,7 +286,7 @@ func TestRefreshReusedToken(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/refresh", nil)
-	req.AddCookie(&tokens.DefaultRefreshToken)
+	req.AddCookie(tokens.DefaultRefreshToken)
 
 	rs1, _ := ts.Client().Do(req)
 	rs2, _ := ts.Client().Do(req)
@@ -303,7 +303,7 @@ func TestRefreshInvalidToken(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/refresh", nil)
-	req.AddCookie(&tokens.DefaultAccessToken)
+	req.AddCookie(tokens.DefaultAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 

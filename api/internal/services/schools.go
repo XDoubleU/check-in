@@ -72,7 +72,7 @@ func (service SchoolService) GetAllSortedByLocation(
 		FROM schools
 		ORDER BY
 			CASE
-				WHEN name = 'Andere' THEN -1
+				WHEN read_only = true THEN -1
 				ELSE (
 					SELECT COUNT(*)
 					FROM check_ins
@@ -80,7 +80,7 @@ func (service SchoolService) GetAllSortedByLocation(
 					AND check_ins.school_id = schools.id
 				)
 			END
-		DESC
+		DESC, name ASC
 	`
 
 	rows, err := service.db.Query(ctx, query, locationID)
@@ -120,7 +120,7 @@ func (service SchoolService) GetAllPaginated(
 	query := `
 		SELECT id, name, read_only
 		FROM schools
-		ORDER BY name
+		ORDER BY name ASC
 		LIMIT $1 OFFSET $2
 	`
 

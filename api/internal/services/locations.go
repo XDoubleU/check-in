@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -15,6 +16,32 @@ import (
 type LocationService struct {
 	db database.DB
 }
+
+const availableQuery = `
+	(	capacity - (	
+			SELECT COUNT(*) 
+			FROM check_ins 
+			WHERE DATE(check_ins.created_at) = DATE(NOW()) 
+			AND check_ins.location_id = locations.id
+		)
+	)
+`
+
+const yesterdayFullAtQuery = `
+	(	SELECT MAX(check_ins.created_at) 
+		FROM check_ins
+		INNER JOIN (
+			SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
+			FROM check_ins
+			WHERE DATE(created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+			GROUP BY location_id
+		) daily_stats 
+		ON check_ins.location_id = daily_stats.location_id
+		WHERE check_ins.location_id = locations.id
+		AND DATE(check_ins.created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+		AND daily_stats.total_check_ins >= daily_stats.max_capacity
+	)
+`
 
 func (service LocationService) GetCheckInsEntriesDay(
 	checkIns []*models.CheckIn,
@@ -157,27 +184,13 @@ func (service LocationService) GetAllPaginated(
 	offset int64,
 ) ([]*models.Location, error) {
 	query := `
-		SELECT id, name, capacity, user_id,
-		(capacity - (SELECT COUNT(*) 
-								FROM check_ins 
-								WHERE DATE(check_ins.created_at) = DATE(NOW()) 
-								AND check_ins.location_id = locations.id)),
-		(SELECT MAX(check_ins.created_at) 
-				FROM check_ins
-				INNER JOIN (
-					SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
-					FROM check_ins
-					WHERE DATE(created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
-					GROUP BY location_id
-				) daily_stats ON check_ins.location_id = daily_stats.location_id
-				WHERE check_ins.location_id = locations.id
-				AND DATE(check_ins.created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
-				AND daily_stats.total_check_ins >= daily_stats.max_capacity
-		)
+		SELECT id, name, capacity, user_id, %s, %s
 		FROM locations
-		ORDER BY name
+		ORDER BY name ASC
 		LIMIT $1 OFFSET $2
 	`
+
+	query = fmt.Sprintf(query, availableQuery, yesterdayFullAtQuery)
 
 	rows, err := service.db.Query(ctx, query, limit, offset)
 	if err != nil {
@@ -222,26 +235,12 @@ func (service LocationService) GetByID(
 	id string,
 ) (*models.Location, error) {
 	query := `
-		SELECT name, capacity, user_id,
-		(capacity - (SELECT COUNT(*) 
-								FROM check_ins 
-								WHERE DATE(check_ins.created_at) = DATE(NOW()) 
-								AND check_ins.location_id = locations.id)),
-		(SELECT MAX(check_ins.created_at) 
-				FROM check_ins
-				INNER JOIN (
-					SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
-					FROM check_ins
-					WHERE DATE(created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
-					GROUP BY location_id
-				) daily_stats ON check_ins.location_id = daily_stats.location_id
-				WHERE check_ins.location_id = locations.id
-				AND DATE(check_ins.created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
-				AND daily_stats.total_check_ins >= daily_stats.max_capacity
-		)
+		SELECT name, capacity, user_id, %s, %s
 		FROM locations
 		WHERE locations.id = $1
 	`
+
+	query = fmt.Sprintf(query, availableQuery, yesterdayFullAtQuery)
 
 	location := models.Location{
 		ID: id,
@@ -276,26 +275,12 @@ func (service LocationService) GetByUserID(
 	id string,
 ) (*models.Location, error) {
 	query := `
-		SELECT locations.id, locations.name, locations.capacity, 
-		(capacity - (SELECT COUNT(*) 
-								FROM check_ins 
-								WHERE DATE(check_ins.created_at) = DATE(NOW()) 
-								AND check_ins.location_id = locations.id)),
-		(SELECT MAX(check_ins.created_at) 
-				FROM check_ins
-				INNER JOIN (
-					SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
-					FROM check_ins
-					WHERE DATE(created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
-					GROUP BY location_id
-				) daily_stats ON check_ins.location_id = daily_stats.location_id
-				WHERE check_ins.location_id = locations.id
-				AND DATE(check_ins.created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
-				AND daily_stats.total_check_ins >= daily_stats.max_capacity
-		)
+		SELECT id, name, capacity, %s, %s
 		FROM locations
-		WHERE locations.user_id = $1
+		WHERE user_id = $1
 	`
+
+	query = fmt.Sprintf(query, availableQuery, yesterdayFullAtQuery)
 
 	location := models.Location{
 		UserID: id,

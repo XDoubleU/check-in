@@ -1,6 +1,6 @@
 import { type Role } from "api-wrapper/types/apiTypes"
 import Loader from "components/Loader"
-import { Redirecter } from "components/Redirecter"
+import { AuthRedirecter } from "contexts/authContext"
 import ManagerLayout from "layouts/AdminLayout"
 
 export default function SettingsHome() {
@@ -11,10 +11,10 @@ export default function SettingsHome() {
   ])
 
   return (
-    <Redirecter redirects={redirects}>
+    <AuthRedirecter redirects={redirects}>
       <ManagerLayout title="">
         <Loader message="Loading home page." />
       </ManagerLayout>
-    </Redirecter>
+    </AuthRedirecter>
   )
 }

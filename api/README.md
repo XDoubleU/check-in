@@ -1,8 +1,9 @@
 # Check-In API
 
+(Prereq.) Install required packages used by some commands:  `make init`
+
 ## Lint Commands
 
-(Prereq.) Install linter packages:  `make lint/init`
 Run linter:                         `make lint`
 Run autofix linter:                 `make lint/fix`
 Clean mod file:                     `go mod tidy`

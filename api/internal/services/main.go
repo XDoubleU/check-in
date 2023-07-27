@@ -26,15 +26,22 @@ type Services struct {
 }
 
 func New(db database.DB) Services {
+	locations := LocationService{db: db}
+	auth := AuthService{db: db, locations: locations}
+	checkIns := CheckInService{db: db}
+	schools := SchoolService{db: db}
+	users := UserService{db: db, locations: locations}
+	websockets := WebSocketService{
+		subscribers: make(map[*websocket.Conn]models.Subscriber),
+	}
+
 	return Services{
-		Auth:      AuthService{db: db},
-		CheckIns:  CheckInService{db: db},
-		Locations: LocationService{db: db},
-		Schools:   SchoolService{db: db},
-		Users:     UserService{db: db},
-		WebSockets: WebSocketService{
-			subscribers: make(map[*websocket.Conn]models.Subscriber),
-		},
+		Auth:       auth,
+		CheckIns:   checkIns,
+		Locations:  locations,
+		Schools:    schools,
+		Users:      users,
+		WebSockets: websockets,
 	}
 }
 

@@ -59,7 +59,10 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -139,34 +142,6 @@
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    }
-                }
-            }
-        },
-        "/current-location": {
-            "get": {
-                "tags": [
-                    "locations"
-                ],
-                "summary": "Get location of logged in user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Location"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/ErrorDto"
                         }
@@ -1236,7 +1211,7 @@
                 }
             }
         },
-        "Roles": {
+        "Role": {
             "type": "string",
             "enum": [
                 "default",
@@ -1330,8 +1305,11 @@
                 "id": {
                     "type": "string"
                 },
+                "location": {
+                    "$ref": "#/definitions/Location"
+                },
                 "role": {
-                    "$ref": "#/definitions/Roles"
+                    "$ref": "#/definitions/Role"
                 },
                 "username": {
                     "type": "string"

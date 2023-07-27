@@ -12,7 +12,7 @@ import {
   type CreateUserDto,
   type Role
 } from "api-wrapper/types/apiTypes"
-import { Redirecter } from "components/Redirecter"
+import { AuthRedirecter } from "contexts/authContext"
 
 type CreateUserForm = CreateUserDto & { repeatPassword?: string }
 
@@ -92,7 +92,7 @@ export default function UserListView() {
   const form = useForm<CreateUserDto>()
 
   return (
-    <Redirecter redirects={redirects}>
+    <AuthRedirecter redirects={redirects}>
       <ListViewLayout
         title="Users"
         form={form}
@@ -102,6 +102,6 @@ export default function UserListView() {
         createModal={CreateUserModal}
         card={UserCard}
       />
-    </Redirecter>
+    </AuthRedirecter>
   )
 }

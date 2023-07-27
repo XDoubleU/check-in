@@ -6,19 +6,20 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Roles string //	@name	Roles
+type Role string //	@name	Role
 
 const (
-	DefaultRole Roles = "default"
-	ManagerRole Roles = "manager"
-	AdminRole   Roles = "admin"
+	DefaultRole Role = "default"
+	ManagerRole Role = "manager"
+	AdminRole   Role = "admin"
 )
 
 type User struct {
-	ID           string `json:"id"`
-	Username     string `json:"username"`
-	PasswordHash []byte `json:"-"`
-	Role         Roles  `json:"role"`
+	ID           string    `json:"id"`
+	Username     string    `json:"username"`
+	PasswordHash []byte    `json:"-"`
+	Role         Role      `json:"role"`
+	Location     *Location `json:"location"`
 } //	@name	User
 
 func HashPassword(password string) ([]byte, error) {

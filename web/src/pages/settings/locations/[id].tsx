@@ -5,10 +5,9 @@ import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import LoadingLayout from "layouts/LoadingLayout"
 import { type LocationWithUsername } from "."
-import { useAuth } from "contexts/authContext"
+import { AuthRedirecter, useAuth } from "contexts/authContext"
 import Charts from "components/charts/Charts"
 import { type User } from "api-wrapper/types/apiTypes"
-import { Redirecter } from "components/Redirecter"
 
 // eslint-disable-next-line max-lines-per-function
 export default function LocationDetail() {
@@ -54,15 +53,20 @@ export default function LocationDetail() {
     return <LoadingLayout message="User has no location" />
   }
 
-  const titleButton = (
-    <LocationUpdateModal data={location} fetchData={fetchData} />
-  )
-
   return (
-    <Redirecter>
-      <ManagerLayout title={location.name} titleButton={titleButton}>
-        <Charts locationId={location.id} />
-      </ManagerLayout>
-    </Redirecter>
+    <AuthRedirecter>
+      {!location ? (
+        <LoadingLayout message="User has no location" />
+      ) : (
+        <ManagerLayout
+          title={location.name}
+          titleButton={
+            <LocationUpdateModal data={location} fetchData={fetchData} />
+          }
+        >
+          <Charts locationId={location.id} />
+        </ManagerLayout>
+      )}
+    </AuthRedirecter>
   )
 }

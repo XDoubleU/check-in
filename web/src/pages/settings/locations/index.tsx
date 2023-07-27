@@ -13,7 +13,7 @@ import {
   type Location,
   type PaginatedLocationsDto
 } from "api-wrapper/types/apiTypes"
-import { Redirecter } from "components/Redirecter"
+import { AuthRedirecter } from "contexts/authContext"
 
 type CreateLocationForm = CreateLocationDto & { repeatPassword?: string }
 
@@ -144,7 +144,7 @@ export default function LocationListView() {
   )
 
   return (
-    <Redirecter redirects={redirects}>
+    <AuthRedirecter redirects={redirects}>
       <ListViewLayout
         title="Locations"
         form={form}
@@ -155,6 +155,6 @@ export default function LocationListView() {
         createModal={CreateLocationModal}
         card={LocationCard}
       />
-    </Redirecter>
+    </AuthRedirecter>
   )
 }

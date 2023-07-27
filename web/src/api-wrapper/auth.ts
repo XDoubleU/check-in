@@ -17,7 +17,9 @@ export async function signOut(): Promise<void> {
 }
 
 export async function refreshTokens(): Promise<Response> {
-  const url = `${AUTH_ENDPOINT}/refresh`
+  const url = `${
+    process.env.NEXT_PUBLIC_API_URL ?? ""
+  }/${AUTH_ENDPOINT}/refresh`
 
   return await fetch(url, {
     credentials: "include"

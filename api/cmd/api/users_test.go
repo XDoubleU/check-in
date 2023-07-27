@@ -27,13 +27,13 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	defer ts.Close()
 
 	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-user", nil)
-	req1.AddCookie(&tokens.AdminAccessToken)
+	req1.AddCookie(tokens.AdminAccessToken)
 
 	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-user", nil)
-	req2.AddCookie(&tokens.ManagerAccessToken)
+	req2.AddCookie(tokens.ManagerAccessToken)
 
 	req3, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-user", nil)
-	req3.AddCookie(&tokens.DefaultAccessToken)
+	req3.AddCookie(tokens.DefaultAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -49,18 +49,35 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	assert.Equal(t, rs1Data.Username, fixtureData.AdminUser.Username)
 	assert.Equal(t, rs1Data.Role, fixtureData.AdminUser.Role)
 	assert.Equal(t, len(rs1Data.PasswordHash), 0)
+	assert.Equal(t, rs1Data.Location, nil)
 
 	assert.Equal(t, rs2.StatusCode, http.StatusOK)
 	assert.Equal(t, rs2Data.ID, fixtureData.ManagerUser.ID)
 	assert.Equal(t, rs2Data.Username, fixtureData.ManagerUser.Username)
 	assert.Equal(t, rs2Data.Role, fixtureData.ManagerUser.Role)
 	assert.Equal(t, len(rs2Data.PasswordHash), 0)
+	assert.Equal(t, rs2Data.Location, nil)
 
 	assert.Equal(t, rs3.StatusCode, http.StatusOK)
 	assert.Equal(t, rs3Data.ID, fixtureData.DefaultUser.ID)
 	assert.Equal(t, rs3Data.Username, fixtureData.DefaultUser.Username)
 	assert.Equal(t, rs3Data.Role, fixtureData.DefaultUser.Role)
 	assert.Equal(t, len(rs3Data.PasswordHash), 0)
+	assert.Equal(t, rs3Data.Location.ID, fixtureData.DefaultLocation.ID)
+	assert.Equal(t, rs3Data.Location.Name, fixtureData.DefaultLocation.Name)
+	assert.Equal(
+		t,
+		rs3Data.Location.NormalizedName,
+		fixtureData.DefaultLocation.NormalizedName,
+	)
+	assert.Equal(t, rs3Data.Location.Available, fixtureData.DefaultLocation.Available)
+	assert.Equal(t, rs3Data.Location.Capacity, fixtureData.DefaultLocation.Capacity)
+	assert.Equal(
+		t,
+		rs3Data.Location.YesterdayFullAt,
+		fixtureData.DefaultLocation.YesterdayFullAt,
+	)
+	assert.Equal(t, rs3Data.Location.UserID, fixtureData.DefaultLocation.UserID)
 }
 
 func TestGetInfoLoggedInUserAccess(t *testing.T) {
@@ -84,7 +101,10 @@ func TestGetUser(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	users := []http.Cookie{tokens.AdminAccessToken, tokens.ManagerAccessToken}
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
 
 	for _, user := range users {
 		req, _ := http.NewRequest(
@@ -92,7 +112,7 @@ func TestGetUser(t *testing.T) {
 			ts.URL+"/users/"+fixtureData.DefaultUsers[0].ID,
 			nil,
 		)
-		req.AddCookie(&user)
+		req.AddCookie(user)
 
 		rs, _ := ts.Client().Do(req)
 
@@ -104,6 +124,21 @@ func TestGetUser(t *testing.T) {
 		assert.Equal(t, rsData.Username, fixtureData.DefaultUsers[0].Username)
 		assert.Equal(t, rsData.Role, fixtureData.DefaultUsers[0].Role)
 		assert.Equal(t, len(rsData.PasswordHash), 0)
+		assert.Equal(t, rsData.Location.ID, fixtureData.Locations[0].ID)
+		assert.Equal(t, rsData.Location.Name, fixtureData.Locations[0].Name)
+		assert.Equal(
+			t,
+			rsData.Location.NormalizedName,
+			fixtureData.Locations[0].NormalizedName,
+		)
+		assert.Equal(t, rsData.Location.Available, fixtureData.Locations[0].Available)
+		assert.Equal(t, rsData.Location.Capacity, fixtureData.Locations[0].Capacity)
+		assert.Equal(
+			t,
+			rsData.Location.YesterdayFullAt,
+			fixtureData.Locations[0].YesterdayFullAt,
+		)
+		assert.Equal(t, rsData.Location.UserID, fixtureData.Locations[0].UserID)
 	}
 }
 
@@ -116,7 +151,7 @@ func TestGetUserNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users/"+id.String(), nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -139,7 +174,7 @@ func TestGetUserNotUUID(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users/8000", nil)
-	req.AddCookie(&tokens.ManagerAccessToken)
+	req.AddCookie(tokens.ManagerAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -168,7 +203,7 @@ func TestGetUserAccess(t *testing.T) {
 		ts.URL+"/users/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
 		nil,
 	)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -185,7 +220,7 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users", nil)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -193,13 +228,20 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 	assert.Equal(t, rsData.Pagination.Current, 1)
 	assert.Equal(
 		t,
 		rsData.Pagination.Total,
-		int64(math.Ceil(float64(fixtureData.AmountOfUsers)/4)),
+		int64(math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4)),
 	)
 	assert.Equal(t, len(rsData.Data), 4)
+
+	assert.Equal(t, rsData.Data[0].ID, fixtureData.ManagerUser.ID)
+	assert.Equal(t, rsData.Data[0].Username, fixtureData.ManagerUser.Username)
+	assert.Equal(t, len(rsData.Data[0].PasswordHash), 0)
+	assert.Equal(t, rsData.Data[0].Role, fixtureData.ManagerUser.Role)
+	assert.Equal(t, rsData.Data[0].Location, nil)
 }
 
 func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
@@ -210,7 +252,7 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users?page=2", nil)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -218,13 +260,20 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
+
 	assert.Equal(t, rsData.Pagination.Current, 2)
 	assert.Equal(
 		t,
 		rsData.Pagination.Total,
-		int64(math.Ceil(float64(fixtureData.AmountOfUsers)/4)),
+		int64(math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4)),
 	)
 	assert.Equal(t, len(rsData.Data), 4)
+
+	assert.Equal(t, rsData.Data[0].ID, fixtureData.ManagerUsers[3].ID)
+	assert.Equal(t, rsData.Data[0].Username, fixtureData.ManagerUsers[3].Username)
+	assert.Equal(t, len(rsData.Data[0].PasswordHash), 0)
+	assert.Equal(t, rsData.Data[0].Role, fixtureData.ManagerUsers[3].Role)
+	assert.Equal(t, rsData.Data[0].Location, nil)
 }
 
 func TestGetPaginatedManagerUsersPageZero(t *testing.T) {
@@ -235,7 +284,7 @@ func TestGetPaginatedManagerUsersPageZero(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users?page=0", nil)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -256,10 +305,10 @@ func TestGetPaginatedManagerUsersAccess(t *testing.T) {
 	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/users", nil)
 
 	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/users", nil)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	req3, _ := http.NewRequest(http.MethodGet, ts.URL+"/users", nil)
-	req3.AddCookie(&tokens.ManagerAccessToken)
+	req3.AddCookie(tokens.ManagerAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -284,7 +333,7 @@ func TestCreateManagerUser(t *testing.T) {
 
 	body, _ := json.Marshal(data)
 	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", bytes.NewReader(body))
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -296,6 +345,7 @@ func TestCreateManagerUser(t *testing.T) {
 	assert.Equal(t, rsData.Username, "test")
 	assert.Equal(t, rsData.Role, models.ManagerRole)
 	assert.Equal(t, len(rsData.PasswordHash), 0)
+	assert.Equal(t, rsData.Location, nil)
 }
 
 func TestCreateManagerUserUserNameExists(t *testing.T) {
@@ -312,7 +362,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 
 	body, _ := json.Marshal(data)
 	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", bytes.NewReader(body))
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -341,7 +391,7 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 
 	body, _ := json.Marshal(data)
 	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", bytes.NewReader(body))
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -371,10 +421,10 @@ func TestCreateManagerUserAccess(t *testing.T) {
 	req1, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", nil)
 
 	req2, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", nil)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	req3, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", nil)
-	req3.AddCookie(&tokens.ManagerAccessToken)
+	req3.AddCookie(tokens.ManagerAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -404,7 +454,7 @@ func TestUpdateManagerUser(t *testing.T) {
 		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -416,6 +466,7 @@ func TestUpdateManagerUser(t *testing.T) {
 	assert.Equal(t, rsData.Username, "test")
 	assert.Equal(t, rsData.Role, models.ManagerRole)
 	assert.Equal(t, len(rsData.PasswordHash), 0)
+	assert.Equal(t, rsData.Location, nil)
 }
 
 func TestUpdateManagerUserUserNameExists(t *testing.T) {
@@ -437,7 +488,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -473,7 +524,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 		ts.URL+"/users/"+id.String(),
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -508,7 +559,7 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 		ts.URL+"/users/8000",
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -538,7 +589,7 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
 		bytes.NewReader(body),
 	)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -576,14 +627,14 @@ func TestUpdateManagerUserAccess(t *testing.T) {
 		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
 		nil,
 	)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	req3, _ := http.NewRequest(
 		http.MethodPatch,
 		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
 		nil,
 	)
-	req3.AddCookie(&tokens.ManagerAccessToken)
+	req3.AddCookie(tokens.ManagerAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)
@@ -606,7 +657,7 @@ func TestDeleteManagerUser(t *testing.T) {
 		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
 		nil,
 	)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -618,6 +669,7 @@ func TestDeleteManagerUser(t *testing.T) {
 	assert.Equal(t, rsData.Username, fixtureData.ManagerUsers[0].Username)
 	assert.Equal(t, rsData.Role, fixtureData.ManagerUsers[0].Role)
 	assert.Equal(t, len(rsData.PasswordHash), 0)
+	assert.Equal(t, rsData.Location, nil)
 }
 
 func TestDeleteManagerUserNotFound(t *testing.T) {
@@ -629,7 +681,7 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/users/"+id.String(), nil)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -652,7 +704,7 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	defer ts.Close()
 
 	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/users/8000", nil)
-	req.AddCookie(&tokens.AdminAccessToken)
+	req.AddCookie(tokens.AdminAccessToken)
 
 	rs, _ := ts.Client().Do(req)
 
@@ -681,14 +733,14 @@ func TestDeleteManagerUserAccess(t *testing.T) {
 		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
 		nil,
 	)
-	req2.AddCookie(&tokens.DefaultAccessToken)
+	req2.AddCookie(tokens.DefaultAccessToken)
 
 	req3, _ := http.NewRequest(
 		http.MethodDelete,
 		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
 		nil,
 	)
-	req3.AddCookie(&tokens.ManagerAccessToken)
+	req3.AddCookie(tokens.ManagerAccessToken)
 
 	rs1, _ := ts.Client().Do(req1)
 	rs2, _ := ts.Client().Do(req2)

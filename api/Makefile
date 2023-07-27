@@ -1,8 +1,9 @@
 db ?= postgres://postgres@localhost/postgres
 
-lint/init:
+init:
 	go install github.com/segmentio/golines@latest
 	go install github.com/daixiang0/gci@latest
+	go install github.com/swaggo/swag/cmd/swag@master
 
 lint:
 	golangci-lint run
@@ -51,4 +52,4 @@ db/migrations/down:
 	goose -dir=./migrations postgres ${db} down
 
 swag:
-	swag init -g cmd/api/main.go --ot json --parseDependency --parseInternal
+	swag init --ot json --parseDependency -g cmd/api/main.go 

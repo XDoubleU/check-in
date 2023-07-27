@@ -17,24 +17,24 @@ import (
 )
 
 type Tokens struct {
-	AdminAccessToken    http.Cookie
-	ManagerAccessToken  http.Cookie
-	DefaultAccessToken  http.Cookie
-	DefaultRefreshToken http.Cookie
+	AdminAccessToken    *http.Cookie
+	ManagerAccessToken  *http.Cookie
+	DefaultAccessToken  *http.Cookie
+	DefaultRefreshToken *http.Cookie
 }
 
 type FixtureData struct {
-	AdminUser         models.User
-	ManagerUser       models.User
-	DefaultUser       models.User
-	Schools           []models.School
-	ManagerUsers      []models.User
-	DefaultUsers      []models.User
-	Locations         []models.Location
-	DefaultLocation   *models.Location
-	AmountOfLocations int
-	AmountOfSchools   int
-	AmountOfUsers     int
+	AdminUser            *models.User
+	ManagerUser          *models.User
+	DefaultUser          *models.User
+	Schools              []*models.School
+	ManagerUsers         []*models.User
+	DefaultUsers         []*models.User
+	Locations            []*models.Location
+	DefaultLocation      *models.Location
+	AmountOfLocations    int
+	AmountOfSchools      int
+	AmountOfManagerUsers int
 }
 
 var mainTestEnv *tests.MainTestEnv //nolint:gochecknoglobals //global var for tests
@@ -44,7 +44,7 @@ var logger *log.Logger             //nolint:gochecknoglobals //global var for te
 var fixtureData FixtureData        //nolint:gochecknoglobals //global var for tests
 
 func userFixtures(services services.Services) (*Tokens, error) {
-	fixtureData.AmountOfUsers = 0
+	fixtureData.AmountOfManagerUsers = 0
 
 	password := "testpassword"
 
@@ -65,6 +65,7 @@ func userFixtures(services services.Services) (*Tokens, error) {
 	if err != nil {
 		return nil, err
 	}
+	fixtureData.AmountOfManagerUsers++
 
 	defaultUser, err := services.Users.Create(context.Background(),
 		"Default",
@@ -75,10 +76,9 @@ func userFixtures(services services.Services) (*Tokens, error) {
 		return nil, err
 	}
 
-	fixtureData.AmountOfUsers += 3
-	fixtureData.AdminUser = *adminUser
-	fixtureData.ManagerUser = *managerUser
-	fixtureData.DefaultUser = *defaultUser
+	fixtureData.AdminUser = adminUser
+	fixtureData.ManagerUser = managerUser
+	fixtureData.DefaultUser = defaultUser
 
 	for i := 0; i < 20; i++ {
 		var newUser *models.User
@@ -91,9 +91,7 @@ func userFixtures(services services.Services) (*Tokens, error) {
 			return nil, err
 		}
 
-		fixtureData.AmountOfUsers++
-
-		fixtureData.DefaultUsers = append(fixtureData.DefaultUsers, *newUser)
+		fixtureData.DefaultUsers = append(fixtureData.DefaultUsers, newUser)
 	}
 
 	for i := 0; i < 10; i++ {
@@ -107,9 +105,9 @@ func userFixtures(services services.Services) (*Tokens, error) {
 			return nil, err
 		}
 
-		fixtureData.AmountOfUsers++
+		fixtureData.AmountOfManagerUsers++
 
-		fixtureData.ManagerUsers = append(fixtureData.ManagerUsers, *newUser)
+		fixtureData.ManagerUsers = append(fixtureData.ManagerUsers, newUser)
 	}
 
 	adminAccessToken, err := services.Auth.CreateCookie(context.Background(),
@@ -153,10 +151,10 @@ func userFixtures(services services.Services) (*Tokens, error) {
 	}
 
 	return &Tokens{
-		AdminAccessToken:    *adminAccessToken,
-		ManagerAccessToken:  *managerAccessToken,
-		DefaultAccessToken:  *defaultAccessToken,
-		DefaultRefreshToken: *defaultRefreshToken,
+		AdminAccessToken:    adminAccessToken,
+		ManagerAccessToken:  managerAccessToken,
+		DefaultAccessToken:  defaultAccessToken,
+		DefaultRefreshToken: defaultRefreshToken,
 	}, nil
 }
 
@@ -191,7 +189,7 @@ func locationFixtures(services services.Services) error {
 		err = services.Locations.Update(
 			context.Background(),
 			fixtureData.DefaultLocation,
-			&fixtureData.AdminUser,
+			fixtureData.AdminUser,
 			dtos.UpdateLocationDto{
 				Capacity: &newCap,
 			},
@@ -234,7 +232,7 @@ func locationFixtures(services services.Services) error {
 			}
 		}
 
-		fixtureData.Locations = append(fixtureData.Locations, *location)
+		fixtureData.Locations = append(fixtureData.Locations, location)
 	}
 
 	return nil
@@ -266,7 +264,7 @@ func schoolFixtures(services services.Services) error {
 		if err != nil {
 			return err
 		}
-		fixtureData.Schools = append(fixtureData.Schools, *school)
+		fixtureData.Schools = append(fixtureData.Schools, school)
 		fixtureData.AmountOfSchools++
 	}
 

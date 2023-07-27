@@ -92,24 +92,6 @@ export type paths = {
       };
     };
   };
-  "/current-location": {
-    get: {
-      responses: {
-        /** OK */
-        200: {
-          schema: definitions["Location"];
-        };
-        /** Unauthorized */
-        401: {
-          schema: definitions["ErrorDto"];
-        };
-        /** Internal Server Error */
-        500: {
-          schema: definitions["ErrorDto"];
-        };
-      };
-    };
-  };
   "/current-user": {
     get: {
       responses: {

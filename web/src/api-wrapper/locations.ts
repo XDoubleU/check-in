@@ -97,10 +97,6 @@ export function downloadCsvForDayChart(locationId: string, date: string): void {
   )
 }
 
-export async function getMyLocation(): Promise<APIResponse<Location>> {
-  return await fetchHandler(`current-location`)
-}
-
 export async function getAllLocations(
   page?: number
 ): Promise<APIResponse<PaginatedLocationsDto>> {

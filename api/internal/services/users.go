@@ -9,13 +9,15 @@ import (
 )
 
 type UserService struct {
-	db database.DB
+	db        database.DB
+	locations LocationService
 }
 
 func (service UserService) GetTotalCount(ctx context.Context) (*int64, error) {
 	query := `
 		SELECT COUNT(*)
 		FROM users
+		WHERE role = 'manager'
 	`
 
 	var total *int64
@@ -37,7 +39,7 @@ func (service UserService) GetAllPaginated(
 		SELECT id, username
 		FROM users
 		WHERE role = 'manager'
-		ORDER BY username
+		ORDER BY username ASC
 		LIMIT $1 OFFSET $2
 	`
 
@@ -49,7 +51,9 @@ func (service UserService) GetAllPaginated(
 	users := []*models.User{}
 
 	for rows.Next() {
-		var user models.User
+		user := models.User{
+			Role: models.ManagerRole,
+		}
 
 		err = rows.Scan(
 			&user.ID,
@@ -73,12 +77,12 @@ func (service UserService) GetAllPaginated(
 func (service UserService) GetByID(
 	ctx context.Context,
 	id string,
-	role models.Roles,
+	role models.Role,
 ) (*models.User, error) {
 	query := `
-		SELECT username, password_hash
+		SELECT users.username, users.password_hash
 		FROM users
-		WHERE id = $1 AND role = $2
+		WHERE users.id = $1 AND users.role = $2
 	`
 
 	user := models.User{
@@ -94,6 +98,16 @@ func (service UserService) GetByID(
 
 	if err != nil {
 		return nil, handleError(err)
+	}
+
+	if user.Role == models.DefaultRole {
+		var location *models.Location
+		location, err = service.locations.GetByUserID(ctx, user.ID)
+		if err != nil {
+			return nil, handleError(err)
+		}
+
+		user.Location = location
 	}
 
 	return &user, nil
@@ -129,7 +143,7 @@ func (service UserService) Create(
 	ctx context.Context,
 	username string,
 	password string,
-	role models.Roles,
+	role models.Role,
 ) (*models.User, error) {
 	query := `
 		INSERT INTO users (username, password_hash, role)
@@ -166,7 +180,7 @@ func (service UserService) Update(
 	ctx context.Context,
 	user *models.User,
 	updateUserDto dtos.UpdateUserDto,
-	role models.Roles,
+	role models.Role,
 ) error {
 	if updateUserDto.Username != nil {
 		user.Username = *updateUserDto.Username
@@ -207,7 +221,7 @@ func (service UserService) Update(
 func (service UserService) Delete(
 	ctx context.Context,
 	id string,
-	role models.Roles,
+	role models.Role,
 ) error {
 	query := `
 		DELETE FROM users
