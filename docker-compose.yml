@@ -12,7 +12,6 @@ services:
   
   api:
     build: ./api
-    #TODO: check if this decreases used disk space
     volumes:
       - ./api:/usr/src/api
     ports: 
@@ -33,7 +32,6 @@ services:
   
   web:
     build: ./web
-    #TODO: check if this decreases used disk space
     volumes:
       - ./web:/usr/src/web
     ports:

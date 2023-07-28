@@ -123,7 +123,10 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	)
 
 	if returnType == "csv" {
-		filename := time.Now().In(startDate.Location()).Format(constants.CSVFileNameFormat)
+		filename := time.Now().
+			In(startDate.Location()).
+			Format(constants.CSVFileNameFormat)
+		filename = "Day-" + filename
 
 		data := dtos.ConvertCheckInsLocationEntryRawMapToCsv(checkInEntries)
 		err = helpers.WriteCSV(w, filename, data)
@@ -218,7 +221,10 @@ func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 	)
 
 	if returnType == "csv" {
-		filename := time.Now().In(startDate.Location()).Format(constants.CSVFileNameFormat)
+		filename := time.Now().
+			In(startDate.Location()).
+			Format(constants.CSVFileNameFormat)
+			filename = "Range-" + filename
 
 		data := dtos.ConvertCheckInsLocationEntryRawMapToCsv(checkInEntries)
 		err = helpers.WriteCSV(w, filename, data)

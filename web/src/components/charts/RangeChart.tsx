@@ -68,7 +68,12 @@ export default function RangeChart({
   useEffect(() => {
     void getDataForRangeChart(locationId, startDate, endDate)
       .then((response) => {
-        if (!response.ok || !response.data || Object.keys(response.data).length == 0) {
+        if (
+          !response.ok ||
+          !response.data ||
+          Object.keys(response.data).length === 0
+        ) {
+          setRangeData([])
           return
         }
 
@@ -117,7 +122,9 @@ export default function RangeChart({
       />
       <SharedComposedChart
         data={rangeData}
-        xAxisTickFomatter={(datetime: number) => format(new Date(datetime), WEB_DATE_FORMAT)}
+        xAxisTickFomatter={(datetime: number) =>
+          format(new Date(datetime), WEB_DATE_FORMAT)
+        }
       >
         {schools.map((school, index) => {
           return (

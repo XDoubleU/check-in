@@ -12,8 +12,8 @@ import {
 import Loader from "components/Loader"
 
 export type ChartDataEntry = {
-  [name: string]: number,
-  datetime: number,
+  [name: string]: number
+  datetime: number
   capacity: number
 }
 export type ChartData = ChartDataEntry[]

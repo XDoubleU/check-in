@@ -16,9 +16,13 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   },
+  typescript: {
+    ignoreDuringBuilds: true
+  },
   sassOptions: {
     includePaths: ["./styles"],
   },
+  output: "export"
 }
 
 module.exports = nextConfig

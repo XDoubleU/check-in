@@ -56,14 +56,14 @@ export default function CheckIn() {
   }, [])
 
   useEffect(() => {
-    let webSocket: WebSocket
+    let webSocket: WebSocket | undefined
     if (user?.location) {
       setAvailable(user.location.available)
       webSocket = connectWebSocket(user.location)
     }
 
     return () => {
-      if (webSocket.readyState === 1) {
+      if (webSocket && webSocket.readyState === 1) {
         webSocket.close()
       }
     }

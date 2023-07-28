@@ -49,10 +49,6 @@ export default function LocationDetail() {
     void fetchData()
   }, [fetchData])
 
-  if (!location) {
-    return <LoadingLayout message="User has no location" />
-  }
-
   return (
     <AuthRedirecter>
       {!location ? (

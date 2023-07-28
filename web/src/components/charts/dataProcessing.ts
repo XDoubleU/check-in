@@ -5,10 +5,12 @@ export function extractAllSchools(
   entries: CheckInsLocationEntryRawMap
 ): string[] {
   const key = parseInt(Object.keys(entries)[0])
-  return Object.keys(entries[key].schools).sort()
+  return Object.keys(entries[key].schools)
 }
 
-export function convertToChartData(entries: CheckInsLocationEntryRawMap): ChartData {
+export function convertToChartData(
+  entries: CheckInsLocationEntryRawMap
+): ChartData {
   let result: ChartData = []
 
   for (const [key, value] of Object.entries(entries)) {

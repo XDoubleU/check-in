@@ -55,7 +55,12 @@ export default function DayChart({
   useEffect(() => {
     void getDataForDayChart(locationId, date)
       .then((response) => {
-        if (!response.ok || !response.data || Object.keys(response.data).length == 0) {
+        if (
+          !response.ok ||
+          !response.data ||
+          Object.keys(response.data).length === 0
+        ) {
+          setDayData([])
           return
         }
 
@@ -75,7 +80,7 @@ export default function DayChart({
     )
   }
 
-  if (dayData.length === 0) {
+  if (Object.keys(dayData).length === 0) {
     return (
       <>
         <Filter date={date} setDate={setDate} />
@@ -89,7 +94,9 @@ export default function DayChart({
       <Filter date={date} setDate={setDate} />
       <SharedComposedChart
         data={dayData}
-        xAxisTickFomatter={(datetime: number) => format(new Date(datetime), "HH:mm")}
+        xAxisTickFomatter={(datetime: number) =>
+          format(new Date(datetime), "HH:mm")
+        }
       >
         {schools.map((school, index) => {
           return (

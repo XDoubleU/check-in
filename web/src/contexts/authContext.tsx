@@ -2,6 +2,7 @@ import { getMyUser } from "api-wrapper"
 import { type Role, type User } from "api-wrapper/types/apiTypes"
 import LoadingLayout from "layouts/LoadingLayout"
 import { type NextRouter, useRouter } from "next/router"
+import { type ParsedUrlQueryInput } from "querystring"
 import React, {
   useState,
   type SetStateAction,
@@ -69,34 +70,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   )
 }
 
-function parseUrlVariables(url: string, user: User): string {
-  if (user.location) {
-    url = url.replace("{locationId}", user.location?.id)
-  }
-
-  return url
-}
-
 function redirect(
   router: NextRouter,
   redirects: Map<Role, string> | undefined,
   user: User | undefined
 ) {
   if (!user) {
-    if (router.pathname !== "/signin") {
+    if (router.asPath !== "/signin") {
       return router.push("/signin")
     }
     return new Promise((resolve) => resolve(true))
   }
 
-  if (router.pathname === "/signin") {
+  if (router.asPath === "/signin") {
     return router.push("/")
   }
 
-  let redirectUrl = redirects?.get(user.role)
+  const redirectUrl = redirects?.get(user.role)
   if (redirectUrl) {
-    redirectUrl = parseUrlVariables(redirectUrl, user)
-    return router.push(redirectUrl)
+    let query: ParsedUrlQueryInput | undefined
+    if (redirectUrl.includes("[id]")) {
+      query = { id: user.location?.id }
+    } 
+
+    return router.push({
+      pathname: redirectUrl,
+      query
+    })
   }
 
   return new Promise((resolve) => resolve(true))

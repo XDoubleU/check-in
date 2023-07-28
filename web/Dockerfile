@@ -1,21 +1,18 @@
-# stage-0: deps
 FROM node:18.16-alpine AS deps
-WORKDIR /app
-
 RUN apk add --no-cache libc6-compat
 
-COPY --link package.json yarn.lock ./
-RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --frozen-lockfile
+WORKDIR /app
 
-# stage-1: generate static HTML files
+COPY --link package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --production && yarn cache clean
+
 FROM node:18.16-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --link  . .
-RUN yarn export
+RUN yarn build
 
-# stage-2: serve static HTML files
 FROM nginx:alpine AS server
 
 COPY --link ./nginx-docker.conf /etc/nginx/conf.d/default.conf

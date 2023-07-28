@@ -2,10 +2,12 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
@@ -47,32 +49,33 @@ func (service LocationService) GetCheckInsEntriesDay(
 	date *time.Time,
 	checkIns []*models.CheckIn,
 	schools []*models.School,
-) map[int64]*dtos.CheckInsLocationEntryRaw {
+) *orderedmap.OrderedMap[int64, *dtos.CheckInsLocationEntryRaw] {
 	schoolsIDNameMap, _ := getSchoolMaps(schools)
 
-	checkInEntries := make(map[int64]*dtos.CheckInsLocationEntryRaw)
+	checkInEntries := orderedmap.New[int64, *dtos.CheckInsLocationEntryRaw]()
 
-	var lastEntry *dtos.CheckInsLocationEntryRaw
+	_, lastEntrySchoolsMap := getSchoolMaps(schools)
 	for _, checkIn := range checkIns {
 		schoolName := schoolsIDNameMap[checkIn.SchoolID]
 
-		_, schoolsMap := getSchoolMaps(schools)
+		var schoolMap *orderedmap.OrderedMap[string, int]
+
+		data, _ := json.Marshal(lastEntrySchoolsMap)
+		_ = json.Unmarshal(data, &schoolMap)
 
 		checkInEntry := &dtos.CheckInsLocationEntryRaw{
 			Capacity: checkIn.Capacity,
-			Schools:  schoolsMap,
+			Schools:  schoolMap,
 		}
 
-		checkInEntry.Schools[schoolName]++
-
-		if lastEntry != nil {
-			checkInEntry.Schools[schoolName] += lastEntry.Schools[schoolName]
-		}
+		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
+		schoolValue++
+		checkInEntry.Schools.Set(schoolName, schoolValue)
 
 		// Struggling with timezones
 		checkIn.CreatedAt.Time = checkIn.CreatedAt.Time.In(date.Location())
-		checkInEntries[checkIn.CreatedAt.Time.Unix()*1000] = checkInEntry
-		lastEntry = checkInEntries[checkIn.CreatedAt.Time.Unix()*1000]
+		checkInEntries.Set(checkIn.CreatedAt.Time.Unix()*1000, checkInEntry)
+		lastEntrySchoolsMap = checkInEntry.Schools
 	}
 
 	return checkInEntries
@@ -83,10 +86,10 @@ func (service LocationService) GetCheckInsEntriesRange(
 	endDate *time.Time,
 	checkIns []*models.CheckIn,
 	schools []*models.School,
-) map[int64]*dtos.CheckInsLocationEntryRaw {
+) *orderedmap.OrderedMap[int64, *dtos.CheckInsLocationEntryRaw] {
 	schoolsIDNameMap, _ := getSchoolMaps(schools)
 
-	checkInEntries := make(map[int64]*dtos.CheckInsLocationEntryRaw)
+	checkInEntries := orderedmap.New[int64, *dtos.CheckInsLocationEntryRaw]()
 	for d := *startDate; !d.After(*endDate); d = d.AddDate(0, 0, 1) {
 		dVal := helpers.StartOfDay(&d)
 
@@ -98,7 +101,7 @@ func (service LocationService) GetCheckInsEntriesRange(
 		}
 
 		// Multiply by 1000 to get milliseconds
-		checkInEntries[dVal.Unix()*1000] = checkInEntry
+		checkInEntries.Set(dVal.Unix()*1000, checkInEntry)
 	}
 
 	for _, checkIn := range checkIns {
@@ -107,9 +110,11 @@ func (service LocationService) GetCheckInsEntriesRange(
 		datetime := helpers.StartOfDay(&checkIn.CreatedAt.Time)
 		schoolName := schoolsIDNameMap[checkIn.SchoolID]
 
-		checkInEntry := checkInEntries[datetime.Unix()*1000]
+		checkInEntry, _ := checkInEntries.Get(datetime.Unix()*1000)
 
-		checkInEntry.Schools[schoolName]++
+		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
+		schoolValue++
+		checkInEntry.Schools.Set(schoolName, schoolValue)
 
 		if checkIn.Capacity > checkInEntry.Capacity {
 			checkInEntry.Capacity = checkIn.Capacity
@@ -121,12 +126,12 @@ func (service LocationService) GetCheckInsEntriesRange(
 
 func getSchoolMaps(
 	schools []*models.School,
-) (map[int64]string, map[string]int) {
+) (map[int64]string, *orderedmap.OrderedMap[string, int]) {
 	schoolsIDNameMap := make(map[int64]string)
-	schoolsMap := make(map[string]int)
+	schoolsMap := orderedmap.New[string, int]()
 	for _, school := range schools {
 		schoolsIDNameMap[school.ID] = school.Name
-		schoolsMap[school.Name] = 0
+		schoolsMap.Set(school.Name, 0)
 	}
 
 	return schoolsIDNameMap, schoolsMap

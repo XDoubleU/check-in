@@ -29,7 +29,6 @@ func (app *application) websocketsRoutes(router *httprouter.Router) {
 func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request) {
 	url := strings.Split(app.config.WebURL, "://")[1]
 
-	//TODO: also allow each manager to have one url && add these in accept options
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
 		OriginPatterns: []string{url},
 	})

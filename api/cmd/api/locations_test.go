@@ -127,8 +127,8 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 		req.AddCookie(user)
 
 		query := req.URL.Query()
-		query.Add("startDate", startDate.Format(constants.DateFormat))
-		query.Add("endDate", endDate.Format(constants.DateFormat))
+		query.Add("startDate", startDate.Format(constants.DateFormatTz))
+		query.Add("endDate", endDate.Format(constants.DateFormatTz))
 		query.Add("returnType", "raw")
 
 		req.URL.RawQuery = query.Encode()
@@ -141,21 +141,26 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
 		assert.Equal(t, rsData[startDate.Unix()*1000].Capacity, 0)
-		assert.Equal(t, rsData[startDate.Unix()*1000].Schools["Andere"], 0)
+
+		value, present := rsData[startDate.Unix()*1000].Schools.Get("Andere")
+		assert.Equal(t, value, 0)
+		assert.Equal(t, present, true)
 
 		assert.Equal(
 			t,
 			rsData[startDate.AddDate(0, 0, 1).Unix()*1000].Capacity,
 			fixtureData.DefaultLocation.Capacity,
 		)
-		assert.Equal(
-			t,
-			rsData[startDate.AddDate(0, 0, 1).Unix()*1000].Schools["Andere"],
-			5,
-		)
+
+		value, present = rsData[startDate.AddDate(0, 0, 1).Unix()*1000].Schools.Get("Andere")
+		assert.Equal(t, value, 5)
+		assert.Equal(t, present, true)
 
 		assert.Equal(t, rsData[endDate.Unix()].Capacity, 0)
-		assert.Equal(t, rsData[endDate.Unix()].Schools["Andere"], 0)
+
+		value, present = rsData[endDate.Unix()*1000].Schools.Get("Andere")
+		assert.Equal(t, value, 0)
+		assert.Equal(t, present, true)
 	}
 }
 
@@ -166,8 +171,8 @@ func TestGetCheckInsLocationRangeCsv(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := time.Now().Format(constants.DateFormatTz)
+	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormatTz)
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -204,8 +209,8 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := time.Now().Format(constants.DateFormatTz)
+	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormatTz)
 
 	id, _ := uuid.NewUUID()
 	req, _ := http.NewRequest(
@@ -242,8 +247,8 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := time.Now().Format(constants.DateFormatTz)
+	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormatTz)
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
@@ -279,7 +284,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormatTz)
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
@@ -310,7 +315,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	startDate := time.Now().Format(constants.DateFormat)
+	startDate := time.Now().Format(constants.DateFormatTz)
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
@@ -341,8 +346,8 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := time.Now().Format(constants.DateFormatTz)
+	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormatTz)
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
@@ -373,8 +378,8 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := time.Now().Format(constants.DateFormatTz)
+	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormatTz)
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
@@ -441,7 +446,7 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 		req.AddCookie(user)
 
 		query := req.URL.Query()
-		query.Add("date", date.Format(constants.DateFormat))
+		query.Add("date", date.Format(constants.DateFormatTz))
 		query.Add("returnType", "raw")
 
 		req.URL.RawQuery = query.Encode()
@@ -464,7 +469,10 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 			rsData[checkInDate].Capacity,
 			fixtureData.DefaultLocation.Capacity,
 		)
-		assert.Equal(t, rsData[checkInDate].Schools["Andere"], 5)
+
+		value, present := rsData[checkInDate].Schools.Get("Andere")
+		assert.Equal(t, value, 5)
+		assert.Equal(t, present, true)
 	}
 }
 
@@ -475,7 +483,7 @@ func TestGetCheckInsLocationDayCsv(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	date := time.Now().Format(constants.DateFormat)
+	date := time.Now().Format(constants.DateFormatTz)
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -511,7 +519,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	date := time.Now().Format(constants.DateFormat)
+	date := time.Now().Format(constants.DateFormatTz)
 
 	id, _ := uuid.NewUUID()
 	req, _ := http.NewRequest(
@@ -547,7 +555,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	date := time.Now().Format(constants.DateFormat)
+	date := time.Now().Format(constants.DateFormatTz)
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
@@ -610,7 +618,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	date := time.Now().Format(constants.DateFormat)
+	date := time.Now().Format(constants.DateFormatTz)
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
@@ -640,7 +648,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	date := time.Now().Format(constants.DateFormat)
+	date := time.Now().Format(constants.DateFormatTz)
 
 	req, _ := http.NewRequest(
 		http.MethodGet,

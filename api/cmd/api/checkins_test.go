@@ -110,8 +110,8 @@ func TestCreateCheckIn(t *testing.T) {
 	assert.Equal(t, rsData.Capacity, fixtureData.DefaultLocation.Capacity)
 	assert.Equal(
 		t,
-		rsData.CreatedAt.Time.Format(constants.DateFormat),
-		time.Now().Format(constants.DateFormat),
+		rsData.CreatedAt.Time.Format(constants.DateFormatTz),
+		time.Now().Format(constants.DateFormatTz),
 	)
 }
 
@@ -145,8 +145,8 @@ func TestCreateCheckInAndere(t *testing.T) {
 	assert.Equal(t, rsData.Capacity, fixtureData.DefaultLocation.Capacity)
 	assert.Equal(
 		t,
-		rsData.CreatedAt.Time.Format(constants.DateFormat),
-		time.Now().Format(constants.DateFormat),
+		rsData.CreatedAt.Time.Format(constants.DateFormatTz),
+		time.Now().Format(constants.DateFormatTz),
 	)
 }
 

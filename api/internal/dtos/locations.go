@@ -1,30 +1,36 @@
 package dtos
 
 import (
+	"time"
+
+	orderedmap "github.com/wk8/go-ordered-map/v2"
+
+	"check-in/api/internal/constants"
 	"check-in/api/internal/models"
 	"check-in/api/internal/validator"
 )
 
 type CheckInsLocationEntryRaw struct {
-	Capacity int64          `json:"capacity"`
-	Schools  map[string]int `json:"schools"`
+	Capacity int64                               `json:"capacity"`
+	Schools  *orderedmap.OrderedMap[string, int] `json:"schools"`
 } //	@name	CheckInsLocationEntryRaw
 
 type CheckInsLocationEntryCsv struct {
-	Datetime int64          `json:"datetime"`
-	Capacity int64          `json:"capacity"`
-	Schools  map[string]int `json:"schools"`
+	Datetime string                              `csv:"datetime"`
+	Capacity int64                               `csv:"capacity"`
+	Schools  *orderedmap.OrderedMap[string, int] `csv:"schools"`
 } //	@name	CheckInsLocationEntryCsv
 
 func ConvertCheckInsLocationEntryRawMapToCsv(
-	entries map[int64]*CheckInsLocationEntryRaw,
+	entries *orderedmap.OrderedMap[int64, *CheckInsLocationEntryRaw],
 ) []*CheckInsLocationEntryCsv {
 	var output []*CheckInsLocationEntryCsv
-	for k, v := range entries {
+
+	for pair := entries.Oldest(); pair != nil; pair = pair.Next() {
 		entry := &CheckInsLocationEntryCsv{
-			Datetime: k,
-			Capacity: v.Capacity,
-			Schools:  v.Schools,
+			Datetime: time.Unix(pair.Key/1000, 0).Format(constants.DateFormat), //nolint:gomnd //no magic number
+			Capacity: pair.Value.Capacity,
+			Schools:  pair.Value.Schools,
 		}
 
 		output = append(output, entry)

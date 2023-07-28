@@ -7,7 +7,7 @@ export default function SettingsHome() {
   const redirects = new Map<Role, string>([
     ["admin", "/settings/locations"],
     ["manager", "/settings/locations"],
-    ["default", "/settings/locations/{locationId}"]
+    ["default", "/settings/locations/[id]"]
   ])
 
   return (

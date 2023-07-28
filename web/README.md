@@ -12,8 +12,7 @@ None; the web-client needs the API and thus the main docker-compose file should 
 
 ## Build Commands
 
-Build:                                                `yarn build`
-Export project as HTML (for running as static site):  `yarn export`
+Build: `yarn build`
 
 ## Test Commands
 

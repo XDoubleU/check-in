@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "export": "next build && next export",
     "format": "prettier --write ./**/*.{ts,tsx}",
     "lint": "next lint && tsc --noEmit && jscpd --config jscpd.json && knip && prettier --check ./**/*.{ts,tsx} && npmPkgJsonLint .",
     "lint:fix": "next lint --fix",
