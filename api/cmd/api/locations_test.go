@@ -152,7 +152,9 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 			fixtureData.DefaultLocation.Capacity,
 		)
 
-		value, present = rsData[startDate.AddDate(0, 0, 1).Unix()*1000].Schools.Get("Andere")
+		value, present = rsData[startDate.AddDate(0, 0, 1).Unix()*1000].Schools.Get(
+			"Andere",
+		)
 		assert.Equal(t, value, 5)
 		assert.Equal(t, present, true)
 
@@ -164,7 +166,7 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 	}
 }
 
-func TestGetCheckInsLocationRangeCsv(t *testing.T) {
+func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
@@ -196,6 +198,8 @@ func TestGetCheckInsLocationRangeCsv(t *testing.T) {
 		req.URL.RawQuery = query.Encode()
 
 		rs, _ := ts.Client().Do(req)
+
+		tests.PrintJSON(rs.Body)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rs.Header.Get("content-type"), "text/csv")
@@ -476,7 +480,7 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 	}
 }
 
-func TestGetCheckInsLocationDayCsv(t *testing.T) {
+func TestGetCheckInsLocationDayCSV(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 

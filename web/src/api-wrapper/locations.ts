@@ -61,7 +61,7 @@ export async function getDataForDayChart(
   )
 }
 
-export function downloadCsvForRangeChart(
+export function downloadCSVForRangeChart(
   locationId: string,
   startDate: Date,
   endDate: Date
@@ -83,7 +83,7 @@ export function downloadCsvForRangeChart(
   )
 }
 
-export function downloadCsvForDayChart(locationId: string, date: Date): void {
+export function downloadCSVForDayChart(locationId: string, date: Date): void {
   if (!isValidUUID(locationId)) {
     return
   }

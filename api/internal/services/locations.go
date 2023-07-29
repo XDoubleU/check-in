@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
@@ -74,7 +75,10 @@ func (service LocationService) GetCheckInsEntriesDay(
 
 		// Struggling with timezones
 		checkIn.CreatedAt.Time = checkIn.CreatedAt.Time.In(date.Location())
-		checkInEntries.Set(checkIn.CreatedAt.Time.Unix()*1000, checkInEntry)
+		checkInEntries.Set(
+			checkIn.CreatedAt.Time.Unix()*constants.SecToMilliSec,
+			checkInEntry,
+		)
 		lastEntrySchoolsMap = checkInEntry.Schools
 	}
 
@@ -101,7 +105,10 @@ func (service LocationService) GetCheckInsEntriesRange(
 		}
 
 		// Multiply by 1000 to get milliseconds
-		checkInEntries.Set(dVal.Unix()*1000, checkInEntry)
+		checkInEntries.Set(
+			dVal.Unix()*constants.SecToMilliSec,
+			checkInEntry,
+		)
 	}
 
 	for _, checkIn := range checkIns {
@@ -110,7 +117,7 @@ func (service LocationService) GetCheckInsEntriesRange(
 		datetime := helpers.StartOfDay(&checkIn.CreatedAt.Time)
 		schoolName := schoolsIDNameMap[checkIn.SchoolID]
 
-		checkInEntry, _ := checkInEntries.Get(datetime.Unix()*1000)
+		checkInEntry, _ := checkInEntries.Get(datetime.Unix() * constants.SecToMilliSec)
 
 		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
 		schoolValue++

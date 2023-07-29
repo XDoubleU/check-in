@@ -4,7 +4,7 @@ import { startOfISOWeek, endOfISOWeek } from "date-fns"
 import CustomButton from "components/CustomButton"
 import RangeChart from "./RangeChart"
 import DayChart from "./DayChart"
-import { downloadCsvForDayChart, downloadCsvForRangeChart } from "api-wrapper"
+import { downloadCSVForDayChart, downloadCSVForRangeChart } from "api-wrapper"
 import { type ChartData } from "./Shared"
 
 interface ChartProps {
@@ -49,7 +49,7 @@ export default function Charts({ locationId }: ChartProps) {
         <CustomButton
           onClick={(event) => {
             event.preventDefault()
-            downloadCsvForRangeChart(locationId, startDate, endDate)
+            downloadCSVForRangeChart(locationId, startDate, endDate)
           }}
         >
           Download as CSV
@@ -71,7 +71,7 @@ export default function Charts({ locationId }: ChartProps) {
         <CustomButton
           onClick={(event) => {
             event.preventDefault()
-            downloadCsvForDayChart(locationId, date)
+            downloadCSVForDayChart(locationId, date)
           }}
         >
           Download as CSV

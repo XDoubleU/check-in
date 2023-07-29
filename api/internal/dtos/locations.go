@@ -1,6 +1,7 @@
 package dtos
 
 import (
+	"strconv"
 	"time"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -15,22 +16,36 @@ type CheckInsLocationEntryRaw struct {
 	Schools  *orderedmap.OrderedMap[string, int] `json:"schools"`
 } //	@name	CheckInsLocationEntryRaw
 
-type CheckInsLocationEntryCsv struct {
-	Datetime string                              `csv:"datetime"`
-	Capacity int64                               `csv:"capacity"`
-	Schools  *orderedmap.OrderedMap[string, int] `csv:"schools"`
-} //	@name	CheckInsLocationEntryCsv
-
-func ConvertCheckInsLocationEntryRawMapToCsv(
+func ConvertCheckInsLocationEntryRawMapToCSV(
+	timezone *time.Location,
+	timeFormat string,
 	entries *orderedmap.OrderedMap[int64, *CheckInsLocationEntryRaw],
-) []*CheckInsLocationEntryCsv {
-	var output []*CheckInsLocationEntryCsv
+) [][]string {
+	var output [][]string
+
+	var headers []string
+	headers = append(headers, "datetime")
+	headers = append(headers, "capacity")
+
+	singleEntry := entries.Oldest().Value
+	for school := singleEntry.Schools.Oldest(); school != nil; school = school.Next() {
+		headers = append(headers, school.Key)
+	}
+	output = append(output, headers)
 
 	for pair := entries.Oldest(); pair != nil; pair = pair.Next() {
-		entry := &CheckInsLocationEntryCsv{
-			Datetime: time.Unix(pair.Key/1000, 0).Format(constants.DateFormat), //nolint:gomnd //no magic number
-			Capacity: pair.Value.Capacity,
-			Schools:  pair.Value.Schools,
+		var entry []string
+
+		entry = append(
+			entry,
+			time.Unix(pair.Key/constants.SecToMilliSec, 0).
+				In(timezone).
+				Format(timeFormat),
+		)
+		entry = append(entry, strconv.FormatInt(pair.Value.Capacity, 10))
+
+		for school := pair.Value.Schools.Oldest(); school != nil; school = school.Next() {
+			entry = append(entry, strconv.Itoa(school.Value))
 		}
 
 		output = append(output, entry)
