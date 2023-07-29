@@ -13,6 +13,7 @@ None; the web-client needs the API and thus the main docker-compose file should 
 ## Build Commands
 
 Build: `yarn build`
+Build with bundle analyzer: `yarn analyze`
 
 ## Test Commands
 

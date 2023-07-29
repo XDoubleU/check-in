@@ -17,18 +17,33 @@ const nextConfig = {
     ignoreDuringBuilds: true
   },
   typescript: {
-    ignoreDuringBuilds: true
+    ignoreBuildErrors: true
   },
   sassOptions: {
     includePaths: ["./styles"],
   },
-  output: "export"
+  output: "export",
+  sentry: {
+    hideSourceMaps: true
+  },
+  webpack: (config, { webpack }) => {
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        __SENTRY_DEBUG__: false,
+      })
+    )
+
+    // return the modified config
+    return config;
+  },
 }
 
-module.exports = nextConfig
+module.exports = withSentryConfig(nextConfig, { silent: true })
 
-module.exports = withSentryConfig(
-  module.exports,
-  { silent: true },
-  { hideSourcemaps: true },
-);
+if (process.env.ANALYZE === "true") {
+  const withBundleAnalyzer = require("@next/bundle-analyzer")({
+    enabled: true
+  })
+  
+  module.exports = withBundleAnalyzer(module.exports)
+}

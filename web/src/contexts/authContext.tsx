@@ -91,7 +91,7 @@ function redirect(
     let query: ParsedUrlQueryInput | undefined
     if (redirectUrl.includes("[id]")) {
       query = { id: user.location?.id }
-    } 
+    }
 
     return router.push({
       pathname: redirectUrl,
