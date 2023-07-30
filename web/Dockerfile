@@ -9,7 +9,16 @@ RUN yarn install --frozen-lockfile --production && yarn cache clean
 FROM node:18.16-alpine AS builder
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
+ARG NODE_ENV
+ARG PORT
+ARG NEXT_PUBLIC_API_URL
+ARG SENTRY_RELEASE
+ARG NEXT_PUBLIC_SENTRY_DSN
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
+ARG SENTRY_AUTH_TOKEN
+
+COPY --from=deps --link /app/node_modules ./node_modules
 COPY --link  . .
 RUN yarn build
 
@@ -21,4 +30,4 @@ WORKDIR /usr/share/nginx/html
 
 RUN rm -rf ./*
 
-COPY --from=builder /app/out /usr/share/nginx/html
+COPY --from=builder --link /app/out /usr/share/nginx/html

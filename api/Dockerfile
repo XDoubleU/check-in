@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 go build -o=./bin/api ./cmd/api
 FROM scratch AS server
 WORKDIR /app
 
-COPY --from=builder /app/bin/api ./bin/api
+COPY --from=builder --link /app/bin/api ./bin/api
 
 EXPOSE 8000
 CMD ["./bin/api"]

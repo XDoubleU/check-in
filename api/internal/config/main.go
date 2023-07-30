@@ -1,10 +1,6 @@
 //nolint:gomnd //no magic number
 package config
 
-import (
-	"github.com/joho/godotenv"
-)
-
 type Config struct {
 	Env           string
 	Port          int
@@ -22,14 +18,12 @@ type Config struct {
 }
 
 const (
-	ProdEnv string = "prod"
+	ProdEnv string = "production"
 	TestEnv string = "test"
-	DevEnv  string = "dev"
+	DevEnv  string = "development"
 )
 
 func New() Config {
-	godotenv.Load() //nolint:errcheck //no need to check err
-
 	var config Config
 
 	config.Env = GetEnvStr("ENV", ProdEnv)

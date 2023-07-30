@@ -7,7 +7,6 @@ import { AuthRedirecter, useAuth } from "contexts/authContext"
 import BaseForm from "components/forms/BaseForm"
 import FormInput from "components/forms/FormInput"
 import { type SignInDto } from "api-wrapper/types/apiTypes"
-import { useEffect } from "react"
 
 // eslint-disable-next-line max-lines-per-function
 export default function SignIn() {
@@ -37,9 +36,6 @@ export default function SignIn() {
       //return new Promise((resolve) => resolve(true))
     })
   }
-
-  //TODO: remove
-  return <button onClick={() => methodDoesNotExist()}>Break the world</button>;
 
   return (
     <AuthRedirecter>

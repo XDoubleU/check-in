@@ -38,7 +38,7 @@ const nextConfig = {
   },
 }
 
-module.exports = withSentryConfig(nextConfig, { silent: true })
+module.exports = withSentryConfig(nextConfig, { silent: false })
 
 if (process.env.ANALYZE === "true") {
   const withBundleAnalyzer = require("@next/bundle-analyzer")({

@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     environment:
-      - ENV=dev
+      - ENV=development
       - PORT=8000
       - WEB_URL=http://localhost:3000
       - DB_DSN=postgres://postgres@db/postgres
@@ -31,23 +31,24 @@ services:
       # - SENTRY_AUTH_TOKEN=
   
   web:
-    build: ./web
+    build:
+      context: ./web
+      args:
+      - NODE_ENV=development
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      # Necessary when using Sentry
+      # - SENTRY_RELEASE=${_self.COMMIT_HASH}
+      # - NEXT_PUBLIC_SENTRY_DSN=
+      # - SENTRY_ORG=
+      # - SENTRY_PROJECT=
+      # - SENTRY_AUTH_TOKEN=
     volumes:
       - ./web:/usr/src/web
     ports:
       - "3000:3000"
     depends_on:
       - api
-    environment:
-      - NODE_ENV=dev
-      - PORT=3000
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
-      # Necessary when using Sentry
-      # - RELEASE=${_self.COMMIT_HASH}
-      # - NEXT_PUBLIC_SENTRY_DSN=
-      # - SENTRY_ORG=
-      # - SENTRY_PROJECT=
-      # - SENTRY_AUTH_TOKEN=
 
 volumes:
   postgres_data:

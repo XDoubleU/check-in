@@ -18,7 +18,7 @@ func (app *application) routes() http.Handler {
 		AllowedOrigins:   []string{app.config.WebURL},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE"},
-		AllowedHeaders:   []string{"Content-Type"},
+		AllowedHeaders:   []string{"Baggage", "Content-Type", "Sentry-Trace"},
 	})
 
 	sentryHandler := app.getSentryHandler()

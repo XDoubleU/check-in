@@ -165,7 +165,7 @@ func locationFixtures(services services.Services) error {
 	}
 
 	for _, location := range locations {
-		err = services.Locations.Delete(context.Background(), location.ID)
+		err = services.Locations.Delete(context.Background(), location)
 		if err != nil {
 			return err
 		}

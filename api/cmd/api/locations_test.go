@@ -199,8 +199,6 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 
 		rs, _ := ts.Client().Do(req)
 
-		tests.PrintJSON(rs.Body)
-
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rs.Header.Get("content-type"), "text/csv")
 	}

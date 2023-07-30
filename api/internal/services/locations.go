@@ -519,13 +519,57 @@ func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 	return nil
 }
 
-func (service LocationService) Delete(ctx context.Context, id string) error {
+func (service LocationService) Delete(ctx context.Context, location *models.Location) error {
+	tx, err := service.db.Begin(ctx)
+	defer tx.Rollback(ctx) //nolint:errcheck //deferred
+	if err != nil {
+		return handleError(err)
+	}
+
+	err = deleteLocation(ctx, tx, location.ID)
+	if err != nil {
+		return err
+	}
+
+	err = deleteUser(ctx, tx, location.UserID)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func deleteLocation(ctx context.Context, tx pgx.Tx, id string) error {
 	query := `
 		DELETE FROM locations
 		WHERE id = $1
 	`
 
-	result, err := service.db.Exec(ctx, query, id)
+	result, err := tx.Exec(ctx, query, id)
+	if err != nil {
+		return handleError(err)
+	}
+
+	rowsAffected := result.RowsAffected()
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
+}
+
+func deleteUser(ctx context.Context, tx pgx.Tx, id string) error {
+	query := `
+		DELETE FROM users
+		WHERE id = $1 AND role = 'default'
+	`
+
+	result, err := tx.Exec(ctx, query, id)
 	if err != nil {
 		return handleError(err)
 	}

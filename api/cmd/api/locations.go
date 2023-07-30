@@ -517,7 +517,7 @@ func (app *application) deleteLocationHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = app.services.Locations.Delete(r.Context(), location.ID)
+	err = app.services.Locations.Delete(r.Context(), location)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
