@@ -10,9 +10,9 @@ import {
   type ChartData,
   DataLoading,
   NoDataFound,
-  SharedComposedChart,
-  WEB_DATE_FORMAT
+  SharedComposedChart
 } from "./Shared"
+import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
 
 interface DayChartProps extends FilterProps {
   locationId: string
@@ -32,7 +32,7 @@ function Filter({ date, setDate }: FilterProps) {
         <FormInput
           label="Date"
           type="date"
-          value={format(date, WEB_DATE_FORMAT)}
+          value={format(date, DATE_FORMAT)}
           onChange={(e) => setDate(new Date(e.target.value))}
         />
       </Col>

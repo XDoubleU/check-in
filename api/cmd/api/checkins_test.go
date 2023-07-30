@@ -24,11 +24,17 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 
 	defaultLocation := *fixtureData.DefaultLocation
 
+	timezone, err := time.LoadLocation("Europe/Brussels")
+	if err != nil {
+		panic(err)
+	}
+
 	for i := 0; i < 10; i++ {
 		_, _ = testApp.services.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
 			&models.School{ID: 1},
+			timezone,
 		)
 	}
 
@@ -37,6 +43,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 			context.Background(),
 			&defaultLocation,
 			fixtureData.Schools[0],
+			timezone,
 		)
 	}
 
@@ -110,8 +117,8 @@ func TestCreateCheckIn(t *testing.T) {
 	assert.Equal(t, rsData.Capacity, fixtureData.DefaultLocation.Capacity)
 	assert.Equal(
 		t,
-		rsData.CreatedAt.Time.Format(constants.DateFormatTz),
-		time.Now().Format(constants.DateFormatTz),
+		rsData.CreatedAt.Time.Format(constants.DateFormat),
+		time.Now().Format(constants.DateFormat),
 	)
 }
 
@@ -145,8 +152,8 @@ func TestCreateCheckInAndere(t *testing.T) {
 	assert.Equal(t, rsData.Capacity, fixtureData.DefaultLocation.Capacity)
 	assert.Equal(
 		t,
-		rsData.CreatedAt.Time.Format(constants.DateFormatTz),
-		time.Now().Format(constants.DateFormatTz),
+		rsData.CreatedAt.Time.Format(constants.DateFormat),
+		time.Now().Format(constants.DateFormat),
 	)
 }
 

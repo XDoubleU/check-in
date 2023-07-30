@@ -19,11 +19,11 @@ func (service CheckInService) GetAllInRange(
 	endDate *time.Time,
 ) ([]*models.CheckIn, error) {
 	query := `
-		SELECT school_id, capacity, created_at
+		SELECT school_id, capacity, (created_at at time zone created_at_time_zone)
 		FROM check_ins
 		WHERE location_id = $1
-		AND created_at >= $2
-		AND created_at <= $3
+		AND (created_at at time zone created_at_time_zone) >= $2
+		AND (created_at at time zone created_at_time_zone) <= $3
 	`
 
 	rows, err := service.db.Query(ctx, query, locationID, startDate, endDate)
@@ -60,11 +60,12 @@ func (service CheckInService) Create(
 	ctx context.Context,
 	location *models.Location,
 	school *models.School,
+	timeLocation *time.Location,
 ) (*models.CheckIn, error) {
 	query := `
-		INSERT INTO check_ins (location_id, school_id, capacity)
-		VALUES ($1, $2, $3)
-		RETURNING id, created_at
+		INSERT INTO check_ins (location_id, school_id, capacity, created_at_time_zone)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, (created_at at time zone created_at_time_zone)
 	`
 
 	checkIn := models.CheckIn{
@@ -79,6 +80,7 @@ func (service CheckInService) Create(
 		location.ID,
 		school.ID,
 		location.Capacity,
+		timeLocation.String(),
 	).Scan(&checkIn.ID, &checkIn.CreatedAt)
 
 	if err != nil {

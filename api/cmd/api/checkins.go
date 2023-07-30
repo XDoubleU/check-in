@@ -2,7 +2,9 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 
@@ -82,6 +84,17 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	var timeZone *time.Location
+	timeZone, err = time.LoadLocation(checkInDto.TimeZone)
+	if err != nil {
+		app.badRequestResponse(
+			w,
+			r,
+			fmt.Errorf("'%s' is not a valid time zone", checkInDto.TimeZone),
+		)
+		return
+	}
+
 	user := app.contextGetUser(r)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
@@ -104,6 +117,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		r.Context(),
 		location,
 		school,
+		timeZone,
 	)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

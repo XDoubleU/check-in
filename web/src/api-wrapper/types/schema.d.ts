@@ -274,7 +274,7 @@ export type paths = {
         query: {
           /** ReturnType ('raw' or 'csv') */
           returnType: string;
-          /** Date (format: 'yyyy-MM-ddx') */
+          /** Date (format: 'yyyy-MM-dd') */
           date: string;
         };
       };
@@ -312,9 +312,9 @@ export type paths = {
         query: {
           /** ReturnType ('raw' or 'csv') */
           returnType: string;
-          /** StartDate (format: 'yyyy-MM-ddx') */
+          /** StartDate (format: 'yyyy-MM-dd') */
           startDate: string;
-          /** EndDate (format: 'yyyy-MM-ddx') */
+          /** EndDate (format: 'yyyy-MM-dd') */
           endDate: string;
         };
       };
@@ -648,6 +648,7 @@ export type definitions = {
   };
   CheckInDto: {
     schoolId?: number;
+    timeZone?: string;
   };
   CheckInsLocationEntryRaw: {
     capacity?: number;

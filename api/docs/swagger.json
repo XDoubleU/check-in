@@ -449,7 +449,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "Date (format: 'yyyy-MM-ddx')",
+                        "description": "Date (format: 'yyyy-MM-dd')",
                         "name": "date",
                         "in": "query",
                         "required": true
@@ -515,14 +515,14 @@
                     },
                     {
                         "type": "string",
-                        "description": "StartDate (format: 'yyyy-MM-ddx')",
+                        "description": "StartDate (format: 'yyyy-MM-dd')",
                         "name": "startDate",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "EndDate (format: 'yyyy-MM-ddx')",
+                        "description": "EndDate (format: 'yyyy-MM-dd')",
                         "name": "endDate",
                         "in": "query",
                         "required": true
@@ -1058,6 +1058,9 @@
             "properties": {
                 "schoolId": {
                     "type": "integer"
+                },
+                "timeZone": {
+                    "type": "string"
                 }
             }
         },
@@ -1070,7 +1073,7 @@
                 "schools": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "integer"
+                        "type": "number"
                     }
                 }
             }

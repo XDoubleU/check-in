@@ -42,4 +42,4 @@ export type CheckInsLocationEntryRawMap = {
   [x: number]: CheckInsLocationEntryRaw
 }
 
-export const API_DATE_FORMAT = "yyyy-MM-ddx"
+export const DATE_FORMAT = "yyyy-MM-dd"

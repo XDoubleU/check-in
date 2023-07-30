@@ -76,10 +76,10 @@ func ReadDateQueryParam(
 		return defaultValue, nil
 	}
 
-	value, err := time.Parse(constants.DateFormatTz, param)
+	value, err := time.Parse(constants.DateFormat, param)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"invalid %s query param, needs timezone (yyyy-MM-ddx)",
+			"invalid %s query param, need format yyyy-MM-dd",
 			name,
 		)
 	}

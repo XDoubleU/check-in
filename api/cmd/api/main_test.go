@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/database"
@@ -159,6 +160,11 @@ func userFixtures(services services.Services) (*Tokens, error) {
 }
 
 func locationFixtures(services services.Services) error {
+	timezone, err := time.LoadLocation("Europe/Brussels")
+	if err != nil {
+		return err
+	}
+
 	locations, err := services.Locations.GetAll(context.Background())
 	if err != nil {
 		return err
@@ -202,6 +208,7 @@ func locationFixtures(services services.Services) error {
 			context.Background(),
 			fixtureData.DefaultLocation,
 			&models.School{ID: 1},
+			timezone,
 		)
 		if err != nil {
 			return err
@@ -226,6 +233,7 @@ func locationFixtures(services services.Services) error {
 				context.Background(),
 				location,
 				&models.School{ID: 1},
+				timezone,
 			)
 			if err != nil {
 				return err

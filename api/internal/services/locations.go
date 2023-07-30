@@ -31,7 +31,7 @@ const availableQuery = `
 `
 
 const yesterdayFullAtQuery = `
-	(	SELECT MAX(check_ins.created_at)
+	(	SELECT MAX(check_ins.created_at at time zone created_at_time_zone)
 		FROM check_ins
 		INNER JOIN (
 			SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
@@ -59,14 +59,14 @@ func (service LocationService) GetCheckInsEntriesDay(
 	for _, checkIn := range checkIns {
 		schoolName := schoolsIDNameMap[checkIn.SchoolID]
 
-		var schoolMap *orderedmap.OrderedMap[string, int]
+		var schoolsMap dtos.SchoolsMap
 
 		data, _ := json.Marshal(lastEntrySchoolsMap)
-		_ = json.Unmarshal(data, &schoolMap)
+		_ = json.Unmarshal(data, &schoolsMap)
 
 		checkInEntry := &dtos.CheckInsLocationEntryRaw{
 			Capacity: checkIn.Capacity,
-			Schools:  schoolMap,
+			Schools:  schoolsMap,
 		}
 
 		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
@@ -519,7 +519,10 @@ func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 	return nil
 }
 
-func (service LocationService) Delete(ctx context.Context, location *models.Location) error {
+func (service LocationService) Delete(
+	ctx context.Context,
+	location *models.Location,
+) error {
 	tx, err := service.db.Begin(ctx)
 	defer tx.Rollback(ctx) //nolint:errcheck //deferred
 	if err != nil {

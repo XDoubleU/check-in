@@ -10,7 +10,7 @@ import {
   type UpdateLocationDto
 } from "./types/apiTypes"
 import queryString from "query-string"
-import { API_DATE_FORMAT } from "api-wrapper/types/apiTypes"
+import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
 import { format } from "date-fns"
 
 const LOCATIONS_ENDPOINT = "locations"
@@ -32,8 +32,8 @@ export async function getDataForRangeChart(
     undefined,
     undefined,
     {
-      startDate: format(startDate, API_DATE_FORMAT),
-      endDate: format(endDate, API_DATE_FORMAT),
+      startDate: format(startDate, DATE_FORMAT),
+      endDate: format(endDate, DATE_FORMAT),
       returnType: "raw"
     }
   )
@@ -55,7 +55,7 @@ export async function getDataForDayChart(
     undefined,
     undefined,
     {
-      date: format(date, API_DATE_FORMAT),
+      date: format(date, DATE_FORMAT),
       returnType: "raw"
     }
   )
@@ -71,8 +71,8 @@ export function downloadCSVForRangeChart(
   }
 
   const query = queryString.stringify({
-    startDate: format(startDate, API_DATE_FORMAT),
-    endDate: format(endDate, API_DATE_FORMAT),
+    startDate: format(startDate, DATE_FORMAT),
+    endDate: format(endDate, DATE_FORMAT),
     returnType: "csv"
   })
 
@@ -89,7 +89,7 @@ export function downloadCSVForDayChart(locationId: string, date: Date): void {
   }
 
   const query = queryString.stringify({
-    date: format(date, API_DATE_FORMAT),
+    date: format(date, DATE_FORMAT),
     returnType: "csv"
   })
 

@@ -7,12 +7,12 @@ import {
   type ChartData,
   DataLoading,
   NoDataFound,
-  SharedComposedChart,
-  WEB_DATE_FORMAT
+  SharedComposedChart
 } from "./Shared"
 import { convertToChartData, extractAllSchools } from "./dataProcessing"
 import { format } from "date-fns"
 import FormInput from "components/forms/FormInput"
+import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
 
 interface RangeChartProps extends FilterProps {
   locationId: string
@@ -34,18 +34,18 @@ function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
         <FormInput
           label="Start date"
           type="date"
-          value={format(startDate, WEB_DATE_FORMAT)}
+          value={format(startDate, DATE_FORMAT)}
           onChange={(e) => setStartDate(new Date(e.target.value))}
-          max={format(endDate, WEB_DATE_FORMAT)}
+          max={format(endDate, DATE_FORMAT)}
         />
       </Col>
       <Col>
         <FormInput
           label="End date"
           type="date"
-          value={format(endDate, WEB_DATE_FORMAT)}
+          value={format(endDate, DATE_FORMAT)}
           onChange={(e) => setEndDate(new Date(e.target.value))}
-          min={format(startDate, WEB_DATE_FORMAT)}
+          min={format(startDate, DATE_FORMAT)}
         />
       </Col>
     </Row>
@@ -123,7 +123,7 @@ export default function RangeChart({
       <SharedComposedChart
         data={rangeData}
         xAxisTickFomatter={(datetime: number) =>
-          format(new Date(datetime), WEB_DATE_FORMAT)
+          format(new Date(datetime), DATE_FORMAT)
         }
       >
         {schools.map((school, index) => {

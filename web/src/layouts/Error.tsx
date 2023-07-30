@@ -15,8 +15,8 @@ export default function Error() {
         <title>Something went wrong</title>
       </Head>
       <div style={style}>
-      <h1>Oops, something went wrong</h1>
-    </div>
+        <h1>Oops, something went wrong</h1>
+      </div>
     </>
   )
 }

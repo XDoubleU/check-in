@@ -37,7 +37,10 @@ CREATE TABLE IF NOT EXISTS check_ins (
     location_id uuid NOT NULL REFERENCES locations ON DELETE CASCADE,
     school_id int4 NOT NULL DEFAULT 1 REFERENCES schools ON DELETE SET DEFAULT,
     capacity int4 NOT NULL,
-    created_at timestamptz (0) NOT NULL DEFAULT now()
+    created_at timestamptz (0) NOT NULL DEFAULT now(),
+    created_at_time_zone text CHECK (
+        now() AT TIME ZONE created_at_time_zone IS NOT NULL
+    )
 );
 
 -- +goose StatementEnd

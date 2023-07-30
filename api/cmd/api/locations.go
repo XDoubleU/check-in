@@ -57,7 +57,7 @@ func (app *application) locationsRoutes(router *httprouter.Router) {
 // @Tags		locations
 // @Param		id			path		string	true	"Location ID"
 // @Param		returnType	query		string	true	"ReturnType ('raw' or 'csv')"
-// @Param		date		query		string	true	"Date (format: 'yyyy-MM-ddx')"
+// @Param		date		query		string	true	"Date (format: 'yyyy-MM-dd')"
 // @Success	200			{object}	[]CheckInsLocationEntryRaw
 // @Failure	400			{object}	ErrorDto
 // @Failure	401			{object}	ErrorDto
@@ -147,8 +147,8 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 // @Tags		locations
 // @Param		id			path		string	true	"Location ID"
 // @Param		returnType	query		string	true	"ReturnType ('raw' or 'csv')"
-// @Param		startDate	query		string	true	"StartDate (format: 'yyyy-MM-ddx')"
-// @Param		endDate		query		string	true	"EndDate (format: 'yyyy-MM-ddx')"
+// @Param		startDate	query		string	true	"StartDate (format: 'yyyy-MM-dd')"
+// @Param		endDate		query		string	true	"EndDate (format: 'yyyy-MM-dd')"
 // @Success	200			{object}	[]CheckInsLocationEntryRaw
 // @Failure	400			{object}	ErrorDto
 // @Failure	401			{object}	ErrorDto

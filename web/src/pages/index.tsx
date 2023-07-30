@@ -78,7 +78,8 @@ export default function CheckIn() {
 
   const onClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     void createCheckIn({
-      schoolId: parseInt((event.target as HTMLButtonElement).value)
+      schoolId: parseInt((event.target as HTMLButtonElement).value),
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
     })
 
     setAvailable(available - 1)

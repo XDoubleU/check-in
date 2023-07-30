@@ -11,9 +11,11 @@ import (
 	"check-in/api/internal/validator"
 )
 
+type SchoolsMap = *orderedmap.OrderedMap[string, int]
+
 type CheckInsLocationEntryRaw struct {
-	Capacity int64                               `json:"capacity"`
-	Schools  *orderedmap.OrderedMap[string, int] `json:"schools"`
+	Capacity int64      `json:"capacity"`
+	Schools  SchoolsMap `json:"schools"  swaggertype:"object,number"`
 } //	@name	CheckInsLocationEntryRaw
 
 func ConvertCheckInsLocationEntryRawMapToCSV(

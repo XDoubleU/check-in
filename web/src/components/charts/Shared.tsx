@@ -18,8 +18,6 @@ export type ChartDataEntry = {
 }
 export type ChartData = ChartDataEntry[]
 
-export const WEB_DATE_FORMAT = "yyyy-MM-dd"
-
 const RESPONSIVE_CONTAINER_PROPS = {
   width: "100%",
   height: 500,
