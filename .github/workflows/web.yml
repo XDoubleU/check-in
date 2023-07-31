@@ -37,7 +37,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build
-          path: ./web/build.zip
+          path: ./web
       - run: unzip build.zip
         working-directory: './web'
       - uses: actions/setup-node@v3
