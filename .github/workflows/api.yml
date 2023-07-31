@@ -8,13 +8,14 @@ on:
     
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  
+defaults:
+  run: 
+    working-directory: ./api
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run: 
-        working-directory: ./api
         
     steps:
       - uses: actions/checkout@v3
