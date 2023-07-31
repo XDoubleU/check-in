@@ -12,8 +12,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
+    defaults:
+      run: 
         working-directory: ./api
+        
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
