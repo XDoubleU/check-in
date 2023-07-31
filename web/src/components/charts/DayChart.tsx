@@ -1,4 +1,3 @@
-import { format } from "date-fns"
 import { getDataForDayChart } from "api-wrapper"
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
 import { Col, Row } from "react-bootstrap"
@@ -12,7 +11,8 @@ import {
   NoDataFound,
   SharedComposedChart
 } from "./Shared"
-import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
+import { DATE_FORMAT, TIME_FORMAT } from "api-wrapper/types/apiTypes"
+import moment, { type Moment } from "moment"
 
 interface DayChartProps extends FilterProps {
   locationId: string
@@ -21,8 +21,8 @@ interface DayChartProps extends FilterProps {
 }
 
 interface FilterProps {
-  date: Date
-  setDate: Dispatch<SetStateAction<Date>>
+  date: Moment
+  setDate: Dispatch<SetStateAction<Moment>>
 }
 
 function Filter({ date, setDate }: FilterProps) {
@@ -32,8 +32,8 @@ function Filter({ date, setDate }: FilterProps) {
         <FormInput
           label="Date"
           type="date"
-          value={format(date, DATE_FORMAT)}
-          onChange={(e) => setDate(new Date(e.target.value))}
+          value={date.format(DATE_FORMAT)}
+          onChange={(e) => setDate(moment(e.target.value))}
         />
       </Col>
       <Col></Col>
@@ -94,8 +94,8 @@ export default function DayChart({
       <Filter date={date} setDate={setDate} />
       <SharedComposedChart
         data={dayData}
-        xAxisTickFomatter={(datetime: number) =>
-          format(new Date(datetime), "HH:mm")
+        xAxisTickFomatter={(datetime: string) =>
+          moment.utc(datetime).format(TIME_FORMAT)
         }
       >
         {schools.map((school, index) => {

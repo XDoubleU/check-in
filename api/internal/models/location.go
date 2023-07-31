@@ -14,6 +14,7 @@ type Location struct {
 	Available       int64              `json:"available"`
 	Capacity        int64              `json:"capacity"`
 	YesterdayFullAt pgtype.Timestamptz `json:"yesterdayFullAt" swaggertype:"string"`
+	TimeZone        string             `json:"timeZone"`
 	UserID          string             `json:"userId"`
 } //	@name	Location
 

@@ -29,7 +29,10 @@ CREATE TABLE IF NOT EXISTS locations (
     id uuid NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     name varchar(255) NOT NULL UNIQUE,
     capacity int4 NOT NULL,
-    user_id uuid NOT NULL UNIQUE REFERENCES users ON DELETE CASCADE
+    user_id uuid NOT NULL UNIQUE REFERENCES users ON DELETE CASCADE,
+    time_zone text CHECK (
+        now() AT TIME ZONE time_zone IS NOT NULL
+    )
 );
 
 CREATE TABLE IF NOT EXISTS check_ins (
@@ -37,10 +40,7 @@ CREATE TABLE IF NOT EXISTS check_ins (
     location_id uuid NOT NULL REFERENCES locations ON DELETE CASCADE,
     school_id int4 NOT NULL DEFAULT 1 REFERENCES schools ON DELETE SET DEFAULT,
     capacity int4 NOT NULL,
-    created_at timestamptz (0) NOT NULL DEFAULT now(),
-    created_at_time_zone text CHECK (
-        now() AT TIME ZONE created_at_time_zone IS NOT NULL
-    )
+    created_at timestamp with time zone NOT NULL DEFAULT now()
 );
 
 -- +goose StatementEnd

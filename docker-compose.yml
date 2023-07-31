@@ -34,10 +34,10 @@ services:
     build:
       context: ./web
       args:
-      - NODE_ENV=development
-      - PORT=3000
       - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_EDIT_TIME_ZONE=false
       # Necessary when using Sentry
+      # - SENTRY_ENVIRONMENT=development
       # - SENTRY_RELEASE=${_self.COMMIT_HASH}
       # - NEXT_PUBLIC_SENTRY_DSN=
       # - SENTRY_ORG=

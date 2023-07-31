@@ -44,126 +44,8 @@ var cfg config.Config              //nolint:gochecknoglobals //global var for te
 var logger *log.Logger             //nolint:gochecknoglobals //global var for tests
 var fixtureData FixtureData        //nolint:gochecknoglobals //global var for tests
 
-func userFixtures(services services.Services) (*Tokens, error) {
+func clearAll(services services.Services) error {
 	fixtureData.AmountOfManagerUsers = 0
-
-	password := "testpassword"
-
-	adminUser, err := services.Users.Create(context.Background(),
-		"Admin",
-		password,
-		models.AdminRole,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	managerUser, err := services.Users.Create(context.Background(),
-		"Manager",
-		password,
-		models.ManagerRole,
-	)
-	if err != nil {
-		return nil, err
-	}
-	fixtureData.AmountOfManagerUsers++
-
-	defaultUser, err := services.Users.Create(context.Background(),
-		"Default",
-		password,
-		models.DefaultRole,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	fixtureData.AdminUser = adminUser
-	fixtureData.ManagerUser = managerUser
-	fixtureData.DefaultUser = defaultUser
-
-	for i := 0; i < 20; i++ {
-		var newUser *models.User
-		newUser, err = services.Users.Create(context.Background(),
-			fmt.Sprintf("TestDefaultUser%d", i),
-			password,
-			models.DefaultRole,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		fixtureData.DefaultUsers = append(fixtureData.DefaultUsers, newUser)
-	}
-
-	for i := 0; i < 10; i++ {
-		var newUser *models.User
-		newUser, err = services.Users.Create(context.Background(),
-			fmt.Sprintf("TestManagerUser%d", i),
-			password,
-			models.ManagerRole,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		fixtureData.AmountOfManagerUsers++
-
-		fixtureData.ManagerUsers = append(fixtureData.ManagerUsers, newUser)
-	}
-
-	adminAccessToken, err := services.Auth.CreateCookie(context.Background(),
-		models.AccessScope,
-		adminUser.ID,
-		cfg.AccessExpiry,
-		false,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	managerAccessToken, err := services.Auth.CreateCookie(context.Background(),
-		models.AccessScope,
-		managerUser.ID,
-		cfg.AccessExpiry,
-		false,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	defaultAccessToken, err := services.Auth.CreateCookie(context.Background(),
-		models.AccessScope,
-		defaultUser.ID,
-		cfg.AccessExpiry,
-		false,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	defaultRefreshToken, err := services.Auth.CreateCookie(context.Background(),
-		models.RefreshScope,
-		defaultUser.ID,
-		cfg.RefreshExpiry,
-		false,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Tokens{
-		AdminAccessToken:    adminAccessToken,
-		ManagerAccessToken:  managerAccessToken,
-		DefaultAccessToken:  defaultAccessToken,
-		DefaultRefreshToken: defaultRefreshToken,
-	}, nil
-}
-
-func locationFixtures(services services.Services) error {
-	timezone, err := time.LoadLocation("Europe/Brussels")
-	if err != nil {
-		return err
-	}
 
 	locations, err := services.Locations.GetAll(context.Background())
 	if err != nil {
@@ -179,16 +61,141 @@ func locationFixtures(services services.Services) error {
 
 	fixtureData.AmountOfLocations = 0
 
+	schools, err := services.Schools.GetAll(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, school := range schools {
+		if school.ID == 1 {
+			continue
+		}
+
+		err = services.Schools.Delete(context.Background(), school.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	fixtureData.AmountOfSchools = 0
+
+	return nil
+}
+
+func userFixtures(services services.Services) error {
+	password := "testpassword"
+
+	adminUser, err := services.Users.Create(context.Background(),
+		"Admin",
+		password,
+		models.AdminRole,
+	)
+	if err != nil {
+		return err
+	}
+
+	managerUser, err := services.Users.Create(context.Background(),
+		"Manager",
+		password,
+		models.ManagerRole,
+	)
+	if err != nil {
+		return err
+	}
+	fixtureData.AmountOfManagerUsers++
+
+	fixtureData.AdminUser = adminUser
+	fixtureData.ManagerUser = managerUser
+
+	for i := 0; i < 10; i++ {
+		var newUser *models.User
+		newUser, err = services.Users.Create(context.Background(),
+			fmt.Sprintf("TestManagerUser%d", i),
+			password,
+			models.ManagerRole,
+		)
+		if err != nil {
+			return err
+		}
+
+		fixtureData.AmountOfManagerUsers++
+
+		fixtureData.ManagerUsers = append(fixtureData.ManagerUsers, newUser)
+	}
+
+	adminAccessToken, err := services.Auth.CreateCookie(context.Background(),
+		models.AccessScope,
+		adminUser.ID,
+		cfg.AccessExpiry,
+		false,
+	)
+	if err != nil {
+		return err
+	}
+
+	managerAccessToken, err := services.Auth.CreateCookie(context.Background(),
+		models.AccessScope,
+		managerUser.ID,
+		cfg.AccessExpiry,
+		false,
+	)
+	if err != nil {
+		return err
+	}
+
+	tokens.AdminAccessToken = adminAccessToken
+	tokens.ManagerAccessToken = managerAccessToken
+
+	return nil
+}
+
+func locationFixtures(services services.Services) error {
+	timezone, err := time.LoadLocation("Europe/Brussels")
+	if err != nil {
+		return err
+	}
+
 	fixtureData.DefaultLocation, err = services.Locations.Create(
 		context.Background(),
 		"TestLocation",
 		20,
-		fixtureData.DefaultUser.ID,
+		timezone.String(),
+		"Default",
+		"testpassword",
 	)
 	if err != nil {
 		return err
 	}
 	fixtureData.AmountOfLocations++
+
+	fixtureData.DefaultUser, err = services.Users.GetByID(
+		context.Background(),
+		fixtureData.DefaultLocation.UserID,
+		models.DefaultRole,
+	)
+	if err != nil {
+		return err
+	}
+
+	tokens.DefaultAccessToken, err = services.Auth.CreateCookie(context.Background(),
+		models.AccessScope,
+		fixtureData.DefaultUser.ID,
+		cfg.AccessExpiry,
+		false,
+	)
+	if err != nil {
+		return err
+	}
+
+	tokens.DefaultRefreshToken, err = services.Auth.CreateCookie(context.Background(),
+		models.RefreshScope,
+		fixtureData.DefaultUser.ID,
+		cfg.RefreshExpiry,
+		false,
+	)
+	if err != nil {
+		return err
+	}
 
 	for i := 0; i < 5; i++ {
 		newCap := fixtureData.DefaultLocation.Capacity + 1
@@ -208,7 +215,6 @@ func locationFixtures(services services.Services) error {
 			context.Background(),
 			fixtureData.DefaultLocation,
 			&models.School{ID: 1},
-			timezone,
 		)
 		if err != nil {
 			return err
@@ -221,19 +227,31 @@ func locationFixtures(services services.Services) error {
 			context.Background(),
 			fmt.Sprintf("TestLocation%d", i),
 			20,
-			fixtureData.DefaultUsers[i].ID,
+			timezone.String(),
+			fmt.Sprintf("TestDefaultUser%d", i),
+			"testpassword",
 		)
 		if err != nil {
 			return err
 		}
 		fixtureData.AmountOfLocations++
 
+		var user *models.User
+		user, err = services.Users.GetByID(
+			context.Background(),
+			location.UserID,
+			models.DefaultRole,
+		)
+		if err != nil {
+			return err
+		}
+		fixtureData.DefaultUsers = append(fixtureData.DefaultUsers, user)
+
 		for j := 0; j < 5; j++ {
 			_, err = services.CheckIns.Create(
 				context.Background(),
 				location,
 				&models.School{ID: 1},
-				timezone,
 			)
 			if err != nil {
 				return err
@@ -247,27 +265,8 @@ func locationFixtures(services services.Services) error {
 }
 
 func schoolFixtures(services services.Services) error {
-	schools, err := services.Schools.GetAll(context.Background())
-	if err != nil {
-		return err
-	}
-
-	for _, school := range schools {
-		if school.ID == 1 {
-			continue
-		}
-
-		err = services.Schools.Delete(context.Background(), school.ID)
-		if err != nil {
-			return err
-		}
-	}
-
-	fixtureData.AmountOfSchools = 0
-
 	for i := 0; i < 20; i++ {
-		var school *models.School
-		school, err = services.Schools.Create(context.Background(),
+		school, err := services.Schools.Create(context.Background(),
 			fmt.Sprintf("TestSchool%d", i))
 		if err != nil {
 			return err
@@ -279,10 +278,15 @@ func schoolFixtures(services services.Services) error {
 	return nil
 }
 
-func fixtures(tx database.DB) Tokens {
+func fixtures(tx database.DB) {
 	services := services.New(tx)
 
-	tokens, err := userFixtures(services)
+	err := clearAll(services)
+	if err != nil {
+		panic(err)
+	}
+
+	err = userFixtures(services)
 	if err != nil {
 		panic(err)
 	}
@@ -296,8 +300,6 @@ func fixtures(tx database.DB) Tokens {
 	if err != nil {
 		panic(err)
 	}
-
-	return *tokens
 }
 
 func TestMain(m *testing.M) {
@@ -317,7 +319,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	tokens = fixtures(mainTestEnv.TestTx)
+	fixtures(mainTestEnv.TestTx)
 
 	exitCode := m.Run()
 	err = tests.TeardownGlobal(mainTestEnv)

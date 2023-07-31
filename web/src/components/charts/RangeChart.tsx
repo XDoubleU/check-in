@@ -10,9 +10,9 @@ import {
   SharedComposedChart
 } from "./Shared"
 import { convertToChartData, extractAllSchools } from "./dataProcessing"
-import { format } from "date-fns"
 import FormInput from "components/forms/FormInput"
 import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
+import moment, { type Moment } from "moment"
 
 interface RangeChartProps extends FilterProps {
   locationId: string
@@ -21,10 +21,10 @@ interface RangeChartProps extends FilterProps {
 }
 
 interface FilterProps {
-  startDate: Date
-  endDate: Date
-  setStartDate: Dispatch<SetStateAction<Date>>
-  setEndDate: Dispatch<SetStateAction<Date>>
+  startDate: Moment
+  endDate: Moment
+  setStartDate: Dispatch<SetStateAction<Moment>>
+  setEndDate: Dispatch<SetStateAction<Moment>>
 }
 
 function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
@@ -34,18 +34,18 @@ function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
         <FormInput
           label="Start date"
           type="date"
-          value={format(startDate, DATE_FORMAT)}
-          onChange={(e) => setStartDate(new Date(e.target.value))}
-          max={format(endDate, DATE_FORMAT)}
+          value={startDate.format(DATE_FORMAT)}
+          onChange={(e) => setStartDate(moment(e.target.value))}
+          max={endDate.format(DATE_FORMAT)}
         />
       </Col>
       <Col>
         <FormInput
           label="End date"
           type="date"
-          value={format(endDate, DATE_FORMAT)}
-          onChange={(e) => setEndDate(new Date(e.target.value))}
-          min={format(startDate, DATE_FORMAT)}
+          value={endDate.format(DATE_FORMAT)}
+          onChange={(e) => setEndDate(moment(e.target.value))}
+          min={startDate.format(DATE_FORMAT)}
         />
       </Col>
     </Row>
@@ -122,8 +122,8 @@ export default function RangeChart({
       />
       <SharedComposedChart
         data={rangeData}
-        xAxisTickFomatter={(datetime: number) =>
-          format(new Date(datetime), DATE_FORMAT)
+        xAxisTickFomatter={(datetime: string) =>
+          moment.utc(datetime).format(DATE_FORMAT)
         }
       >
         {schools.map((school, index) => {

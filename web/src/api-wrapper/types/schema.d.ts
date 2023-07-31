@@ -648,7 +648,6 @@ export type definitions = {
   };
   CheckInDto: {
     schoolId?: number;
-    timeZone?: string;
   };
   CheckInsLocationEntryRaw: {
     capacity?: number;
@@ -658,6 +657,7 @@ export type definitions = {
     capacity?: number;
     name?: string;
     password?: string;
+    timeZone?: string;
     username?: string;
   };
   CreateUserDto: {
@@ -675,6 +675,7 @@ export type definitions = {
     id?: string;
     name?: string;
     normalizedName?: string;
+    timeZone?: string;
     userId?: string;
     yesterdayFullAt?: string;
   };
@@ -723,6 +724,7 @@ export type definitions = {
     capacity?: number;
     name?: string;
     password?: string;
+    timeZone?: string;
     username?: string;
   };
   UpdateUserDto: {

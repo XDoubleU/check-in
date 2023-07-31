@@ -4,7 +4,7 @@ import { type ChartDataEntry, type ChartData } from "./Shared"
 export function extractAllSchools(
   entries: CheckInsLocationEntryRawMap
 ): string[] {
-  const key = parseInt(Object.keys(entries)[0])
+  const key = Object.keys(entries)[0]
   return Object.keys(entries[key].schools)
 }
 
@@ -15,7 +15,7 @@ export function convertToChartData(
 
   for (const [key, value] of Object.entries(entries)) {
     const entry: ChartDataEntry = {
-      datetime: parseInt(key),
+      datetime: key,
       capacity: value.capacity
     }
 
@@ -27,7 +27,7 @@ export function convertToChartData(
   }
 
   result = result.sort(function (a: ChartDataEntry, b: ChartDataEntry) {
-    return a.datetime - b.datetime
+    return new Date(a.datetime).getTime() - new Date(b.datetime).getTime()
   })
 
   return result

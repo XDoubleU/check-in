@@ -4,11 +4,12 @@
 
 import { init } from "@sentry/nextjs"
 
-const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
+const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
+const ENV = process.env.SENTRY_ENVIRONMENT || process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT
 
 init({
   dsn: SENTRY_DSN,
-  environment: process.env.NODE_ENV,
+  environment: process.env.ENV,
    // Adjust this value in production, or use tracesSampler for greater control
   tracesSampleRate: 1.0,
   // ...

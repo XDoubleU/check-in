@@ -60,25 +60,36 @@ func TestYesterdayFullAt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
-	timeZone, _ := time.LoadLocation("Europe/Brussels")
+	now := time.Now()
+	fullTime := time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day()-1,
+		0,
+		0,
+		0,
+		0,
+		now.Location(),
+	)
 
-	fullTime := time.Now().AddDate(0, 0, -1)
 	for i := 0; i < int(fixtureData.DefaultLocation.Capacity); i++ {
 		query := `
 			INSERT INTO check_ins 
-			(location_id, school_id, capacity, created_at, created_at_time_zone)
-			VALUES ($1, $2, $3, $4, $5)
+			(location_id, school_id, capacity, created_at)
+			VALUES ($1, $2, $3, $4)
 		`
 
-		_, _ = testEnv.TestTx.Exec(
+		_, err := testEnv.TestTx.Exec(
 			context.Background(),
 			query,
 			fixtureData.DefaultLocation.ID,
 			1,
 			fixtureData.DefaultLocation.Capacity,
 			fullTime,
-			timeZone,
 		)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	ts := httptest.NewTLSServer(testApp.routes())
@@ -139,32 +150,37 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 
 		rs, _ := ts.Client().Do(req)
 
-		var rsData map[int64]dtos.CheckInsLocationEntryRaw
+		var rsData map[string]dtos.CheckInsLocationEntryRaw
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-		assert.Equal(t, rsData[startDate.Unix()*1000].Capacity, 0)
+		assert.Equal(t, rsData[startDate.Format(time.RFC3339)].Capacity, 0)
 
-		value, present := rsData[startDate.Unix()*1000].Schools.Get("Andere")
+		value, present := rsData[startDate.Format(time.RFC3339)].Schools.Get(
+			"Andere",
+		)
 		assert.Equal(t, value, 0)
 		assert.Equal(t, present, true)
 
 		assert.Equal(
 			t,
-			rsData[startDate.AddDate(0, 0, 1).Unix()*1000].Capacity,
+			rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].Capacity,
 			fixtureData.DefaultLocation.Capacity,
 		)
 
-		value, present = rsData[startDate.AddDate(0, 0, 1).Unix()*1000].Schools.Get(
+		value, present = rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
+			Schools.Get(
 			"Andere",
 		)
 		assert.Equal(t, value, 5)
 		assert.Equal(t, present, true)
 
-		assert.Equal(t, rsData[endDate.Unix()].Capacity, 0)
+		assert.Equal(t, rsData[endDate.Format(time.RFC3339)].Capacity, 0)
 
-		value, present = rsData[endDate.Unix()*1000].Schools.Get("Andere")
+		value, present = rsData[endDate.Format(time.RFC3339)].Schools.Get(
+			"Andere",
+		)
 		assert.Equal(t, value, 0)
 		assert.Equal(t, present, true)
 	}
@@ -459,12 +475,12 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 
 		rs, _ := ts.Client().Do(req)
 
-		var rsData map[int64]dtos.CheckInsLocationEntryRaw
+		var rsData map[string]dtos.CheckInsLocationEntryRaw
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-		var checkInDate int64
+		var checkInDate string
 		for k := range rsData {
 			checkInDate = k
 			break
@@ -741,6 +757,7 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 			rsData.Data[0].YesterdayFullAt,
 			fixtureData.DefaultLocation.YesterdayFullAt,
 		)
+		assert.Equal(t, rsData.Data[0].TimeZone, fixtureData.DefaultLocation.TimeZone)
 		assert.Equal(t, rsData.Data[0].UserID, fixtureData.DefaultLocation.UserID)
 	}
 }
@@ -784,6 +801,7 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 		rsData.Data[0].YesterdayFullAt,
 		fixtureData.Locations[10].YesterdayFullAt,
 	)
+	assert.Equal(t, rsData.Data[0].TimeZone, fixtureData.Locations[10].TimeZone)
 	assert.Equal(t, rsData.Data[0].UserID, fixtureData.Locations[10].UserID)
 }
 
@@ -866,6 +884,7 @@ func TestGetLocation(t *testing.T) {
 			rsData.YesterdayFullAt,
 			fixtureData.DefaultLocation.YesterdayFullAt,
 		)
+		assert.Equal(t, rsData.TimeZone, fixtureData.DefaultLocation.TimeZone)
 		assert.Equal(t, rsData.UserID, fixtureData.DefaultLocation.UserID)
 	}
 }
@@ -978,6 +997,7 @@ func TestCreateLocation(t *testing.T) {
 			Capacity: 10,
 			Username: unique,
 			Password: "testpassword",
+			TimeZone: "Europe/Brussels",
 		}
 
 		body, _ := json.Marshal(data)
@@ -998,9 +1018,10 @@ func TestCreateLocation(t *testing.T) {
 		assert.IsUUID(t, rsData.ID)
 		assert.Equal(t, rsData.Name, data.Name)
 		assert.Equal(t, rsData.NormalizedName, data.Name)
-		assert.Equal(t, rsData.Available, 10)
-		assert.Equal(t, rsData.Capacity, 10)
+		assert.Equal(t, rsData.Available, data.Capacity)
+		assert.Equal(t, rsData.Capacity, data.Capacity)
 		assert.Equal(t, rsData.YesterdayFullAt.Valid, false)
+		assert.Equal(t, rsData.TimeZone, data.TimeZone)
 		assert.IsUUID(t, rsData.UserID)
 	}
 }
@@ -1017,6 +1038,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 		Capacity: 10,
 		Username: "test",
 		Password: "testpassword",
+		TimeZone: "Europe/Brussels",
 	}
 
 	body, _ := json.Marshal(data)
@@ -1052,6 +1074,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 		Capacity: 10,
 		Username: "test",
 		Password: "testpassword",
+		TimeZone: "Europe/Brussels",
 	}
 
 	body, _ := json.Marshal(data)
@@ -1087,6 +1110,7 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 		Capacity: 10,
 		Username: "TestDefaultUser1",
 		Password: "testpassword",
+		TimeZone: "Europe/Brussels",
 	}
 
 	body, _ := json.Marshal(data)
@@ -1145,6 +1169,42 @@ func TestCreateLocationInvalidCapacity(t *testing.T) {
 	)
 }
 
+func TestCreateLocationInvalidTimeZone(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	data := dtos.CreateLocationDto{
+		Name:     "test",
+		Capacity: 10,
+		Username: "test",
+		Password: "testpassword",
+		TimeZone: "wrong",
+	}
+
+	body, _ := json.Marshal(data)
+	req, _ := http.NewRequest(
+		http.MethodPost,
+		ts.URL+"/locations",
+		bytes.NewReader(body),
+	)
+	req.AddCookie(tokens.ManagerAccessToken)
+
+	rs, _ := ts.Client().Do(req)
+
+	var rsData dtos.ErrorDto
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["timeZone"],
+		"must be provided and must be a valid IANA value",
+	)
+}
+
 func TestCreateLocationAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
@@ -1179,12 +1239,14 @@ func TestUpdateLocation(t *testing.T) {
 	for i, user := range users {
 		unique := fmt.Sprintf("test%d", i)
 		name, username, password := unique, unique, "testpassword"
+		timeZone := "Europe/Brussels"
 		var capacity int64 = 3
 		data := dtos.UpdateLocationDto{
 			Name:     &name,
 			Capacity: &capacity,
 			Username: &username,
 			Password: &password,
+			TimeZone: &timeZone,
 		}
 
 		body, _ := json.Marshal(data)
@@ -1208,6 +1270,7 @@ func TestUpdateLocation(t *testing.T) {
 		assert.Equal(t, rsData.Available, 0)
 		assert.Equal(t, rsData.Capacity, *data.Capacity)
 		assert.Equal(t, rsData.YesterdayFullAt.Valid, false)
+		assert.Equal(t, rsData.TimeZone, *data.TimeZone)
 		assert.Equal(t, rsData.UserID, fixtureData.Locations[0].UserID)
 	}
 }
@@ -1357,6 +1420,44 @@ func TestUpdateLocationInvalidCapacity(t *testing.T) {
 		t,
 		rsData.Message.(map[string]interface{})["capacity"],
 		"must be greater than zero",
+	)
+}
+
+func TestUpdateLocationInvalidTimeZone(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	name, username, password, timeZone := "test", "test", "testpassword", "wrong"
+	var capacity int64 = 10
+	data := dtos.UpdateLocationDto{
+		Name:     &name,
+		Capacity: &capacity,
+		Username: &username,
+		Password: &password,
+		TimeZone: &timeZone,
+	}
+
+	body, _ := json.Marshal(data)
+	req, _ := http.NewRequest(
+		http.MethodPatch,
+		ts.URL+"/locations/"+fixtureData.Locations[0].ID,
+		bytes.NewReader(body),
+	)
+	req.AddCookie(tokens.ManagerAccessToken)
+
+	rs, _ := ts.Client().Do(req)
+
+	var rsData dtos.ErrorDto
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["timeZone"],
+		"must be provided and must be a valid IANA value",
 	)
 }
 
@@ -1524,6 +1625,7 @@ func TestDeleteLocation(t *testing.T) {
 			rsData.YesterdayFullAt,
 			fixtureData.Locations[i].YesterdayFullAt,
 		)
+		assert.Equal(t, rsData.TimeZone, fixtureData.Locations[i].TimeZone)
 		assert.Equal(t, rsData.UserID, fixtureData.Locations[i].UserID)
 	}
 }

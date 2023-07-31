@@ -107,7 +107,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 
 	checkIns, err := app.services.CheckIns.GetAllInRange(
 		r.Context(),
-		location.ID,
+		location,
 		startDate,
 		endDate,
 	)
@@ -117,7 +117,6 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	}
 
 	checkInEntries := app.services.Locations.GetCheckInsEntriesDay(
-		startDate,
 		checkIns,
 		schools,
 	)
@@ -129,8 +128,6 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		filename = "Day-" + filename
 
 		data := dtos.ConvertCheckInsLocationEntryRawMapToCSV(
-			startDate.Location(),
-			constants.DateFormatTime,
 			checkInEntries,
 		)
 		err = helpers.WriteCSV(w, filename, data)
@@ -208,7 +205,7 @@ func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 
 	checkIns, err := app.services.CheckIns.GetAllInRange(
 		r.Context(),
-		location.ID,
+		location,
 		startDate,
 		endDate,
 	)
@@ -231,8 +228,6 @@ func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 		filename = "Range-" + filename
 
 		data := dtos.ConvertCheckInsLocationEntryRawMapToCSV(
-			startDate.Location(),
-			constants.DateFormat,
 			checkInEntries,
 		)
 		err = helpers.WriteCSV(w, filename, data)
@@ -353,22 +348,13 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	user, err := app.services.Users.Create(
-		r.Context(),
-		createLocationDto.Username,
-		createLocationDto.Password,
-		models.DefaultRole,
-	)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
 	location, err := app.services.Locations.Create(
 		r.Context(),
 		createLocationDto.Name,
 		createLocationDto.Capacity,
-		user.ID,
+		createLocationDto.TimeZone,
+		createLocationDto.Username,
+		createLocationDto.Password,
 	)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

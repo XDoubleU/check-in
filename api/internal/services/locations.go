@@ -9,7 +9,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
-	"check-in/api/internal/constants"
 	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
@@ -24,36 +23,38 @@ const availableQuery = `
 	(	capacity - (	
 			SELECT COUNT(*) 
 			FROM check_ins 
-			WHERE DATE(check_ins.created_at) = DATE(NOW()) 
+			WHERE DATE(check_ins.created_at AT TIME ZONE locations.time_zone) 
+			= DATE(NOW() AT TIME ZONE locations.time_zone) 
 			AND check_ins.location_id = locations.id
 		)
 	)
 `
 
 const yesterdayFullAtQuery = `
-	(	SELECT MAX(check_ins.created_at at time zone created_at_time_zone)
+	(	SELECT MAX(check_ins.created_at AT TIME ZONE locations.time_zone)
 		FROM check_ins
 		INNER JOIN (
 			SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
 			FROM check_ins
-			WHERE DATE(created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+			WHERE DATE(created_at AT TIME ZONE locations.time_zone) 
+			= (DATE(NOW() AT TIME ZONE locations.time_zone) - INTERVAL '1' DAY)
 			GROUP BY location_id
 		) daily_stats 
 		ON check_ins.location_id = daily_stats.location_id
 		WHERE check_ins.location_id = locations.id
-		AND DATE(check_ins.created_at) = (DATE(NOW()) - INTERVAL '1' DAY)
+		AND DATE(check_ins.created_at AT TIME ZONE locations.time_zone) 
+		= (DATE(NOW() AT TIME ZONE locations.time_zone) - INTERVAL '1' DAY)
 		AND daily_stats.total_check_ins >= daily_stats.max_capacity
 	)
 `
 
 func (service LocationService) GetCheckInsEntriesDay(
-	date *time.Time,
 	checkIns []*models.CheckIn,
 	schools []*models.School,
-) *orderedmap.OrderedMap[int64, *dtos.CheckInsLocationEntryRaw] {
+) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
 	schoolsIDNameMap, _ := getSchoolMaps(schools)
 
-	checkInEntries := orderedmap.New[int64, *dtos.CheckInsLocationEntryRaw]()
+	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
 
 	_, lastEntrySchoolsMap := getSchoolMaps(schools)
 	for _, checkIn := range checkIns {
@@ -73,10 +74,8 @@ func (service LocationService) GetCheckInsEntriesDay(
 		schoolValue++
 		checkInEntry.Schools.Set(schoolName, schoolValue)
 
-		// Struggling with timezones
-		checkIn.CreatedAt.Time = checkIn.CreatedAt.Time.In(date.Location())
 		checkInEntries.Set(
-			checkIn.CreatedAt.Time.Unix()*constants.SecToMilliSec,
+			checkIn.CreatedAt.Time.Format(time.RFC3339),
 			checkInEntry,
 		)
 		lastEntrySchoolsMap = checkInEntry.Schools
@@ -90,10 +89,10 @@ func (service LocationService) GetCheckInsEntriesRange(
 	endDate *time.Time,
 	checkIns []*models.CheckIn,
 	schools []*models.School,
-) *orderedmap.OrderedMap[int64, *dtos.CheckInsLocationEntryRaw] {
+) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
 	schoolsIDNameMap, _ := getSchoolMaps(schools)
 
-	checkInEntries := orderedmap.New[int64, *dtos.CheckInsLocationEntryRaw]()
+	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
 	for d := *startDate; !d.After(*endDate); d = d.AddDate(0, 0, 1) {
 		dVal := helpers.StartOfDay(&d)
 
@@ -104,20 +103,14 @@ func (service LocationService) GetCheckInsEntriesRange(
 			Schools:  schoolsMap,
 		}
 
-		// Multiply by 1000 to get milliseconds
-		checkInEntries.Set(
-			dVal.Unix()*constants.SecToMilliSec,
-			checkInEntry,
-		)
+		checkInEntries.Set(dVal.Format(time.RFC3339), checkInEntry)
 	}
 
 	for _, checkIn := range checkIns {
-		// Struggling with timezones
-		checkIn.CreatedAt.Time = checkIn.CreatedAt.Time.In(startDate.Location())
 		datetime := helpers.StartOfDay(&checkIn.CreatedAt.Time)
 		schoolName := schoolsIDNameMap[checkIn.SchoolID]
 
-		checkInEntry, _ := checkInEntries.Get(datetime.Unix() * constants.SecToMilliSec)
+		checkInEntry, _ := checkInEntries.Get(datetime.Format(time.RFC3339))
 
 		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
 		schoolValue++
@@ -202,7 +195,7 @@ func (service LocationService) GetAllPaginated(
 	offset int64,
 ) ([]*models.Location, error) {
 	query := `
-		SELECT id, name, capacity, user_id, %s, %s
+		SELECT id, name, capacity, user_id, time_zone, %s, %s
 		FROM locations
 		ORDER BY name ASC
 		LIMIT $1 OFFSET $2
@@ -225,6 +218,7 @@ func (service LocationService) GetAllPaginated(
 			&location.Name,
 			&location.Capacity,
 			&location.UserID,
+			&location.TimeZone,
 			&location.Available,
 			&location.YesterdayFullAt,
 		)
@@ -253,7 +247,7 @@ func (service LocationService) GetByID(
 	id string,
 ) (*models.Location, error) {
 	query := `
-		SELECT name, capacity, user_id, %s, %s
+		SELECT name, capacity, user_id, time_zone, %s, %s
 		FROM locations
 		WHERE locations.id = $1
 	`
@@ -272,6 +266,7 @@ func (service LocationService) GetByID(
 		&location.Name,
 		&location.Capacity,
 		&location.UserID,
+		&location.TimeZone,
 		&location.Available,
 		&location.YesterdayFullAt,
 	)
@@ -293,7 +288,7 @@ func (service LocationService) GetByUserID(
 	id string,
 ) (*models.Location, error) {
 	query := `
-		SELECT id, name, capacity, %s, %s
+		SELECT id, name, capacity, time_zone, %s, %s
 		FROM locations
 		WHERE user_id = $1
 	`
@@ -311,6 +306,7 @@ func (service LocationService) GetByUserID(
 		&location.ID,
 		&location.Name,
 		&location.Capacity,
+		&location.TimeZone,
 		&location.Available,
 		&location.YesterdayFullAt,
 	)
@@ -356,11 +352,84 @@ func (service LocationService) Create(
 	ctx context.Context,
 	name string,
 	capacity int64,
+	timeZone string,
+	username string,
+	password string,
+) (*models.Location, error) {
+	tx, err := service.db.Begin(ctx)
+	defer tx.Rollback(ctx) //nolint:errcheck //deferred
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	var user *models.User
+	var location *models.Location
+
+	user, err = createUser(ctx, tx, username, password)
+	if err != nil {
+		return nil, err
+	}
+
+	location, err = createLocation(ctx, tx, name, capacity, timeZone, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return location, nil
+}
+
+func createUser(
+	ctx context.Context,
+	tx pgx.Tx,
+	username string,
+	password string,
+) (*models.User, error) {
+	query := `
+		INSERT INTO users (username, password_hash, role)
+		VALUES ($1, $2, 'default')
+		RETURNING id
+	`
+
+	user := models.User{
+		Username: username,
+		Role:     models.DefaultRole,
+	}
+
+	passwordHash, err := models.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.QueryRow(
+		ctx,
+		query,
+		username,
+		passwordHash,
+	).Scan(&user.ID)
+
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	return &user, nil
+}
+
+func createLocation(
+	ctx context.Context,
+	tx pgx.Tx,
+	name string,
+	capacity int64,
+	timeZone string,
 	userID string,
 ) (*models.Location, error) {
 	query := `
-		INSERT INTO locations (name, capacity, user_id)
-		VALUES ($1, $2, $3)
+		INSERT INTO locations (name, capacity, time_zone, user_id)
+		VALUES ($1, $2, $3, $4)
 		RETURNING id
 	`
 
@@ -368,14 +437,16 @@ func (service LocationService) Create(
 		Name:      name,
 		Capacity:  capacity,
 		Available: capacity,
+		TimeZone:  timeZone,
 		UserID:    userID,
 	}
 
-	err := service.db.QueryRow(
+	err := tx.QueryRow(
 		ctx,
 		query,
 		name,
 		capacity,
+		timeZone,
 		userID,
 	).Scan(&location.ID)
 
@@ -419,6 +490,12 @@ func (service LocationService) Update(
 		location.Capacity = *updateLocationDto.Capacity
 	}
 
+	if updateLocationDto.TimeZone != nil {
+		locationChanged = true
+
+		location.TimeZone = *updateLocationDto.TimeZone
+	}
+
 	if updateLocationDto.Username != nil {
 		userChanged = true
 
@@ -457,18 +534,13 @@ func (service LocationService) Update(
 		return err
 	}
 
-	err = location.NormalizeName()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) error {
 	queryLocation := `
 			UPDATE locations
-			SET name = $2, capacity = $3
+			SET name = $2, capacity = $3, time_zone = $4
 			WHERE id = $1
 		`
 
@@ -478,6 +550,7 @@ func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) e
 		location.ID,
 		location.Name,
 		location.Capacity,
+		location.TimeZone,
 	)
 
 	if err != nil {
@@ -487,6 +560,11 @@ func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) e
 	rowsAffected := resultLocation.RowsAffected()
 	if rowsAffected == 0 {
 		return ErrRecordNotFound
+	}
+
+	err = location.NormalizeName()
+	if err != nil {
+		return err
 	}
 
 	return nil

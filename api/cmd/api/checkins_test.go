@@ -24,17 +24,11 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 
 	defaultLocation := *fixtureData.DefaultLocation
 
-	timezone, err := time.LoadLocation("Europe/Brussels")
-	if err != nil {
-		panic(err)
-	}
-
 	for i := 0; i < 10; i++ {
 		_, _ = testApp.services.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
 			&models.School{ID: 1},
-			timezone,
 		)
 	}
 
@@ -43,7 +37,6 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 			context.Background(),
 			&defaultLocation,
 			fixtureData.Schools[0],
-			timezone,
 		)
 	}
 

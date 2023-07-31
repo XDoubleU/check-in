@@ -27,7 +27,7 @@ export default function LocationDetail() {
     }
 
     let responseUser: APIResponse<User> | undefined = undefined
-    if (user?.role === "manager") {
+    if (user?.role !== "default") {
       responseUser = await getUser(responseLocation.data.userId)
       if (!responseUser.data) return
     }
@@ -39,7 +39,8 @@ export default function LocationDetail() {
       capacity: responseLocation.data.capacity,
       username: responseUser?.data?.username ?? user?.username ?? "",
       available: responseLocation.data.available,
-      yesterdayFullAt: responseLocation.data.yesterdayFullAt
+      yesterdayFullAt: responseLocation.data.yesterdayFullAt,
+      timeZone: responseLocation.data.timeZone
     }
 
     updateLocation(locationWithUsername)

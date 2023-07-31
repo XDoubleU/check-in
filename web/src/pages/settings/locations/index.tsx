@@ -48,6 +48,24 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
         required
         register={register("capacity")}
       />
+      <Form.Group
+        className="mb-3"
+        hidden={process.env.NEXT_PUBLIC_EDIT_TIME_ZONE !== "true"}
+      >
+        <Form.Label>Time zone</Form.Label>
+        <Form.Select
+          defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
+          {...register("timeZone")}
+        >
+          {Intl.supportedValuesOf("timeZone").map((timeZone) => {
+            return (
+              <option key={timeZone} value={timeZone}>
+                {timeZone}
+              </option>
+            )
+          })}
+        </Form.Select>
+      </Form.Group>
       <FormInput
         label="Username"
         type="text"
@@ -132,6 +150,7 @@ export default function LocationListView() {
           name: location.name,
           normalizedName: location.normalizedName,
           capacity: location.capacity,
+          timeZone: location.timeZone,
           username: username ?? "",
           available: location.available,
           yesterdayFullAt: location.yesterdayFullAt

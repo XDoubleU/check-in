@@ -1,17 +1,18 @@
-import { Card } from "react-bootstrap"
+import { Card, Form } from "react-bootstrap"
 import Link from "next/link"
 import UpdateModal from "components/modals/UpdateModal"
 import DeleteModal from "components/modals/DeleteModal"
 import { deleteLocation, updateLocation } from "api-wrapper"
 import { useForm } from "react-hook-form"
-import { format } from "date-fns"
 import { type LocationWithUsername } from "pages/settings/locations/index"
 import FormInput from "components/forms/FormInput"
 import { type ICardProps } from "interfaces/ICardProps"
 import {
   type UpdateLocationDto,
-  type Location
+  type Location,
+  TIME_FORMAT
 } from "api-wrapper/types/apiTypes"
+import moment from "moment"
 
 type LocationUpdateForm = UpdateLocationDto & { repeatPassword?: string }
 
@@ -23,7 +24,8 @@ export function LocationUpdateModal({ data, fetchData }: LocationCardProps) {
     defaultValues: {
       name: data.name,
       capacity: data.capacity,
-      username: data.username
+      username: data.username,
+      timeZone: data.timeZone
     }
   })
 
@@ -56,6 +58,21 @@ export function LocationUpdateModal({ data, fetchData }: LocationCardProps) {
         placeholder={10}
         register={register("capacity")}
       />
+      <Form.Group
+        className="mb-3"
+        hidden={process.env.NEXT_PUBLIC_EDIT_TIME_ZONE !== "true"}
+      >
+        <Form.Label>Time zone</Form.Label>
+        <Form.Select {...register("timeZone")}>
+          {Intl.supportedValuesOf("timeZone").map((timeZone) => {
+            return (
+              <option key={timeZone} value={timeZone}>
+                {timeZone}
+              </option>
+            )
+          })}
+        </Form.Select>
+      </Form.Group>
       <FormInput
         label="Username"
         type="text"
@@ -124,9 +141,8 @@ export default function LocationCard({ data, fetchData }: LocationCardProps) {
               </Card.Subtitle>
               <Card.Subtitle className="mb-2 text-muted">
                 {data.yesterdayFullAt
-                  ? `Yesterday full at ${format(
-                      new Date(parseInt(data.yesterdayFullAt)),
-                      "HH:mm"
+                  ? `Yesterday full at ${moment.utc(data.yesterdayFullAt).format(
+                      TIME_FORMAT
                     )}`
                   : "Yesterday not full"}
               </Card.Subtitle>

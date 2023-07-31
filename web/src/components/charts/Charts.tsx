@@ -1,28 +1,28 @@
 import { useState } from "react"
 import { Tab, Tabs } from "react-bootstrap"
-import { startOfISOWeek, endOfISOWeek } from "date-fns"
 import CustomButton from "components/CustomButton"
 import RangeChart from "./RangeChart"
 import DayChart from "./DayChart"
 import { downloadCSVForDayChart, downloadCSVForRangeChart } from "api-wrapper"
 import { type ChartData } from "./Shared"
+import moment, { type Moment } from "moment"
 
 interface ChartProps {
   locationId: string
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-function getDates(): Date[] {
+function getDates(): Moment[] {
   const date = new Date()
-  const weekStart = startOfISOWeek(date)
-  const weekEnd = endOfISOWeek(date)
+  const weekStart = moment(date).startOf("isoWeek")
+  const weekEnd = moment(date).startOf("isoWeek")
 
   return [weekStart, weekEnd]
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-function getDate(): Date {
-  return new Date()
+function getDate(): Moment {
+  return moment(new Date())
 }
 
 // eslint-disable-next-line max-lines-per-function

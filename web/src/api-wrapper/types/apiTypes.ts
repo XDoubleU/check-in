@@ -39,7 +39,8 @@ export type User = PartialBy<DeepRequired<definitions["User"]>, "location">
 export type WebSocketSubject = DeepRequired<definitions["WebSocketSubject"]>
 
 export type CheckInsLocationEntryRawMap = {
-  [x: number]: CheckInsLocationEntryRaw
+  [x: string]: CheckInsLocationEntryRaw
 }
 
-export const DATE_FORMAT = "yyyy-MM-dd"
+export const DATE_FORMAT = "YYYY-MM-DD"
+export const TIME_FORMAT = "HH:mm"

@@ -11,14 +11,14 @@ import {
 } from "./types/apiTypes"
 import queryString from "query-string"
 import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
-import { format } from "date-fns"
+import moment, { type Moment } from "moment"
 
 const LOCATIONS_ENDPOINT = "locations"
 
 export async function getDataForRangeChart(
   locationId: string,
-  startDate: Date,
-  endDate: Date
+  startDate: Moment,
+  endDate: Moment
 ): Promise<APIResponse<CheckInsLocationEntryRawMap>> {
   if (!isValidUUID(locationId)) {
     return {
@@ -32,8 +32,8 @@ export async function getDataForRangeChart(
     undefined,
     undefined,
     {
-      startDate: format(startDate, DATE_FORMAT),
-      endDate: format(endDate, DATE_FORMAT),
+      startDate: moment(startDate).format(DATE_FORMAT),
+      endDate: moment(endDate).format(DATE_FORMAT),
       returnType: "raw"
     }
   )
@@ -41,7 +41,7 @@ export async function getDataForRangeChart(
 
 export async function getDataForDayChart(
   locationId: string,
-  date: Date
+  date: Moment
 ): Promise<APIResponse<CheckInsLocationEntryRawMap>> {
   if (!isValidUUID(locationId)) {
     return {
@@ -55,7 +55,7 @@ export async function getDataForDayChart(
     undefined,
     undefined,
     {
-      date: format(date, DATE_FORMAT),
+      date: moment(date).format(DATE_FORMAT),
       returnType: "raw"
     }
   )
@@ -63,16 +63,16 @@ export async function getDataForDayChart(
 
 export function downloadCSVForRangeChart(
   locationId: string,
-  startDate: Date,
-  endDate: Date
+  startDate: Moment,
+  endDate: Moment
 ): void {
   if (!isValidUUID(locationId)) {
     return
   }
 
   const query = queryString.stringify({
-    startDate: format(startDate, DATE_FORMAT),
-    endDate: format(endDate, DATE_FORMAT),
+    startDate: moment(startDate).format(DATE_FORMAT),
+    endDate: moment(endDate).format(DATE_FORMAT),
     returnType: "csv"
   })
 
@@ -83,13 +83,13 @@ export function downloadCSVForRangeChart(
   )
 }
 
-export function downloadCSVForDayChart(locationId: string, date: Date): void {
+export function downloadCSVForDayChart(locationId: string, date: Moment): void {
   if (!isValidUUID(locationId)) {
     return
   }
 
   const query = queryString.stringify({
-    date: format(date, DATE_FORMAT),
+    date: moment(date).format(DATE_FORMAT),
     returnType: "csv"
   })
 

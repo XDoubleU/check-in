@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	_ "time/tzdata"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/database"

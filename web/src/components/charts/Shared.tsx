@@ -12,8 +12,8 @@ import {
 import Loader from "components/Loader"
 
 export type ChartDataEntry = {
-  [name: string]: number
-  datetime: number
+  [name: string]: number | string
+  datetime: string
   capacity: number
 }
 export type ChartData = ChartDataEntry[]
@@ -110,7 +110,7 @@ export function DataLoading() {
 
 interface SharedComposedChartProps {
   data: ChartData
-  xAxisTickFomatter: (datetime: number) => string
+  xAxisTickFomatter: (datetime: string) => string
   children: ReactNode
 }
 
