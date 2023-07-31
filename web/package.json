@@ -6,7 +6,7 @@
     "build": "next build",
     "analyze": "cross-env ANALYZE=true next build",
     "format": "prettier --write ./**/*.{ts,tsx}",
-    "lint": "next lint && tsc --noEmit && jscpd --config jscpd.json && knip && prettier --check ./**/*.{ts,tsx} && npmPkgJsonLint .",
+    "lint": "next lint && tsc --noEmit && jscpd . && knip && prettier --check ./**/*.{ts,tsx} && npmPkgJsonLint .",
     "lint:fix": "next lint --fix",
     "lint:report": "eslint . --output-file eslint_report.json --format json src",
     "swag": "npx openapi-typescript@5.4 ./../api/docs/swagger.json -o ./src/api-wrapper/types/schema.d.ts --export-type"
@@ -16,7 +16,7 @@
     "@sentry/nextjs": "7.58.1",
     "bootstrap": "5.3.0",
     "bootstrap-icons": "1.10.5",
-    "moment": "^2.29.4",
+    "moment": "2.29.4",
     "next": "13.4.10",
     "prop-types": "15.8.1",
     "query-string": "8.1.0",
@@ -67,8 +67,7 @@
     "exitCode": 1,
     "pattern": "**/*.{ts,tsx}",
     "ignore": [
-      "**/*.test.ts",
-      "**/dist/**",
+      "**/*.d.ts",
       "**/coverage/**",
       "**/node_modules/**"
     ],

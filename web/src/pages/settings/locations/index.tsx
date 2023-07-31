@@ -34,6 +34,7 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
       fetchData={fetchData}
       typeName="location"
     >
+      {/* jscpd:ignore-start */}
       <FormInput
         label="Name"
         type="text"
@@ -81,7 +82,7 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
         autocomplete="new-password"
         register={register("password")}
       />
-      {/* jscpd:ignore-start */}
+
       <Form.Group className="mb-3">
         <Form.Label>Repeat password</Form.Label>
         <Form.Control

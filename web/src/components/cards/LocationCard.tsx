@@ -141,9 +141,9 @@ export default function LocationCard({ data, fetchData }: LocationCardProps) {
               </Card.Subtitle>
               <Card.Subtitle className="mb-2 text-muted">
                 {data.yesterdayFullAt
-                  ? `Yesterday full at ${moment.utc(data.yesterdayFullAt).format(
-                      TIME_FORMAT
-                    )}`
+                  ? `Yesterday full at ${moment
+                      .utc(data.yesterdayFullAt)
+                      .format(TIME_FORMAT)}`
                   : "Yesterday not full"}
               </Card.Subtitle>
             </div>
