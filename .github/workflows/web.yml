@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Web Workflow
+    name: Web Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -33,6 +33,7 @@ jobs:
 
   lint:
     needs: [build]
+    name: Web Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
