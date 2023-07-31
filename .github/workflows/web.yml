@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'yarn'
-          node-version-file: 'package.json'
+          node-version-file: './web/package.json'
       - run: yarn install
       - run: yarn build
       - run: zip build.zip . -r -x "*node_modules*"
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'yarn'
-          node-version-file: 'package.json'
+          node-version-file: './package.json'
       - run: yarn install
       - run: yarn lint
 
