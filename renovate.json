@@ -7,6 +7,6 @@
   "ignoreDeps": ["mikro-orm-config","types-custom","tsconfig-custom"],
   "labels": ["dependencies"],
   "dependencyDashboardLabels": ["dependencies"],
-  "lockFileMaintenance": { "enabled": true },
+  "lockFileMaintenance": { "enabled": true, "schedule": ["monthly"] },
   "schedule": ["monthly"]
 }

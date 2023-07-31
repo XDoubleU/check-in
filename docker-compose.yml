@@ -9,6 +9,46 @@ services:
       - "5432:5432"
     environment:
       - "POSTGRES_HOST_AUTH_METHOD=trust"
+  
+  api:
+    build: ./api
+    volumes:
+      - ./api:/usr/src/api
+    ports: 
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - ENV=development
+      - PORT=8000
+      - WEB_URL=http://localhost:3000
+      - DB_DSN=postgres://postgres@db/postgres
+      # Necessary when using Sentry
+      # - RELEASE=${_self.COMMIT_HASH}
+      # - SENTRY_DSN=
+      # - SENTRY_ORG=
+      # - SENTRY_PROJECT=
+      # - SENTRY_AUTH_TOKEN=
+  
+  web:
+    build:
+      context: ./web
+      args:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_EDIT_TIME_ZONE=false
+      # Necessary when using Sentry
+      # - SENTRY_ENVIRONMENT=development
+      # - SENTRY_RELEASE=${_self.COMMIT_HASH}
+      # - NEXT_PUBLIC_SENTRY_DSN=
+      # - SENTRY_ORG=
+      # - SENTRY_PROJECT=
+      # - SENTRY_AUTH_TOKEN=
+    volumes:
+      - ./web:/usr/src/web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
 
 volumes:
   postgres_data:

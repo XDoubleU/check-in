@@ -1,17 +1,19 @@
 const webSocket = new WebSocket("ws://localhost:8000")
 
 webSocket.onopen = async () => {
-  const response = await fetch("http://localhost:8000/locations/ws/")
-  const data = await response.json()
-
-  data.forEach((location) => {
-    fill(location)
-  })
+  webSocket.send(
+    JSON.stringify({
+      subject: "all-locations"
+    })
+  )
 }
 
 webSocket.onmessage = (event) => {
   const data = JSON.parse(event.data)
-  fill(data)
+  
+  data.forEach((location) => {
+    fill(location)
+  })
 }
 
 window.onbeforeunload = () => {
@@ -30,7 +32,7 @@ function fill(location){
 
     let output = "Wasn't full yesterday"
     if (location.yesterdayFullAt) {
-      const time = new Date(parseInt(location.yesterdayFullAt)).toLocaleTimeString([], {
+      const time = new Date(location.yesterdayFullAt).toUTCString([], {
         timeStyle: "short",
         hourCycle: "h23"
       })

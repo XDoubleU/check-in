@@ -18,14 +18,14 @@ Originally developed for Brugge Studentenstad, a non-profit organization that ar
 ## How to run locally?
 
 1. Clone the repo
-2. Install all necessary packages using `yarn install`
-3. Compile the packages in the monorepo using `yarn build`
-4. Start the web-client and the API using `yarn dev`
+2. Start the web-client, API and database using `docker-compose up --build`
+3. Apply migrations to database (in `api` dir) using `make db/migrations/up`
+4. Create admin user (in `api` dir) using `make run/cli/createadmin u=admin p=admin`
 5. Go to `http://localhost:3000` for the web-client and `http://localhost:8000` for the API
 
 ## Websocket integration
 
-An example on how to use the websocket integration on your own website can be found [here](https://github.com/XDoubleU/check-in/blob/main/integration/script.js).
+An example on how to use the websocket integration on your own website can be found [here](./integration/script.js).
 
 ## Contributing
 
@@ -36,4 +36,4 @@ For more information please read the [CONTRIBUTING](./CONTRIBUTING.md) document.
 
 ## License
 
-[GPLv3](https://github.com/XDoubleU/check-in/blob/main/LICENSE)
+[GPLv3](./LICENSE)
