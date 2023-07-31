@@ -60,6 +60,7 @@ func TestYesterdayFullAt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
+	timeZone, _ := time.LoadLocation("Europe/Brussels")
 	now := time.Now()
 	fullTime := time.Date(
 		now.Year(),
@@ -69,7 +70,7 @@ func TestYesterdayFullAt(t *testing.T) {
 		0,
 		0,
 		0,
-		now.Location(),
+		timeZone,
 	)
 
 	for i := 0; i < int(fixtureData.DefaultLocation.Capacity); i++ {
