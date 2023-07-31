@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: API Workflow
+    name: API Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,6 +22,7 @@ jobs:
         working-directory: './api'
 
   lint:
+    name: API Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -35,6 +36,7 @@ jobs:
           working-directory: './api'
 
   test:
+    name: API Test
     runs-on: ubuntu-latest
     services:
       postgres:
