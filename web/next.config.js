@@ -23,6 +23,7 @@ const nextConfig = {
     includePaths: ["./styles"],
   },
   output: "export",
+  trailingSlash: true,
   sentry: {
     hideSourceMaps: true
   },
