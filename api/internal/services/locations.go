@@ -179,6 +179,11 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 			return nil, handleError(err)
 		}
 
+		err = location.NormalizeName()
+		if err != nil {
+			return nil, handleError(err)
+		}
+
 		locations = append(locations, &location)
 	}
 
