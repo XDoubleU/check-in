@@ -175,6 +175,8 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 			&location.ID,
 			&location.Name,
 			&location.Capacity,
+			&location.Available,
+			&location.YesterdayFullAt,
 		)
 
 		if err != nil {
