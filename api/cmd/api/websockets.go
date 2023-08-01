@@ -27,8 +27,10 @@ func (app *application) websocketsRoutes(router *httprouter.Router) {
 // @Success	200					{object}	LocationUpdateEvent
 // @Router		/ws [get].
 func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request) {
-	//url := strings.Split(app.config.WebURL, "://")[1]
 	url := app.config.WebURL
+	if strings.contains(url, "://") {
+		url = strings.Split(app.config.WebURL, "://")[1]
+	}
 	
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
 		OriginPatterns: []string{url},
