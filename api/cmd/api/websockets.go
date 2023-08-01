@@ -28,7 +28,7 @@ func (app *application) websocketsRoutes(router *httprouter.Router) {
 // @Router		/ws [get].
 func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request) {
 	url := app.config.WebURL
-	if strings.contains(url, "://") {
+	if strings.Contains(url, "://") {
 		url = strings.Split(app.config.WebURL, "://")[1]
 	}
 	
