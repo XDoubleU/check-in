@@ -76,13 +76,13 @@ function redirect(
   user: User | undefined
 ) {
   if (!user) {
-    if (router.asPath !== "/signin") {
+    if (!router.asPath.includes("/signin")) {
       return router.push("/signin")
     }
     return new Promise((resolve) => resolve(true))
   }
 
-  if (router.asPath === "/signin") {
+  if (router.asPath.includes("/signin")) {
     return router.push("/")
   }
 
