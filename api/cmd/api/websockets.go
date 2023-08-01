@@ -31,7 +31,7 @@ func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request)
 	if strings.Contains(url, "://") {
 		url = strings.Split(app.config.WebURL, "://")[1]
 	}
-	
+
 	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
 		OriginPatterns: []string{url},
 	})
