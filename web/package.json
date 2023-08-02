@@ -38,7 +38,7 @@
     "@typescript-eslint/eslint-plugin": "6.2.1",
     "@typescript-eslint/parser": "6.2.1",
     "cross-env": "7.0.3",
-    "eslint": "8.45.0",
+    "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
     "eslint-import-resolver-typescript": "3.5.5",
     "eslint-plugin-deprecation": "1.4.1",
