@@ -38,7 +38,7 @@ func sentryGoRoutineErrorHandler(name string, f func(ctx context.Context) error)
 
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		30 * time.Second,
+		30*time.Second, //nolint:gomnd // no magic number
 	)
 	defer cancel()
 
