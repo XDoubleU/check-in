@@ -10,6 +10,7 @@ import { AuthProvider } from "contexts/authContext"
 import { ErrorBoundary } from "@sentry/nextjs"
 import Error from "layouts/Error"
 
+// eslint-disable-next-line max-lines-per-function
 export default function App({
   // eslint-disable-next-line @typescript-eslint/naming-convention
   Component,
@@ -23,8 +24,12 @@ export default function App({
   return (
     <main>
       <Head>
+        <link rel="manifest" href="/manifest.json" />
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"
+        />
       </Head>
       <ErrorBoundary fallback={<Error />}>
         <AuthProvider>

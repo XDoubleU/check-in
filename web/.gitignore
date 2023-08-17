@@ -51,3 +51,6 @@ sentry.properties
 dist
 .turbo
 eslint_report.json
+
+public/sw.js*
+public/workbox*
