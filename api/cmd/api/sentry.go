@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
@@ -35,7 +36,11 @@ func (app *application) getSentryHandler() *sentryhttp.Handler {
 func sentryGoRoutineErrorHandler(name string, f func(ctx context.Context) error) {
 	name = fmt.Sprintf("GO ROUTINE %s", name)
 
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		30 * time.Second,
+	)
+	defer cancel()
 
 	hub := sentry.CurrentHub().Clone()
 	ctx = sentry.SetHubOnContext(ctx, hub)
