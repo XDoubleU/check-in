@@ -16,7 +16,7 @@ function SchoolUpdateModal({ data, fetchData }: SchoolCardProps) {
     }
   })
 
-  const { register } = form
+  const { register, formState: { errors } } = form
 
   const handleUpdate = (updateData: SchoolDto) => {
     return updateSchool(data.id, updateData)
@@ -34,6 +34,7 @@ function SchoolUpdateModal({ data, fetchData }: SchoolCardProps) {
         type="text"
         placeholder="Name"
         register={register("name")}
+        errors={errors.name}
       />
     </UpdateModal>
   )

@@ -4,6 +4,7 @@ import CustomButton from "components/CustomButton"
 import { type FieldValues, type SubmitHandler } from "react-hook-form"
 import BaseForm from "components/forms/BaseForm"
 import { type IModalProps } from "interfaces/IModalProps"
+import { setErrors } from "./helpers"
 
 type CreateModalProps<T extends FieldValues, Y> = IModalProps<T, Y>
 
@@ -22,18 +23,14 @@ export default function CreateModal<T extends FieldValues, Y>({
   const {
     handleSubmit,
     formState: { errors },
-    //setError,
+    setError,
     reset
   } = form
 
   const onSubmit: SubmitHandler<T> = async (data) => {
     const response = await handler(data)
     if (!response.ok) {
-      // eslint-disable-next-line no-warning-comments
-      //TODO: fix
-      /*setError("root", {
-        message: response.message ?? "Something went wrong"
-      })*/
+      setErrors(response, setError)
     } else {
       handleCloseCreate()
       reset()
@@ -56,6 +53,7 @@ export default function CreateModal<T extends FieldValues, Y>({
             onSubmit={handleSubmit(onSubmit)}
             errors={errors}
             submitBtnText="Create"
+            submitBtnDisabled={Object.keys(errors).length !== 0}
             onCancelCallback={onCancel}
           >
             {children}

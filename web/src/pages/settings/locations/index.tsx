@@ -1,4 +1,3 @@
-import { Form } from "react-bootstrap"
 import { createLocation, getAllLocations, getUser } from "api-wrapper"
 import { useForm } from "react-hook-form"
 import CreateModal from "components/modals/CreateModal"
@@ -14,6 +13,8 @@ import {
   type PaginatedLocationsDto
 } from "api-wrapper/types/apiTypes"
 import { AuthRedirecter } from "contexts/authContext"
+import UserInputs from "components/forms/UserInputs"
+import TimeZoneInput from "components/forms/TimeZoneInput"
 
 type CreateLocationForm = CreateLocationDto & { repeatPassword?: string }
 
@@ -34,13 +35,13 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
       fetchData={fetchData}
       typeName="location"
     >
-      {/* jscpd:ignore-start */}
       <FormInput
         label="Name"
         type="text"
         placeholder="Name"
         required
         register={register("name")}
+        errors={errors.name}
       />
       <FormInput
         label="Capacity"
@@ -48,63 +49,10 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
         placeholder={10}
         required
         register={register("capacity")}
+        errors={errors.capacity}
       />
-      <Form.Group
-        className="mb-3"
-        hidden={process.env.NEXT_PUBLIC_EDIT_TIME_ZONE !== "true"}
-      >
-        <Form.Label>Time zone</Form.Label>
-        <Form.Select
-          defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
-          {...register("timeZone")}
-        >
-          {Intl.supportedValuesOf("timeZone").map((timeZone) => {
-            return (
-              <option key={timeZone} value={timeZone}>
-                {timeZone}
-              </option>
-            )
-          })}
-        </Form.Select>
-      </Form.Group>
-      <FormInput
-        label="Username"
-        type="text"
-        placeholder="Username"
-        required
-        register={register("username")}
-      />
-      <FormInput
-        label="Password"
-        type="password"
-        placeholder="Password"
-        required
-        autocomplete="new-password"
-        register={register("password")}
-      />
-
-      <Form.Group className="mb-3">
-        <Form.Label>Repeat password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Repeat password"
-          autoComplete="new-password"
-          required
-          isInvalid={!!errors.repeatPassword}
-          {...register("repeatPassword", {
-            validate: (val: string | undefined) => {
-              if (watch("password") != val) {
-                return "Your passwords do no match"
-              }
-              return undefined
-            }
-          })}
-        ></Form.Control>
-        <Form.Control.Feedback type="invalid">
-          {errors.repeatPassword?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
-      {/* jscpd:ignore-end */}
+      <TimeZoneInput register={register("timeZone")} />
+      <UserInputs register={register} watch={watch} errors={errors} />
     </CreateModal>
   )
 }

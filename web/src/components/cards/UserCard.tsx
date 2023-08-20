@@ -1,11 +1,11 @@
-import { Card, Form } from "react-bootstrap"
+import { Card } from "react-bootstrap"
 import DeleteModal from "components/modals/DeleteModal"
 import { deleteUser, updateUser } from "api-wrapper"
 import { useForm } from "react-hook-form"
 import UpdateModal from "components/modals/UpdateModal"
-import FormInput from "components/forms/FormInput"
 import { type ICardProps } from "interfaces/ICardProps"
 import { type User, type UpdateUserDto } from "api-wrapper/types/apiTypes"
+import UserInputs from "components/forms/UserInputs"
 
 type UserUpdateForm = UpdateUserDto & { repeatPassword?: string }
 
@@ -36,39 +36,7 @@ function UserUpdateModal({ data, fetchData }: UserCardProps) {
       fetchData={fetchData}
       typeName="user"
     >
-      <FormInput
-        label="Username"
-        type="text"
-        placeholder="Username"
-        register={register("username")}
-      />
-      <FormInput
-        label="Password"
-        type="password"
-        placeholder="Password"
-        register={register("password")}
-      />
-      {/* jscpd:ignore-start */}
-      <Form.Group className="mb-3">
-        <Form.Label>Repeat password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Repeat password"
-          isInvalid={!!errors.repeatPassword}
-          {...register("repeatPassword", {
-            validate: (val: string | undefined) => {
-              if (watch("password") != val) {
-                return "Your passwords do no match"
-              }
-              return undefined
-            }
-          })}
-        ></Form.Control>
-        <Form.Control.Feedback type="invalid">
-          {errors.repeatPassword?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
-      {/* jscpd:ignore-end */}
+      <UserInputs register={register} watch={watch} errors={errors} />
     </UpdateModal>
   )
 }
