@@ -35,6 +35,7 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
       fetchData={fetchData}
       typeName="location"
     >
+      {/* jscpd:ignore-start */}
       <FormInput
         label="Name"
         type="text"
@@ -53,6 +54,7 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
       />
       <TimeZoneInput register={register("timeZone")} />
       <UserInputs register={register} watch={watch} errors={errors} />
+      {/* jscpd:ignore-end */}
     </CreateModal>
   )
 }

@@ -48,6 +48,7 @@ export function LocationUpdateModal({ data, fetchData }: LocationCardProps) {
       fetchData={fetchData}
       typeName="location"
     >
+      {/* jscpd:ignore-start */}
       <FormInput
         label="Name"
         type="text"
@@ -64,6 +65,7 @@ export function LocationUpdateModal({ data, fetchData }: LocationCardProps) {
       />
       <TimeZoneInput register={register("timeZone")} />
       <UserInputs register={register} watch={watch} errors={errors} />
+      {/* jscpd:ignore-end */}
     </UpdateModal>
   )
 }

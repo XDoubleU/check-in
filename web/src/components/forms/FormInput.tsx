@@ -55,11 +55,11 @@ export default function FormInput<T extends string>({
         isInvalid={!!errors}
         {...registerOrOnChange}
       ></Form.Control>
-      {
-        errors && <Form.Control.Feedback type="invalid">
-            {errors.message}
+      {errors && (
+        <Form.Control.Feedback type="invalid">
+          {errors.message}
         </Form.Control.Feedback>
-      }
+      )}
     </Form.Group>
   )
 }

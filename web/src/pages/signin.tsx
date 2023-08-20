@@ -29,7 +29,7 @@ export default function SignIn() {
         setUser(response.data)
       }
       setError("root", {
-        message: response.message as string ?? "Something went wrong"
+        message: (response.message as string) ?? "Something went wrong"
       })
       return new Promise((resolve) => resolve(true))
     })

@@ -1,4 +1,9 @@
-import { type FieldError, type FieldErrors, type UseFormRegister, type UseFormWatch } from "react-hook-form"
+import {
+  type FieldError,
+  type FieldErrors,
+  type UseFormRegister,
+  type UseFormWatch
+} from "react-hook-form"
 import FormInput from "./FormInput"
 
 interface Inputs {
@@ -13,9 +18,14 @@ interface UserInputsProps<T extends Inputs> {
   errors: FieldErrors<T>
 }
 
-export default function UserInputs<T extends Inputs>({register, watch, errors}: UserInputsProps<T>) {
-  return <>
-    <FormInput
+export default function UserInputs<T extends Inputs>({
+  register,
+  watch,
+  errors
+}: UserInputsProps<T>) {
+  return (
+    <>
+      <FormInput
         label="Username"
         type="text"
         placeholder="Username"
@@ -39,7 +49,7 @@ export default function UserInputs<T extends Inputs>({register, watch, errors}: 
         autocomplete="new-password"
         register={register("repeatPassword" as never, {
           validate: (val: string | undefined) => {
-            if (watch("password" as never) as unknown as string !== val) {
+            if ((watch("password" as never) as unknown as string) !== val) {
               return "Your passwords do no match"
             }
             return undefined
@@ -47,5 +57,6 @@ export default function UserInputs<T extends Inputs>({register, watch, errors}: 
         })}
         errors={errors.repeatPassword as FieldError}
       />
-  </>
+    </>
+  )
 }
