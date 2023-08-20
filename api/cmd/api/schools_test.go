@@ -183,7 +183,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["name"].(string),
 		fmt.Sprintf("school with name '%s' already exists", data.Name),
 	)
 }
@@ -301,7 +301,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["name"].(string),
 		fmt.Sprintf("school with name '%s' already exists", data.Name),
 	)
 }
@@ -331,7 +331,11 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
-	assert.Equal(t, rsData.Message, "school with id '1' doesn't exist")
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["id"].(string),
+		"school with id '1' doesn't exist",
+	)
 }
 
 func TestUpdateSchoolNotFound(t *testing.T) {
@@ -359,7 +363,11 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
-	assert.Equal(t, rsData.Message, "school with id '8000' doesn't exist")
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["id"].(string),
+		"school with id '8000' doesn't exist",
+	)
 }
 
 func TestUpdateSchoolNotInt(t *testing.T) {
@@ -497,7 +505,11 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
-	assert.Equal(t, rsData.Message.(string), "school with id '1' doesn't exist")
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["id"].(string),
+		"school with id '1' doesn't exist",
+	)
 }
 
 func TestDeleteSchoolNotFound(t *testing.T) {
@@ -516,7 +528,11 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
-	assert.Equal(t, rsData.Message.(string), "school with id '8000' doesn't exist")
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["id"].(string),
+		"school with id '8000' doesn't exist",
+	)
 }
 
 func TestDeleteSchoolNotInt(t *testing.T) {

@@ -54,7 +54,7 @@ export default function FormInput<T extends string>({
         autoComplete={autocomplete}
         {...registerOrOnChange}
       ></Form.Control>
-      {errors && <Alert key="danger">{errors.message}</Alert>}
+      {errors && <Alert variant="danger">{errors.message}</Alert>}
     </Form.Group>
   )
 }

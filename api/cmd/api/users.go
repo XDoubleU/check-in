@@ -78,7 +78,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.services.Users.GetByID(r.Context(), id, models.DefaultRole)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "user", "id", id)
+		app.notFoundResponse(w, r, err, "user", "id", id, "id")
 		return
 	}
 
@@ -158,7 +158,15 @@ func (app *application) createManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		app.conflictResponse(w, r, err, "user", "username", createUserDto.Username)
+		app.conflictResponse(
+			w,
+			r,
+			err,
+			"user",
+			"username",
+			createUserDto.Username,
+			"username",
+		)
 		return
 	}
 
@@ -205,7 +213,7 @@ func (app *application) updateManagerUserHandler(
 
 	user, err := app.services.Users.GetByID(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "user", "id", id)
+		app.notFoundResponse(w, r, err, "user", "id", id, "id")
 		return
 	}
 
@@ -216,7 +224,15 @@ func (app *application) updateManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		app.conflictResponse(w, r, err, "user", "username", *updateUserDto.Username)
+		app.conflictResponse(
+			w,
+			r,
+			err,
+			"user",
+			"username",
+			*updateUserDto.Username,
+			"username",
+		)
 		return
 	}
 
@@ -247,7 +263,7 @@ func (app *application) deleteManagerUserHandler(
 
 	user, err := app.services.Users.GetByID(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "user", "id", id)
+		app.notFoundResponse(w, r, err, "user", "id", id, "id")
 		return
 	}
 

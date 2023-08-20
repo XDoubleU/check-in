@@ -15,7 +15,7 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
-    //setError,
+    setError,
     formState: { errors }
   } = useForm<SignInDto>({
     defaultValues: {
@@ -28,12 +28,10 @@ export default function SignIn() {
       if (response.ok) {
         setUser(response.data)
       }
-      // eslint-disable-next-line no-warning-comments
-      //TODO: fix
-      /*setError("root", {
-        message: response.message ?? "Something went wrong"
-      })*/
-      //return new Promise((resolve) => resolve(true))
+      setError("root", {
+        message: response.message as string ?? "Something went wrong"
+      })
+      return new Promise((resolve) => resolve(true))
     })
   }
 

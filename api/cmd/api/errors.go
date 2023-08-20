@@ -77,6 +77,7 @@ func (app *application) conflictResponse(
 	resourceName string,
 	identifier string,
 	identifierValue string,
+	jsonField string,
 ) {
 	value := helpers.AnyToString(identifierValue)
 
@@ -87,7 +88,9 @@ func (app *application) conflictResponse(
 			identifier,
 			value,
 		)
-		app.errorResponse(w, r, http.StatusConflict, message)
+		err := make(map[string]string)
+		err[jsonField] = message
+		app.errorResponse(w, r, http.StatusConflict, err)
 	} else {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -100,6 +103,7 @@ func (app *application) notFoundResponse(
 	resourceName string,
 	identifier string, //nolint:unparam //should keep param
 	identifierValue any,
+	jsonField string,
 ) {
 	value := helpers.AnyToString(identifierValue)
 
@@ -110,7 +114,11 @@ func (app *application) notFoundResponse(
 			identifier,
 			value,
 		)
-		app.errorResponse(w, r, http.StatusNotFound, message)
+
+		err := make(map[string]string)
+		err[jsonField] = message
+
+		app.errorResponse(w, r, http.StatusNotFound, err)
 	} else {
 		app.serverErrorResponse(w, r, err)
 	}

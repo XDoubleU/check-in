@@ -161,7 +161,7 @@ func TestGetUserNotFound(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("user with id '%s' doesn't exist", id.String()),
 	)
 }
@@ -372,7 +372,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["username"].(string),
 		fmt.Sprintf("user with username '%s' already exists", data.Username),
 	)
 }
@@ -498,7 +498,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["username"].(string),
 		fmt.Sprintf("user with username '%s' already exists", *data.Username),
 	)
 }
@@ -534,7 +534,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("user with id '%s' doesn't exist", id.String()),
 	)
 }
@@ -691,7 +691,7 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("user with id '%s' doesn't exist", id.String()),
 	)
 }

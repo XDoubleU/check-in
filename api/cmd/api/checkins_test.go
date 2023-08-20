@@ -209,7 +209,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["schoolId"].(string),
 		fmt.Sprintf("school with id '%d' doesn't exist", data.SchoolID),
 	)
 }
