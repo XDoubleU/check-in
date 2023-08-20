@@ -258,7 +258,7 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
 	)
 }
@@ -295,7 +295,7 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("location with id '%s' doesn't exist", fixtureData.Locations[0].ID),
 	)
 }
@@ -566,7 +566,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
 	)
 }
@@ -601,7 +601,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("location with id '%s' doesn't exist", fixtureData.Locations[0].ID),
 	)
 }
@@ -909,7 +909,7 @@ func TestGetLocationNotFound(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
 	)
 }
@@ -936,7 +936,7 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("location with id '%s' doesn't exist", fixtureData.Locations[0].ID),
 	)
 }
@@ -1058,7 +1058,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["name"].(string),
 		fmt.Sprintf("location with name '%s' already exists", data.Name),
 	)
 }
@@ -1094,7 +1094,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["name"].(string),
 		fmt.Sprintf("location with name '%s' already exists", data.Name),
 	)
 }
@@ -1130,7 +1130,7 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["username"].(string),
 		fmt.Sprintf("user with username '%s' already exists", data.Username),
 	)
 }
@@ -1308,7 +1308,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["name"].(string),
 		fmt.Sprintf("location with name '%s' already exists", *data.Name),
 	)
 }
@@ -1345,7 +1345,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["name"].(string),
 		fmt.Sprintf("location with name '%s' already exists", *data.Name),
 	)
 }
@@ -1382,7 +1382,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["username"].(string),
 		fmt.Sprintf("user with username '%s' already exists", *data.Username),
 	)
 }
@@ -1496,7 +1496,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
 	)
 }
@@ -1533,7 +1533,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("location with id '%s' doesn't exist", fixtureData.Locations[0].ID),
 	)
 }
@@ -1650,7 +1650,7 @@ func TestDeleteLocationNotFound(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
 		t,
-		rsData.Message.(string),
+		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
 	)
 }

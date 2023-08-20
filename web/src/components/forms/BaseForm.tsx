@@ -29,7 +29,7 @@ export default function BaseForm({
       {children}
       <br />
 
-      {errors.root && <Alert key="danger">{errors.root.message}</Alert>}
+      {errors.root && <Alert variant="danger">{errors.root.message}</Alert>}
 
       {onCancelCallback ? (
         <>

@@ -4,6 +4,7 @@ import CustomButton from "components/CustomButton"
 import { type FieldValues, type SubmitHandler } from "react-hook-form"
 import BaseForm from "components/forms/BaseForm"
 import { type IModalProps } from "interfaces/IModalProps"
+import { setErrors } from "./helpers"
 
 type UpdateModalProps<T extends FieldValues, Y> = IModalProps<T, Y>
 
@@ -22,7 +23,7 @@ export default function UpdateModal<T extends FieldValues, Y>({
   const {
     handleSubmit,
     formState: { dirtyFields, errors },
-    //setError,
+    setError,
     reset
   } = form
 
@@ -33,11 +34,7 @@ export default function UpdateModal<T extends FieldValues, Y>({
 
     const response = await handler(dataToSubmit as T)
     if (!response.ok) {
-      // eslint-disable-next-line no-warning-comments
-      //TODO: fix
-      /*setError("root", {
-        message: response.message ?? "Something went wrong"
-      })*/
+      setErrors(response, setError)
     } else {
       handleCloseUpdate()
       reset(data)
@@ -60,7 +57,10 @@ export default function UpdateModal<T extends FieldValues, Y>({
             onSubmit={handleSubmit(onSubmit)}
             errors={errors}
             submitBtnText="Update"
-            submitBtnDisabled={Object.keys(dirtyFields).length === 0}
+            submitBtnDisabled={
+              Object.keys(dirtyFields).length === 0 ||
+              Object.keys(errors).length !== 0
+            }
             onCancelCallback={onCancel}
           >
             {children}

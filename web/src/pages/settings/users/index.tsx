@@ -2,10 +2,8 @@ import { createUser, getAllUsersPaged } from "api-wrapper"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import CreateModal from "components/modals/CreateModal"
-import FormInput from "components/forms/FormInput"
 import ListViewLayout, { type List } from "layouts/ListViewLayout"
 import { type ICreateModalProps } from "interfaces/ICreateModalProps"
-import { Form } from "react-bootstrap"
 import UserCard from "components/cards/UserCard"
 import {
   type User,
@@ -13,6 +11,7 @@ import {
   type Role
 } from "api-wrapper/types/apiTypes"
 import { AuthRedirecter } from "contexts/authContext"
+import UserInputs from "components/forms/UserInputs"
 
 type CreateUserForm = CreateUserDto & { repeatPassword?: string }
 
@@ -33,42 +32,7 @@ function CreateUserModal({ form, fetchData }: CreateUserModalProps) {
       fetchData={fetchData}
       typeName="user"
     >
-      <FormInput
-        label="Username"
-        type="text"
-        placeholder="Username"
-        required
-        register={register("username")}
-      />
-      <FormInput
-        label="Password"
-        type="password"
-        placeholder="Password"
-        required
-        register={register("password")}
-      />
-      {/* jscpd:ignore-start */}
-      <Form.Group className="mb-3">
-        <Form.Label>Repeat password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Repeat password"
-          required
-          isInvalid={!!errors.repeatPassword}
-          {...register("repeatPassword", {
-            validate: (val: string | undefined) => {
-              if (watch("password") != val) {
-                return "Your passwords do no match"
-              }
-              return undefined
-            }
-          })}
-        ></Form.Control>
-        <Form.Control.Feedback type="invalid">
-          {errors.repeatPassword?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
-      {/* jscpd:ignore-end */}
+      <UserInputs register={register} watch={watch} errors={errors} />
     </CreateModal>
   )
 }

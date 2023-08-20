@@ -91,7 +91,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 
 	school, err := app.services.Schools.GetByID(r.Context(), checkInDto.SchoolID)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "school", "id", checkInDto.SchoolID)
+		app.notFoundResponse(w, r, err, "school", "id", checkInDto.SchoolID, "schoolId")
 		return
 	}
 

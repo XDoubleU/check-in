@@ -92,7 +92,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		app.notFoundResponse(w, r, err, "location", "id", id)
+		app.notFoundResponse(w, r, err, "location", "id", id, "id")
 		return
 	}
 
@@ -190,7 +190,7 @@ func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		app.notFoundResponse(w, r, err, "location", "id", id)
+		app.notFoundResponse(w, r, err, "location", "id", id, "id")
 		return
 	}
 
@@ -260,7 +260,7 @@ func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		app.notFoundResponse(w, r, err, "location", "id", id)
+		app.notFoundResponse(w, r, err, "location", "id", id, "id")
 		return
 	}
 
@@ -335,7 +335,15 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		createLocationDto.Name,
 	)
 	if existingLocation != nil || !errors.Is(err, services.ErrRecordNotFound) {
-		app.conflictResponse(w, r, err, "location", "name", createLocationDto.Name)
+		app.conflictResponse(
+			w,
+			r,
+			err,
+			"location",
+			"name",
+			createLocationDto.Name,
+			"name",
+		)
 		return
 	}
 
@@ -344,7 +352,15 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		createLocationDto.Username,
 	)
 	if existingUser != nil || !errors.Is(err, services.ErrRecordNotFound) {
-		app.conflictResponse(w, r, err, "user", "username", createLocationDto.Username)
+		app.conflictResponse(
+			w,
+			r,
+			err,
+			"user",
+			"username",
+			createLocationDto.Username,
+			"username",
+		)
 		return
 	}
 
@@ -409,7 +425,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		app.notFoundResponse(w, r, err, "location", "id", id)
+		app.notFoundResponse(w, r, err, "location", "id", id, "id")
 		return
 	}
 
@@ -454,7 +470,15 @@ func (app *application) checkForConflictsOnUpdate(
 		)
 
 		if existingLocation != nil || !errors.Is(err, services.ErrRecordNotFound) {
-			app.conflictResponse(w, r, err, "location", "name", *updateLocationDto.Name)
+			app.conflictResponse(
+				w,
+				r,
+				err,
+				"location",
+				"name",
+				*updateLocationDto.Name,
+				"name",
+			)
 			return true
 		}
 	}
@@ -473,6 +497,7 @@ func (app *application) checkForConflictsOnUpdate(
 				"user",
 				"username",
 				*updateLocationDto.Username,
+				"username",
 			)
 			return true
 		}
@@ -499,7 +524,7 @@ func (app *application) deleteLocationHandler(w http.ResponseWriter, r *http.Req
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "location", "id", id)
+		app.notFoundResponse(w, r, err, "location", "id", id, "id")
 		return
 	}
 

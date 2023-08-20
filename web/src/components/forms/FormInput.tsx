@@ -1,5 +1,5 @@
 import { type ChangeEventHandler } from "react"
-import { Alert, Form } from "react-bootstrap"
+import { Form } from "react-bootstrap"
 import { type FieldError, type UseFormRegisterReturn } from "react-hook-form"
 
 interface FormInputProps<T extends string> {
@@ -52,9 +52,14 @@ export default function FormInput<T extends string>({
         max={max}
         min={min}
         autoComplete={autocomplete}
+        isInvalid={!!errors}
         {...registerOrOnChange}
       ></Form.Control>
-      {errors && <Alert key="danger">{errors.message}</Alert>}
+      {errors && (
+        <Form.Control.Feedback type="invalid">
+          {errors.message}
+        </Form.Control.Feedback>
+      )}
     </Form.Group>
   )
 }
