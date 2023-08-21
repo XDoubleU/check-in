@@ -104,6 +104,8 @@ func TestCreateCheckIn(t *testing.T) {
 	var rsData dtos.CheckInDto
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
+	loc, _ := time.LoadLocation("Europe/Brussels")
+
 	assert.Equal(t, rs.StatusCode, http.StatusCreated)
 	assert.Equal(t, rsData.SchoolName, fixtureData.Schools[0].Name)
 	assert.Equal(t, rsData.LocationID, fixtureData.DefaultLocation.ID)
@@ -111,7 +113,7 @@ func TestCreateCheckIn(t *testing.T) {
 	assert.Equal(
 		t,
 		rsData.CreatedAt.Time.Format(constants.DateFormat),
-		time.Now().Format(constants.DateFormat),
+		time.Now().In(loc).Format(constants.DateFormat),
 	)
 }
 
@@ -139,6 +141,8 @@ func TestCreateCheckInAndere(t *testing.T) {
 	var rsData dtos.CheckInDto
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
+	loc, _ := time.LoadLocation("Europe/Brussels")
+
 	assert.Equal(t, rs.StatusCode, http.StatusCreated)
 	assert.Equal(t, rsData.SchoolName, "Andere")
 	assert.Equal(t, rsData.LocationID, fixtureData.DefaultLocation.ID)
@@ -146,7 +150,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 	assert.Equal(
 		t,
 		rsData.CreatedAt.Time.Format(constants.DateFormat),
-		time.Now().Format(constants.DateFormat),
+		time.Now().In(loc).Format(constants.DateFormat),
 	)
 }
 

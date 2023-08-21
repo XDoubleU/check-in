@@ -740,6 +740,8 @@ func TestGetAllCheckInsToday(t *testing.T) {
 		var rsData []dtos.CheckInDto
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
+		loc, _ := time.LoadLocation("Europe/Brussels")
+
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, len(rsData), 5)
 		assert.Equal(t, rsData[0].LocationID, fixtureData.DefaultLocation.ID)
@@ -747,7 +749,7 @@ func TestGetAllCheckInsToday(t *testing.T) {
 		assert.Equal(
 			t,
 			rsData[0].CreatedAt.Time.Format(constants.DateFormat),
-			time.Now().Format(constants.DateFormat),
+			time.Now().In(loc).Format(constants.DateFormat),
 		)
 	}
 }
@@ -876,6 +878,8 @@ func TestDeleteCheckIn(t *testing.T) {
 		var rsData dtos.CheckInDto
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
+		loc, _ := time.LoadLocation("Europe/Brussels")
+
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.CheckIns[i].ID)
 		assert.Equal(t, rsData.LocationID, fixtureData.DefaultLocation.ID)
@@ -883,7 +887,7 @@ func TestDeleteCheckIn(t *testing.T) {
 		assert.Equal(
 			t,
 			rsData.CreatedAt.Time.Format(constants.DateFormat),
-			time.Now().Format(constants.DateFormat),
+			time.Now().In(loc).Format(constants.DateFormat),
 		)
 	}
 }
