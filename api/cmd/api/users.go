@@ -70,7 +70,7 @@ func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 // @Failure	500	{object}	ErrorDto
 // @Router		/users/{id} [get].
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadUUIDURLParam(r)
+	id, err := helpers.ReadUUIDURLParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -192,7 +192,7 @@ func (app *application) updateManagerUserHandler(
 ) {
 	var updateUserDto dtos.UpdateUserDto
 
-	id, err := helpers.ReadUUIDURLParam(r)
+	id, err := helpers.ReadUUIDURLParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -255,7 +255,7 @@ func (app *application) deleteManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	id, err := helpers.ReadUUIDURLParam(r)
+	id, err := helpers.ReadUUIDURLParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return

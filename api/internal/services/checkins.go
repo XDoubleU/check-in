@@ -19,7 +19,7 @@ func (service CheckInService) GetAllInRange(
 	endDate *time.Time,
 ) ([]*models.CheckIn, error) {
 	query := `
-		SELECT school_id, capacity, (created_at AT TIME ZONE $4)
+		SELECT id, school_id, capacity, (created_at AT TIME ZONE $4)
 		FROM check_ins
 		WHERE location_id = $1
 		AND (created_at AT TIME ZONE $4) >= $2
@@ -41,9 +41,12 @@ func (service CheckInService) GetAllInRange(
 	checkIns := []*models.CheckIn{}
 
 	for rows.Next() {
-		var checkIn models.CheckIn
+		checkIn := models.CheckIn{
+			LocationID: location.ID,
+		}
 
 		err = rows.Scan(
+			&checkIn.ID,
 			&checkIn.SchoolID,
 			&checkIn.Capacity,
 			&checkIn.CreatedAt,
@@ -61,6 +64,41 @@ func (service CheckInService) GetAllInRange(
 	}
 
 	return checkIns, nil
+}
+
+func (service CheckInService) GetByID(
+	ctx context.Context,
+	location *models.Location,
+	id int64,
+) (*models.CheckIn, error) {
+	query := `
+		SELECT school_id, capacity, created_at AT TIME ZONE $3
+		FROM check_ins
+		WHERE id = $1 AND location_id = $2
+	`
+
+	checkIn := models.CheckIn{
+		ID:         id,
+		LocationID: location.ID,
+	}
+
+	err := service.db.QueryRow(
+		ctx,
+		query,
+		id,
+		location.ID,
+		location.TimeZone,
+	).Scan(
+		&checkIn.SchoolID,
+		&checkIn.Capacity,
+		&checkIn.CreatedAt,
+	)
+
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	return &checkIn, nil
 }
 
 func (service CheckInService) Create(
@@ -96,4 +134,23 @@ func (service CheckInService) Create(
 	location.Available--
 
 	return &checkIn, nil
+}
+
+func (service CheckInService) Delete(ctx context.Context, id int64) error {
+	query := `
+		DELETE FROM check_ins
+		WHERE id = $1
+	`
+
+	result, err := service.db.Exec(ctx, query, id)
+	if err != nil {
+		return handleError(err)
+	}
+
+	rowsAffected := result.RowsAffected()
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
 }

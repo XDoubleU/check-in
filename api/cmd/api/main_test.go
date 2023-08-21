@@ -32,6 +32,7 @@ type FixtureData struct {
 	ManagerUsers         []*models.User
 	DefaultUsers         []*models.User
 	Locations            []*models.Location
+	CheckIns             []*models.CheckIn
 	DefaultLocation      *models.Location
 	AmountOfLocations    int
 	AmountOfSchools      int
@@ -211,7 +212,8 @@ func locationFixtures(services services.Services) error {
 			return err
 		}
 
-		_, err = services.CheckIns.Create(
+		var checkIn *models.CheckIn
+		checkIn, err = services.CheckIns.Create(
 			context.Background(),
 			fixtureData.DefaultLocation,
 			&models.School{ID: 1},
@@ -219,6 +221,8 @@ func locationFixtures(services services.Services) error {
 		if err != nil {
 			return err
 		}
+
+		fixtureData.CheckIns = append(fixtureData.CheckIns, checkIn)
 	}
 
 	for i := 0; i < 20; i++ {
