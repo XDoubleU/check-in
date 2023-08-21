@@ -107,9 +107,9 @@ func (service LocationService) GetCheckInsEntriesRange(
 		checkInEntries.Set(dVal.Format(time.RFC3339), checkInEntry)
 	}
 
-	for _, checkIn := range checkIns {
-		datetime := helpers.StartOfDay(&checkIn.CreatedAt.Time)
-		schoolName := schoolsIDNameMap[checkIn.SchoolID]
+	for i := range checkIns {
+		datetime := helpers.StartOfDay(&checkIns[i].CreatedAt.Time)
+		schoolName := schoolsIDNameMap[checkIns[i].SchoolID]
 
 		checkInEntry, _ := checkInEntries.Get(datetime.Format(time.RFC3339))
 
@@ -117,8 +117,8 @@ func (service LocationService) GetCheckInsEntriesRange(
 		schoolValue++
 		checkInEntry.Schools.Set(schoolName, schoolValue)
 
-		if checkIn.Capacity > checkInEntry.Capacity {
-			checkInEntry.Capacity = checkIn.Capacity
+		if checkIns[i].Capacity > checkInEntry.Capacity {
+			checkInEntry.Capacity = checkIns[i].Capacity
 		}
 	}
 

@@ -3,6 +3,7 @@ db ?= postgres://postgres@localhost/postgres
 init:
 	go install github.com/segmentio/golines@latest
 	go install github.com/daixiang0/gci@latest
+	go install github.com/securego/gosec/v2/cmd/gosec@latest
 	go install github.com/swaggo/swag/cmd/swag@master
 
 lint:
