@@ -32,7 +32,9 @@ export default function CheckInCard({
         <Card.Body>
           <div className="d-flex flex-row">
             <div>
-              <Card.Title>{`${moment.utc(data.createdAt).format(FULL_FORMAT)}`}</Card.Title>
+              <Card.Title>{`${moment
+                .utc(data.createdAt)
+                .format(FULL_FORMAT)}`}</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">
                 ID: {data.id}
               </Card.Subtitle>
@@ -40,16 +42,15 @@ export default function CheckInCard({
                 School: {data.schoolName}
               </Card.Subtitle>
             </div>
-            {(user?.role === "admin" || user?.role === "manager")
-               && (
-                <div className="ms-auto">
-                  <CheckInDeleteModal
-                    data={data}
-                    user={user}
-                    fetchData={fetchData}
-                  />
-                </div>
-              )}
+            {(user?.role === "admin" || user?.role === "manager") && (
+              <div className="ms-auto">
+                <CheckInDeleteModal
+                  data={data}
+                  user={user}
+                  fetchData={fetchData}
+                />
+              </div>
+            )}
           </div>
         </Card.Body>
       </Card>

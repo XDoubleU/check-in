@@ -60,11 +60,11 @@ func (app *application) getSortedSchoolsHandler(
 // @Summary	Create check-in at location of logged in user
 // @Tags		checkins
 // @Param		createCheckInDto	body		CreateCheckInDto	true	"CreateCheckInDto"
-// @Success	201			{object}	CheckInDto
-// @Failure	400			{object}	ErrorDto
-// @Failure	401			{object}	ErrorDto
-// @Failure	404			{object}	ErrorDto
-// @Failure	500			{object}	ErrorDto
+// @Success	201					{object}	CheckInDto
+// @Failure	400					{object}	ErrorDto
+// @Failure	401					{object}	ErrorDto
+// @Failure	404					{object}	ErrorDto
+// @Failure	500					{object}	ErrorDto
 // @Router		/checkins [post].
 func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
 	var createCheckInDto dtos.CreateCheckInDto
@@ -91,7 +91,15 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 
 	school, err := app.services.Schools.GetByID(r.Context(), createCheckInDto.SchoolID)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "school", "id", createCheckInDto.SchoolID, "schoolId")
+		app.notFoundResponse(
+			w,
+			r,
+			err,
+			"school",
+			"id",
+			createCheckInDto.SchoolID,
+			"schoolId",
+		)
 		return
 	}
 
@@ -113,11 +121,11 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 	app.services.WebSockets.AddUpdateEvent(*location)
 
 	checkInDto := dtos.CheckInDto{
-		ID: checkIn.ID,
+		ID:         checkIn.ID,
 		LocationID: checkIn.LocationID,
 		SchoolName: school.Name,
-		Capacity: checkIn.Capacity,
-		CreatedAt: checkIn.CreatedAt,
+		Capacity:   checkIn.Capacity,
+		CreatedAt:  checkIn.CreatedAt,
 	}
 
 	err = helpers.WriteJSON(w, http.StatusCreated, checkInDto, nil)

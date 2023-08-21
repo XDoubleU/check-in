@@ -92,13 +92,18 @@ export default function LocationDetail() {
 
           {checkInsList.length == 0 ? "Nothing to see here." : ""}
 
-          {user && checkInsList.map((item) => {
-            return (
-              <div key={item.id}>
-                <CheckInCard data={item} user={user} fetchData={fetchCheckInData} />
-              </div>
-            )
-          })}
+          {user &&
+            checkInsList.map((item) => {
+              return (
+                <div key={item.id}>
+                  <CheckInCard
+                    data={item}
+                    user={user}
+                    fetchData={fetchCheckInData}
+                  />
+                </div>
+              )
+            })}
         </ManagerLayout>
       )}
     </AuthRedirecter>

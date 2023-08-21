@@ -16,7 +16,7 @@ import (
 )
 
 type LocationService struct {
-	db database.DB
+	db      database.DB
 	schools SchoolService
 }
 

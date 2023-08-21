@@ -5,9 +5,9 @@ import (
 )
 
 type CheckIn struct {
-	ID         int64  
-	LocationID string         
-	SchoolID   int64         
-	Capacity   int64           
+	ID         int64
+	LocationID string
+	SchoolID   int64
+	Capacity   int64
 	CreatedAt  pgtype.Timestamptz
 }

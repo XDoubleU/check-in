@@ -112,7 +112,8 @@ export async function deleteCheckIn(
   checkInId: number
 ): Promise<APIResponse<CheckIn>> {
   return await fetchHandler(
-    `${LOCATIONS_ENDPOINT}/${locationId}/checkins/${checkInId}`, "DELETE"
+    `${LOCATIONS_ENDPOINT}/${locationId}/checkins/${checkInId}`,
+    "DELETE"
   )
 }
 

@@ -300,11 +300,11 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 	checkInDtos := make([]dtos.CheckInDto, 0)
 	for _, checkIn := range checkIns {
 		checkInDto := dtos.CheckInDto{
-			ID: checkIn.ID,
+			ID:         checkIn.ID,
 			LocationID: checkIn.LocationID,
 			SchoolName: schoolMap[checkIn.SchoolID],
-			Capacity: checkIn.Capacity,
-			CreatedAt: checkIn.CreatedAt,
+			Capacity:   checkIn.Capacity,
+			CreatedAt:  checkIn.CreatedAt,
 		}
 		checkInDtos = append(checkInDtos, checkInDto)
 	}
@@ -382,11 +382,11 @@ func (app *application) deleteLocationCheckInHandler(
 	schoolMap, _ := app.services.Schools.GetSchoolMaps(schools)
 
 	checkInDto := dtos.CheckInDto{
-		ID: checkIn.ID,
+		ID:         checkIn.ID,
 		LocationID: checkIn.LocationID,
 		SchoolName: schoolMap[checkIn.SchoolID],
-		Capacity: checkIn.Capacity,
-		CreatedAt: checkIn.CreatedAt,
+		Capacity:   checkIn.Capacity,
+		CreatedAt:  checkIn.CreatedAt,
 	}
 
 	err = helpers.WriteJSON(w, http.StatusOK, checkInDto, nil)
