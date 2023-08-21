@@ -6,7 +6,7 @@ import BaseForm from "components/forms/BaseForm"
 import { type APIResponse } from "api-wrapper"
 
 interface DeleteModalProps<T> {
-  name: string
+  name?: string
   handler: () => Promise<APIResponse<T>>
   fetchData: () => Promise<void>
   typeName: string
@@ -39,7 +39,10 @@ export default function DeleteModal<T extends FieldValues>({
         <Modal.Body>
           <Modal.Title>Delete {typeName.toLowerCase()}</Modal.Title>
           <br />
-          Are you sure you want to delete &quot;{name}&quot;?
+          {name
+            ? `Are you sure you want to delete "${name}"?`
+            : `Are you sure you want to delete this ${typeName.toLowerCase()}?`}
+
           <br />
           <br />
           <BaseForm

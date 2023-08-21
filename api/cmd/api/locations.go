@@ -18,17 +18,27 @@ import (
 func (app *application) locationsRoutes(router *httprouter.Router) {
 	router.HandlerFunc(
 		http.MethodGet,
-		"/locations/:id/checkins/range",
+		"/locations/:locationId/checkins/range",
 		app.authAccess(allRoles, app.getLocationCheckInsRangeHandler),
 	)
 	router.HandlerFunc(
 		http.MethodGet,
-		"/locations/:id/checkins/day",
+		"/locations/:locationId/checkins/day",
 		app.authAccess(allRoles, app.getLocationCheckInsDayHandler),
 	)
 	router.HandlerFunc(
 		http.MethodGet,
-		"/locations/:id",
+		"/locations/:locationId/checkins",
+		app.authAccess(allRoles, app.getAllCheckInsTodayHandler),
+	)
+	router.HandlerFunc(
+		http.MethodDelete,
+		"/locations/:locationId/checkins/:checkInId",
+		app.authAccess(managerAndAdminRole, app.deleteLocationCheckInHandler),
+	)
+	router.HandlerFunc(
+		http.MethodGet,
+		"/locations/:locationId",
 		app.authAccess(allRoles, app.getLocationHandler),
 	)
 	router.HandlerFunc(
@@ -43,12 +53,12 @@ func (app *application) locationsRoutes(router *httprouter.Router) {
 	)
 	router.HandlerFunc(
 		http.MethodPatch,
-		"/locations/:id",
+		"/locations/:locationId",
 		app.authAccess(allRoles, app.updateLocationHandler),
 	)
 	router.HandlerFunc(
 		http.MethodDelete,
-		"/locations/:id",
+		"/locations/:locationId",
 		app.authAccess(managerAndAdminRole, app.deleteLocationHandler),
 	)
 }
@@ -66,7 +76,7 @@ func (app *application) locationsRoutes(router *httprouter.Router) {
 // @Router		/locations/{id}/checkins/day [get].
 func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	r *http.Request) {
-	id, err := helpers.ReadUUIDURLParam(r)
+	id, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -154,7 +164,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 // @Router		/locations/{id}/checkins/range [get].
 func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 	r *http.Request) {
-	id, err := helpers.ReadUUIDURLParam(r)
+	id, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -240,6 +250,151 @@ func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 	}
 }
 
+// @Summary	Get all checkins today
+// @Tags		locations
+// @Success	200	{object}	[]dtos.CheckInDto
+// @Failure	400	{object}	ErrorDto
+// @Failure	401	{object}	ErrorDto
+// @Failure	500	{object}	ErrorDto
+// @Router		/locations/{id}/checkins [get].
+func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
+	r *http.Request) {
+	id, err := helpers.ReadUUIDURLParam(r, "locationId")
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	user := app.contextGetUser(r)
+
+	location, err := app.services.Locations.GetByID(r.Context(), id)
+	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
+		app.notFoundResponse(w, r, err, "location", "id", id, "id")
+		return
+	}
+
+	loc, _ := time.LoadLocation(location.TimeZone)
+	today := time.Now().In(loc)
+	startOfToday := helpers.StartOfDay(&today)
+	endOfToday := helpers.EndOfDay(&today)
+
+	checkIns, err := app.services.CheckIns.GetAllInRange(
+		r.Context(),
+		location,
+		startOfToday,
+		endOfToday,
+	)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	schools, err := app.services.Schools.GetAll(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	schoolMap, _ := app.services.Schools.GetSchoolMaps(schools)
+
+	checkInDtos := make([]dtos.CheckInDto, 0)
+	for _, checkIn := range checkIns {
+		checkInDto := dtos.CheckInDto{
+			ID:         checkIn.ID,
+			LocationID: checkIn.LocationID,
+			SchoolName: schoolMap[checkIn.SchoolID],
+			Capacity:   checkIn.Capacity,
+			CreatedAt:  checkIn.CreatedAt,
+		}
+		checkInDtos = append(checkInDtos, checkInDto)
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, checkInDtos, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// @Summary	Delete check-in that occured today
+// @Tags		locations
+// @Param		locationId	path		string	true	"Location ID"
+// @Param		checkInId	path		int		true	"Check-In ID"
+// @Success	200			{object}	dtos.CheckInDto
+// @Failure	400			{object}	ErrorDto
+// @Failure	401			{object}	ErrorDto
+// @Failure	404			{object}	ErrorDto
+// @Failure	500			{object}	ErrorDto
+// @Router		/locations/{locationId}/checkins/{checkInId} [delete].
+func (app *application) deleteLocationCheckInHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	locationID, err := helpers.ReadUUIDURLParam(r, "locationId")
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	checkInID, err := helpers.ReadIntURLParam(r, "checkInId")
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	location, err := app.services.Locations.GetByID(r.Context(), locationID)
+	if err != nil {
+		app.notFoundResponse(w, r, err, "location", "id", locationID, "id")
+		return
+	}
+
+	checkIn, err := app.services.CheckIns.GetByID(r.Context(), location, checkInID)
+	if err != nil {
+		app.notFoundResponse(w, r, err, "checkIn", "id", checkInID, "id")
+		return
+	}
+
+	loc, _ := time.LoadLocation(location.TimeZone)
+	today := time.Now().In(loc)
+	startOfToday := helpers.StartOfDay(&today)
+	endOfToday := helpers.EndOfDay(&today)
+
+	if !(checkIn.CreatedAt.Time.After(*startOfToday) &&
+		checkIn.CreatedAt.Time.Before(*endOfToday)) {
+		app.badRequestResponse(
+			w,
+			r,
+			errors.New("checkIn didn't occur today and thus can't be deleted"),
+		)
+		return
+	}
+
+	err = app.services.CheckIns.Delete(r.Context(), checkIn.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	schools, err := app.services.Schools.GetAll(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	schoolMap, _ := app.services.Schools.GetSchoolMaps(schools)
+
+	checkInDto := dtos.CheckInDto{
+		ID:         checkIn.ID,
+		LocationID: checkIn.LocationID,
+		SchoolName: schoolMap[checkIn.SchoolID],
+		Capacity:   checkIn.Capacity,
+		CreatedAt:  checkIn.CreatedAt,
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, checkInDto, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
 // @Summary	Get single location
 // @Tags		locations
 // @Param		id	path		string	true	"Location ID"
@@ -250,7 +405,7 @@ func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 // @Failure	500	{object}	ErrorDto
 // @Router		/locations/{id} [get].
 func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadUUIDURLParam(r)
+	id, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -397,7 +552,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var updateLocationDto dtos.UpdateLocationDto
 
-	id, err := helpers.ReadUUIDURLParam(r)
+	id, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -516,7 +671,7 @@ func (app *application) checkForConflictsOnUpdate(
 // @Failure	500	{object}	ErrorDto
 // @Router		/locations/{id} [delete].
 func (app *application) deleteLocationHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadUUIDURLParam(r)
+	id, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return

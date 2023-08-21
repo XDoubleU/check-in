@@ -1,11 +1,26 @@
 package dtos
 
-import "check-in/api/internal/validator"
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+
+	"check-in/api/internal/validator"
+)
+
+type CreateCheckInDto struct {
+	SchoolID int64 `json:"schoolId"`
+} //	@name	CreateCheckInDto
 
 type CheckInDto struct {
-	SchoolID int64 `json:"schoolId"`
+	ID         int64              `json:"id"`
+	LocationID string             `json:"locationId"`
+	SchoolName string             `json:"schoolName"`
+	Capacity   int64              `json:"capacity"`
+	CreatedAt  pgtype.Timestamptz `json:"createdAt"  swaggertype:"string"`
 } //	@name	CheckInDto
 
-func ValidateCheckInDto(v *validator.Validator, checkInDto CheckInDto) {
-	v.Check(checkInDto.SchoolID > 0, "schoolId", "must be greater than zero")
+func ValidateCreateCheckInDto(
+	v *validator.Validator,
+	createCheckInDto CreateCheckInDto,
+) {
+	v.Check(createCheckInDto.SchoolID > 0, "schoolId", "must be greater than zero")
 }

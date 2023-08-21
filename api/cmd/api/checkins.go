@@ -59,17 +59,17 @@ func (app *application) getSortedSchoolsHandler(
 
 // @Summary	Create check-in at location of logged in user
 // @Tags		checkins
-// @Param		checkInDto	body		CheckInDto	true	"CheckInDto"
-// @Success	201			{object}	CheckIn
-// @Failure	400			{object}	ErrorDto
-// @Failure	401			{object}	ErrorDto
-// @Failure	404			{object}	ErrorDto
-// @Failure	500			{object}	ErrorDto
+// @Param		createCheckInDto	body		CreateCheckInDto	true	"CreateCheckInDto"
+// @Success	201					{object}	CheckInDto
+// @Failure	400					{object}	ErrorDto
+// @Failure	401					{object}	ErrorDto
+// @Failure	404					{object}	ErrorDto
+// @Failure	500					{object}	ErrorDto
 // @Router		/checkins [post].
 func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
-	var checkInDto dtos.CheckInDto
+	var createCheckInDto dtos.CreateCheckInDto
 
-	err := helpers.ReadJSON(r.Body, &checkInDto)
+	err := helpers.ReadJSON(r.Body, &createCheckInDto)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -77,7 +77,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 
 	v := validator.New()
 
-	if dtos.ValidateCheckInDto(v, checkInDto); !v.Valid() {
+	if dtos.ValidateCreateCheckInDto(v, createCheckInDto); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
@@ -89,9 +89,17 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	school, err := app.services.Schools.GetByID(r.Context(), checkInDto.SchoolID)
+	school, err := app.services.Schools.GetByID(r.Context(), createCheckInDto.SchoolID)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "school", "id", checkInDto.SchoolID, "schoolId")
+		app.notFoundResponse(
+			w,
+			r,
+			err,
+			"school",
+			"id",
+			createCheckInDto.SchoolID,
+			"schoolId",
+		)
 		return
 	}
 
@@ -112,7 +120,15 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 
 	app.services.WebSockets.AddUpdateEvent(*location)
 
-	err = helpers.WriteJSON(w, http.StatusCreated, checkIn, nil)
+	checkInDto := dtos.CheckInDto{
+		ID:         checkIn.ID,
+		LocationID: checkIn.LocationID,
+		SchoolName: school.Name,
+		Capacity:   checkIn.Capacity,
+		CreatedAt:  checkIn.CreatedAt,
+	}
+
+	err = helpers.WriteJSON(w, http.StatusCreated, checkInDto, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

@@ -119,7 +119,7 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	var schoolDto dtos.SchoolDto
 
-	id, err := helpers.ReadIntURLParam(r)
+	id, err := helpers.ReadIntURLParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -166,7 +166,7 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	500	{object}	ErrorDto
 // @Router		/schools/{id} [delete].
 func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadIntURLParam(r)
+	id, err := helpers.ReadIntURLParam(r, "id")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return

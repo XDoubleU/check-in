@@ -13,10 +13,10 @@ import (
 	"check-in/api/internal/constants"
 )
 
-func ReadUUIDURLParam(r *http.Request) (string, error) {
+func ReadUUIDURLParam(r *http.Request, name string) (string, error) {
 	params := httprouter.ParamsFromContext(r.Context())
 
-	id, err := uuid.Parse(params.ByName("id"))
+	id, err := uuid.Parse(params.ByName(name))
 	if err != nil {
 		return "", err
 	}
@@ -25,10 +25,10 @@ func ReadUUIDURLParam(r *http.Request) (string, error) {
 	return value, nil
 }
 
-func ReadIntURLParam(r *http.Request) (int64, error) {
+func ReadIntURLParam(r *http.Request, name string) (int64, error) {
 	params := httprouter.ParamsFromContext(r.Context())
 
-	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
+	id, err := strconv.ParseInt(params.ByName(name), 10, 64)
 	if err != nil || id < 1 {
 		return 0, errors.New("invalid id parameter")
 	}

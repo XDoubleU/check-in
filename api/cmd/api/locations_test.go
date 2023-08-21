@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 	"time"
 
@@ -711,6 +712,336 @@ func TestGetCheckInsLocationDayAccess(t *testing.T) {
 	rs1, _ := ts.Client().Do(req1)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
+}
+
+func TestGetAllCheckInsToday(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+		tokens.DefaultAccessToken,
+	}
+
+	for _, user := range users {
+		req, _ := http.NewRequest(
+			http.MethodGet,
+			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins",
+			nil,
+		)
+		req.AddCookie(user)
+
+		rs, _ := ts.Client().Do(req)
+
+		var rsData []dtos.CheckInDto
+		_ = helpers.ReadJSON(rs.Body, &rsData)
+
+		assert.Equal(t, rs.StatusCode, http.StatusOK)
+		assert.Equal(t, len(rsData), 5)
+		assert.Equal(t, rsData[0].LocationID, fixtureData.DefaultLocation.ID)
+		assert.Equal(t, rsData[0].SchoolName, "Andere")
+		assert.Equal(
+			t,
+			rsData[0].CreatedAt.Time.Format(constants.DateFormat),
+			time.Now().Format(constants.DateFormat),
+		)
+	}
+}
+
+func TestGetAllCheckInsTodayNotFound(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	id, _ := uuid.NewUUID()
+	req, _ := http.NewRequest(
+		http.MethodGet,
+		ts.URL+"/locations/"+id.String()+"/checkins",
+		nil,
+	)
+	req.AddCookie(tokens.ManagerAccessToken)
+
+	rs, _ := ts.Client().Do(req)
+
+	var rsData dtos.ErrorDto
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["id"].(string),
+		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+	)
+}
+
+func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	req, _ := http.NewRequest(
+		http.MethodGet,
+		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins",
+		nil,
+	)
+	req.AddCookie(tokens.DefaultAccessToken)
+
+	rs, _ := ts.Client().Do(req)
+
+	var rsData dtos.ErrorDto
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["id"].(string),
+		fmt.Sprintf("location with id '%s' doesn't exist", fixtureData.Locations[0].ID),
+	)
+}
+
+func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	req, _ := http.NewRequest(
+		http.MethodGet,
+		ts.URL+"/locations/8000/checkins",
+		nil,
+	)
+	req.AddCookie(tokens.ManagerAccessToken)
+
+	rs, _ := ts.Client().Do(req)
+
+	var rsData dtos.ErrorDto
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
+	assert.Contains(t, rsData.Message.(string), "invalid UUID")
+}
+
+func TestGetCheckInsTodayAccess(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	req1, _ := http.NewRequest(
+		http.MethodGet,
+		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins",
+		nil,
+	)
+
+	rs1, _ := ts.Client().Do(req1)
+
+	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
+}
+
+func TestDeleteCheckIn(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
+
+	for i, user := range users {
+		req, _ := http.NewRequest(
+			http.MethodDelete,
+			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/"+strconv.FormatInt(
+				fixtureData.CheckIns[i].ID,
+				10,
+			),
+			nil,
+		)
+		req.AddCookie(user)
+
+		rs, _ := ts.Client().Do(req)
+
+		var rsData dtos.CheckInDto
+		_ = helpers.ReadJSON(rs.Body, &rsData)
+
+		assert.Equal(t, rs.StatusCode, http.StatusOK)
+		assert.Equal(t, rsData.ID, fixtureData.CheckIns[i].ID)
+		assert.Equal(t, rsData.LocationID, fixtureData.DefaultLocation.ID)
+		assert.Equal(t, rsData.SchoolName, "Andere")
+		assert.Equal(
+			t,
+			rsData.CreatedAt.Time.Format(constants.DateFormat),
+			time.Now().Format(constants.DateFormat),
+		)
+	}
+}
+
+func TestDeleteCheckInLocationNotFound(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	id, _ := uuid.NewUUID()
+	req, _ := http.NewRequest(
+		http.MethodDelete,
+		ts.URL+"/locations/"+id.String()+"/checkins/1",
+		nil,
+	)
+	req.AddCookie(tokens.ManagerAccessToken)
+
+	rs, _ := ts.Client().Do(req)
+
+	var rsData dtos.ErrorDto
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["id"].(string),
+		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+	)
+}
+
+func TestDeleteCheckInCheckInNotFound(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	req, _ := http.NewRequest(
+		http.MethodDelete,
+		ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/8000",
+		nil,
+	)
+	req.AddCookie(tokens.ManagerAccessToken)
+
+	rs, _ := ts.Client().Do(req)
+
+	var rsData dtos.ErrorDto
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(
+		t,
+		rsData.Message.(map[string]interface{})["id"].(string),
+		"checkIn with id '8000' doesn't exist",
+	)
+}
+
+func TestDeleteCheckInNotToday(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	query := `
+			INSERT INTO check_ins 
+			(location_id, school_id, capacity, created_at)
+			VALUES ($1, $2, $3, $4)
+			RETURNING id
+		`
+
+	var checkIn models.CheckIn
+	err := testEnv.TestTx.QueryRow(
+		context.Background(),
+		query,
+		fixtureData.DefaultLocation.ID,
+		1,
+		fixtureData.DefaultLocation.Capacity,
+		time.Now().AddDate(0, 0, -1),
+	).Scan(&checkIn.ID)
+	if err != nil {
+		panic(err)
+	}
+
+	req, _ := http.NewRequest(
+		http.MethodDelete,
+		ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/"+strconv.FormatInt(
+			checkIn.ID,
+			10,
+		),
+		nil,
+	)
+	req.AddCookie(tokens.ManagerAccessToken)
+
+	rs, _ := ts.Client().Do(req)
+
+	var rsData dtos.ErrorDto
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
+	assert.Equal(
+		t,
+		rsData.Message,
+		"checkIn didn't occur today and thus can't be deleted",
+	)
+}
+
+func TestDeleteCheckInNotUUID(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	req, _ := http.NewRequest(
+		http.MethodDelete,
+		ts.URL+"/locations/8000/checkins/1",
+		nil,
+	)
+	req.AddCookie(tokens.ManagerAccessToken)
+
+	rs, _ := ts.Client().Do(req)
+
+	var rsData dtos.ErrorDto
+	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
+	assert.Contains(t, rsData.Message.(string), "invalid UUID")
+}
+
+func TestDeleteCheckInAccess(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	req1, _ := http.NewRequest(
+		http.MethodDelete,
+		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/1",
+		nil,
+	)
+
+	req2, _ := http.NewRequest(
+		http.MethodDelete,
+		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/1",
+		nil,
+	)
+
+	req2.AddCookie(tokens.DefaultAccessToken)
+
+	rs1, _ := ts.Client().Do(req1)
+	rs2, _ := ts.Client().Do(req2)
+
+	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
+	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
 }
 
 func TestGetPaginatedLocationsDefaultPage(t *testing.T) {

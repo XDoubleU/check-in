@@ -87,7 +87,7 @@ func TestCreateCheckIn(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	data := dtos.CheckInDto{
+	data := dtos.CreateCheckInDto{
 		SchoolID: fixtureData.Schools[0].ID,
 	}
 
@@ -101,11 +101,11 @@ func TestCreateCheckIn(t *testing.T) {
 
 	rs, _ := ts.Client().Do(req)
 
-	var rsData models.CheckIn
+	var rsData dtos.CheckInDto
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusCreated)
-	assert.Equal(t, rsData.SchoolID, data.SchoolID)
+	assert.Equal(t, rsData.SchoolName, fixtureData.Schools[0].Name)
 	assert.Equal(t, rsData.LocationID, fixtureData.DefaultLocation.ID)
 	assert.Equal(t, rsData.Capacity, fixtureData.DefaultLocation.Capacity)
 	assert.Equal(
@@ -122,7 +122,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	data := dtos.CheckInDto{
+	data := dtos.CreateCheckInDto{
 		SchoolID: 1,
 	}
 
@@ -136,11 +136,11 @@ func TestCreateCheckInAndere(t *testing.T) {
 
 	rs, _ := ts.Client().Do(req)
 
-	var rsData models.CheckIn
+	var rsData dtos.CheckInDto
 	_ = helpers.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusCreated)
-	assert.Equal(t, rsData.SchoolID, data.SchoolID)
+	assert.Equal(t, rsData.SchoolName, "Andere")
 	assert.Equal(t, rsData.LocationID, fixtureData.DefaultLocation.ID)
 	assert.Equal(t, rsData.Capacity, fixtureData.DefaultLocation.Capacity)
 	assert.Equal(
@@ -157,7 +157,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	data := dtos.CheckInDto{
+	data := dtos.CreateCheckInDto{
 		SchoolID: 1,
 	}
 
@@ -189,7 +189,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	data := dtos.CheckInDto{
+	data := dtos.CreateCheckInDto{
 		SchoolID: 8000,
 	}
 
@@ -221,7 +221,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	data := dtos.CheckInDto{
+	data := dtos.CreateCheckInDto{
 		SchoolID: 0,
 	}
 
