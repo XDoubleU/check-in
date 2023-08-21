@@ -61,18 +61,9 @@ func TestYesterdayFullAt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
-	timeZone, _ := time.LoadLocation("Europe/Brussels")
-	now := time.Now()
-	fullTime := time.Date(
-		now.Year(),
-		now.Month(),
-		now.Day()-1,
-		0,
-		0,
-		0,
-		0,
-		timeZone,
-	)
+	loc, _ := time.LoadLocation("Europe/Brussels")
+
+	now := time.Now().In(loc).AddDate(0, 0, -1)
 
 	for i := 0; i < int(fixtureData.DefaultLocation.Capacity); i++ {
 		query := `
@@ -87,7 +78,7 @@ func TestYesterdayFullAt(t *testing.T) {
 			fixtureData.DefaultLocation.ID,
 			1,
 			fixtureData.DefaultLocation.Capacity,
-			fullTime,
+			now,
 		)
 		if err != nil {
 			panic(err)
@@ -112,8 +103,8 @@ func TestYesterdayFullAt(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
 	assert.Equal(t, rsData.YesterdayFullAt.Valid, true)
-	assert.Equal(t, rsData.YesterdayFullAt.Time.Day(), fullTime.Day())
-	assert.Equal(t, rsData.YesterdayFullAt.Time.Hour(), fullTime.Hour())
+	assert.Equal(t, rsData.YesterdayFullAt.Time.Day(), now.Day())
+	assert.Equal(t, rsData.YesterdayFullAt.Time.Hour(), now.Hour())
 }
 
 func TestGetCheckInsLocationRangeRaw(t *testing.T) {
