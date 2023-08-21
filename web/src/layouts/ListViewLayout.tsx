@@ -12,9 +12,10 @@ import {
   type SetStateAction
 } from "react"
 import { type FieldValues, type UseFormReturn } from "react-hook-form"
-import ManagerLayout from "./AdminLayout"
+import ManagerLayout from "./ManagerLayout"
 import { type ICardProps } from "interfaces/ICardProps"
 import { type ICreateModalProps } from "interfaces/ICreateModalProps"
+import { type WithRequired } from "typing-helpers"
 
 export interface List<T> {
   data: T[] | undefined
@@ -22,25 +23,30 @@ export interface List<T> {
 }
 
 function isList<T>(list: List<T> | T[]): list is List<T> {
-  return 'pagination' in list
+  return "pagination" in list
 }
 
 interface ListViewLayoutProps<
   T extends { id: string | number },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  U extends List<any> | T[],
+  U extends List<T> | T[],
   V extends FieldValues,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  W extends any[]
+  W extends any[],
+  X
 > {
   title: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: UseFormReturn<any>
-  list: List<T> | T[]
-  setList: Dispatch<SetStateAction<List<T>>>
-  apiCall: (...args: W) => Promise<APIResponse<U>>
+  list: U
+  setList: Dispatch<SetStateAction<U>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apiCall: (
+    ...args: W
+  ) => Promise<APIResponse<WithRequired<List<X>, "data"> | X[]>>
   apiCallArgs?: W
-  preprocessList?: (data: U) => Promise<List<T>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  preprocessList?: (data: WithRequired<List<X>, "data">) => Promise<U>
   createModal?: (props: ICreateModalProps<V>) => ReactNode
   card: (props: ICardProps<T>) => ReactNode
 }
@@ -49,10 +55,11 @@ interface ListViewLayoutProps<
 export default function ListViewLayout<
   T extends { id: string | number },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  U extends List<any>,
+  U extends List<T> | T[],
   V extends FieldValues,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  W extends any[]
+  W extends any[],
+  X
 >({
   title,
   form,
@@ -63,7 +70,7 @@ export default function ListViewLayout<
   apiCallArgs,
   preprocessList,
   card
-}: ListViewLayoutProps<T, U, V, W>) {
+}: ListViewLayoutProps<T, U, V, W, X>) {
   const router = useRouter()
 
   const fetchData = useCallback(async () => {
@@ -73,7 +80,7 @@ export default function ListViewLayout<
       ? parseInt(router.query.page as string)
       : undefined
 
-    const args = apiCallArgs ?? [] as unknown as W
+    const args = apiCallArgs ?? ([] as unknown as W)
 
     if (isList(list)) {
       args.push(page)
@@ -82,11 +89,10 @@ export default function ListViewLayout<
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const response = await apiCall(...args)
 
-    
     if (!response.data) return
 
     if (
-      response.data.pagination &&
+      isList(response.data) &&
       response.data.pagination.total !== 0 &&
       response.data.pagination.current > response.data.pagination.total
     ) {
@@ -96,12 +102,12 @@ export default function ListViewLayout<
     }
 
     const data = response.data
-    if (preprocessList) {
+    if (isList(data) && preprocessList) {
       setList(await preprocessList(data))
     } else {
-      setList(data as unknown as List<T>)
+      setList(data as unknown as U)
     }
-  }, [apiCall, apiCallArgs, preprocessList, router, setList])
+  }, [apiCall, apiCallArgs, list, preprocessList, router, setList])
 
   useEffect(() => {
     void fetchData()
@@ -115,34 +121,40 @@ export default function ListViewLayout<
       <br />
 
       <div className="min-vh-51">
-        {!((isList(list) && list.data) || list) && <Loader message="Fetching data." />}
+        {!((isList(list) && list.data) || list) && (
+          <Loader message="Fetching data." />
+        )}
 
-        {((isList(list) && list.data?.length == 0) || (!isList(list) && list.length == 0))? "Nothing to see here." : ""}
+        {(isList(list) && list.data?.length == 0) ||
+        (!isList(list) && list.length == 0)
+          ? "Nothing to see here."
+          : ""}
 
-        {
-          isList(list) ? list.data?.map((item) => {
-            return (
-              <div key={item.id}>
-                {card({ data: item, fetchData: fetchData })}
-              </div>
-            )
-          }) : list.map((item) => {
-            return (
-              <div key={item.id}>
-                {card({ data: item, fetchData: fetchData })}
-              </div>
-            )
-          })
-        }
+        {isList(list)
+          ? list.data?.map((item) => {
+              return (
+                <div key={item.id}>
+                  {card({ data: item, fetchData: fetchData })}
+                </div>
+              )
+            })
+          : list.map((item) => {
+              return (
+                <div key={item.id}>
+                  {card({ data: item, fetchData: fetchData })}
+                </div>
+              )
+            })}
       </div>
 
-      {
-        isList(list) ? <CustomPagination
-        current={list.pagination.current}
-        total={list.pagination.total}
-      /> : <></>
-      }
-      
+      {isList(list) ? (
+        <CustomPagination
+          current={list.pagination.current}
+          total={list.pagination.total}
+        />
+      ) : (
+        <></>
+      )}
     </ManagerLayout>
   )
 }

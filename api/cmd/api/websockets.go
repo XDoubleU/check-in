@@ -36,7 +36,6 @@ func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request)
 		OriginPatterns: []string{url},
 	})
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
 		return
 	}
 	defer app.unsubAndClose(conn)

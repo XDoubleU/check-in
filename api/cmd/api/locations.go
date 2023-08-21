@@ -297,7 +297,7 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 
 	schoolMap, _ := app.services.Schools.GetSchoolMaps(schools)
 
-	var checkInDtos []dtos.CheckInDto
+	checkInDtos := make([]dtos.CheckInDto, 0)
 	for _, checkIn := range checkIns {
 		checkInDto := dtos.CheckInDto{
 			ID: checkIn.ID,

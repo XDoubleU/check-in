@@ -2,9 +2,10 @@ import { Card } from "react-bootstrap"
 import DeleteModal from "components/modals/DeleteModal"
 import { deleteCheckIn } from "api-wrapper"
 import { type ICardProps } from "interfaces/ICardProps"
-import { type CheckIn, type User } from "api-wrapper/types/apiTypes"
+import { FULL_FORMAT, type CheckIn } from "api-wrapper/types/apiTypes"
+import moment from "moment"
 
-type CheckInCardProps = ICardProps<CheckIn> & {user: User}
+type CheckInCardProps = ICardProps<CheckIn>
 
 function CheckInDeleteModal({ data, fetchData }: CheckInCardProps) {
   const handleDelete = () => {
@@ -15,25 +16,40 @@ function CheckInDeleteModal({ data, fetchData }: CheckInCardProps) {
     <DeleteModal
       handler={handleDelete}
       fetchData={fetchData}
-      typeName="checkIn"
+      typeName="check-In"
     />
   )
 }
 
-export default function CheckInCard({ data, user, fetchData }: CheckInCardProps) {
+export default function CheckInCard({
+  data,
+  user,
+  fetchData
+}: CheckInCardProps) {
   return (
     <>
       <Card>
         <Card.Body>
           <div className="d-flex flex-row">
             <div>
-              <Card.Title>{`${data.createdAt} - ${data.schoolName} (ID: ${data.id})`}</Card.Title>
+              <Card.Title>{`${moment.utc(data.createdAt).format(FULL_FORMAT)}`}</Card.Title>
+              <Card.Subtitle className="mb-2 text-muted">
+                ID: {data.id}
+              </Card.Subtitle>
+              <Card.Subtitle className="mb-2 text-muted">
+                School: {data.schoolName}
+              </Card.Subtitle>
             </div>
-            {user.role === "admin" || user.role === "manager" && (
-              <div className="ms-auto">
-                <CheckInDeleteModal data={data} user={user} fetchData={fetchData} />
-              </div>
-            )}
+            {(user?.role === "admin" || user?.role === "manager")
+               && (
+                <div className="ms-auto">
+                  <CheckInDeleteModal
+                    data={data}
+                    user={user}
+                    fetchData={fetchData}
+                  />
+                </div>
+              )}
           </div>
         </Card.Body>
       </Card>

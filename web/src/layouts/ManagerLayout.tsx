@@ -2,17 +2,17 @@ import { type ReactNode } from "react"
 import BaseLayout from "./BaseLayout"
 import { Col, Container, Row } from "react-bootstrap"
 
-interface AdminLayoutProps {
+interface ManagerLayoutProps {
   children: ReactNode
   title: string
   titleButton?: ReactNode
 }
 
-export default function AdminLayout({
+export default function ManagerLayout({
   children,
   title,
   titleButton
-}: AdminLayoutProps) {
+}: ManagerLayoutProps) {
   return (
     <BaseLayout title={title} showLinks={true} showNav={true}>
       <Row>

@@ -1,7 +1,7 @@
 import { type Role } from "api-wrapper/types/apiTypes"
 import Loader from "components/Loader"
 import { AuthRedirecter } from "contexts/authContext"
-import ManagerLayout from "layouts/AdminLayout"
+import ManagerLayout from "layouts/ManagerLayout"
 
 export default function SettingsHome() {
   const redirects = new Map<Role, string>([

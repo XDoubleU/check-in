@@ -39,10 +39,10 @@ export default function DeleteModal<T extends FieldValues>({
         <Modal.Body>
           <Modal.Title>Delete {typeName.toLowerCase()}</Modal.Title>
           <br />
-          {
-            name ? `Are you sure you want to delete &quot;${name}&quot;?` : `Are you sure you want to delete this ${typeName.toLowerCase()}?`
-          }
-          
+          {name
+            ? `Are you sure you want to delete "${name}"?`
+            : `Are you sure you want to delete this ${typeName.toLowerCase()}?`}
+
           <br />
           <br />
           <BaseForm

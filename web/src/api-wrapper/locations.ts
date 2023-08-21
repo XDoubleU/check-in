@@ -101,12 +101,19 @@ export function downloadCSVForDayChart(locationId: string, date: Moment): void {
   )
 }
 
-export async function getCheckInsToday(locationId: string): Promise<APIResponse<CheckIn[]>> {
+export async function getCheckInsToday(
+  locationId: string
+): Promise<APIResponse<CheckIn[]>> {
   return await fetchHandler(`${LOCATIONS_ENDPOINT}/${locationId}/checkins`)
 }
 
-export async function deleteCheckIn(locationId: string, checkInId: number): Promise<APIResponse<CheckIn>> {
-  return await fetchHandler(`${LOCATIONS_ENDPOINT}/${locationId}/checkins/${checkInId}`)
+export async function deleteCheckIn(
+  locationId: string,
+  checkInId: number
+): Promise<APIResponse<CheckIn>> {
+  return await fetchHandler(
+    `${LOCATIONS_ENDPOINT}/${locationId}/checkins/${checkInId}`, "DELETE"
+  )
 }
 
 export async function getAllLocations(

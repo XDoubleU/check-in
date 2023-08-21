@@ -1,12 +1,5 @@
+import { type PartialBy, type DeepRequired } from "typing-helpers"
 import { type definitions } from "./schema"
-
-type DeepRequired<T> = Required<{
-  [P in keyof T]-?: T[P] extends object | undefined
-    ? DeepRequired<Required<T[P]>>
-    : T[P]
-}>
-
-type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 export type CheckIn = DeepRequired<definitions["CheckInDto"]>
 export type CreateCheckInDto = DeepRequired<definitions["CreateCheckInDto"]>
@@ -44,3 +37,4 @@ export type CheckInsLocationEntryRawMap = {
 
 export const DATE_FORMAT = "YYYY-MM-DD"
 export const TIME_FORMAT = "HH:mm"
+export const FULL_FORMAT = "YYYY-MM-DD HH:mm"

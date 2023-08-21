@@ -1,6 +1,10 @@
 import { fetchHandler } from "./fetchHandler"
 import { type APIResponse } from "./types"
-import { type School, type CheckIn, type CheckInDto } from "./types/apiTypes"
+import {
+  type School,
+  type CheckIn,
+  type CreateCheckInDto
+} from "./types/apiTypes"
 
 const CHECKINS_ENDPOINT = "checkins"
 
@@ -11,7 +15,7 @@ export async function getAllSchoolsSortedForLocation(): Promise<
 }
 
 export async function createCheckIn(
-  createCheckInDto: CheckInDto
+  createCheckInDto: CreateCheckInDto
 ): Promise<APIResponse<CheckIn>> {
   return await fetchHandler(`${CHECKINS_ENDPOINT}`, "POST", createCheckInDto)
 }
