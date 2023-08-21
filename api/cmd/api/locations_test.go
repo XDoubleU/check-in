@@ -61,18 +61,9 @@ func TestYesterdayFullAt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
-	timeZone, _ := time.LoadLocation("Europe/Brussels")
-	now := time.Now()
-	fullTime := time.Date(
-		now.Year(),
-		now.Month(),
-		now.Day()-1,
-		0,
-		0,
-		0,
-		0,
-		timeZone,
-	)
+	loc, _ := time.LoadLocation("Europe/Brussels")
+
+	now := time.Now().In(loc).AddDate(0, 0, -1)
 
 	for i := 0; i < int(fixtureData.DefaultLocation.Capacity); i++ {
 		query := `
@@ -87,7 +78,7 @@ func TestYesterdayFullAt(t *testing.T) {
 			fixtureData.DefaultLocation.ID,
 			1,
 			fixtureData.DefaultLocation.Capacity,
-			fullTime,
+			now,
 		)
 		if err != nil {
 			panic(err)
@@ -112,8 +103,8 @@ func TestYesterdayFullAt(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
 	assert.Equal(t, rsData.YesterdayFullAt.Valid, true)
-	assert.Equal(t, rsData.YesterdayFullAt.Time.Day(), fullTime.Day())
-	assert.Equal(t, rsData.YesterdayFullAt.Time.Hour(), fullTime.Hour())
+	assert.Equal(t, rsData.YesterdayFullAt.Time.Day(), now.Day())
+	assert.Equal(t, rsData.YesterdayFullAt.Time.Hour(), now.Hour())
 }
 
 func TestGetCheckInsLocationRangeRaw(t *testing.T) {
@@ -123,10 +114,15 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	startDate := time.Now().UTC().AddDate(0, 0, -1)
+	loc, _ := time.LoadLocation("Europe/Brussels")
+	utc, _ := time.LoadLocation("UTC")
+
+	now := time.Now().In(loc)
+
+	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
 	startDate = *helpers.StartOfDay(&startDate)
 
-	endDate := time.Now().UTC().AddDate(0, 0, 1)
+	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
 	endDate = *helpers.StartOfDay(&endDate)
 
 	users := []*http.Cookie{
@@ -453,7 +449,12 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	date := time.Now()
+	loc, _ := time.LoadLocation("Europe/Brussels")
+	utc, _ := time.LoadLocation("UTC")
+
+	now := time.Now().In(loc)
+
+	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -740,6 +741,8 @@ func TestGetAllCheckInsToday(t *testing.T) {
 		var rsData []dtos.CheckInDto
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
+		loc, _ := time.LoadLocation("Europe/Brussels")
+
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, len(rsData), 5)
 		assert.Equal(t, rsData[0].LocationID, fixtureData.DefaultLocation.ID)
@@ -747,7 +750,7 @@ func TestGetAllCheckInsToday(t *testing.T) {
 		assert.Equal(
 			t,
 			rsData[0].CreatedAt.Time.Format(constants.DateFormat),
-			time.Now().Format(constants.DateFormat),
+			time.Now().In(loc).Format(constants.DateFormat),
 		)
 	}
 }
@@ -876,6 +879,8 @@ func TestDeleteCheckIn(t *testing.T) {
 		var rsData dtos.CheckInDto
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
+		loc, _ := time.LoadLocation("Europe/Brussels")
+
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.CheckIns[i].ID)
 		assert.Equal(t, rsData.LocationID, fixtureData.DefaultLocation.ID)
@@ -883,7 +888,7 @@ func TestDeleteCheckIn(t *testing.T) {
 		assert.Equal(
 			t,
 			rsData.CreatedAt.Time.Format(constants.DateFormat),
-			time.Now().Format(constants.DateFormat),
+			time.Now().In(loc).Format(constants.DateFormat),
 		)
 	}
 }

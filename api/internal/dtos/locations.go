@@ -26,6 +26,11 @@ func ConvertCheckInsLocationEntryRawMapToCSV(
 	headers = append(headers, "datetime")
 	headers = append(headers, "capacity")
 
+	if entries.Len() == 0 {
+		output = append(output, headers)
+		return output
+	}
+
 	singleEntry := entries.Oldest().Value
 	for school := singleEntry.Schools.Oldest(); school != nil; school = school.Next() {
 		headers = append(headers, school.Key)

@@ -1,0 +1,31 @@
+import { AuthRedirecter } from "contexts/authContext"
+import ManagerLayout from "layouts/ManagerLayout"
+import { ManagerRedirects } from "./index"
+
+<AuthRedirecter redirects={ManagerRedirects}>
+  <ManagerLayout title="Handleiding Beheerder">
+    [Ga naar Handleiding Locatie](/manual/location)
+
+    ## Locaties
+    ![Locations ListView](/manual/images/locations-listview.png)
+
+    In het tabblad *Locations* staan alle bloklocaties weergegeven met hun *ID*.
+    De screenshot hierboven bevat de locatie *The Student Village* met als *ID* *the-student-village*.
+    Nieuwe locaties kunnen toegevoegd worden via *Add* en bestaande locaties kunnen aangepast worden via *Update*.
+
+    ## Scholen
+    ![Schools ListView](/manual/images/schools-listview.png)
+
+    Na het inchecken moeten studenten hun school aanduiden. Hiermee wordt bijgehouden welke studenten gebruik maken van de locaties om zo makkelijk op jaarbasis gegevens te verzamelen.
+    In het tabblad *Schools* staan alle scholen weergegeven met hun naam.
+    De screenshot hierboven toont er enkelen.
+    Scholen kunnen toegevoegd worden met *Add* en aangepast worden met *Update*. Enkel de 'school' *Andere* kan niet geüpdatet worden.
+
+    ## Integratie met website
+    Om de data van deze webapp te tonen op de eigen website moet de capaciteit gekoppeld worden aan de ID van de locatie in kwestie.
+    Hieronder staat een voorbeeld van het venster in SquareSpace waar dit aangepast kan worden.
+
+    ![SquareSpace Example](/manual/images/squarespace-example.png)
+
+  </ManagerLayout>
+</AuthRedirecter>

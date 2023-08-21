@@ -10,8 +10,26 @@ const { withSentryConfig } = require('@sentry/nextjs');
 // https://nextjs.org/docs/api-reference/next.config.js/introduction
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
+const withPWA = require('next-pwa')({
+  dest: 'public'
+})
+
+const withMDX = require('@next/mdx')({
+  extension: /\.mdx?$/,
+  options: {
+    // If you use remark-gfm, you'll need to use next.config.mjs
+    // as the package is ESM only
+    // https://github.com/remarkjs/remark-gfm#install
+    remarkPlugins: [],
+    rehypePlugins: [],
+    // If you use `MDXProvider`, uncomment the following line.
+    // providerImportSource: "@mdx-js/react",
+  },
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true
@@ -49,8 +67,5 @@ if (process.env.ANALYZE === "true") {
   module.exports = withBundleAnalyzer(module.exports)
 }
 
-const withPWA = require('next-pwa')({
-  dest: 'public'
-})
-
 module.exports = withPWA(module.exports)
+module.exports = withMDX(module.exports)
