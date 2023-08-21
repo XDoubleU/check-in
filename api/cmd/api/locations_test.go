@@ -925,7 +925,7 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodDelete,
-		ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/1",
+		ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/8000",
 		nil,
 	)
 	req.AddCookie(tokens.ManagerAccessToken)
@@ -939,7 +939,7 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		rsData.Message.(map[string]interface{})["id"].(string),
-		"checkIn with id '1' doesn't exist",
+		"checkIn with id '8000' doesn't exist",
 	)
 }
 
