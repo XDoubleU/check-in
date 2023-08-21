@@ -123,10 +123,15 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	startDate := time.Now().UTC().AddDate(0, 0, -1)
+	loc, _ := time.LoadLocation("Europe/Brussels")
+	utc, _ := time.LoadLocation("UTC")
+
+	now := time.Now().In(loc)
+
+	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
 	startDate = *helpers.StartOfDay(&startDate)
 
-	endDate := time.Now().UTC().AddDate(0, 0, 1)
+	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
 	endDate = *helpers.StartOfDay(&endDate)
 
 	users := []*http.Cookie{
