@@ -458,7 +458,12 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	date := time.Now()
+	loc, _ := time.LoadLocation("Europe/Brussels")
+	utc, _ := time.LoadLocation("UTC")
+
+	now := time.Now().In(loc)
+
+	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
