@@ -12,6 +12,9 @@
     "swag": "npx openapi-typescript@5.4 ./../api/docs/swagger.json -o ./src/api-wrapper/types/schema.d.ts --export-type"
   },
   "dependencies": {
+    "@mdx-js/loader": "2.3.0",
+    "@mdx-js/react": "2.3.0",
+    "@next/mdx": "13.4.19",
     "@popperjs/core": "2.11.8",
     "@sentry/nextjs": "7.61.0",
     "bootstrap": "5.3.1",

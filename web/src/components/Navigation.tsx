@@ -69,6 +69,7 @@ export default function Navigation() {
             )}
           </Nav>
           <Nav className="ms-auto mb-2 mb-lg-0">
+            <NavItem href="/manual">Manual</NavItem>
             <NavItem href="/signout">Sign out</NavItem>
           </Nav>
         </Navbar.Collapse>
