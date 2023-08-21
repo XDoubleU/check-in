@@ -17,6 +17,7 @@ import (
 
 type LocationService struct {
 	db database.DB
+	schools SchoolService
 }
 
 const availableQuery = `
@@ -52,11 +53,11 @@ func (service LocationService) GetCheckInsEntriesDay(
 	checkIns []*models.CheckIn,
 	schools []*models.School,
 ) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
-	schoolsIDNameMap, _ := getSchoolMaps(schools)
+	schoolsIDNameMap, _ := service.schools.GetSchoolMaps(schools)
 
 	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
 
-	_, lastEntrySchoolsMap := getSchoolMaps(schools)
+	_, lastEntrySchoolsMap := service.schools.GetSchoolMaps(schools)
 	for _, checkIn := range checkIns {
 		schoolName := schoolsIDNameMap[checkIn.SchoolID]
 
@@ -90,13 +91,13 @@ func (service LocationService) GetCheckInsEntriesRange(
 	checkIns []*models.CheckIn,
 	schools []*models.School,
 ) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
-	schoolsIDNameMap, _ := getSchoolMaps(schools)
+	schoolsIDNameMap, _ := service.schools.GetSchoolMaps(schools)
 
 	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
 	for d := *startDate; !d.After(*endDate); d = d.AddDate(0, 0, 1) {
 		dVal := helpers.StartOfDay(&d)
 
-		_, schoolsMap := getSchoolMaps(schools)
+		_, schoolsMap := service.schools.GetSchoolMaps(schools)
 
 		checkInEntry := &dtos.CheckInsLocationEntryRaw{
 			Capacity: 0,
@@ -122,19 +123,6 @@ func (service LocationService) GetCheckInsEntriesRange(
 	}
 
 	return checkInEntries
-}
-
-func getSchoolMaps(
-	schools []*models.School,
-) (map[int64]string, *orderedmap.OrderedMap[string, int]) {
-	schoolsIDNameMap := make(map[int64]string)
-	schoolsMap := orderedmap.New[string, int]()
-	for _, school := range schools {
-		schoolsIDNameMap[school.ID] = school.Name
-		schoolsMap.Set(school.Name, 0)
-	}
-
-	return schoolsIDNameMap, schoolsMap
 }
 
 func (service LocationService) GetTotalCount(ctx context.Context) (*int64, error) {

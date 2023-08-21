@@ -64,14 +64,14 @@ export type paths = {
     post: {
       parameters: {
         body: {
-          /** CheckInDto */
-          checkInDto: definitions["CheckInDto"];
+          /** CreateCheckInDto */
+          createCheckInDto: definitions["CreateCheckInDto"];
         };
       };
       responses: {
         /** Created */
         201: {
-          schema: definitions["CheckIn"];
+          schema: definitions["CheckInDto"];
         };
         /** Bad Request */
         400: {
@@ -264,6 +264,28 @@ export type paths = {
       };
     };
   };
+  "/locations/{id}/checkins": {
+    get: {
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["CheckInDto"][];
+        };
+        /** Bad Request */
+        400: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Unauthorized */
+        401: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Internal Server Error */
+        500: {
+          schema: definitions["ErrorDto"];
+        };
+      };
+    };
+  };
   "/locations/{id}/checkins/day": {
     get: {
       parameters: {
@@ -322,6 +344,40 @@ export type paths = {
         /** OK */
         200: {
           schema: definitions["CheckInsLocationEntryRaw"][];
+        };
+        /** Bad Request */
+        400: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Unauthorized */
+        401: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Not Found */
+        404: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Internal Server Error */
+        500: {
+          schema: definitions["ErrorDto"];
+        };
+      };
+    };
+  };
+  "/locations/{locationId}/checkins/{checkInId}": {
+    delete: {
+      parameters: {
+        path: {
+          /** Location ID */
+          locationId: string;
+          /** Check-In ID */
+          checkInId: number;
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["CheckInDto"];
         };
         /** Bad Request */
         400: {
@@ -639,19 +695,19 @@ export type paths = {
 };
 
 export type definitions = {
-  CheckIn: {
+  CheckInDto: {
     capacity?: number;
     createdAt?: string;
     id?: number;
     locationId?: string;
-    schoolId?: number;
-  };
-  CheckInDto: {
-    schoolId?: number;
+    schoolName?: string;
   };
   CheckInsLocationEntryRaw: {
     capacity?: number;
     schools?: { [key: string]: number };
+  };
+  CreateCheckInDto: {
+    schoolId?: number;
   };
   CreateLocationDto: {
     capacity?: number;

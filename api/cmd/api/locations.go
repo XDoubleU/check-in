@@ -252,7 +252,7 @@ func (app *application) getLocationCheckInsRangeHandler(w http.ResponseWriter,
 
 // @Summary	Get all checkins today
 // @Tags		locations
-// @Success	200	{object}	[]models.CheckIn
+// @Success	200	{object}	[]dtos.CheckInDto
 // @Failure	400	{object}	ErrorDto
 // @Failure	401	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
@@ -289,7 +289,27 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, checkIns, nil)
+	schools, err := app.services.Schools.GetAll(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	schoolMap, _ := app.services.Schools.GetSchoolMaps(schools)
+
+	var checkInDtos []dtos.CheckInDto
+	for _, checkIn := range checkIns {
+		checkInDto := dtos.CheckInDto{
+			ID: checkIn.ID,
+			LocationID: checkIn.LocationID,
+			SchoolName: schoolMap[checkIn.SchoolID],
+			Capacity: checkIn.Capacity,
+			CreatedAt: checkIn.CreatedAt,
+		}
+		checkInDtos = append(checkInDtos, checkInDto)
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, checkInDtos, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -299,7 +319,7 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 // @Tags		locations
 // @Param		locationId	path		string	true	"Location ID"
 // @Param		checkInId	path		int		true	"Check-In ID"
-// @Success	200			{object}	models.CheckIn
+// @Success	200			{object}	dtos.CheckInDto
 // @Failure	400			{object}	ErrorDto
 // @Failure	401			{object}	ErrorDto
 // @Failure	404			{object}	ErrorDto
@@ -354,7 +374,22 @@ func (app *application) deleteLocationCheckInHandler(
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, checkIn, nil)
+	schools, err := app.services.Schools.GetAll(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	schoolMap, _ := app.services.Schools.GetSchoolMaps(schools)
+
+	checkInDto := dtos.CheckInDto{
+		ID: checkIn.ID,
+		LocationID: checkIn.LocationID,
+		SchoolName: schoolMap[checkIn.SchoolID],
+		Capacity: checkIn.Capacity,
+		CreatedAt: checkIn.CreatedAt,
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, checkInDto, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

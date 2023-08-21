@@ -21,18 +21,25 @@ export interface List<T> {
   pagination: CustomPaginationProps
 }
 
+function isList<T>(list: List<T> | T[]): list is List<T> {
+  return 'pagination' in list
+}
+
 interface ListViewLayoutProps<
   T extends { id: string | number },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  U extends List<any>,
-  V extends FieldValues
+  U extends List<any> | T[],
+  V extends FieldValues,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  W extends any[]
 > {
   title: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: UseFormReturn<any>
-  list: List<T>
+  form?: UseFormReturn<any>
+  list: List<T> | T[]
   setList: Dispatch<SetStateAction<List<T>>>
-  apiCall: (page?: number) => Promise<APIResponse<U>>
+  apiCall: (...args: W) => Promise<APIResponse<U>>
+  apiCallArgs?: W
   preprocessList?: (data: U) => Promise<List<T>>
   createModal?: (props: ICreateModalProps<V>) => ReactNode
   card: (props: ICardProps<T>) => ReactNode
@@ -43,7 +50,9 @@ export default function ListViewLayout<
   T extends { id: string | number },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   U extends List<any>,
-  V extends FieldValues
+  V extends FieldValues,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  W extends any[]
 >({
   title,
   form,
@@ -51,9 +60,10 @@ export default function ListViewLayout<
   setList,
   createModal,
   apiCall,
+  apiCallArgs,
   preprocessList,
   card
-}: ListViewLayoutProps<T, U, V>) {
+}: ListViewLayoutProps<T, U, V, W>) {
   const router = useRouter()
 
   const fetchData = useCallback(async () => {
@@ -63,10 +73,20 @@ export default function ListViewLayout<
       ? parseInt(router.query.page as string)
       : undefined
 
-    const response = await apiCall(page)
+    const args = apiCallArgs ?? [] as unknown as W
+
+    if (isList(list)) {
+      args.push(page)
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const response = await apiCall(...args)
+
+    
     if (!response.data) return
 
     if (
+      response.data.pagination &&
       response.data.pagination.total !== 0 &&
       response.data.pagination.current > response.data.pagination.total
     ) {
@@ -81,7 +101,7 @@ export default function ListViewLayout<
     } else {
       setList(data as unknown as List<T>)
     }
-  }, [apiCall, preprocessList, router, setList])
+  }, [apiCall, apiCallArgs, preprocessList, router, setList])
 
   useEffect(() => {
     void fetchData()
@@ -90,28 +110,39 @@ export default function ListViewLayout<
   return (
     <ManagerLayout
       title={title}
-      titleButton={createModal?.({ form, fetchData })}
+      titleButton={form ? createModal?.({ form, fetchData }) : undefined}
     >
       <br />
 
       <div className="min-vh-51">
-        {!list.data && <Loader message="Fetching data." />}
+        {!((isList(list) && list.data) || list) && <Loader message="Fetching data." />}
 
-        {list.data && list.data.length == 0 ? "Nothing to see here." : ""}
+        {((isList(list) && list.data?.length == 0) || (!isList(list) && list.length == 0))? "Nothing to see here." : ""}
 
-        {list.data?.map((item) => {
-          return (
-            <div key={item.id}>
-              {card({ data: item, fetchData: fetchData })}
-            </div>
-          )
-        })}
+        {
+          isList(list) ? list.data?.map((item) => {
+            return (
+              <div key={item.id}>
+                {card({ data: item, fetchData: fetchData })}
+              </div>
+            )
+          }) : list.map((item) => {
+            return (
+              <div key={item.id}>
+                {card({ data: item, fetchData: fetchData })}
+              </div>
+            )
+          })
+        }
       </div>
 
-      <CustomPagination
+      {
+        isList(list) ? <CustomPagination
         current={list.pagination.current}
         total={list.pagination.total}
-      />
+      /> : <></>
+      }
+      
     </ManagerLayout>
   )
 }

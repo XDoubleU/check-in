@@ -51,7 +51,7 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 	go func() {
 		time.Sleep(sleep)
 
-		data := dtos.CheckInDto{
+		data := dtos.CreateCheckInDto{
 			SchoolID: fixtureData.Schools[0].ID,
 		}
 
@@ -158,7 +158,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	go func() {
 		time.Sleep(sleep)
 
-		data := dtos.CheckInDto{
+		data := dtos.CreateCheckInDto{
 			SchoolID: fixtureData.Schools[0].ID,
 		}
 

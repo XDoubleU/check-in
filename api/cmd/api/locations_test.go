@@ -737,13 +737,13 @@ func TestGetAllCheckInsToday(t *testing.T) {
 
 		rs, _ := ts.Client().Do(req)
 
-		var rsData []models.CheckIn
+		var rsData []dtos.CheckInDto
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, len(rsData), 5)
 		assert.Equal(t, rsData[0].LocationID, fixtureData.DefaultLocation.ID)
-		assert.Equal(t, rsData[0].SchoolID, 1)
+		assert.Equal(t, rsData[0].SchoolName, "Andere")
 		assert.Equal(
 			t,
 			rsData[0].CreatedAt.Time.Format(constants.DateFormat),
@@ -873,13 +873,13 @@ func TestDeleteCheckIn(t *testing.T) {
 
 		rs, _ := ts.Client().Do(req)
 
-		var rsData models.CheckIn
+		var rsData dtos.CheckInDto
 		_ = helpers.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.CheckIns[i].ID)
 		assert.Equal(t, rsData.LocationID, fixtureData.DefaultLocation.ID)
-		assert.Equal(t, rsData.SchoolID, 1)
+		assert.Equal(t, rsData.SchoolName, "Andere")
 		assert.Equal(
 			t,
 			rsData.CreatedAt.Time.Format(constants.DateFormat),

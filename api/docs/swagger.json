@@ -112,12 +112,12 @@
                 "summary": "Create check-in at location of logged in user",
                 "parameters": [
                     {
-                        "description": "CheckInDto",
-                        "name": "checkInDto",
+                        "description": "CreateCheckInDto",
+                        "name": "createCheckInDto",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/CheckInDto"
+                            "$ref": "#/definitions/CreateCheckInDto"
                         }
                     }
                 ],
@@ -125,7 +125,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/CheckIn"
+                            "$ref": "#/definitions/CheckInDto"
                         }
                     },
                     "400": {
@@ -426,6 +426,43 @@
                 }
             }
         },
+        "/locations/{id}/checkins": {
+            "get": {
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Get all checkins today",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CheckInDto"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    }
+                }
+            }
+        },
         "/locations/{id}/checkins/day": {
             "get": {
                 "tags": [
@@ -536,6 +573,62 @@
                             "items": {
                                 "$ref": "#/definitions/CheckInsLocationEntryRaw"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    }
+                }
+            }
+        },
+        "/locations/{locationId}/checkins/{checkInId}": {
+            "delete": {
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Delete check-in that occured today",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Location ID",
+                        "name": "locationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Check-In ID",
+                        "name": "checkInId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CheckInDto"
                         }
                     },
                     "400": {
@@ -1033,7 +1126,7 @@
         }
     },
     "definitions": {
-        "CheckIn": {
+        "CheckInDto": {
             "type": "object",
             "properties": {
                 "capacity": {
@@ -1048,16 +1141,8 @@
                 "locationId": {
                     "type": "string"
                 },
-                "schoolId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "CheckInDto": {
-            "type": "object",
-            "properties": {
-                "schoolId": {
-                    "type": "integer"
+                "schoolName": {
+                    "type": "string"
                 }
             }
         },
@@ -1072,6 +1157,14 @@
                     "additionalProperties": {
                         "type": "number"
                     }
+                }
+            }
+        },
+        "CreateCheckInDto": {
+            "type": "object",
+            "properties": {
+                "schoolId": {
+                    "type": "integer"
                 }
             }
         },

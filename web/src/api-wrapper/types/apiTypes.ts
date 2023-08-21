@@ -8,8 +8,8 @@ type DeepRequired<T> = Required<{
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export type CheckIn = DeepRequired<definitions["CheckIn"]>
-export type CheckInDto = DeepRequired<definitions["CheckInDto"]>
+export type CheckIn = DeepRequired<definitions["CheckInDto"]>
+export type CreateCheckInDto = DeepRequired<definitions["CreateCheckInDto"]>
 export type CheckInsLocationEntryRaw = DeepRequired<
   definitions["CheckInsLocationEntryRaw"]
 >

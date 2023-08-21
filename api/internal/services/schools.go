@@ -6,6 +6,8 @@ import (
 	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
+
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 type SchoolService struct {
@@ -26,6 +28,19 @@ func (service SchoolService) GetTotalCount(ctx context.Context) (*int64, error) 
 	}
 
 	return total, nil
+}
+
+func (service SchoolService) GetSchoolMaps(
+	schools []*models.School,
+) (map[int64]string, *orderedmap.OrderedMap[string, int]) {
+	schoolsIDNameMap := make(map[int64]string)
+	schoolsMap := orderedmap.New[string, int]()
+	for _, school := range schools {
+		schoolsIDNameMap[school.ID] = school.Name
+		schoolsMap.Set(school.Name, 0)
+	}
+
+	return schoolsIDNameMap, schoolsMap
 }
 
 func (service SchoolService) GetAll(ctx context.Context) ([]*models.School, error) {

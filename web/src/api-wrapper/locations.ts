@@ -3,6 +3,7 @@ import { fetchHandler } from "./fetchHandler"
 import { type APIResponse } from "./types"
 import { validate as isValidUUID } from "uuid"
 import {
+  type CheckIn,
   type CheckInsLocationEntryRawMap,
   type CreateLocationDto,
   type Location,
@@ -98,6 +99,14 @@ export function downloadCSVForDayChart(locationId: string, date: Moment): void {
       process.env.NEXT_PUBLIC_API_URL ?? ""
     }/${LOCATIONS_ENDPOINT}/${locationId}/checkins/day?${query}`
   )
+}
+
+export async function getCheckInsToday(locationId: string): Promise<APIResponse<CheckIn[]>> {
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}/${locationId}/checkins`)
+}
+
+export async function deleteCheckIn(locationId: string, checkInId: number): Promise<APIResponse<CheckIn>> {
+  return await fetchHandler(`${LOCATIONS_ENDPOINT}/${locationId}/checkins/${checkInId}`)
 }
 
 export async function getAllLocations(
