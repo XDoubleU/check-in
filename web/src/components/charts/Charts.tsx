@@ -15,7 +15,7 @@ interface ChartProps {
 function getDates(): Moment[] {
   const date = new Date()
   const weekStart = moment(date).startOf("isoWeek")
-  const weekEnd = moment(date).startOf("isoWeek")
+  const weekEnd = moment(date).endOf("isoWeek")
 
   return [weekStart, weekEnd]
 }

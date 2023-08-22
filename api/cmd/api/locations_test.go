@@ -1368,7 +1368,6 @@ func TestGetAllLocations(t *testing.T) {
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-
 		assert.Equal(t, len(rsData), 21)
 		assert.Equal(t, rsData[0].ID, fixtureData.DefaultLocation.ID)
 		assert.Equal(t, rsData[0].Name, fixtureData.DefaultLocation.Name)

@@ -110,7 +110,6 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	user := app.contextGetUser(r)
 
 	var allCheckInEntries *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw]
-
 	for _, id := range ids {
 		var location *models.Location
 		location, err = app.services.Locations.GetByID(r.Context(), id)
@@ -293,13 +292,18 @@ func addCheckInEntries(
 ) {
 	for pair := checkInEntries.Oldest(); pair != nil; pair = pair.Next() {
 		oldEntry, _ := allCheckInEntries.Get(pair.Key)
-		oldEntry.Capacity += pair.Value.Capacity
 
-		for school := oldEntry.Schools.Oldest(); school != nil; school = school.Next() {
-			oldSchoolValue, _ := oldEntry.Schools.Get(school.Key)
-			newSchoolValue, _ := pair.Value.Schools.Get(school.Key)
+		if oldEntry == nil {
+			oldEntry = pair.Value
+		} else {
+			oldEntry.Capacity += pair.Value.Capacity
 
-			oldEntry.Schools.Set(school.Key, oldSchoolValue+newSchoolValue)
+			for school := oldEntry.Schools.Oldest(); school != nil; school = school.Next() {
+				oldSchoolValue, _ := oldEntry.Schools.Get(school.Key)
+				newSchoolValue, _ := pair.Value.Schools.Get(school.Key)
+
+				oldEntry.Schools.Set(school.Key, oldSchoolValue+newSchoolValue)
+			}
 		}
 
 		allCheckInEntries.Set(pair.Key, oldEntry)
@@ -518,10 +522,10 @@ func (app *application) getPaginatedLocationsHandler(w http.ResponseWriter,
 
 // @Summary	Get all locations
 // @Tags		locations
-// @Success	200		{object}	[]models.Location
-// @Failure	400		{object}	ErrorDto
-// @Failure	401		{object}	ErrorDto
-// @Failure	500		{object}	ErrorDto
+// @Success	200	{object}	[]models.Location
+// @Failure	400	{object}	ErrorDto
+// @Failure	401	{object}	ErrorDto
+// @Failure	500	{object}	ErrorDto
 // @Router		/all-locations [get].
 func (app *application) getAllLocationsHandler(w http.ResponseWriter,
 	r *http.Request) {

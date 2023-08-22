@@ -52,7 +52,7 @@ async function fetchHandlerBase<T = undefined>(
       url: `${process.env.NEXT_PUBLIC_API_URL ?? ""}/${input}`,
       query: query
     },
-    { skipEmptyString: true }
+    { skipEmptyString: true, arrayFormat: "comma" }
   )
 
   const fetchCall = async (): Promise<Response> => {

@@ -83,12 +83,15 @@ export function downloadCSVForRangeChart(
     return
   }
 
-  const query = queryString.stringify({
-    ids: locationIds,
-    startDate: moment(startDate).format(DATE_FORMAT),
-    endDate: moment(endDate).format(DATE_FORMAT),
-    returnType: "csv"
-  })
+  const query = queryString.stringify(
+    {
+      ids: locationIds,
+      startDate: moment(startDate).format(DATE_FORMAT),
+      endDate: moment(endDate).format(DATE_FORMAT),
+      returnType: "csv"
+    },
+    { arrayFormat: "comma" }
+  )
 
   open(
     `${
@@ -105,11 +108,14 @@ export function downloadCSVForDayChart(
     return
   }
 
-  const query = queryString.stringify({
-    ids: locationIds,
-    date: moment(date).format(DATE_FORMAT),
-    returnType: "csv"
-  })
+  const query = queryString.stringify(
+    {
+      ids: locationIds,
+      date: moment(date).format(DATE_FORMAT),
+      returnType: "csv"
+    },
+    { arrayFormat: "comma" }
+  )
 
   open(
     `${
