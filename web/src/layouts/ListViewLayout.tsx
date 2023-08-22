@@ -96,9 +96,10 @@ export default function ListViewLayout<
       response.data.pagination.total !== 0 &&
       response.data.pagination.current > response.data.pagination.total
     ) {
-      await router.push(
-        `${router.pathname}?page=${response.data.pagination.total}`
-      )
+      await router.push({
+        pathname: router.pathname,
+        query: { page: response.data.pagination.total }
+      })
     }
 
     const data = response.data

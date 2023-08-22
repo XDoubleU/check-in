@@ -77,13 +77,19 @@ function redirect(
 ) {
   if (!user) {
     if (!router.asPath.includes("/signin")) {
-      return router.push("/signin")
+      let query: ParsedUrlQueryInput | undefined
+      if (!router.asPath.includes("/signout") && router.asPath !== "/") {
+        query = { redirect_to: router.asPath }
+      }
+
+      return router.push({ pathname: `/signin`, query })
     }
     return new Promise((resolve) => resolve(true))
   }
 
   if (router.asPath.includes("/signin")) {
-    return router.push("/")
+    const redirectPath = (router.query.redirect_to as string | undefined) ?? "/"
+    return router.push(redirectPath)
   }
 
   const redirectUrl = redirects?.get(user.role)
