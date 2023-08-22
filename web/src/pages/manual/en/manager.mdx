@@ -1,0 +1,31 @@
+import { AuthRedirecter } from "contexts/authContext"
+import ManagerLayout from "layouts/ManagerLayout"
+import { ManagerRedirects, ImageWidth, ManualNavigation } from "./../index"
+
+<AuthRedirecter redirects={ManagerRedirects}>
+  <ManagerLayout title="Manual Manager">
+    <ManualNavigation />
+
+    ## Locations
+    <img src="/manual/images/locations-listview.png" width={ImageWidth} />
+
+    In the *Locations* tab you can find all locations with their *ID*.
+    The screenshot above contains the location *Het Entrepot* with the *ID* *het-entrepot*.
+    New locations can be added using the *Create* button and existing locations can be changed using *Update*.
+
+    ## Schools
+    <img src="/manual/images/schools-listview.png" width={ImageWidth} />
+
+    After checking in students have to select their school. This is used for having an easy overview of which students use the locations.
+    In the *Schools* tab you can find all schools with their name.
+    The screenshot above shows some.
+    Schools can be added using *Create* and can be changed using *Update*. Only the 'school' *Andere* can't be updated.
+
+    ## Integration with website
+    To show the data from this webapp on your own website you have to couple the capacity using the ID of the location.
+    Below there's an example of the window in SquareSpace where this can be changed.
+
+    <img src="/manual/images/squarespace-example.png" width={ImageWidth} />
+
+  </ManagerLayout>
+</AuthRedirecter>

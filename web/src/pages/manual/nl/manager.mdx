@@ -1,10 +1,10 @@
 import { AuthRedirecter } from "contexts/authContext"
 import ManagerLayout from "layouts/ManagerLayout"
-import { ManagerRedirects, ImageWidth } from "./index"
+import { ManagerRedirects, ImageWidth, ManualNavigation } from "./../index"
 
 <AuthRedirecter redirects={ManagerRedirects}>
   <ManagerLayout title="Handleiding Beheerder">
-    [Ga naar Handleiding Locatie](/manual/location)
+    <ManualNavigation />
 
     ## Locaties
     <img src="/manual/images/locations-listview.png" width={ImageWidth} />
