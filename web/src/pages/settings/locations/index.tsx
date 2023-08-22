@@ -1,4 +1,4 @@
-import { createLocation, getAllLocations, getUser } from "api-wrapper"
+import { createLocation, getAllLocationsPaged, getUser } from "api-wrapper"
 import { useForm } from "react-hook-form"
 import CreateModal from "components/modals/CreateModal"
 import FormInput from "components/forms/FormInput"
@@ -120,7 +120,7 @@ export default function LocationListView() {
         form={form}
         list={locationList}
         setList={setLocationList}
-        apiCall={getAllLocations}
+        apiCall={getAllLocationsPaged}
         preprocessList={preprocessList}
         createModal={CreateLocationModal}
         card={LocationCard}

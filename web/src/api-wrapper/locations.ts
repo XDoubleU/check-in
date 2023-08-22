@@ -16,12 +16,22 @@ import moment, { type Moment } from "moment"
 
 const LOCATIONS_ENDPOINT = "locations"
 
+function areValidUUIDs(strings: string[]): boolean {
+  for (let i = 0; i < strings.length; i++) {
+    if (!isValidUUID(strings[i])) {
+      return false
+    }
+  }
+
+  return true
+}
+
 export async function getDataForRangeChart(
-  locationId: string,
+  locationIds: string[],
   startDate: Moment,
   endDate: Moment
 ): Promise<APIResponse<CheckInsLocationEntryRawMap>> {
-  if (!isValidUUID(locationId)) {
+  if (!areValidUUIDs(locationIds)) {
     return {
       ok: false,
       message: "Invalid UUID"
@@ -29,10 +39,11 @@ export async function getDataForRangeChart(
   }
 
   return await fetchHandler(
-    `${LOCATIONS_ENDPOINT}/${locationId}/checkins/range`,
+    `all-locations/checkins/range`,
     undefined,
     undefined,
     {
+      ids: locationIds,
       startDate: moment(startDate).format(DATE_FORMAT),
       endDate: moment(endDate).format(DATE_FORMAT),
       returnType: "raw"
@@ -41,10 +52,10 @@ export async function getDataForRangeChart(
 }
 
 export async function getDataForDayChart(
-  locationId: string,
+  locationIds: string[],
   date: Moment
 ): Promise<APIResponse<CheckInsLocationEntryRawMap>> {
-  if (!isValidUUID(locationId)) {
+  if (!areValidUUIDs(locationIds)) {
     return {
       ok: false,
       message: "Invalid UUID"
@@ -52,10 +63,11 @@ export async function getDataForDayChart(
   }
 
   return await fetchHandler(
-    `${LOCATIONS_ENDPOINT}/${locationId}/checkins/day`,
+    `all-locations/checkins/day`,
     undefined,
     undefined,
     {
+      ids: locationIds,
       date: moment(date).format(DATE_FORMAT),
       returnType: "raw"
     }
@@ -63,41 +75,52 @@ export async function getDataForDayChart(
 }
 
 export function downloadCSVForRangeChart(
-  locationId: string,
+  locationIds: string[],
   startDate: Moment,
   endDate: Moment
 ): void {
-  if (!isValidUUID(locationId)) {
+  if (!areValidUUIDs(locationIds)) {
     return
   }
 
-  const query = queryString.stringify({
-    startDate: moment(startDate).format(DATE_FORMAT),
-    endDate: moment(endDate).format(DATE_FORMAT),
-    returnType: "csv"
-  })
+  const query = queryString.stringify(
+    {
+      ids: locationIds,
+      startDate: moment(startDate).format(DATE_FORMAT),
+      endDate: moment(endDate).format(DATE_FORMAT),
+      returnType: "csv"
+    },
+    { arrayFormat: "comma" }
+  )
 
   open(
     `${
       process.env.NEXT_PUBLIC_API_URL ?? ""
-    }/${LOCATIONS_ENDPOINT}/${locationId}/checkins/range?${query}`
+    }/all-locations/checkins/range?${query}`
   )
 }
 
-export function downloadCSVForDayChart(locationId: string, date: Moment): void {
-  if (!isValidUUID(locationId)) {
+export function downloadCSVForDayChart(
+  locationIds: string[],
+  date: Moment
+): void {
+  if (!areValidUUIDs(locationIds)) {
     return
   }
 
-  const query = queryString.stringify({
-    date: moment(date).format(DATE_FORMAT),
-    returnType: "csv"
-  })
+  const query = queryString.stringify(
+    {
+      ids: locationIds,
+      date: moment(date).format(DATE_FORMAT),
+      returnType: "csv"
+    },
+    { arrayFormat: "comma" }
+  )
 
   open(
     `${
       process.env.NEXT_PUBLIC_API_URL ?? ""
-    }/${LOCATIONS_ENDPOINT}/${locationId}/checkins/day?${query}`
+    }/all-locations/checkins/day?${query}`
   )
 }
 
@@ -117,7 +140,11 @@ export async function deleteCheckIn(
   )
 }
 
-export async function getAllLocations(
+export async function getAllLocations(): Promise<APIResponse<Location[]>> {
+  return await fetchHandler("all-locations")
+}
+
+export async function getAllLocationsPaged(
   page?: number
 ): Promise<APIResponse<PaginatedLocationsDto>> {
   return await fetchHandler(`${LOCATIONS_ENDPOINT}`, undefined, undefined, {

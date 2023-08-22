@@ -15,7 +15,7 @@ import { DATE_FORMAT, TIME_FORMAT } from "api-wrapper/types/apiTypes"
 import moment, { type Moment } from "moment"
 
 interface DayChartProps extends FilterProps {
-  locationId: string
+  locationIds: string[]
   dayData: ChartData
   setDayData: Dispatch<SetStateAction<ChartData>>
 }
@@ -43,7 +43,7 @@ function Filter({ date, setDate }: FilterProps) {
 
 // eslint-disable-next-line max-lines-per-function
 export default function DayChart({
-  locationId,
+  locationIds,
   dayData,
   date,
   setDayData,
@@ -53,7 +53,7 @@ export default function DayChart({
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    void getDataForDayChart(locationId, date)
+    void getDataForDayChart(locationIds, date)
       .then((response) => {
         if (
           !response.ok ||
@@ -69,7 +69,7 @@ export default function DayChart({
         setSchools(extractAllSchools(response.data))
       })
       .then(() => setLoading(false))
-  }, [date, locationId, setDayData])
+  }, [date, locationIds, setDayData])
 
   if (loading) {
     return (

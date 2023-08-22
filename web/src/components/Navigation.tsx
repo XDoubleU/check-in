@@ -54,6 +54,7 @@ export default function Navigation() {
             )}
             {user?.role === "manager" || user?.role === "admin" ? (
               <>
+                <NavItem href="/settings/graphs">Graphs</NavItem>
                 <NavItem href="/settings/locations">Locations</NavItem>
                 <NavItem href="/settings/schools">Schools</NavItem>
               </>

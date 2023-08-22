@@ -83,7 +83,7 @@ export default function LocationDetail() {
             <LocationUpdateModal data={location} fetchData={fetchData} />
           }
         >
-          <Charts locationId={location.id} />
+          <Charts locationIds={[location.id]} />
 
           <h2>Todays Check-Ins</h2>
           <br />

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,6 +35,24 @@ func ReadIntURLParam(r *http.Request, name string) (int64, error) {
 	}
 
 	return id, nil
+}
+
+func ReadUUIDArrayQueryParam(r *http.Request, name string) ([]string, error) {
+	param := r.URL.Query().Get(name)
+
+	values := strings.Split(param, ",")
+
+	var results []string
+
+	for _, value := range values {
+		result, err := uuid.Parse(value)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, result.String())
+	}
+
+	return results, nil
 }
 
 func ReadStrQueryParam(r *http.Request, name string, defaultValue string) string {

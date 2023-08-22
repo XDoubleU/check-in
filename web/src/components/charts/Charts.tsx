@@ -8,14 +8,14 @@ import { type ChartData } from "./Shared"
 import moment, { type Moment } from "moment"
 
 interface ChartProps {
-  locationId: string
+  locationIds: string[]
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 function getDates(): Moment[] {
   const date = new Date()
   const weekStart = moment(date).startOf("isoWeek")
-  const weekEnd = moment(date).startOf("isoWeek")
+  const weekEnd = moment(date).endOf("isoWeek")
 
   return [weekStart, weekEnd]
 }
@@ -26,7 +26,7 @@ function getDate(): Moment {
 }
 
 // eslint-disable-next-line max-lines-per-function
-export default function Charts({ locationId }: ChartProps) {
+export default function Charts({ locationIds }: ChartProps) {
   const [weekStart, weekEnd] = getDates()
 
   const [startDate, setStartDate] = useState(weekStart)
@@ -49,7 +49,7 @@ export default function Charts({ locationId }: ChartProps) {
         <CustomButton
           onClick={(event) => {
             event.preventDefault()
-            downloadCSVForRangeChart(locationId, startDate, endDate)
+            downloadCSVForRangeChart(locationIds, startDate, endDate)
           }}
         >
           Download as CSV
@@ -57,7 +57,7 @@ export default function Charts({ locationId }: ChartProps) {
         <br />
         <br />
         <RangeChart
-          locationId={locationId}
+          locationIds={locationIds}
           rangeData={rangeData}
           startDate={startDate}
           endDate={endDate}
@@ -71,7 +71,7 @@ export default function Charts({ locationId }: ChartProps) {
         <CustomButton
           onClick={(event) => {
             event.preventDefault()
-            downloadCSVForDayChart(locationId, date)
+            downloadCSVForDayChart(locationIds, date)
           }}
         >
           Download as CSV
@@ -79,7 +79,7 @@ export default function Charts({ locationId }: ChartProps) {
         <br />
         <br />
         <DayChart
-          locationId={locationId}
+          locationIds={locationIds}
           dayData={dayData}
           date={date}
           setDayData={setDayData}

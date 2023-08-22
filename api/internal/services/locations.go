@@ -143,8 +143,9 @@ func (service LocationService) GetTotalCount(ctx context.Context) (*int64, error
 
 func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, error) {
 	query := `
-		SELECT id, name, capacity, %s, %s
+		SELECT id, name, capacity, time_zone, user_id, %s, %s
 		FROM locations
+		ORDER BY name ASC
 	`
 
 	query = fmt.Sprintf(query, availableQuery, yesterdayFullAtQuery)
@@ -163,6 +164,8 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 			&location.ID,
 			&location.Name,
 			&location.Capacity,
+			&location.TimeZone,
+			&location.UserID,
 			&location.Available,
 			&location.YesterdayFullAt,
 		)
