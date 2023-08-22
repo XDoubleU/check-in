@@ -1,9 +1,11 @@
 import { AuthRedirecter } from "contexts/authContext"
 import ManagerLayout from "layouts/ManagerLayout"
-import { ImageWidth } from "./index"
+import { ImageWidth, ManualNavigation } from "./../index"
 
 <AuthRedirecter>
   <ManagerLayout title="Handleiding Locatie">
+    <ManualNavigation />
+
     ## Stap 1
     Surf op de kiosk tablet naar deze URL: *https://checkin.bruggestudentenstad.be* en log in.
 

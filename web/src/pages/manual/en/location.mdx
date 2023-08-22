@@ -1,0 +1,23 @@
+import { AuthRedirecter } from "contexts/authContext"
+import ManagerLayout from "layouts/ManagerLayout"
+import { ImageWidth, ManualNavigation } from "./../index"
+
+<AuthRedirecter>
+  <ManagerLayout title="Manual Location">
+    <ManualNavigation />
+
+    ## Step 1
+    On the kiosk tablet go to this URL: *https://checkin.bruggestudentenstad.be* and log in.
+
+    <img src="/manual/images/sign-in.png" width={ImageWidth} />
+
+    ## Step 2
+    Studying students can now easily check-in upon arrival using the red button.
+    After pressing the red button they also have to select their school. Afterwards the green button will be shown as confirmation.
+    The amount of free spots is updated automatically and is also shown live on the site of Brugge Studentenstad.
+
+    <img src="/manual/images/button.png" width={ImageWidth} />
+    <img src="/manual/images/schools.png" width={ImageWidth} />
+
+  </ManagerLayout>
+</AuthRedirecter>
