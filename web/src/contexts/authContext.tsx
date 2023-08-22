@@ -78,7 +78,7 @@ function redirect(
   if (!user) {
     if (!router.asPath.includes("/signin")) {
       let query: ParsedUrlQueryInput | undefined
-      if (!router.asPath.includes("/signout") && router.asPath !== "/" ) {
+      if (!router.asPath.includes("/signout") && router.asPath !== "/") {
         query = { redirect_to: router.asPath }
       }
 
@@ -88,7 +88,7 @@ function redirect(
   }
 
   if (router.asPath.includes("/signin")) {
-    const redirectPath = router.query.redirect_to as string | undefined ?? "/"
+    const redirectPath = (router.query.redirect_to as string | undefined) ?? "/"
     return router.push(redirectPath)
   }
 
