@@ -44,6 +44,11 @@ func (app *application) locationsRoutes(router *httprouter.Router) {
 	)
 	router.HandlerFunc(
 		http.MethodGet,
+		"/all-locations",
+		app.authAccess(managerAndAdminRole, app.getAllLocationsHandler),
+	)
+	router.HandlerFunc(
+		http.MethodGet,
 		"/locations",
 		app.authAccess(managerAndAdminRole, app.getPaginatedLocationsHandler),
 	)
@@ -74,7 +79,7 @@ func (app *application) locationsRoutes(router *httprouter.Router) {
 // @Failure	401			{object}	ErrorDto
 // @Failure	404			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
-// @Router		/locations/{id}/checkins/day [get].
+// @Router		/all-locations/checkins/day [get].
 func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	r *http.Request) {
 	ids, err := helpers.ReadUUIDArrayQueryParam(r, "ids")
@@ -177,7 +182,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 // @Failure	401			{object}	ErrorDto
 // @Failure	404			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
-// @Router		/locations/{id}/checkins/range [get].
+// @Router		/all-locations/checkins/range [get].
 func (app *application) getLocationCheckInsRangeHandler( //nolint:funlen // fix later
 	w http.ResponseWriter,
 	r *http.Request,
@@ -506,6 +511,27 @@ func (app *application) getPaginatedLocationsHandler(w http.ResponseWriter,
 	}
 
 	err = helpers.WriteJSON(w, http.StatusOK, result, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// @Summary	Get all locations
+// @Tags		locations
+// @Success	200		{object}	[]models.Location
+// @Failure	400		{object}	ErrorDto
+// @Failure	401		{object}	ErrorDto
+// @Failure	500		{object}	ErrorDto
+// @Router		/all-locations [get].
+func (app *application) getAllLocationsHandler(w http.ResponseWriter,
+	r *http.Request) {
+	locations, err := app.services.Locations.GetAll(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = helpers.WriteJSON(w, http.StatusOK, locations, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

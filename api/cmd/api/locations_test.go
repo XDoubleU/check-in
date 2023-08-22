@@ -1345,6 +1345,69 @@ func TestGetPaginatedLocationsAccess(t *testing.T) {
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
 }
 
+func TestGetAllLocations(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
+
+	for _, user := range users {
+		req, _ := http.NewRequest(http.MethodGet, ts.URL+"/all-locations", nil)
+		req.AddCookie(user)
+
+		rs, _ := ts.Client().Do(req)
+
+		var rsData []models.Location
+		_ = helpers.ReadJSON(rs.Body, &rsData)
+
+		assert.Equal(t, rs.StatusCode, http.StatusOK)
+
+
+		assert.Equal(t, len(rsData), 21)
+		assert.Equal(t, rsData[0].ID, fixtureData.DefaultLocation.ID)
+		assert.Equal(t, rsData[0].Name, fixtureData.DefaultLocation.Name)
+		assert.Equal(
+			t,
+			rsData[0].NormalizedName,
+			fixtureData.DefaultLocation.NormalizedName,
+		)
+		assert.Equal(t, rsData[0].Available, fixtureData.DefaultLocation.Available)
+		assert.Equal(t, rsData[0].Capacity, fixtureData.DefaultLocation.Capacity)
+		assert.Equal(
+			t,
+			rsData[0].YesterdayFullAt,
+			fixtureData.DefaultLocation.YesterdayFullAt,
+		)
+		assert.Equal(t, rsData[0].TimeZone, fixtureData.DefaultLocation.TimeZone)
+		assert.Equal(t, rsData[0].UserID, fixtureData.DefaultLocation.UserID)
+	}
+}
+
+func TestGetAllLocationsAccess(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/all-locations", nil)
+
+	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/all-locations", nil)
+	req2.AddCookie(tokens.DefaultAccessToken)
+
+	rs1, _ := ts.Client().Do(req1)
+	rs2, _ := ts.Client().Do(req2)
+
+	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
+	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
+}
+
 func TestGetLocation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)

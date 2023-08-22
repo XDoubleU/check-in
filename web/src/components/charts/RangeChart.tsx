@@ -15,7 +15,7 @@ import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
 import moment, { type Moment } from "moment"
 
 interface RangeChartProps extends FilterProps {
-  locationId: string
+  locationIds: string[]
   rangeData: ChartData
   setRangeData: Dispatch<SetStateAction<ChartData>>
 }
@@ -54,7 +54,7 @@ function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
 
 // eslint-disable-next-line max-lines-per-function
 export default function RangeChart({
-  locationId,
+  locationIds,
   rangeData,
   startDate,
   endDate,
@@ -66,7 +66,7 @@ export default function RangeChart({
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    void getDataForRangeChart(locationId, startDate, endDate)
+    void getDataForRangeChart(locationIds, startDate, endDate)
       .then((response) => {
         if (
           !response.ok ||
@@ -82,7 +82,7 @@ export default function RangeChart({
         setSchools(extractAllSchools(response.data))
       })
       .then(() => setLoading(false))
-  }, [startDate, endDate, setRangeData, locationId])
+  }, [startDate, endDate, setRangeData, locationIds])
 
   if (loading) {
     return (
