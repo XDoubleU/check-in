@@ -107,7 +107,7 @@ func TestYesterdayFullAt(t *testing.T) {
 	assert.Equal(t, rsData.YesterdayFullAt.Time.Hour(), now.Hour())
 }
 
-func TestGetCheckInsLocationRangeRaw(t *testing.T) {
+func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
@@ -134,12 +134,13 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 	for _, user := range users {
 		req, _ := http.NewRequest(
 			http.MethodGet,
-			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/range",
+			ts.URL+"/all-locations/checkins/range",
 			nil,
 		)
 		req.AddCookie(user)
 
 		query := req.URL.Query()
+		query.Add("ids", fixtureData.DefaultLocation.ID)
 		query.Add("startDate", startDate.Format(constants.DateFormat))
 		query.Add("endDate", endDate.Format(constants.DateFormat))
 		query.Add("returnType", "raw")
@@ -184,6 +185,90 @@ func TestGetCheckInsLocationRangeRaw(t *testing.T) {
 	}
 }
 
+func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	loc, _ := time.LoadLocation("Europe/Brussels")
+	utc, _ := time.LoadLocation("UTC")
+
+	now := time.Now().In(loc)
+
+	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
+	startDate = *helpers.StartOfDay(&startDate)
+
+	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
+	endDate = *helpers.StartOfDay(&endDate)
+
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
+
+	for _, user := range users {
+		req, _ := http.NewRequest(
+			http.MethodGet,
+			ts.URL+"/all-locations/checkins/range",
+			nil,
+		)
+		req.AddCookie(user)
+
+		query := req.URL.Query()
+		query.Add(
+			"ids",
+			fmt.Sprintf(
+				"%s,%s",
+				fixtureData.DefaultLocation.ID,
+				fixtureData.Locations[0].ID,
+			),
+		)
+		query.Add("startDate", startDate.Format(constants.DateFormat))
+		query.Add("endDate", endDate.Format(constants.DateFormat))
+		query.Add("returnType", "raw")
+
+		req.URL.RawQuery = query.Encode()
+
+		rs, _ := ts.Client().Do(req)
+
+		var rsData map[string]dtos.CheckInsLocationEntryRaw
+		_ = helpers.ReadJSON(rs.Body, &rsData)
+
+		assert.Equal(t, rs.StatusCode, http.StatusOK)
+
+		assert.Equal(t, rsData[startDate.Format(time.RFC3339)].Capacity, 0)
+
+		value, present := rsData[startDate.Format(time.RFC3339)].Schools.Get(
+			"Andere",
+		)
+		assert.Equal(t, value, 0)
+		assert.Equal(t, present, true)
+
+		assert.Equal(
+			t,
+			rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].Capacity,
+			fixtureData.DefaultLocation.Capacity+fixtureData.Locations[0].Capacity,
+		)
+
+		value, present = rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
+			Schools.Get(
+			"Andere",
+		)
+		assert.Equal(t, value, 10)
+		assert.Equal(t, present, true)
+
+		assert.Equal(t, rsData[endDate.Format(time.RFC3339)].Capacity, 0)
+
+		value, present = rsData[endDate.Format(time.RFC3339)].Schools.Get(
+			"Andere",
+		)
+		assert.Equal(t, value, 0)
+		assert.Equal(t, present, true)
+	}
+}
+
 func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
@@ -203,12 +288,13 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	for _, user := range users {
 		req, _ := http.NewRequest(
 			http.MethodGet,
-			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/range",
+			ts.URL+"/all-locations/checkins/range",
 			nil,
 		)
 		req.AddCookie(user)
 
 		query := req.URL.Query()
+		query.Add("ids", fixtureData.DefaultLocation.ID)
 		query.Add("startDate", startDate)
 		query.Add("endDate", endDate)
 		query.Add("returnType", "csv")
@@ -235,12 +321,13 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	id, _ := uuid.NewUUID()
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+id.String()+"/checkins/range",
+		ts.URL+"/all-locations/checkins/range",
 		nil,
 	)
 	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", id.String())
 	query.Add("startDate", startDate)
 	query.Add("endDate", endDate)
 	query.Add("returnType", "raw")
@@ -272,12 +359,13 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/range",
+		ts.URL+"/all-locations/checkins/range",
 		nil,
 	)
 	req.AddCookie(tokens.DefaultAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", fixtureData.Locations[0].ID)
 	query.Add("startDate", startDate)
 	query.Add("endDate", endDate)
 	query.Add("returnType", "raw")
@@ -308,12 +396,13 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/range",
+		ts.URL+"/all-locations/checkins/range",
 		nil,
 	)
 	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", fixtureData.Locations[0].ID)
 	query.Add("endDate", endDate)
 	query.Add("returnType", "raw")
 
@@ -339,12 +428,13 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/range",
+		ts.URL+"/all-locations/checkins/range",
 		nil,
 	)
 	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", fixtureData.Locations[0].ID)
 	query.Add("startDate", startDate)
 	query.Add("returnType", "raw")
 
@@ -371,12 +461,13 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/range",
+		ts.URL+"/all-locations/checkins/range",
 		nil,
 	)
 	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", fixtureData.Locations[0].ID)
 	query.Add("startDate", startDate)
 	query.Add("endDate", endDate)
 
@@ -403,12 +494,13 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/8000/checkins/range",
+		ts.URL+"/all-locations/checkins/range",
 		nil,
 	)
 	req.AddCookie(tokens.DefaultAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", "8000")
 	query.Add("startDate", startDate)
 	query.Add("endDate", endDate)
 	query.Add("returnType", "raw")
@@ -433,7 +525,7 @@ func TestGetCheckInsLocationRangeAccess(t *testing.T) {
 
 	req1, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/range",
+		ts.URL+"/all-locations/checkins/range",
 		nil,
 	)
 
@@ -442,7 +534,7 @@ func TestGetCheckInsLocationRangeAccess(t *testing.T) {
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 }
 
-func TestGetCheckInsLocationDayRaw(t *testing.T) {
+func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
@@ -465,12 +557,13 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 	for _, user := range users {
 		req, _ := http.NewRequest(
 			http.MethodGet,
-			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/day",
+			ts.URL+"/all-locations/checkins/day",
 			nil,
 		)
 		req.AddCookie(user)
 
 		query := req.URL.Query()
+		query.Add("ids", fixtureData.DefaultLocation.ID)
 		query.Add("date", date.Format(constants.DateFormat))
 		query.Add("returnType", "raw")
 
@@ -501,6 +594,72 @@ func TestGetCheckInsLocationDayRaw(t *testing.T) {
 	}
 }
 
+func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
+	testEnv, testApp := setupTest(t, mainTestEnv)
+	defer tests.TeardownSingle(testEnv)
+
+	ts := httptest.NewTLSServer(testApp.routes())
+	defer ts.Close()
+
+	loc, _ := time.LoadLocation("Europe/Brussels")
+	utc, _ := time.LoadLocation("UTC")
+
+	now := time.Now().In(loc)
+
+	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
+
+	users := []*http.Cookie{
+		tokens.AdminAccessToken,
+		tokens.ManagerAccessToken,
+	}
+
+	for _, user := range users {
+		req, _ := http.NewRequest(
+			http.MethodGet,
+			ts.URL+"/all-locations/checkins/day",
+			nil,
+		)
+		req.AddCookie(user)
+
+		query := req.URL.Query()
+		query.Add(
+			"ids",
+			fmt.Sprintf(
+				"%s,%s",
+				fixtureData.DefaultLocation.ID,
+				fixtureData.Locations[0].ID,
+			),
+		)
+		query.Add("date", date.Format(constants.DateFormat))
+		query.Add("returnType", "raw")
+
+		req.URL.RawQuery = query.Encode()
+
+		rs, _ := ts.Client().Do(req)
+
+		var rsData map[string]dtos.CheckInsLocationEntryRaw
+		_ = helpers.ReadJSON(rs.Body, &rsData)
+
+		assert.Equal(t, rs.StatusCode, http.StatusOK)
+
+		var checkInDate string
+		for k := range rsData {
+			checkInDate = k
+			break
+		}
+
+		assert.Equal(
+			t,
+			rsData[checkInDate].Capacity,
+			fixtureData.DefaultLocation.Capacity+fixtureData.Locations[0].Capacity,
+		)
+
+		value, present := rsData[checkInDate].Schools.Get("Andere")
+		assert.Equal(t, value, 10)
+		assert.Equal(t, present, true)
+	}
+}
+
 func TestGetCheckInsLocationDayCSV(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
@@ -519,12 +678,13 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 	for _, user := range users {
 		req, _ := http.NewRequest(
 			http.MethodGet,
-			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID+"/checkins/day",
+			ts.URL+"/all-locations/checkins/day",
 			nil,
 		)
 		req.AddCookie(user)
 
 		query := req.URL.Query()
+		query.Add("ids", fixtureData.DefaultLocation.ID)
 		query.Add("date", date)
 		query.Add("returnType", "csv")
 
@@ -549,12 +709,13 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	id, _ := uuid.NewUUID()
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+id.String()+"/checkins/day",
+		ts.URL+"/all-locations/checkins/day",
 		nil,
 	)
 	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", id.String())
 	query.Add("date", date)
 	query.Add("returnType", "raw")
 
@@ -584,12 +745,13 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/day",
+		ts.URL+"/all-locations/checkins/day",
 		nil,
 	)
 	req.AddCookie(tokens.DefaultAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", fixtureData.Locations[0].ID)
 	query.Add("date", date)
 	query.Add("returnType", "raw")
 
@@ -617,12 +779,13 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/day",
+		ts.URL+"/all-locations/checkins/day",
 		nil,
 	)
 	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", fixtureData.Locations[0].ID)
 	query.Add("returnType", "raw")
 
 	req.URL.RawQuery = query.Encode()
@@ -647,12 +810,13 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/day",
+		ts.URL+"/all-locations/checkins/day",
 		nil,
 	)
 	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", fixtureData.Locations[0].ID)
 	query.Add("date", date)
 
 	req.URL.RawQuery = query.Encode()
@@ -677,12 +841,13 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/8000/checkins/day",
+		ts.URL+"/all-locations/checkins/day",
 		nil,
 	)
 	req.AddCookie(tokens.ManagerAccessToken)
 
 	query := req.URL.Query()
+	query.Add("ids", "8000")
 	query.Add("date", date)
 	query.Add("returnType", "raw")
 
@@ -706,7 +871,7 @@ func TestGetCheckInsLocationDayAccess(t *testing.T) {
 
 	req1, _ := http.NewRequest(
 		http.MethodGet,
-		ts.URL+"/locations/"+fixtureData.Locations[0].ID+"/checkins/day",
+		ts.URL+"/all-locations/checkins/day",
 		nil,
 	)
 
