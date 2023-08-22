@@ -1,20 +1,20 @@
 import { AuthRedirecter } from "contexts/authContext"
 import ManagerLayout from "layouts/ManagerLayout"
-import { ManagerRedirects } from "./index"
+import { ManagerRedirects, ImageWidth } from "./index"
 
 <AuthRedirecter redirects={ManagerRedirects}>
   <ManagerLayout title="Handleiding Beheerder">
     [Ga naar Handleiding Locatie](/manual/location)
 
     ## Locaties
-    ![Locations ListView](/manual/images/locations-listview.png)
+    <img src="/manual/images/locations-listview.png" width={ImageWidth} />
 
     In het tabblad *Locations* staan alle bloklocaties weergegeven met hun *ID*.
     De screenshot hierboven bevat onder andere de locatie *Het Entrepot* met als *ID* *het-entrepot*.
     Nieuwe locaties kunnen toegevoegd worden via *Create* en bestaande locaties kunnen aangepast worden via *Update*.
 
     ## Scholen
-    ![Schools ListView](/manual/images/schools-listview.png)
+    <img src="/manual/images/schools-listview.png" width={ImageWidth} />
 
     Na het inchecken moeten studenten hun school aanduiden. Hiermee wordt bijgehouden welke studenten gebruik maken van de locaties om zo makkelijk op jaarbasis gegevens te verzamelen.
     In het tabblad *Schools* staan alle scholen weergegeven met hun naam.
@@ -25,7 +25,7 @@ import { ManagerRedirects } from "./index"
     Om de data van deze webapp te tonen op de eigen website moet de capaciteit gekoppeld worden aan de ID van de locatie in kwestie.
     Hieronder staat een voorbeeld van het venster in SquareSpace waar dit aangepast kan worden.
 
-    ![SquareSpace Example](/manual/images/squarespace-example.png)
+    <img src="/manual/images/squarespace-example.png" width={ImageWidth} />
 
   </ManagerLayout>
 </AuthRedirecter>

@@ -4,6 +4,8 @@ import Loader from "components/Loader"
 import { AuthRedirecter } from "contexts/authContext"
 import ManagerLayout from "layouts/ManagerLayout"
 
+export const ImageWidth = "60%"
+
 export const ManagerRedirects = new Map<Role, string>([
   ["default", "/manual/location"]
 ])
