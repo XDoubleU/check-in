@@ -6,7 +6,9 @@ module.exports = {
     "import",
     "sonarjs",
     "redundant-undefined",
-    "deprecation"
+    "deprecation",
+    "jest-dom",
+    "testing-library"
   ],
   extends: [
     "next/core-web-vitals",
@@ -15,18 +17,22 @@ module.exports = {
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:@typescript-eslint/strict",
     "plugin:import/typescript",
-    "plugin:sonarjs/recommended"
+    "plugin:sonarjs/recommended",
+    "plugin:jest-dom/recommended",
+    "plugin:testing-library/react"
   ],
   ignorePatterns: [
     ".eslintrc.js",
-    "**/dist/**",
+    "**/out/**",
+    "**/public/**",
     "*.config.*",
     "**/coverage/**",
     "**/node_modules/**",
-    "schema.d.ts"
+    "schema.d.ts",
+    "jest.setup.js"
   ],
   parserOptions: {
-    project: "./tsconfig.json",
+    project: ["./tsconfig.build.json", "./tsconfig.test.json"],
     tsconfigRootDir: __dirname,
     sourceType: "module"
   },
@@ -100,14 +106,21 @@ module.exports = {
           "attributes": false
         }
       }
-    ]
+    ],
+    'testing-library/no-await-sync-events': [
+      "error",
+      {
+        "eventModules": ["fire-event"]
+      }
+    ],
   },
   settings: {
     "import/resolver": {
       "typescript": {
         "alwaysTryTypes": true,
         "project": [
-          "./tsconfig.json",
+          "./tsconfig.build.json",
+          "./tsconfig.test.json"
         ]
       }
     },

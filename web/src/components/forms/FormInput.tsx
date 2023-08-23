@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto"
 import { type ChangeEventHandler } from "react"
 import { Form } from "react-bootstrap"
 import { type FieldError, type UseFormRegisterReturn } from "react-hook-form"
@@ -42,7 +43,7 @@ export default function FormInput<T extends string>({
   }
 
   return (
-    <Form.Group className="mb-3">
+    <Form.Group className="mb-3" controlId={randomUUID()}>
       <Form.Label>{label}</Form.Label>
       <Form.Control
         type={type}

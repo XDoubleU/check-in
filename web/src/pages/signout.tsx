@@ -4,11 +4,13 @@ import { signOut } from "api-wrapper"
 import { useEffect } from "react"
 
 export default function SignOut() {
-  const { setUser } = useAuth()
+  const { setUser, loadingUser } = useAuth()
 
   useEffect(() => {
-    void signOut().then(() => setUser(undefined))
-  })
+    if (!loadingUser) {
+      void signOut().then(() => setUser(undefined))
+    }
+  }, [loadingUser, setUser])
 
   return (
     <AuthRedirecter>
