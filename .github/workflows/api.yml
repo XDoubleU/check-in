@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: './api/go.mod'
+          cache-dependency-path: './api/go.sum'
       - run: make build
         working-directory: './api'
 
@@ -29,6 +30,7 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: './api/go.mod'
+          cache-dependency-path: './api/go.sum'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
@@ -55,7 +57,9 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: './api/go.mod'
-      - run: go install github.com/pressly/goose/v3/cmd/goose@latest
+          cache-dependency-path: './api/go.sum'
+      - run: make init
+        working-directory: './api'
       - run: make db/migrations/up
         working-directory: './api'
       - run: make test/cov/report
