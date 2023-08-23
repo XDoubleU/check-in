@@ -3,7 +3,6 @@ import { signOut, getMyUser } from "api-wrapper"
 import SignOut from "pages/signout"
 import React from "react"
 import mockRouter from "next-router-mock"
-
 ;(getMyUser as jest.Mock).mockImplementation(() =>
   Promise.resolve({
     ok: false
