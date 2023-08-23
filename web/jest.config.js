@@ -16,7 +16,8 @@ const config = {
   coveragePathIgnorePatterns: [
     "_app.tsx",
     "_document.tsx",
-    "layouts/Error.tsx"
+    "layouts/Error.tsx",
+    "api-wrapper"
   ]
 };
 
