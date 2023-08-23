@@ -60,6 +60,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build
+          path: ./web
       - run: unzip build.zip
       - uses: actions/setup-node@v3
         with:
