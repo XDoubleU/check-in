@@ -10,7 +10,7 @@ describe("ManualNavigation (component)", () => {
   it("As seen by admin, english", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)
 
-    await mockRouter.push('manual/en/manager')
+    await mockRouter.push("manual/en/manager")
 
     render(<ManualNavigation />)
 
@@ -22,7 +22,7 @@ describe("ManualNavigation (component)", () => {
   it("As seen by admin, dutch", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)
 
-    await mockRouter.push('manual/nl/manager')
+    await mockRouter.push("manual/nl/manager")
 
     render(<ManualNavigation />)
 
@@ -34,7 +34,7 @@ describe("ManualNavigation (component)", () => {
   it("As seen by manager", async () => {
     mocked(getMyUser).mockImplementation(managerUserMock)
 
-    await mockRouter.push('manual/en/manager')
+    await mockRouter.push("manual/en/manager")
 
     render(<ManualNavigation />)
 
@@ -46,7 +46,7 @@ describe("ManualNavigation (component)", () => {
   it("As seen by default", async () => {
     mocked(getMyUser).mockImplementation(defaultUserMock)
 
-    await mockRouter.push('manual/en/location')
+    await mockRouter.push("manual/en/location")
 
     render(<ManualNavigation />)
 
@@ -58,9 +58,11 @@ describe("ManualHome (page)", () => {
   it("Redirect admin", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)
 
-    await mockRouter.push('manual')
+    await mockRouter.push("manual")
 
     render(<ManualHome />)
+
+    await screen.findByText("Loading manual.", { selector: "p" })
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/manual/en/manager")
@@ -69,9 +71,11 @@ describe("ManualHome (page)", () => {
   it("Redirect manager", async () => {
     mocked(getMyUser).mockImplementation(managerUserMock)
 
-    await mockRouter.push('manual')
+    await mockRouter.push("manual")
 
     render(<ManualHome />)
+
+    await screen.findByText("Loading manual.", { selector: "p" })
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/manual/en/manager")
@@ -80,9 +84,11 @@ describe("ManualHome (page)", () => {
   it("Redirect default", async () => {
     mocked(getMyUser).mockImplementation(defaultUserMock)
 
-    await mockRouter.push('manual')
+    await mockRouter.push("manual")
 
     render(<ManualHome />)
+
+    await screen.findByText("Loading manual.", { selector: "p" })
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/manual/en/location")

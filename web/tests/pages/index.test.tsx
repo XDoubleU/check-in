@@ -1,4 +1,8 @@
-import { checkinsWebsocket, getAllSchoolsSortedForLocation, getMyUser } from "api-wrapper"
+import {
+  checkinsWebsocket,
+  getAllSchoolsSortedForLocation,
+  getMyUser
+} from "api-wrapper"
 import { mocked } from "jest-mock"
 import mockRouter from "next-router-mock"
 import CheckIn from "pages"
@@ -49,7 +53,13 @@ describe("CheckIn (page)", () => {
 
     // Check if button is disabled and becomes enabled again
     expect(screen.getByRole("button", { name: "CHECK-IN" })).toBeDisabled()
-    await waitFor(() => expect(button = screen.getByRole("button", { name: "CHECK-IN" })).toBeEnabled(), { timeout: 1500 })
+    await waitFor(
+      () =>
+        expect(
+          (button = screen.getByRole("button", { name: "CHECK-IN" }))
+        ).toBeEnabled(),
+      { timeout: 1500 }
+    )
 
     // Second check-in
     fireEvent.click(button)
@@ -75,7 +85,7 @@ describe("CheckIn (page)", () => {
 
     const update: LocationUpdateEvent = {
       available: 1,
-      capacity: 10, 
+      capacity: 10,
       normalizedName: "location",
       yesterdayFullAt: ""
     }
@@ -95,7 +105,7 @@ describe("CheckIn (page)", () => {
     await waitFor(() => expect(mockRouter.asPath).toBe("/settings"))
     expect(mockRouter.asPath).toBe("/settings")
   })
-  
+
   it("Redirect manager to settings", async () => {
     mocked(getMyUser).mockImplementation(managerUserMock)
 
