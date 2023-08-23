@@ -62,6 +62,7 @@ jobs:
           name: build
           path: ./web
       - run: unzip build.zip
+        working-directory: './web'
       - uses: actions/setup-node@v3
         with:
           cache: 'yarn'
