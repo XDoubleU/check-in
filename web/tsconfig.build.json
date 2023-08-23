@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src", "next-env.d.ts"],
+  "exclude": ["node_modules", "tests"]
+}

@@ -84,6 +84,7 @@ function redirect(
 
       return router.push({ pathname: `/signin`, query })
     }
+
     return new Promise((resolve) => resolve(true))
   }
 
