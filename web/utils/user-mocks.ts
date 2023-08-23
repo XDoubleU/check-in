@@ -11,9 +11,19 @@ export async function defaultUserMock(): Promise<APIResponse<User>> {
   return Promise.resolve({
     ok: true,
     data: {
-      id: "id",
+      id: "userId",
       username: "default",
-      role: "default"
+      role: "default",
+      location: {
+        id: "locationId",
+        name: "location",
+        normalizedName: "location",
+        available: 2,
+        capacity: 10,
+        timeZone: "Europe/Brussels",
+        userId: "userId",
+        yesterdayFullAt: ""
+      }
     }
   })
 }
@@ -22,7 +32,7 @@ export async function managerUserMock(): Promise<APIResponse<User>> {
   return Promise.resolve({
     ok: true,
     data: {
-      id: "id",
+      id: "userId",
       username: "manager",
       role: "manager"
     }
@@ -33,7 +43,7 @@ export async function adminUserMock(): Promise<APIResponse<User>> {
   return Promise.resolve({
     ok: true,
     data: {
-      id: "id",
+      id: "userId",
       username: "admin",
       role: "admin"
     }
