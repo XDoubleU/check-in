@@ -1,5 +1,7 @@
-import { signOut, signIn, getMyUser } from "api-wrapper"
 import '@testing-library/jest-dom'
+import { mocked } from "jest-mock"
+import { noUserMock } from "user-mocks"
+import { getMyUser } from "api-wrapper"
 
 jest.mock('next/router', () => require('next-router-mock'))
 
@@ -12,27 +14,5 @@ jest.mock('next/head', () => {
   }
 })
 
-jest.mock("./src/api-wrapper")
-signOut.mockImplementation(() => Promise.resolve(undefined))
-signIn.mockImplementation((signInDto) => {
-  if(signInDto.username === "validusername" && signInDto.password === "validpassword") {
-    return Promise.resolve({
-      ok: true,
-      data: {
-        username: "validusername"
-      }
-    })
-  }
-
-  return Promise.resolve({
-    ok: false,
-    message: "Invalid credentials"
-  })
-})
-
-getMyUser.mockImplementation(() => Promise.resolve({
-  ok: true,
-  data: {
-    username: "validusername"
-  }
-}))
+jest.mock("api-wrapper")
+mocked(getMyUser).mockImplementation(noUserMock)

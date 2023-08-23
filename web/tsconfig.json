@@ -4,7 +4,8 @@
     "baseUrl": "./src",
 
     "paths": {
-      "test-utils": ["../utils/test-utils"]
+      "test-utils": ["../utils/test-utils"],
+      "user-mocks": ["../utils/user-mocks"]
     },
 
     "target": "es5",
