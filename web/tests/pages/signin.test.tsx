@@ -28,7 +28,7 @@ describe("SignIn (page)", () => {
   it("Performs a non-successful signin", async () => {
     await mockRouter.push("/signin")
 
-    const { rerender } = render(<SignIn />)
+    render(<SignIn />)
 
     await waitFor(() => expect(document.title).toContain("Sign In"))
 
@@ -42,8 +42,6 @@ describe("SignIn (page)", () => {
 
     await waitFor(() => expect(signIn).toBeCalled())
 
-    rerender(<SignIn />)
-
-    expect(screen.getByRole("alert")).toHaveTextContent("Invalid credentials")
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Invalid credentials"))
   })
 })

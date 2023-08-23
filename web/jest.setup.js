@@ -1,4 +1,4 @@
-import { signOut, signIn, getMyUser } from "./src/api-wrapper"
+import { signOut, signIn, getMyUser } from "api-wrapper"
 import '@testing-library/jest-dom'
 
 jest.mock('next/router', () => require('next-router-mock'))
