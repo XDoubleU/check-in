@@ -15,7 +15,9 @@ const config = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   coveragePathIgnorePatterns: [
     "_app.tsx",
-    "_document.tsx"
+    "_document.tsx",
+    "layouts/Error.tsx",
+    "api-wrapper"
   ]
 };
 

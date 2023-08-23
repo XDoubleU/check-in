@@ -1,16 +1,14 @@
 import { render, waitFor } from "test-utils"
-import { signOut, getMyUser } from "api-wrapper"
+import { signOut } from "api-wrapper"
 import SignOut from "pages/signout"
 import React from "react"
 import mockRouter from "next-router-mock"
-;(getMyUser as jest.Mock).mockImplementation(() =>
-  Promise.resolve({
-    ok: false
-  })
-)
+import { mocked } from "jest-mock"
 
 describe("SignOut (page)", () => {
   it("Performs signout on API, sets User on undefined and redirects to /signin", async () => {
+    mocked(signOut).mockImplementation(() => Promise.resolve(undefined))
+
     await mockRouter.push("/signout")
 
     render(<SignOut />)

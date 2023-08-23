@@ -19,7 +19,8 @@ module.exports = {
     "plugin:import/typescript",
     "plugin:sonarjs/recommended",
     "plugin:jest-dom/recommended",
-    "plugin:testing-library/react"
+    "plugin:testing-library/react",
+    "prettier"
   ],
   ignorePatterns: [
     ".eslintrc.js",
