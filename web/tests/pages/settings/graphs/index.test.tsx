@@ -11,7 +11,6 @@ import userEvent from "@testing-library/user-event"
 describe("Graphs (page)", () => {
   it("Graphs load", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)
-    
 
     await mockRouter.push("settings/graphs")
 
