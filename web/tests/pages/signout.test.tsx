@@ -4,9 +4,11 @@ import SignOut from "pages/signout"
 import React from "react"
 import mockRouter from "next-router-mock"
 
-(getMyUser as jest.Mock).mockImplementation(() => Promise.resolve({
-  ok: false
-}))
+;(getMyUser as jest.Mock).mockImplementation(() =>
+  Promise.resolve({
+    ok: false
+  })
+)
 
 describe("SignOut (page)", () => {
   it("Performs signout on API, sets User on undefined and redirects to /signin", async () => {

@@ -42,6 +42,8 @@ describe("SignIn (page)", () => {
 
     await waitFor(() => expect(signIn).toBeCalled())
 
-    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Invalid credentials"))
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent("Invalid credentials")
+    )
   })
 })

@@ -11,7 +11,7 @@ const config = {
   moduleDirectories: ["node_modules", "src", "utils", __dirname],
   testEnvironment: "jest-environment-jsdom",
   testMatch: ["<rootDir>/tests/**/*.test.tsx"],
-  collectCoverageFrom: ["<rootDir>/src/**/*.{ts, tsx, mdx}"],
+  collectCoverageFrom: ["<rootDir>/src/**/*.{ts,tsx}"],
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   coveragePathIgnorePatterns: [
     "_app.tsx",
