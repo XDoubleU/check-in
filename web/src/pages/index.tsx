@@ -72,7 +72,7 @@ export default function CheckIn() {
   const loadSchools = async () => {
     const response = await getAllSchoolsSortedForLocation()
 
-    setSchools(response.data ?? Array<School>())
+    setSchools(response.data as School[])
     handleShow()
   }
 

@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
 import { mocked } from "jest-mock"
-import { noUserMock } from "user-mocks"
+import { noUserMock, DefaultLocation } from "mocks"
 import { getMyUser, getDataForRangeChart, getAllLocations } from "api-wrapper"
 
 jest.mock('next/router', () => require('next-router-mock'))
@@ -27,16 +27,7 @@ mocked(getMyUser).mockImplementation(noUserMock)
 mocked(getAllLocations).mockImplementation(() => {
   return Promise.resolve({
     ok: true,
-    data: [{
-      id: "locationId",
-      available: 1,
-      capacity: 10,
-      name: "location",
-      normalizedName: "location",
-      timeZone: "Europe/Brussels",
-      userId: "userId",
-      yesterdayFullAt: ""
-    }]
+    data: [DefaultLocation]
   })
 })
 

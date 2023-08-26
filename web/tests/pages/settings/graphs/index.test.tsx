@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { getMyUser } from "api-wrapper"
 import { mocked } from "jest-mock"
-import { adminUserMock, defaultUserMock } from "user-mocks"
+import { adminUserMock, defaultUserMock } from "mocks"
 import mockRouter from "next-router-mock"
 import { screen, render, waitFor } from "test-utils"
 import Graphs from "pages/settings/graphs"

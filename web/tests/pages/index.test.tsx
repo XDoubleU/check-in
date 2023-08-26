@@ -7,7 +7,7 @@ import { mocked } from "jest-mock"
 import mockRouter from "next-router-mock"
 import CheckIn from "pages"
 import { screen, render, waitFor, fireEvent } from "test-utils"
-import { adminUserMock, defaultUserMock, managerUserMock } from "user-mocks"
+import { adminUserMock, defaultUserMock, managerUserMock } from "mocks"
 import WS from "jest-websocket-mock"
 import { type LocationUpdateEvent } from "api-wrapper/types/apiTypes"
 

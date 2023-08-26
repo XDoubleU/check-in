@@ -5,7 +5,7 @@ import React from "react"
 import mockRouter from "next-router-mock"
 import { signIn } from "api-wrapper"
 import { mocked } from "jest-mock"
-import { defaultUserMock } from "user-mocks"
+import { defaultUserMock } from "mocks"
 
 // eslint-disable-next-line max-lines-per-function
 describe("SignIn (page)", () => {

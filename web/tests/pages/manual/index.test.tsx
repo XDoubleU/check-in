@@ -3,7 +3,7 @@ import { getMyUser } from "api-wrapper"
 import { mocked } from "jest-mock"
 import ManualHome, { ManualNavigation } from "pages/manual"
 import { screen, render, waitFor } from "test-utils"
-import { adminUserMock, defaultUserMock, managerUserMock } from "user-mocks"
+import { adminUserMock, defaultUserMock, managerUserMock } from "mocks"
 import mockRouter from "next-router-mock"
 
 describe("ManualNavigation (component)", () => {

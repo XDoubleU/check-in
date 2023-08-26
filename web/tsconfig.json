@@ -5,7 +5,7 @@
 
     "paths": {
       "test-utils": ["../utils/test-utils"],
-      "user-mocks": ["../utils/user-mocks"]
+      "mocks": ["../utils/mocks"]
     },
 
     "target": "es5",
