@@ -21,6 +21,7 @@
     "bootstrap": "5.3.1",
     "bootstrap-icons": "1.10.5",
     "moment": "2.29.4",
+    "moment-timezone": "0.5.43",
     "next": "13.4.12",
     "next-pwa": "5.6.0",
     "prop-types": "15.8.1",

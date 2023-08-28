@@ -10,7 +10,8 @@ import {
   type Role,
   type CreateLocationDto,
   type Location,
-  type PaginatedLocationsDto
+  type PaginatedLocationsDto,
+  type User
 } from "api-wrapper/types/apiTypes"
 import { AuthRedirecter } from "contexts/authContext"
 import UserInputs from "components/forms/UserInputs"
@@ -53,7 +54,12 @@ function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
         errors={errors.capacity}
       />
       <TimeZoneInput register={register("timeZone")} />
-      <UserInputs register={register} watch={watch} errors={errors} />
+      <UserInputs
+        required={true}
+        register={register}
+        watch={watch}
+        errors={errors}
+      />
       {/* jscpd:ignore-end */}
     </CreateModal>
   )
@@ -89,20 +95,17 @@ export default function LocationListView() {
         }
       }
 
-      if (!locationsWithUsernames.data) {
-        return locationsWithUsernames
-      }
-
       for (const location of responseData.data) {
-        const username = (await getUser(location.userId)).data?.username
+        const username = ((await getUser(location.userId)).data as User)
+          .username
 
-        locationsWithUsernames.data.push({
+        ;(locationsWithUsernames.data as LocationWithUsername[]).push({
           id: location.id,
           name: location.name,
           normalizedName: location.normalizedName,
           capacity: location.capacity,
           timeZone: location.timeZone,
-          username: username ?? "",
+          username: username,
           available: location.available,
           yesterdayFullAt: location.yesterdayFullAt
         })

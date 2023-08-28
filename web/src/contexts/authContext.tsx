@@ -78,8 +78,13 @@ function redirect(
   if (!user) {
     if (!router.asPath.includes("/signin")) {
       let query: ParsedUrlQueryInput | undefined
+
       if (!router.asPath.includes("/signout") && router.asPath !== "/") {
         query = { redirect_to: router.asPath }
+      }
+
+      if (router.asPath.includes("/settings/locations")) {
+        query = { redirect_to: "/settings/locations" }
       }
 
       return router.push({ pathname: `/signin`, query })

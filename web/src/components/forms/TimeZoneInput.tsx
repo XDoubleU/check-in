@@ -1,3 +1,4 @@
+import moment from "moment-timezone"
 import { Form } from "react-bootstrap"
 import { type UseFormRegisterReturn } from "react-hook-form"
 
@@ -13,7 +14,7 @@ export default function TimeZoneInput({ register }: TimeZoneInputProps) {
     >
       <Form.Label>Time zone</Form.Label>
       <Form.Select {...register}>
-        {Intl.supportedValuesOf("timeZone").map((timeZone) => {
+        {moment.tz.names().map((timeZone) => {
           return (
             <option key={timeZone} value={timeZone}>
               {timeZone}

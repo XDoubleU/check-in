@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import {
   checkinsWebsocket,
   getAllSchoolsSortedForLocation,
@@ -7,7 +8,12 @@ import { mocked } from "jest-mock"
 import mockRouter from "next-router-mock"
 import CheckIn from "pages"
 import { screen, render, waitFor, fireEvent } from "test-utils"
-import { adminUserMock, defaultUserMock, managerUserMock } from "user-mocks"
+import {
+  adminUserMock,
+  defaultUserMock,
+  managerUserMock,
+  noUserMock
+} from "mocks"
 import WS from "jest-websocket-mock"
 import { type LocationUpdateEvent } from "api-wrapper/types/apiTypes"
 
@@ -102,7 +108,9 @@ describe("CheckIn (page)", () => {
 
     render(<CheckIn />)
 
-    await waitFor(() => expect(mockRouter.asPath).toBe("/settings"))
+    await waitFor(() => expect(document.title).toBe("Loading..."))
+
+    await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/settings")
   })
 
@@ -113,7 +121,22 @@ describe("CheckIn (page)", () => {
 
     render(<CheckIn />)
 
-    await waitFor(() => expect(mockRouter.asPath).toBe("/settings"))
+    await waitFor(() => expect(document.title).toBe("Loading..."))
+
+    await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/settings")
+  })
+
+  it("Redirect anonymous", async () => {
+    mocked(getMyUser).mockImplementation(noUserMock)
+
+    await mockRouter.push("/")
+
+    render(<CheckIn />)
+
+    await waitFor(() => expect(document.title).toBe("Loading..."))
+
+    await waitFor(() => expect(mockRouter.isReady))
+    expect(mockRouter.asPath).toBe("/signin")
   })
 })

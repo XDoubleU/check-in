@@ -3,14 +3,19 @@ import { getMyUser } from "api-wrapper"
 import { mocked } from "jest-mock"
 import ManualHome, { ManualNavigation } from "pages/manual"
 import { screen, render, waitFor } from "test-utils"
-import { adminUserMock, defaultUserMock, managerUserMock } from "user-mocks"
+import {
+  adminUserMock,
+  defaultUserMock,
+  managerUserMock,
+  noUserMock
+} from "mocks"
 import mockRouter from "next-router-mock"
 
 describe("ManualNavigation (component)", () => {
   it("As seen by admin, english", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)
 
-    await mockRouter.push("manual/en/manager")
+    await mockRouter.push("/manual/en/manager")
 
     render(<ManualNavigation />)
 
@@ -22,7 +27,7 @@ describe("ManualNavigation (component)", () => {
   it("As seen by admin, dutch", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)
 
-    await mockRouter.push("manual/nl/manager")
+    await mockRouter.push("/manual/nl/manager")
 
     render(<ManualNavigation />)
 
@@ -34,7 +39,7 @@ describe("ManualNavigation (component)", () => {
   it("As seen by manager", async () => {
     mocked(getMyUser).mockImplementation(managerUserMock)
 
-    await mockRouter.push("manual/en/manager")
+    await mockRouter.push("/manual/en/manager")
 
     render(<ManualNavigation />)
 
@@ -46,7 +51,7 @@ describe("ManualNavigation (component)", () => {
   it("As seen by default", async () => {
     mocked(getMyUser).mockImplementation(defaultUserMock)
 
-    await mockRouter.push("manual/en/location")
+    await mockRouter.push("/manual/en/location")
 
     render(<ManualNavigation />)
 
@@ -54,11 +59,12 @@ describe("ManualNavigation (component)", () => {
   })
 })
 
+// eslint-disable-next-line max-lines-per-function
 describe("ManualHome (page)", () => {
   it("Redirect admin", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)
 
-    await mockRouter.push("manual")
+    await mockRouter.push("/manual")
 
     render(<ManualHome />)
 
@@ -71,7 +77,7 @@ describe("ManualHome (page)", () => {
   it("Redirect manager", async () => {
     mocked(getMyUser).mockImplementation(managerUserMock)
 
-    await mockRouter.push("manual")
+    await mockRouter.push("/manual")
 
     render(<ManualHome />)
 
@@ -84,7 +90,7 @@ describe("ManualHome (page)", () => {
   it("Redirect default", async () => {
     mocked(getMyUser).mockImplementation(defaultUserMock)
 
-    await mockRouter.push("manual")
+    await mockRouter.push("/manual")
 
     render(<ManualHome />)
 
@@ -92,5 +98,18 @@ describe("ManualHome (page)", () => {
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/manual/en/location")
+  })
+
+  it("Redirect anonymous", async () => {
+    mocked(getMyUser).mockImplementation(noUserMock)
+
+    await mockRouter.push("/manual")
+
+    render(<ManualHome />)
+
+    await waitFor(() => expect(document.title).toBe("Loading..."))
+
+    await waitFor(() => expect(mockRouter.isReady))
+    expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fmanual")
   })
 })

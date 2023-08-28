@@ -64,7 +64,12 @@ export function LocationUpdateModal({ data, fetchData }: LocationCardProps) {
         errors={errors.capacity}
       />
       <TimeZoneInput register={register("timeZone")} />
-      <UserInputs register={register} watch={watch} errors={errors} />
+      <UserInputs
+        required={false}
+        register={register}
+        watch={watch}
+        errors={errors}
+      />
       {/* jscpd:ignore-end */}
     </UpdateModal>
   )
@@ -93,14 +98,7 @@ export default function LocationCard({ data, fetchData }: LocationCardProps) {
           <div className="d-flex flex-row">
             <div>
               <Card.Title>
-                <Link
-                  href={{
-                    pathname: "/settings/locations/[id]",
-                    query: { id: data.id }
-                  }}
-                >
-                  {data.name}
-                </Link>{" "}
+                <Link href={`/settings/locations/${data.id}`}>{data.name}</Link>{" "}
                 ({data.normalizedName})
               </Card.Title>
               <Card.Subtitle className="mb-2 text-muted">

@@ -36,7 +36,12 @@ function UserUpdateModal({ data, fetchData }: UserCardProps) {
       fetchData={fetchData}
       typeName="user"
     >
-      <UserInputs register={register} watch={watch} errors={errors} />
+      <UserInputs
+        required={false}
+        register={register}
+        watch={watch}
+        errors={errors}
+      />
     </UpdateModal>
   )
 }
