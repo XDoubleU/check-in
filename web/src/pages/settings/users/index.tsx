@@ -17,7 +17,6 @@ type CreateUserForm = CreateUserDto & { repeatPassword?: string }
 
 export type CreateUserModalProps = ICreateModalProps<CreateUserForm>
 
-// eslint-disable-next-line max-lines-per-function
 function CreateUserModal({ form, fetchData }: CreateUserModalProps) {
   const {
     register,

@@ -21,7 +21,6 @@ export default function LocationDetail() {
   const fetchCheckInData = useCallback(async () => {
     const locationId = router.query.id as string
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const response = await getCheckInsToday(locationId)
     setCheckInsList(response.data as CheckIn[])
   }, [router])

@@ -11,7 +11,6 @@ interface ChartProps {
   locationIds: string[]
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 function getDates(): Moment[] {
   const date = new Date()
   const weekStart = moment(date).startOf("isoWeek")
@@ -20,7 +19,6 @@ function getDates(): Moment[] {
   return [weekStart, weekEnd]
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 function getDate(): Moment {
   return moment(new Date())
 }

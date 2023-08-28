@@ -11,7 +11,6 @@ type UserUpdateForm = UpdateUserDto & { repeatPassword?: string }
 
 type UserCardProps = ICardProps<User>
 
-// eslint-disable-next-line max-lines-per-function
 function UserUpdateModal({ data, fetchData }: UserCardProps) {
   const form = useForm<UserUpdateForm>({
     defaultValues: {

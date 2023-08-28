@@ -1,6 +1,5 @@
 import { type SubscribeMessageDto, type Location } from "./types/apiTypes"
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const WS_URL = process.env.NEXT_PUBLIC_API_URL?.replace("http", "ws") ?? ""
 
 export function checkinsWebsocket(location: Location): WebSocket {

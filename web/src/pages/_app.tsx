@@ -10,7 +10,6 @@ import { AuthProvider } from "contexts/authContext"
 import { ErrorBoundary } from "@sentry/nextjs"
 import Error from "layouts/Error"
 
-// eslint-disable-next-line max-lines-per-function
 export default function App({
   // eslint-disable-next-line @typescript-eslint/naming-convention
   Component,

@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import {
   checkinsWebsocket,
   getAllSchoolsSortedForLocation,
@@ -34,7 +33,6 @@ mocked(getAllSchoolsSortedForLocation).mockImplementation(() => {
   })
 })
 
-// eslint-disable-next-line max-lines-per-function
 describe("CheckIn (page)", () => {
   const server = new WS("ws://localhost:8000")
 

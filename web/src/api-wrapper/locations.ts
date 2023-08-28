@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import { fetchHandler } from "./fetchHandler"
 import { type APIResponse } from "./types"
 import { validate as isValidUUID } from "uuid"
@@ -15,6 +14,8 @@ import { DATE_FORMAT } from "api-wrapper/types/apiTypes"
 import moment, { type Moment } from "moment"
 
 const LOCATIONS_ENDPOINT = "locations"
+
+const INVALID_UUID = "Invalid UUID"
 
 function areValidUUIDs(strings: string[]): boolean {
   for (let i = 0; i < strings.length; i++) {
@@ -34,7 +35,7 @@ export async function getDataForRangeChart(
   if (!areValidUUIDs(locationIds)) {
     return {
       ok: false,
-      message: "Invalid UUID"
+      message: INVALID_UUID
     }
   }
 
@@ -58,7 +59,7 @@ export async function getDataForDayChart(
   if (!areValidUUIDs(locationIds)) {
     return {
       ok: false,
-      message: "Invalid UUID"
+      message: INVALID_UUID
     }
   }
 
@@ -156,7 +157,7 @@ export async function getLocation(id: string): Promise<APIResponse<Location>> {
   if (!isValidUUID(id)) {
     return {
       ok: false,
-      message: "Invalid UUID"
+      message: INVALID_UUID
     }
   }
 
@@ -176,7 +177,7 @@ export async function updateLocation(
   if (!isValidUUID(id)) {
     return {
       ok: false,
-      message: "Invalid UUID"
+      message: INVALID_UUID
     }
   }
 
@@ -193,7 +194,7 @@ export async function deleteLocation(
   if (!isValidUUID(id)) {
     return {
       ok: false,
-      message: "Invalid UUID"
+      message: INVALID_UUID
     }
   }
 

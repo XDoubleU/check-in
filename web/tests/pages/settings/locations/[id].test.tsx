@@ -1,5 +1,3 @@
-/* eslint-disable max-lines-per-function */
-/* eslint-disable sonarjs/no-duplicate-string */
 import {
   getCheckInsToday,
   getDataForRangeChart,
@@ -21,7 +19,6 @@ import moment from "moment"
 import { FULL_FORMAT } from "api-wrapper/types/apiTypes"
 import userEvent from "@testing-library/user-event"
 
-// eslint-disable-next-line max-lines-per-function
 describe("LocationDetail (page)", () => {
   it("Show detailed information of location as default user", async () => {
     mocked(getMyUser).mockImplementation(defaultUserMock)

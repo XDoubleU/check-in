@@ -7,7 +7,6 @@ import { signIn } from "api-wrapper"
 import { mocked } from "jest-mock"
 import { defaultUserMock } from "mocks"
 
-// eslint-disable-next-line max-lines-per-function
 describe("SignIn (page)", () => {
   it("Performs a successful signin", async () => {
     mocked(signIn).mockImplementation(defaultUserMock)
