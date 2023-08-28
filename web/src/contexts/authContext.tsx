@@ -35,7 +35,6 @@ const AuthContext = React.createContext<AuthContextProps>({
   loadingUser: true
 })
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export function useAuth(): AuthContextProps {
   return useContext(AuthContext)
 }

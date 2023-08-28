@@ -1,5 +1,3 @@
-/* eslint-disable max-lines-per-function */
-/* eslint-disable sonarjs/no-duplicate-string */
 import userEvent from "@testing-library/user-event"
 import {
   createLocation,
@@ -14,7 +12,6 @@ import mockRouter from "next-router-mock"
 import LocationListView from "pages/settings/locations"
 import { screen, render, waitFor } from "test-utils"
 
-// eslint-disable-next-line max-lines-per-function
 describe("LocationListView (page)", () => {
   it("Shows overview of locations", async () => {
     mocked(getMyUser).mockImplementation(managerUserMock)

@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import { getMyUser } from "api-wrapper"
 import { mocked } from "jest-mock"
 import ManualHome, { ManualNavigation } from "pages/manual"
@@ -59,7 +58,6 @@ describe("ManualNavigation (component)", () => {
   })
 })
 
-// eslint-disable-next-line max-lines-per-function
 describe("ManualHome (page)", () => {
   it("Redirect admin", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)

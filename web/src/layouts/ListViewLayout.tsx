@@ -28,7 +28,6 @@ function isList<T>(list: List<T> | T[]): list is List<T> {
 
 interface ListViewLayoutProps<
   T extends { id: string | number },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   U extends List<T> | T[],
   V extends FieldValues,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,12 +39,10 @@ interface ListViewLayoutProps<
   form?: UseFormReturn<any>
   list: U
   setList: Dispatch<SetStateAction<U>>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiCall: (
     ...args: W
   ) => Promise<APIResponse<WithRequired<List<X>, "data"> | X[]>>
   apiCallArgs?: W
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   preprocessList?: (data: WithRequired<List<X>, "data">) => Promise<U>
   createModal?: (props: ICreateModalProps<V>) => ReactNode
   card: (props: ICardProps<T>) => ReactNode
@@ -54,7 +51,6 @@ interface ListViewLayoutProps<
 // eslint-disable-next-line max-lines-per-function
 export default function ListViewLayout<
   T extends { id: string | number },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   U extends List<T> | T[],
   V extends FieldValues,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,7 +80,6 @@ export default function ListViewLayout<
       args.push(page)
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const response = await apiCall(...args)
 
     if (!response.data) return

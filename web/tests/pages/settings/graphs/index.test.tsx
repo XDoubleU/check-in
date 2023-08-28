@@ -1,5 +1,3 @@
-/* eslint-disable max-lines-per-function */
-/* eslint-disable sonarjs/no-duplicate-string */
 import {
   getAllLocations,
   getDataForDayChart,
@@ -18,7 +16,6 @@ import { screen, render, waitFor, fireEvent } from "test-utils"
 import Graphs from "pages/settings/graphs"
 import userEvent from "@testing-library/user-event"
 
-// eslint-disable-next-line max-lines-per-function
 describe("Graphs (page)", () => {
   it("View range chart", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)

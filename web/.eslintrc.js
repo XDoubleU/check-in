@@ -115,6 +115,15 @@ module.exports = {
       }
     ],
   },
+  overrides: [
+    {
+      "files": ["tests/**"],
+      "rules": {
+        "max-lines-per-function": "off",
+        "sonarjs/no-duplicate-string": "off"
+      }
+    }
+  ],
   settings: {
     "import/resolver": {
       "typescript": {

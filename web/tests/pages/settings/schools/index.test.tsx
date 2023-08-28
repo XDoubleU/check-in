@@ -1,5 +1,3 @@
-/* eslint-disable max-lines-per-function */
-/* eslint-disable sonarjs/no-duplicate-string */
 import userEvent from "@testing-library/user-event"
 import {
   createSchool,
@@ -13,7 +11,6 @@ import mockRouter from "next-router-mock"
 import SchoolListView from "pages/settings/schools"
 import { screen, render, waitFor } from "test-utils"
 
-// eslint-disable-next-line max-lines-per-function
 describe("SchoolListView (page)", () => {
   it("Shows overview of schools", async () => {
     mocked(getMyUser).mockImplementation(managerUserMock)

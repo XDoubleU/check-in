@@ -1,5 +1,3 @@
-/* eslint-disable max-lines-per-function */
-/* eslint-disable sonarjs/no-duplicate-string */
 import userEvent from "@testing-library/user-event"
 import {
   createUser,
@@ -19,7 +17,6 @@ import mockRouter from "next-router-mock"
 import UserListView from "pages/settings/users"
 import { screen, render, waitFor } from "test-utils"
 
-// eslint-disable-next-line max-lines-per-function
 describe("UserListView (page)", () => {
   it("Shows overview of users", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)
