@@ -2,6 +2,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import userEvent from "@testing-library/user-event"
 import {
+  createLocation,
   getAllLocationsPaged,
   getMyUser,
   getUser,
@@ -59,6 +60,72 @@ describe("LocationListView (page)", () => {
 
     await screen.findByRole("heading", { name: "Locations" })
   })
+
+  it("Creates a location", async () => {
+    mocked(getMyUser).mockImplementation(managerUserMock)
+
+    mocked(getAllLocationsPaged).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [
+            {
+              id: "locationId",
+              name: "location",
+              normalizedName: "location",
+              available: 10,
+              capacity: 10,
+              timeZone: "Europe/Brussels",
+              userId: "userId",
+              yesterdayFullAt: ""
+            }
+          ],
+          pagination: {
+            current: 1,
+            total: 1
+          }
+        }
+      })
+    })
+
+    mocked(createLocation).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true
+      })
+    })
+
+    await mockRouter.push("/settings/locations")
+
+    render(<LocationListView />)
+
+    await screen.findByRole("heading", { name: "Locations" })
+
+    const createButton = screen.getByRole("button", { name: "Create" })
+    await userEvent.click(createButton)
+
+    const nameField = screen.getByLabelText("Name")
+    await userEvent.type(nameField, "newName")
+
+    const capacityField = screen.getByLabelText("Capacity")
+    await userEvent.type(capacityField, "10")
+
+    const userNameField = screen.getByLabelText("Username")
+    await userEvent.type(userNameField, "newUserName")
+
+    const passwordField = screen.getByLabelText("Password")
+    await userEvent.type(passwordField, "newPassword")
+
+    const repeatPasswordField = screen.getByLabelText("Repeat password")
+    await userEvent.type(repeatPasswordField, "newPassword")
+
+    const createButtons = screen.getAllByRole("button", { name: "Create" })
+
+    const createButtonIndex = createButtons.indexOf(createButton)
+    createButtons.splice(createButtonIndex, 1)
+
+    const confirmCreateButton = createButtons[0]
+    await userEvent.click(confirmCreateButton)
+  }, 10000)
 
   it("Updates a location", async () => {
     mocked(getMyUser).mockImplementation(managerUserMock)

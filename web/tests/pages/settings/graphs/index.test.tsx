@@ -1,8 +1,18 @@
 /* eslint-disable max-lines-per-function */
 /* eslint-disable sonarjs/no-duplicate-string */
-import { getAllLocations, getDataForDayChart, getDataForRangeChart, getMyUser } from "api-wrapper"
+import {
+  getAllLocations,
+  getDataForDayChart,
+  getDataForRangeChart,
+  getMyUser
+} from "api-wrapper"
 import { mocked } from "jest-mock"
-import { DefaultLocation, adminUserMock, defaultUserMock, noUserMock } from "mocks"
+import {
+  DefaultLocation,
+  adminUserMock,
+  defaultUserMock,
+  noUserMock
+} from "mocks"
 import mockRouter from "next-router-mock"
 import { screen, render, waitFor, fireEvent } from "test-utils"
 import Graphs from "pages/settings/graphs"
@@ -20,13 +30,13 @@ describe("Graphs (page)", () => {
           "2023-08-24": {
             capacity: 10,
             schools: {
-              "Andere": 5
+              Andere: 5
             }
           },
           "2023-08-25": {
             capacity: 10,
             schools: {
-              "Andere": 5
+              Andere: 5
             }
           }
         }
@@ -57,7 +67,9 @@ describe("Graphs (page)", () => {
     const endDateField = screen.getByLabelText("End date")
     fireEvent.change(endDateField, { target: { value: "2001-11-14" } })
 
-    const downloadCSVButton = screen.getByRole("button", { name: "Download as CSV" })
+    const downloadCSVButton = screen.getByRole("button", {
+      name: "Download as CSV"
+    })
     await userEvent.click(downloadCSVButton)
   })
 
@@ -94,13 +106,13 @@ describe("Graphs (page)", () => {
           "2023-08-24": {
             capacity: 10,
             schools: {
-              "Andere": 5
+              Andere: 5
             }
           }
         }
       })
     })
-    
+
     mocked(getDataForDayChart).mockImplementation(() => {
       return Promise.resolve({
         ok: true,
@@ -108,7 +120,7 @@ describe("Graphs (page)", () => {
           "2023-08-24": {
             capacity: 10,
             schools: {
-              "Andere": 5
+              Andere: 5
             }
           }
         }
@@ -139,7 +151,9 @@ describe("Graphs (page)", () => {
     const dateField = screen.getByLabelText("Date")
     fireEvent.change(dateField, { target: { value: "2001-11-14" } })
 
-    const downloadCSVButton = screen.getByRole("button", { name: "Download as CSV" })
+    const downloadCSVButton = screen.getByRole("button", {
+      name: "Download as CSV"
+    })
     await userEvent.click(downloadCSVButton)
   })
 
@@ -151,7 +165,7 @@ describe("Graphs (page)", () => {
         ok: true
       })
     })
-    
+
     mocked(getDataForDayChart).mockImplementation(() => {
       return Promise.resolve({
         ok: true

@@ -1,7 +1,12 @@
 /* eslint-disable max-lines-per-function */
 /* eslint-disable sonarjs/no-duplicate-string */
 import userEvent from "@testing-library/user-event"
-import { getAllUsersPaged, getMyUser, updateUser } from "api-wrapper"
+import {
+  createUser,
+  getAllUsersPaged,
+  getMyUser,
+  updateUser
+} from "api-wrapper"
 import { mocked } from "jest-mock"
 import {
   DefaultLocation,
@@ -44,6 +49,120 @@ describe("UserListView (page)", () => {
     render(<UserListView />)
 
     await screen.findByRole("heading", { name: "Users" })
+  })
+
+  it("Creates a user", async () => {
+    mocked(getMyUser).mockImplementation(adminUserMock)
+
+    mocked(getAllUsersPaged).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [
+            {
+              id: "userId",
+              username: "default",
+              location: DefaultLocation,
+              role: "default"
+            }
+          ],
+          pagination: {
+            current: 1,
+            total: 1
+          }
+        }
+      })
+    })
+
+    mocked(createUser).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true
+      })
+    })
+
+    await mockRouter.push("/settings/users")
+
+    render(<UserListView />)
+
+    await screen.findByRole("heading", { name: "Users" })
+
+    const createButton = screen.getByRole("button", { name: "Create" })
+    await userEvent.click(createButton)
+
+    const userNameField = screen.getByLabelText("Username")
+    await userEvent.type(userNameField, "newUserName")
+
+    const passwordField = screen.getByLabelText("Password")
+    await userEvent.type(passwordField, "newPassword")
+
+    const repeatPasswordField = screen.getByLabelText("Repeat password")
+    await userEvent.type(repeatPasswordField, "newPassword")
+
+    const createButtons = screen.getAllByRole("button", { name: "Create" })
+
+    const createButtonIndex = createButtons.indexOf(createButton)
+    createButtons.splice(createButtonIndex, 1)
+
+    const confirmCreateButton = createButtons[0]
+    await userEvent.click(confirmCreateButton)
+  })
+
+  it("Creates a user, passwords don't match", async () => {
+    mocked(getMyUser).mockImplementation(adminUserMock)
+
+    mocked(getAllUsersPaged).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [
+            {
+              id: "userId",
+              username: "default",
+              location: DefaultLocation,
+              role: "default"
+            }
+          ],
+          pagination: {
+            current: 1,
+            total: 1
+          }
+        }
+      })
+    })
+
+    mocked(createUser).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true
+      })
+    })
+
+    await mockRouter.push("/settings/users")
+
+    render(<UserListView />)
+
+    await screen.findByRole("heading", { name: "Users" })
+
+    const createButton = screen.getByRole("button", { name: "Create" })
+    await userEvent.click(createButton)
+
+    const userNameField = screen.getByLabelText("Username")
+    await userEvent.type(userNameField, "newUserName")
+
+    const passwordField = screen.getByLabelText("Password")
+    await userEvent.type(passwordField, "newPassword")
+
+    const repeatPasswordField = screen.getByLabelText("Repeat password")
+    await userEvent.type(repeatPasswordField, "newPasswordWrong")
+
+    const createButtons = screen.getAllByRole("button", { name: "Create" })
+
+    const createButtonIndex = createButtons.indexOf(createButton)
+    createButtons.splice(createButtonIndex, 1)
+
+    const confirmCreateButton = createButtons[0]
+    await userEvent.click(confirmCreateButton)
+
+    await screen.findByText("Your passwords do no match")
   })
 
   it("Updates a user", async () => {

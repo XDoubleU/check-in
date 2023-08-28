@@ -1,6 +1,12 @@
+/* eslint-disable max-lines-per-function */
 /* eslint-disable sonarjs/no-duplicate-string */
 import userEvent from "@testing-library/user-event"
-import { getAllSchoolsPaged, getMyUser, updateSchool } from "api-wrapper"
+import {
+  createSchool,
+  getAllSchoolsPaged,
+  getMyUser,
+  updateSchool
+} from "api-wrapper"
 import { mocked } from "jest-mock"
 import { defaultUserMock, managerUserMock, noUserMock } from "mocks"
 import mockRouter from "next-router-mock"
@@ -36,6 +42,144 @@ describe("SchoolListView (page)", () => {
     render(<SchoolListView />)
 
     await screen.findByRole("heading", { name: "Schools" })
+  })
+
+  it("Creates a school", async () => {
+    mocked(getMyUser).mockImplementation(managerUserMock)
+
+    mocked(getAllSchoolsPaged).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [
+            {
+              id: 2,
+              name: "School",
+              readOnly: false
+            }
+          ],
+          pagination: {
+            current: 1,
+            total: 1
+          }
+        }
+      })
+    })
+
+    mocked(createSchool).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true
+      })
+    })
+
+    await mockRouter.push("/settings/schools")
+
+    render(<SchoolListView />)
+
+    await screen.findByRole("heading", { name: "Schools" })
+
+    const createButton = screen.getByRole("button", { name: "Create" })
+    await userEvent.click(createButton)
+
+    const nameField = screen.getByLabelText("Name")
+    await userEvent.type(nameField, "newName")
+
+    const createButtons = screen.getAllByRole("button", { name: "Create" })
+
+    const createButtonIndex = createButtons.indexOf(createButton)
+    createButtons.splice(createButtonIndex, 1)
+
+    const confirmCreateButton = createButtons[0]
+    await userEvent.click(confirmCreateButton)
+  })
+
+  it("Creates a school, school with name already exists", async () => {
+    mocked(getMyUser).mockImplementation(managerUserMock)
+
+    mocked(getAllSchoolsPaged).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [
+            {
+              id: 2,
+              name: "School",
+              readOnly: false
+            }
+          ],
+          pagination: {
+            current: 1,
+            total: 1
+          }
+        }
+      })
+    })
+
+    mocked(createSchool).mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        message: {
+          name: "school with this name already exists"
+        }
+      })
+    })
+
+    await mockRouter.push("/settings/schools")
+
+    render(<SchoolListView />)
+
+    await screen.findByRole("heading", { name: "Schools" })
+
+    const createButton = screen.getByRole("button", { name: "Create" })
+    await userEvent.click(createButton)
+
+    const nameField = screen.getByLabelText("Name")
+    await userEvent.type(nameField, "newName")
+
+    const createButtons = screen.getAllByRole("button", { name: "Create" })
+
+    const createButtonIndex = createButtons.indexOf(createButton)
+    createButtons.splice(createButtonIndex, 1)
+
+    const confirmCreateButton = createButtons[0]
+    await userEvent.click(confirmCreateButton)
+
+    await screen.findByText("school with this name already exists")
+  })
+
+  it("Cancel creating a school", async () => {
+    mocked(getMyUser).mockImplementation(managerUserMock)
+
+    mocked(getAllSchoolsPaged).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [
+            {
+              id: 2,
+              name: "School",
+              readOnly: false
+            }
+          ],
+          pagination: {
+            current: 1,
+            total: 1
+          }
+        }
+      })
+    })
+
+    await mockRouter.push("/settings/schools")
+
+    render(<SchoolListView />)
+
+    await screen.findByRole("heading", { name: "Schools" })
+
+    const createButton = screen.getByRole("button", { name: "Create" })
+    await userEvent.click(createButton)
+
+    const cancelButton = screen.getByRole("button", { name: "Cancel" })
+    await userEvent.click(cancelButton)
   })
 
   it("Updates a school", async () => {
@@ -85,6 +229,147 @@ describe("SchoolListView (page)", () => {
 
     const confirmUpdateButton = updateButtons[0]
     await userEvent.click(confirmUpdateButton)
+  })
+
+  it("Updates a school, school with name already exists", async () => {
+    mocked(getMyUser).mockImplementation(managerUserMock)
+
+    mocked(getAllSchoolsPaged).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [
+            {
+              id: 2,
+              name: "School",
+              readOnly: false
+            }
+          ],
+          pagination: {
+            current: 1,
+            total: 1
+          }
+        }
+      })
+    })
+
+    mocked(updateSchool).mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        message: {
+          name: "school with this name already exists"
+        }
+      })
+    })
+
+    await mockRouter.push("/settings/schools")
+
+    render(<SchoolListView />)
+
+    await screen.findByRole("heading", { name: "Schools" })
+
+    const updateButton = screen.getByRole("button", { name: "Update" })
+    await userEvent.click(updateButton)
+
+    const nameField = screen.getByLabelText("Name")
+    await userEvent.type(nameField, "newName")
+
+    const updateButtons = screen.getAllByRole("button", { name: "Update" })
+
+    const updateButtonIndex = updateButtons.indexOf(updateButton)
+    updateButtons.splice(updateButtonIndex, 1)
+
+    const confirmUpdateButton = updateButtons[0]
+    await userEvent.click(confirmUpdateButton)
+
+    await screen.findByText("school with this name already exists")
+  })
+
+  it("Updates a school, something went wrong", async () => {
+    mocked(getMyUser).mockImplementation(managerUserMock)
+
+    mocked(getAllSchoolsPaged).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [
+            {
+              id: 2,
+              name: "School",
+              readOnly: false
+            }
+          ],
+          pagination: {
+            current: 1,
+            total: 1
+          }
+        }
+      })
+    })
+
+    mocked(updateSchool).mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        message: "Something went wrong"
+      })
+    })
+
+    await mockRouter.push("/settings/schools")
+
+    render(<SchoolListView />)
+
+    await screen.findByRole("heading", { name: "Schools" })
+
+    const updateButton = screen.getByRole("button", { name: "Update" })
+    await userEvent.click(updateButton)
+
+    const nameField = screen.getByLabelText("Name")
+    await userEvent.type(nameField, "newName")
+
+    const updateButtons = screen.getAllByRole("button", { name: "Update" })
+
+    const updateButtonIndex = updateButtons.indexOf(updateButton)
+    updateButtons.splice(updateButtonIndex, 1)
+
+    const confirmUpdateButton = updateButtons[0]
+    await userEvent.click(confirmUpdateButton)
+
+    await screen.findByText("Something went wrong")
+  })
+
+  it("Cancel updating a school", async () => {
+    mocked(getMyUser).mockImplementation(managerUserMock)
+
+    mocked(getAllSchoolsPaged).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          data: [
+            {
+              id: 2,
+              name: "School",
+              readOnly: false
+            }
+          ],
+          pagination: {
+            current: 1,
+            total: 1
+          }
+        }
+      })
+    })
+
+    await mockRouter.push("/settings/schools")
+
+    render(<SchoolListView />)
+
+    await screen.findByRole("heading", { name: "Schools" })
+
+    const updateButton = screen.getByRole("button", { name: "Update" })
+    await userEvent.click(updateButton)
+
+    const cancelButton = screen.getByRole("button", { name: "Cancel" })
+    await userEvent.click(cancelButton)
   })
 
   it("Deletes a school", async () => {

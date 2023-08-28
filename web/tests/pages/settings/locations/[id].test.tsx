@@ -1,6 +1,12 @@
 /* eslint-disable max-lines-per-function */
 /* eslint-disable sonarjs/no-duplicate-string */
-import { getCheckInsToday, getDataForRangeChart, getLocation, getMyUser, getUser } from "api-wrapper"
+import {
+  getCheckInsToday,
+  getDataForRangeChart,
+  getLocation,
+  getMyUser,
+  getUser
+} from "api-wrapper"
 import { mocked } from "jest-mock"
 import mockRouter from "next-router-mock"
 import LocationDetail from "pages/settings/locations/[id]"
@@ -35,7 +41,7 @@ describe("LocationDetail (page)", () => {
           "2023-08-24": {
             capacity: 10,
             schools: {
-              "Andere": 5
+              Andere: 5
             }
           }
         }
@@ -83,7 +89,7 @@ describe("LocationDetail (page)", () => {
           "2023-08-24": {
             capacity: 10,
             schools: {
-              "Andere": 5
+              Andere: 5
             }
           }
         }
@@ -142,7 +148,7 @@ describe("LocationDetail (page)", () => {
           "2023-08-24": {
             capacity: 10,
             schools: {
-              "Andere": 5
+              Andere: 5
             }
           }
         }
