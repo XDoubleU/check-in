@@ -4,10 +4,44 @@ import mockRouter from "next-router-mock"
 import LocationDetail from "pages/settings/locations/[id]"
 import { screen, render } from "test-utils"
 import { DefaultLocation, defaultUserMock } from "mocks"
+import moment from "moment"
+import { FULL_FORMAT } from "api-wrapper/types/apiTypes"
 
 // eslint-disable-next-line max-lines-per-function
 describe("LocationDetail (page)", () => {
-  it("Show detailed information of location", async () => {
+  it("Show detailed information of location as default user", async () => {
+    mocked(getUser).mockImplementation(defaultUserMock)
+
+    mocked(getLocation).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: DefaultLocation
+      })
+    })
+
+    const time = new Date().toISOString()
+    mocked(getCheckInsToday).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: [{
+          id: 1,
+          capacity: 10,
+          createdAt: time,
+          locationId: "locationId",
+          schoolName: "Andere"
+        }]
+      })
+    })
+
+    await mockRouter.push("/settings/locations/locationId")
+
+    render(<LocationDetail />) 
+
+    await screen.findByRole("heading", { name: "location" })
+    await screen.findByText(moment.utc(time).format(FULL_FORMAT))
+  })
+
+  it("Show detailed information of location as default user, no check-ins", async () => {
     mocked(getUser).mockImplementation(defaultUserMock)
 
     mocked(getLocation).mockImplementation(() => {
@@ -20,21 +54,16 @@ describe("LocationDetail (page)", () => {
     mocked(getCheckInsToday).mockImplementation(() => {
       return Promise.resolve({
         ok: true,
-        data: [{
-          id: 1,
-          capacity: 10,
-          createdAt: new Date().toISOString(),
-          locationId: "locationId",
-          schoolName: "Andere"
-        }]
+        data: []
       })
     })
 
-    await mockRouter.push("/locations/locationId")
+    await mockRouter.push("/settings/locations/locationId")
 
     render(<LocationDetail />) 
 
     await screen.findByRole("heading", { name: "location" })
+    await screen.findByText("Nothing to see here.")
   })
 
   it("Can't fetch detailed information of location", async () => {
@@ -46,7 +75,7 @@ describe("LocationDetail (page)", () => {
       })
     })
 
-    await mockRouter.push("/locations/notALocationId")
+    await mockRouter.push("/settings/locations/notALocationId")
 
     render(<LocationDetail />)
 

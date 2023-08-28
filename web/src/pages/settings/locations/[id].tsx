@@ -3,7 +3,6 @@ import { LocationUpdateModal } from "components/cards/LocationCard"
 import {
   getLocation,
   getUser,
-  type APIResponse,
   getCheckInsToday
 } from "api-wrapper"
 import { useCallback, useEffect, useState } from "react"
@@ -24,21 +23,14 @@ export default function LocationDetail() {
   const [checkInsList, setCheckInsList] = useState<CheckIn[]>([])
 
   const fetchCheckInData = useCallback(async () => {
-    if (!router.isReady) return
-
     const locationId = router.query.id as string
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const response = await getCheckInsToday(locationId)
-
-    if (!response.data) return
-
-    setCheckInsList(response.data)
+    setCheckInsList(response.data as CheckIn[])
   }, [router])
 
   const fetchData = useCallback(async () => {
-    if (!router.isReady) return
-
     const locationId = router.query.id as string
 
     const responseLocation = await getLocation(locationId)
@@ -47,10 +39,10 @@ export default function LocationDetail() {
       return
     }
 
-    let responseUser: APIResponse<User> | undefined = undefined
+    let responseUser: User = user as User
     if (user?.role !== "default") {
-      responseUser = await getUser(responseLocation.data.userId)
-      if (!responseUser.data) return
+      const response = await getUser(responseLocation.data.userId)
+      responseUser = response.data as User
     }
 
     const locationWithUsername = {
@@ -58,14 +50,14 @@ export default function LocationDetail() {
       name: responseLocation.data.name,
       normalizedName: responseLocation.data.normalizedName,
       capacity: responseLocation.data.capacity,
-      username: responseUser?.data?.username ?? user?.username ?? "",
+      username: responseUser.username,
       available: responseLocation.data.available,
       yesterdayFullAt: responseLocation.data.yesterdayFullAt,
       timeZone: responseLocation.data.timeZone
     }
 
     updateLocation(locationWithUsername)
-  }, [router, user?.role, user?.username])
+  }, [router, user])
 
   useEffect(() => {
     void fetchData()
@@ -92,13 +84,12 @@ export default function LocationDetail() {
 
           {checkInsList.length == 0 ? "Nothing to see here." : ""}
 
-          {user &&
-            checkInsList.map((item) => {
+          {checkInsList.map((item) => {
               return (
                 <div key={item.id}>
                   <CheckInCard
                     data={item}
-                    user={user}
+                    readonly={user?.role !== "admin" && user?.role !== "manager"}
                     fetchData={fetchCheckInData}
                   />
                 </div>

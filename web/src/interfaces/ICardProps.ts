@@ -1,7 +1,5 @@
-import { type User } from "api-wrapper/types/apiTypes"
-
 export interface ICardProps<T> {
   data: T
-  user?: User
+  readonly?: boolean
   fetchData: () => Promise<void>
 }

@@ -94,10 +94,7 @@ export default function LocationCard({ data, fetchData }: LocationCardProps) {
             <div>
               <Card.Title>
                 <Link
-                  href={{
-                    pathname: "/settings/locations/[id]",
-                    query: { id: data.id }
-                  }}
+                  href={`/settings/locations/${data.id}`}
                 >
                   {data.name}
                 </Link>{" "}

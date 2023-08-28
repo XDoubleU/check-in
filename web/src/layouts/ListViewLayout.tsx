@@ -74,8 +74,6 @@ export default function ListViewLayout<
   const router = useRouter()
 
   const fetchData = useCallback(async () => {
-    if (!router.isReady) return
-
     const page = router.query.page
       ? parseInt(router.query.page as string)
       : undefined

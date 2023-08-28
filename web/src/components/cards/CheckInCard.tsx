@@ -23,7 +23,7 @@ function CheckInDeleteModal({ data, fetchData }: CheckInCardProps) {
 
 export default function CheckInCard({
   data,
-  user,
+  readonly,
   fetchData
 }: CheckInCardProps) {
   return (
@@ -42,11 +42,10 @@ export default function CheckInCard({
                 School: {data.schoolName}
               </Card.Subtitle>
             </div>
-            {(user?.role === "admin" || user?.role === "manager") && (
+            {!readonly && (
               <div className="ms-auto">
                 <CheckInDeleteModal
                   data={data}
-                  user={user}
                   fetchData={fetchData}
                 />
               </div>

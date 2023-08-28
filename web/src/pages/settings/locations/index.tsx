@@ -89,14 +89,10 @@ export default function LocationListView() {
         }
       }
 
-      if (!locationsWithUsernames.data) {
-        return locationsWithUsernames
-      }
-
       for (const location of responseData.data) {
         const username = (await getUser(location.userId)).data?.username
 
-        locationsWithUsernames.data.push({
+        ;(locationsWithUsernames.data as LocationWithUsername[]).push({
           id: location.id,
           name: location.name,
           normalizedName: location.normalizedName,
