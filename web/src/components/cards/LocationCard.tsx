@@ -64,7 +64,12 @@ export function LocationUpdateModal({ data, fetchData }: LocationCardProps) {
         errors={errors.capacity}
       />
       <TimeZoneInput register={register("timeZone")} />
-      <UserInputs register={register} watch={watch} errors={errors} />
+      <UserInputs
+        required={false}
+        register={register}
+        watch={watch}
+        errors={errors}
+      />
       {/* jscpd:ignore-end */}
     </UpdateModal>
   )

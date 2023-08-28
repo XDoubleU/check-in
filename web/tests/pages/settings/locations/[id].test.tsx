@@ -1,12 +1,19 @@
+/* eslint-disable max-lines-per-function */
 /* eslint-disable sonarjs/no-duplicate-string */
-import { getCheckInsToday, getLocation, getMyUser, getUser } from "api-wrapper"
+import { getCheckInsToday, getDataForRangeChart, getLocation, getMyUser, getUser } from "api-wrapper"
 import { mocked } from "jest-mock"
 import mockRouter from "next-router-mock"
 import LocationDetail from "pages/settings/locations/[id]"
 import { screen, render, waitFor } from "test-utils"
-import { DefaultLocation, defaultUserMock, noUserMock } from "mocks"
+import {
+  DefaultLocation,
+  defaultUserMock,
+  managerUserMock,
+  noUserMock
+} from "mocks"
 import moment from "moment"
 import { FULL_FORMAT } from "api-wrapper/types/apiTypes"
+import userEvent from "@testing-library/user-event"
 
 // eslint-disable-next-line max-lines-per-function
 describe("LocationDetail (page)", () => {
@@ -18,6 +25,20 @@ describe("LocationDetail (page)", () => {
       return Promise.resolve({
         ok: true,
         data: DefaultLocation
+      })
+    })
+
+    mocked(getDataForRangeChart).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          "2023-08-24": {
+            capacity: 10,
+            schools: {
+              "Andere": 5
+            }
+          }
+        }
       })
     })
 
@@ -45,6 +66,65 @@ describe("LocationDetail (page)", () => {
     await screen.findByText(moment.utc(time).format(FULL_FORMAT))
   })
 
+  it("Show detailed information of location as manager user and delete check-in", async () => {
+    mocked(getMyUser).mockImplementation(managerUserMock)
+    mocked(getUser).mockImplementation(defaultUserMock)
+
+    mocked(getLocation).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: DefaultLocation
+      })
+    })
+    mocked(getDataForRangeChart).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          "2023-08-24": {
+            capacity: 10,
+            schools: {
+              "Andere": 5
+            }
+          }
+        }
+      })
+    })
+
+    const time = new Date().toISOString()
+    mocked(getCheckInsToday).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: [
+          {
+            id: 1,
+            capacity: 10,
+            createdAt: time,
+            locationId: "locationId",
+            schoolName: "Andere"
+          }
+        ]
+      })
+    })
+
+    await mockRouter.push("/settings/locations/locationId")
+
+    render(<LocationDetail />)
+
+    await screen.findByRole("heading", { name: "location" })
+    await screen.findByText(moment.utc(time).format(FULL_FORMAT))
+
+    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    await userEvent.click(deleteButton)
+
+    const deleteButtons = screen.getAllByRole("button", { name: "Delete" })
+
+    const deleteButtonIndex = deleteButtons.indexOf(deleteButton)
+    deleteButtons.splice(deleteButtonIndex, 1)
+
+    const confirmDeleteButton = deleteButtons[0]
+    await userEvent.click(confirmDeleteButton)
+  })
+
   it("Show detailed information of location as default user, no check-ins", async () => {
     mocked(getMyUser).mockImplementation(defaultUserMock)
     mocked(getUser).mockImplementation(defaultUserMock)
@@ -53,6 +133,19 @@ describe("LocationDetail (page)", () => {
       return Promise.resolve({
         ok: true,
         data: DefaultLocation
+      })
+    })
+    mocked(getDataForRangeChart).mockImplementation(() => {
+      return Promise.resolve({
+        ok: true,
+        data: {
+          "2023-08-24": {
+            capacity: 10,
+            schools: {
+              "Andere": 5
+            }
+          }
+        }
       })
     })
 
@@ -76,6 +169,11 @@ describe("LocationDetail (page)", () => {
     mocked(getUser).mockImplementation(defaultUserMock)
 
     mocked(getLocation).mockImplementation(() => {
+      return Promise.resolve({
+        ok: false
+      })
+    })
+    mocked(getDataForRangeChart).mockImplementation(() => {
       return Promise.resolve({
         ok: false
       })

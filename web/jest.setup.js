@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import { mocked } from "jest-mock"
-import { noUserMock, DefaultLocation } from "mocks"
-import { getMyUser, getDataForRangeChart, getAllLocations } from "api-wrapper"
+import { noUserMock } from "mocks"
+import { getMyUser } from "api-wrapper"
 
 jest.mock('next/router', () => require('next-router-mock'))
 
@@ -24,23 +24,3 @@ window.ResizeObserver = jest.fn().mockImplementation(() => ({
 jest.mock("api-wrapper")
 mocked(getMyUser).mockImplementation(noUserMock)
 
-mocked(getAllLocations).mockImplementation(() => {
-  return Promise.resolve({
-    ok: true,
-    data: [DefaultLocation]
-  })
-})
-
-mocked(getDataForRangeChart).mockImplementation(() => {
-  return Promise.resolve({
-    ok: true,
-    data: {
-      "2023-08-24": {
-        capacity: 10,
-        schools: {
-          "Andere": 5
-        }
-      }
-    }
-  })
-})

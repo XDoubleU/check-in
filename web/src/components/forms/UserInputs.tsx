@@ -13,12 +13,14 @@ interface Inputs {
 }
 
 interface UserInputsProps<T extends Inputs> {
+  required: boolean
   register: UseFormRegister<T>
   watch: UseFormWatch<T>
   errors: FieldErrors<T>
 }
 
 export default function UserInputs<T extends Inputs>({
+  required,
   register,
   watch,
   errors
@@ -29,7 +31,7 @@ export default function UserInputs<T extends Inputs>({
         label="Username"
         type="text"
         placeholder="Username"
-        required
+        required={required}
         register={register("username" as never)}
         errors={errors.username as FieldError}
       />
@@ -37,7 +39,7 @@ export default function UserInputs<T extends Inputs>({
         label="Password"
         type="password"
         placeholder="Password"
-        required
+        required={required}
         autocomplete="new-password"
         register={register("password" as never)}
       />

@@ -32,7 +32,12 @@ function CreateUserModal({ form, fetchData }: CreateUserModalProps) {
       fetchData={fetchData}
       typeName="user"
     >
-      <UserInputs register={register} watch={watch} errors={errors} />
+      <UserInputs
+        required={true}
+        register={register}
+        watch={watch}
+        errors={errors}
+      />
     </CreateModal>
   )
 }
