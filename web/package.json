@@ -22,7 +22,7 @@
     "bootstrap-icons": "1.10.5",
     "moment": "2.29.4",
     "moment-timezone": "0.5.43",
-    "next": "13.4.12",
+    "next": "13.4.19",
     "next-pwa": "5.6.0",
     "prop-types": "15.8.1",
     "query-string": "8.1.0",
@@ -37,7 +37,7 @@
     "uuid": "9.0.0"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "13.4.12",
+    "@next/bundle-analyzer": "13.4.19",
     "@testing-library/jest-dom": "6.1.2",
     "@testing-library/react": "14.0.0",
     "@testing-library/user-event": "14.4.3",
@@ -50,7 +50,7 @@
     "@typescript-eslint/parser": "6.2.1",
     "cross-env": "7.0.3",
     "eslint": "8.46.0",
-    "eslint-config-next": "13.4.12",
+    "eslint-config-next": "13.4.19",
     "eslint-config-prettier": "9.0.0",
     "eslint-import-resolver-typescript": "3.5.5",
     "eslint-plugin-deprecation": "1.5.0",
