@@ -104,6 +104,12 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		return
 	}
 
+	schools, err := app.services.Schools.GetAll(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	startDate := helpers.StartOfDay(date)
 	endDate := helpers.EndOfDay(date)
 
@@ -116,13 +122,6 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		if err != nil ||
 			(user.Role == models.DefaultRole && location.UserID != user.ID) {
 			app.notFoundResponse(w, r, err, "location", "id", id, "id")
-			return
-		}
-
-		var schools []*models.School
-		schools, err = app.services.Schools.GetAll(r.Context())
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
 			return
 		}
 
@@ -218,6 +217,12 @@ func (app *application) getLocationCheckInsRangeHandler( //nolint:funlen // fix 
 		return
 	}
 
+	schools, err := app.services.Schools.GetAll(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	user := app.contextGetUser(r)
 
 	var allCheckInEntries *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw]
@@ -227,13 +232,6 @@ func (app *application) getLocationCheckInsRangeHandler( //nolint:funlen // fix 
 		if err != nil ||
 			(user.Role == models.DefaultRole && location.UserID != user.ID) {
 			app.notFoundResponse(w, r, err, "location", "id", id, "id")
-			return
-		}
-
-		var schools []*models.School
-		schools, err = app.services.Schools.GetAll(r.Context())
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
 			return
 		}
 
