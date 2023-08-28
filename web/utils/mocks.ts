@@ -2,14 +2,14 @@ import { type APIResponse } from "api-wrapper"
 import { type Location, type User } from "api-wrapper/types/apiTypes"
 
 export const DefaultLocation: Location = {
-    id: "locationId",
-    name: "location",
-    normalizedName: "location",
-    available: 2,
-    capacity: 10,
-    timeZone: "Europe/Brussels",
-    userId: "userId",
-    yesterdayFullAt: ""
+  id: "locationId",
+  name: "location",
+  normalizedName: "location",
+  available: 2,
+  capacity: 10,
+  timeZone: "Europe/Brussels",
+  userId: "userId",
+  yesterdayFullAt: ""
 }
 
 export async function noUserMock(): Promise<APIResponse<User>> {

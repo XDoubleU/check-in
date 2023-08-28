@@ -10,7 +10,8 @@ import {
   type Role,
   type CreateLocationDto,
   type Location,
-  type PaginatedLocationsDto
+  type PaginatedLocationsDto,
+  type User
 } from "api-wrapper/types/apiTypes"
 import { AuthRedirecter } from "contexts/authContext"
 import UserInputs from "components/forms/UserInputs"
@@ -90,7 +91,8 @@ export default function LocationListView() {
       }
 
       for (const location of responseData.data) {
-        const username = (await getUser(location.userId)).data?.username
+        const username = ((await getUser(location.userId)).data as User)
+          .username
 
         ;(locationsWithUsernames.data as LocationWithUsername[]).push({
           id: location.id,
@@ -98,7 +100,7 @@ export default function LocationListView() {
           normalizedName: location.normalizedName,
           capacity: location.capacity,
           timeZone: location.timeZone,
-          username: username ?? "",
+          username: username,
           available: location.available,
           yesterdayFullAt: location.yesterdayFullAt
         })

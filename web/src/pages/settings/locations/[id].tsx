@@ -1,10 +1,6 @@
 import ManagerLayout from "layouts/ManagerLayout"
 import { LocationUpdateModal } from "components/cards/LocationCard"
-import {
-  getLocation,
-  getUser,
-  getCheckInsToday
-} from "api-wrapper"
+import { getLocation, getUser, getCheckInsToday } from "api-wrapper"
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import LoadingLayout from "layouts/LoadingLayout"
@@ -34,10 +30,7 @@ export default function LocationDetail() {
     const locationId = router.query.id as string
 
     const responseLocation = await getLocation(locationId)
-    if (!responseLocation.data) {
-      await router.push("locations")
-      return
-    }
+    if (!responseLocation.data) return
 
     let responseUser: User = user as User
     if (user?.role !== "default") {
@@ -85,16 +78,16 @@ export default function LocationDetail() {
           {checkInsList.length == 0 ? "Nothing to see here." : ""}
 
           {checkInsList.map((item) => {
-              return (
-                <div key={item.id}>
-                  <CheckInCard
-                    data={item}
-                    readonly={user?.role !== "admin" && user?.role !== "manager"}
-                    fetchData={fetchCheckInData}
-                  />
-                </div>
-              )
-            })}
+            return (
+              <div key={item.id}>
+                <CheckInCard
+                  data={item}
+                  readonly={user?.role !== "admin" && user?.role !== "manager"}
+                  fetchData={fetchCheckInData}
+                />
+              </div>
+            )
+          })}
         </ManagerLayout>
       )}
     </AuthRedirecter>

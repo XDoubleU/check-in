@@ -44,10 +44,7 @@ export default function CheckInCard({
             </div>
             {!readonly && (
               <div className="ms-auto">
-                <CheckInDeleteModal
-                  data={data}
-                  fetchData={fetchData}
-                />
+                <CheckInDeleteModal data={data} fetchData={fetchData} />
               </div>
             )}
           </div>

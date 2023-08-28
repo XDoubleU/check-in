@@ -93,11 +93,7 @@ export default function LocationCard({ data, fetchData }: LocationCardProps) {
           <div className="d-flex flex-row">
             <div>
               <Card.Title>
-                <Link
-                  href={`/settings/locations/${data.id}`}
-                >
-                  {data.name}
-                </Link>{" "}
+                <Link href={`/settings/locations/${data.id}`}>{data.name}</Link>{" "}
                 ({data.normalizedName})
               </Card.Title>
               <Card.Subtitle className="mb-2 text-muted">

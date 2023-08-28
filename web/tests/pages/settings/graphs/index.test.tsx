@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { getMyUser } from "api-wrapper"
 import { mocked } from "jest-mock"
-import { adminUserMock, defaultUserMock } from "mocks"
+import { adminUserMock, defaultUserMock, noUserMock } from "mocks"
 import mockRouter from "next-router-mock"
 import { screen, render, waitFor } from "test-utils"
 import Graphs from "pages/settings/graphs"
@@ -12,7 +12,7 @@ describe("Graphs (page)", () => {
   it("Graphs load", async () => {
     mocked(getMyUser).mockImplementation(adminUserMock)
 
-    await mockRouter.push("settings/graphs")
+    await mockRouter.push("/settings/graphs")
 
     render(<Graphs />)
 
@@ -30,11 +30,26 @@ describe("Graphs (page)", () => {
   it("Redirect default", async () => {
     mocked(getMyUser).mockImplementation(defaultUserMock)
 
-    await mockRouter.push("settings/graphs")
+    await mockRouter.push("/settings/graphs")
 
     render(<Graphs />)
 
+    await waitFor(() => expect(document.title).toBe("Loading..."))
+
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/settings")
+  })
+
+  it("Redirect anonymous", async () => {
+    mocked(getMyUser).mockImplementation(noUserMock)
+
+    await mockRouter.push("/settings/graphs")
+
+    render(<Graphs />)
+
+    await waitFor(() => expect(document.title).toBe("Loading..."))
+
+    await waitFor(() => expect(mockRouter.isReady))
+    expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings%2Fgraphs")
   })
 })
