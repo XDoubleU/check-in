@@ -10,7 +10,7 @@ require (
 	github.com/dlclark/regexp2 v1.10.0
 	github.com/getsentry/sentry-go v0.23.0
 	github.com/goddtriffin/helmet v1.0.2
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	golang.org/x/time v0.3.0
