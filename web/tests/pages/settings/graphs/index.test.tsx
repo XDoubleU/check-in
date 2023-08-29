@@ -25,13 +25,17 @@ describe("Graphs (page)", () => {
         ok: true,
         data: {
           "2023-08-24": {
-            capacity: 10,
+            capacities: {
+              locationId: 10
+            },
             schools: {
               Andere: 5
             }
           },
           "2023-08-25": {
-            capacity: 10,
+            capacities: {
+              locationId: 10
+            },
             schools: {
               Andere: 5
             }
@@ -101,7 +105,9 @@ describe("Graphs (page)", () => {
         ok: true,
         data: {
           "2023-08-24": {
-            capacity: 10,
+            capacities: {
+              locationId: 10
+            },
             schools: {
               Andere: 5
             }
@@ -115,7 +121,9 @@ describe("Graphs (page)", () => {
         ok: true,
         data: {
           "2023-08-24": {
-            capacity: 10,
+            capacities: {
+              locationId: 10
+            },
             schools: {
               Andere: 5
             }

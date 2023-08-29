@@ -30,6 +30,46 @@ func (service UserService) GetTotalCount(ctx context.Context) (*int64, error) {
 	return total, nil
 }
 
+func (service UserService) GetAll(
+	ctx context.Context,
+) ([]*models.User, error) {
+	query := `
+		SELECT id, username
+		FROM users
+		WHERE role = 'manager'
+	`
+
+	rows, err := service.db.Query(ctx, query)
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	users := []*models.User{}
+
+	for rows.Next() {
+		user := models.User{
+			Role: models.ManagerRole,
+		}
+
+		err = rows.Scan(
+			&user.ID,
+			&user.Username,
+		)
+
+		if err != nil {
+			return nil, handleError(err)
+		}
+
+		users = append(users, &user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, handleError(err)
+	}
+
+	return users, nil
+}
+
 func (service UserService) GetAllPaginated(
 	ctx context.Context,
 	limit int64,

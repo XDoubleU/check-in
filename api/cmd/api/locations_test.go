@@ -154,7 +154,7 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-		assert.Equal(t, rsData[startDate.Format(time.RFC3339)].Capacity, 0)
+		assert.Equal(t, rsData[startDate.Format(time.RFC3339)].Capacities.Len(), 0)
 
 		value, present := rsData[startDate.Format(time.RFC3339)].Schools.Get(
 			"Andere",
@@ -162,9 +162,12 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 		assert.Equal(t, value, 0)
 		assert.Equal(t, present, true)
 
+		capacity, _ := rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].Capacities.Get(
+			fixtureData.DefaultLocation.ID,
+		)
 		assert.Equal(
 			t,
-			rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].Capacity,
+			capacity,
 			fixtureData.DefaultLocation.Capacity,
 		)
 
@@ -175,7 +178,7 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 		assert.Equal(t, value, 5)
 		assert.Equal(t, present, true)
 
-		assert.Equal(t, rsData[endDate.Format(time.RFC3339)].Capacity, 0)
+		assert.Equal(t, rsData[endDate.Format(time.RFC3339)].Capacities.Len(), 0)
 
 		value, present = rsData[endDate.Format(time.RFC3339)].Schools.Get(
 			"Andere",
@@ -238,7 +241,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-		assert.Equal(t, rsData[startDate.Format(time.RFC3339)].Capacity, 0)
+		assert.Equal(t, rsData[startDate.Format(time.RFC3339)].Capacities.Len(), 0)
 
 		value, present := rsData[startDate.Format(time.RFC3339)].Schools.Get(
 			"Andere",
@@ -246,10 +249,24 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 		assert.Equal(t, value, 0)
 		assert.Equal(t, present, true)
 
+		capacity0, _ := rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
+			Capacities.Get(
+			fixtureData.DefaultLocation.ID,
+		)
+		capacity1, _ := rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
+			Capacities.Get(
+			fixtureData.Locations[0].ID,
+		)
 		assert.Equal(
 			t,
-			rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].Capacity,
-			fixtureData.DefaultLocation.Capacity+fixtureData.Locations[0].Capacity,
+			capacity0,
+			fixtureData.DefaultLocation.Capacity,
+		)
+
+		assert.Equal(
+			t,
+			capacity1,
+			fixtureData.Locations[0].Capacity,
 		)
 
 		value, present = rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
@@ -259,7 +276,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 		assert.Equal(t, value, 10)
 		assert.Equal(t, present, true)
 
-		assert.Equal(t, rsData[endDate.Format(time.RFC3339)].Capacity, 0)
+		assert.Equal(t, rsData[endDate.Format(time.RFC3339)].Capacities.Len(), 0)
 
 		value, present = rsData[endDate.Format(time.RFC3339)].Schools.Get(
 			"Andere",
@@ -582,11 +599,10 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 			break
 		}
 
-		assert.Equal(
-			t,
-			rsData[checkInDate].Capacity,
-			fixtureData.DefaultLocation.Capacity,
+		capacity, _ := rsData[checkInDate].Capacities.Get(
+			fixtureData.DefaultLocation.ID,
 		)
+		assert.InRange(t, capacity, 21, 25)
 
 		value, present := rsData[checkInDate].Schools.Get("Andere")
 		assert.Equal(t, value, 5)
@@ -648,10 +664,16 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 			break
 		}
 
+		capacity0, _ := rsData[checkInDate].Capacities.Get(
+			fixtureData.DefaultLocation.ID,
+		)
+		capacity1, _ := rsData[checkInDate].Capacities.Get(fixtureData.Locations[0].ID)
+		assert.InRange(t, capacity0, 21, 25)
+
 		assert.Equal(
 			t,
-			rsData[checkInDate].Capacity,
-			fixtureData.DefaultLocation.Capacity+fixtureData.Locations[0].Capacity,
+			capacity1,
+			fixtureData.Locations[0].Capacity,
 		)
 
 		value, present := rsData[checkInDate].Schools.Get("Andere")

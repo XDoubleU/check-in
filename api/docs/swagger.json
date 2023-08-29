@@ -15,6 +15,190 @@
         "version": "1.0"
     },
     "paths": {
+        "/all-locations": {
+            "get": {
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Get all locations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Location"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    }
+                }
+            }
+        },
+        "/all-locations/checkins/day": {
+            "get": {
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Get all check-ins at location for a specified day in a specified format",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Location IDs",
+                        "name": "ids",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ReturnType ('raw' or 'csv')",
+                        "name": "returnType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Date (format: 'yyyy-MM-dd')",
+                        "name": "date",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CheckInsLocationEntryRaw"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    }
+                }
+            }
+        },
+        "/all-locations/checkins/range": {
+            "get": {
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Get all check-ins at location for a specified range in a specified format",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Location IDs",
+                        "name": "ids",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ReturnType ('raw' or 'csv')",
+                        "name": "returnType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "StartDate (format: 'yyyy-MM-dd')",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "EndDate (format: 'yyyy-MM-dd')",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CheckInsLocationEntryRaw"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/refresh": {
             "get": {
                 "tags": [
@@ -450,145 +634,6 @@
                     },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    }
-                }
-            }
-        },
-        "/locations/{id}/checkins/day": {
-            "get": {
-                "tags": [
-                    "locations"
-                ],
-                "summary": "Get all check-ins at location for a specified day in a specified format",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Location ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "ReturnType ('raw' or 'csv')",
-                        "name": "returnType",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Date (format: 'yyyy-MM-dd')",
-                        "name": "date",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/CheckInsLocationEntryRaw"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    }
-                }
-            }
-        },
-        "/locations/{id}/checkins/range": {
-            "get": {
-                "tags": [
-                    "locations"
-                ],
-                "summary": "Get all check-ins at location for a specified range in a specified format",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Location ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "ReturnType ('raw' or 'csv')",
-                        "name": "returnType",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "StartDate (format: 'yyyy-MM-dd')",
-                        "name": "startDate",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "EndDate (format: 'yyyy-MM-dd')",
-                        "name": "endDate",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/CheckInsLocationEntryRaw"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorDto"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/ErrorDto"
                         }
@@ -1149,8 +1194,11 @@
         "CheckInsLocationEntryRaw": {
             "type": "object",
             "properties": {
-                "capacity": {
-                    "type": "integer"
+                "capacities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "number"
+                    }
                 },
                 "schools": {
                     "type": "object",

@@ -46,6 +46,18 @@ var logger *log.Logger             //nolint:gochecknoglobals //global var for te
 var fixtureData FixtureData        //nolint:gochecknoglobals //global var for tests
 
 func clearAll(services services.Services) error {
+	users, err := services.Users.GetAll(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, user := range users {
+		err = services.Users.Delete(context.Background(), user.ID, user.Role)
+		if err != nil {
+			return err
+		}
+	}
+
 	fixtureData.AmountOfManagerUsers = 0
 
 	locations, err := services.Locations.GetAll(context.Background())

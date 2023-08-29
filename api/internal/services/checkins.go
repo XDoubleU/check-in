@@ -14,25 +14,27 @@ type CheckInService struct {
 
 func (service CheckInService) GetAllInRange(
 	ctx context.Context,
-	location *models.Location,
+	locationIDs []string,
 	startDate *time.Time,
 	endDate *time.Time,
 ) ([]*models.CheckIn, error) {
 	query := `
-		SELECT id, school_id, capacity, (created_at AT TIME ZONE $4)
+		SELECT check_ins.id, check_ins.location_id, check_ins.school_id,
+		 check_ins.capacity, (check_ins.created_at AT TIME ZONE locations.time_zone)
 		FROM check_ins
-		WHERE location_id = $1
-		AND (created_at AT TIME ZONE $4) >= $2
-		AND (created_at AT TIME ZONE $4) <= $3
+		INNER JOIN locations
+		ON locations.id = check_ins.location_id
+		WHERE check_ins.location_id = any($1)
+		AND (check_ins.created_at AT TIME ZONE locations.time_zone) >= $2
+		AND (check_ins.created_at AT TIME ZONE locations.time_zone) <= $3
 	`
 
 	rows, err := service.db.Query(
 		ctx,
 		query,
-		location.ID,
+		locationIDs,
 		startDate,
 		endDate,
-		location.TimeZone,
 	)
 	if err != nil {
 		return nil, handleError(err)
@@ -41,12 +43,11 @@ func (service CheckInService) GetAllInRange(
 	checkIns := []*models.CheckIn{}
 
 	for rows.Next() {
-		checkIn := models.CheckIn{
-			LocationID: location.ID,
-		}
+		var checkIn models.CheckIn
 
 		err = rows.Scan(
 			&checkIn.ID,
+			&checkIn.LocationID,
 			&checkIn.SchoolID,
 			&checkIn.Capacity,
 			&checkIn.CreatedAt,

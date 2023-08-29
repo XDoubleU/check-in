@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
@@ -104,12 +103,17 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		return
 	}
 
+	schools, err := app.services.Schools.GetAll(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	startDate := helpers.StartOfDay(date)
 	endDate := helpers.EndOfDay(date)
 
 	user := app.contextGetUser(r)
 
-	var allCheckInEntries *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw]
 	for _, id := range ids {
 		var location *models.Location
 		location, err = app.services.Locations.GetByID(r.Context(), id)
@@ -118,38 +122,23 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 			app.notFoundResponse(w, r, err, "location", "id", id, "id")
 			return
 		}
-
-		var schools []*models.School
-		schools, err = app.services.Schools.GetAll(r.Context())
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
-
-		var checkIns []*models.CheckIn
-		checkIns, err = app.services.CheckIns.GetAllInRange(
-			r.Context(),
-			location,
-			startDate,
-			endDate,
-		)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
-
-		checkInEntries := app.services.Locations.GetCheckInsEntriesDay(
-			checkIns,
-			schools,
-		)
-
-		if allCheckInEntries == nil {
-			allCheckInEntries = checkInEntries
-			continue
-		}
-
-		addCheckInEntries(allCheckInEntries, checkInEntries)
 	}
+
+	checkIns, err := app.services.CheckIns.GetAllInRange(
+		r.Context(),
+		ids,
+		startDate,
+		endDate,
+	)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	checkInEntries := app.services.Locations.GetCheckInsEntriesDay(
+		checkIns,
+		schools,
+	)
 
 	if returnType == "csv" {
 		filename := time.Now().
@@ -158,11 +147,11 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		filename = "Day-" + filename
 
 		data := dtos.ConvertCheckInsLocationEntryRawMapToCSV(
-			allCheckInEntries,
+			checkInEntries,
 		)
 		err = helpers.WriteCSV(w, filename, data)
 	} else {
-		err = helpers.WriteJSON(w, http.StatusOK, allCheckInEntries, nil)
+		err = helpers.WriteJSON(w, http.StatusOK, checkInEntries, nil)
 	}
 
 	if err != nil {
@@ -182,7 +171,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 // @Failure	404			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
 // @Router		/all-locations/checkins/range [get].
-func (app *application) getLocationCheckInsRangeHandler( //nolint:funlen // fix later
+func (app *application) getLocationCheckInsRangeHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -218,9 +207,17 @@ func (app *application) getLocationCheckInsRangeHandler( //nolint:funlen // fix 
 		return
 	}
 
+	startDate = helpers.StartOfDay(startDate)
+	endDate = helpers.EndOfDay(endDate)
+
+	schools, err := app.services.Schools.GetAll(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	user := app.contextGetUser(r)
 
-	var allCheckInEntries *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw]
 	for _, id := range ids {
 		var location *models.Location
 		location, err = app.services.Locations.GetByID(r.Context(), id)
@@ -229,43 +226,25 @@ func (app *application) getLocationCheckInsRangeHandler( //nolint:funlen // fix 
 			app.notFoundResponse(w, r, err, "location", "id", id, "id")
 			return
 		}
-
-		var schools []*models.School
-		schools, err = app.services.Schools.GetAll(r.Context())
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
-
-		startDate = helpers.StartOfDay(startDate)
-		endDate = helpers.EndOfDay(endDate)
-
-		var checkIns []*models.CheckIn
-		checkIns, err = app.services.CheckIns.GetAllInRange(
-			r.Context(),
-			location,
-			startDate,
-			endDate,
-		)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
-
-		checkInEntries := app.services.Locations.GetCheckInsEntriesRange(
-			startDate,
-			endDate,
-			checkIns,
-			schools,
-		)
-
-		if allCheckInEntries == nil {
-			allCheckInEntries = checkInEntries
-			continue
-		}
-
-		addCheckInEntries(allCheckInEntries, checkInEntries)
 	}
+
+	checkIns, err := app.services.CheckIns.GetAllInRange(
+		r.Context(),
+		ids,
+		startDate,
+		endDate,
+	)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	checkInEntries := app.services.Locations.GetCheckInsEntriesRange(
+		startDate,
+		endDate,
+		checkIns,
+		schools,
+	)
 
 	if returnType == "csv" {
 		filename := time.Now().
@@ -274,39 +253,15 @@ func (app *application) getLocationCheckInsRangeHandler( //nolint:funlen // fix 
 		filename = "Range-" + filename
 
 		data := dtos.ConvertCheckInsLocationEntryRawMapToCSV(
-			allCheckInEntries,
+			checkInEntries,
 		)
 		err = helpers.WriteCSV(w, filename, data)
 	} else {
-		err = helpers.WriteJSON(w, http.StatusOK, allCheckInEntries, nil)
+		err = helpers.WriteJSON(w, http.StatusOK, checkInEntries, nil)
 	}
 
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
-	}
-}
-
-func addCheckInEntries(
-	allCheckInEntries *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw],
-	checkInEntries *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw],
-) {
-	for pair := checkInEntries.Oldest(); pair != nil; pair = pair.Next() {
-		oldEntry, _ := allCheckInEntries.Get(pair.Key)
-
-		if oldEntry == nil {
-			oldEntry = pair.Value
-		} else {
-			oldEntry.Capacity += pair.Value.Capacity
-
-			for school := oldEntry.Schools.Oldest(); school != nil; school = school.Next() {
-				oldSchoolValue, _ := oldEntry.Schools.Get(school.Key)
-				newSchoolValue, _ := pair.Value.Schools.Get(school.Key)
-
-				oldEntry.Schools.Set(school.Key, oldSchoolValue+newSchoolValue)
-			}
-		}
-
-		allCheckInEntries.Set(pair.Key, oldEntry)
 	}
 }
 
@@ -340,7 +295,7 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 
 	checkIns, err := app.services.CheckIns.GetAllInRange(
 		r.Context(),
-		location,
+		[]string{location.ID},
 		startOfToday,
 		endOfToday,
 	)
