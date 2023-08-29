@@ -5,12 +5,22 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"golang.org/x/exp/constraints"
 )
 
 func Equal[T comparable](t *testing.T, actual, expected T) {
 	t.Helper()
 	if actual != expected {
 		t.Errorf("got: %v; want: %v", actual, expected)
+		t.FailNow()
+	}
+}
+
+func InRange[T constraints.Integer](t *testing.T, actual, lowerBound, upperBound T) {
+	t.Helper()
+
+	if !(actual >= lowerBound && actual <= upperBound) {
+		t.Errorf("got: %v; want to be in range [%v:%v]", actual, lowerBound, upperBound)
 		t.FailNow()
 	}
 }
