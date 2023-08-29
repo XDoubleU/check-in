@@ -10,11 +10,12 @@ import (
 	"check-in/api/internal/validator"
 )
 
+type CapacityMap = *orderedmap.OrderedMap[string, int64]
 type SchoolsMap = *orderedmap.OrderedMap[string, int]
 
 type CheckInsLocationEntryRaw struct {
-	Capacity int64      `json:"capacity"`
-	Schools  SchoolsMap `json:"schools"  swaggertype:"object,number"`
+	Capacities CapacityMap `json:"capacities" swaggertype:"object,number"`
+	Schools    SchoolsMap  `json:"schools"  swaggertype:"object,number"`
 } //	@name	CheckInsLocationEntryRaw
 
 func ConvertCheckInsLocationEntryRawMapToCSV(
@@ -40,11 +41,17 @@ func ConvertCheckInsLocationEntryRawMapToCSV(
 	for pair := entries.Oldest(); pair != nil; pair = pair.Next() {
 		var entry []string
 
+		var totalCapacity int64
+		capacities := pair.Value.Capacities
+		for capacity := capacities.Oldest(); capacity != nil; capacity = capacity.Next() {
+			totalCapacity += capacity.Value
+		}
+
 		entry = append(
 			entry,
 			pair.Key,
 		)
-		entry = append(entry, strconv.FormatInt(pair.Value.Capacity, 10))
+		entry = append(entry, strconv.FormatInt(totalCapacity, 10))
 
 		for school := pair.Value.Schools.Oldest(); school != nil; school = school.Next() {
 			entry = append(entry, strconv.Itoa(school.Value))

@@ -16,7 +16,10 @@ export function convertToChartData(
   for (const [key, value] of Object.entries(entries)) {
     const entry: ChartDataEntry = {
       datetime: key,
-      capacity: value.capacity
+      capacity: Object.values(value.capacities).reduce(
+        (acc, val) => acc + val,
+        0
+      )
     }
 
     for (const [schoolKey, schoolValue] of Object.entries(value.schools)) {

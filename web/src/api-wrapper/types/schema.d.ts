@@ -4,6 +4,102 @@
  */
 
 export type paths = {
+  "/all-locations": {
+    get: {
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["Location"][];
+        };
+        /** Bad Request */
+        400: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Unauthorized */
+        401: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Internal Server Error */
+        500: {
+          schema: definitions["ErrorDto"];
+        };
+      };
+    };
+  };
+  "/all-locations/checkins/day": {
+    get: {
+      parameters: {
+        query: {
+          /** Location IDs */
+          ids: string[];
+          /** ReturnType ('raw' or 'csv') */
+          returnType: string;
+          /** Date (format: 'yyyy-MM-dd') */
+          date: string;
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["CheckInsLocationEntryRaw"][];
+        };
+        /** Bad Request */
+        400: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Unauthorized */
+        401: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Not Found */
+        404: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Internal Server Error */
+        500: {
+          schema: definitions["ErrorDto"];
+        };
+      };
+    };
+  };
+  "/all-locations/checkins/range": {
+    get: {
+      parameters: {
+        query: {
+          /** Location IDs */
+          ids: string[];
+          /** ReturnType ('raw' or 'csv') */
+          returnType: string;
+          /** StartDate (format: 'yyyy-MM-dd') */
+          startDate: string;
+          /** EndDate (format: 'yyyy-MM-dd') */
+          endDate: string;
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["CheckInsLocationEntryRaw"][];
+        };
+        /** Bad Request */
+        400: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Unauthorized */
+        401: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Not Found */
+        404: {
+          schema: definitions["ErrorDto"];
+        };
+        /** Internal Server Error */
+        500: {
+          schema: definitions["ErrorDto"];
+        };
+      };
+    };
+  };
   "/auth/refresh": {
     get: {
       responses: {
@@ -277,84 +373,6 @@ export type paths = {
         };
         /** Unauthorized */
         401: {
-          schema: definitions["ErrorDto"];
-        };
-        /** Internal Server Error */
-        500: {
-          schema: definitions["ErrorDto"];
-        };
-      };
-    };
-  };
-  "/locations/{id}/checkins/day": {
-    get: {
-      parameters: {
-        path: {
-          /** Location ID */
-          id: string;
-        };
-        query: {
-          /** ReturnType ('raw' or 'csv') */
-          returnType: string;
-          /** Date (format: 'yyyy-MM-dd') */
-          date: string;
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          schema: definitions["CheckInsLocationEntryRaw"][];
-        };
-        /** Bad Request */
-        400: {
-          schema: definitions["ErrorDto"];
-        };
-        /** Unauthorized */
-        401: {
-          schema: definitions["ErrorDto"];
-        };
-        /** Not Found */
-        404: {
-          schema: definitions["ErrorDto"];
-        };
-        /** Internal Server Error */
-        500: {
-          schema: definitions["ErrorDto"];
-        };
-      };
-    };
-  };
-  "/locations/{id}/checkins/range": {
-    get: {
-      parameters: {
-        path: {
-          /** Location ID */
-          id: string;
-        };
-        query: {
-          /** ReturnType ('raw' or 'csv') */
-          returnType: string;
-          /** StartDate (format: 'yyyy-MM-dd') */
-          startDate: string;
-          /** EndDate (format: 'yyyy-MM-dd') */
-          endDate: string;
-        };
-      };
-      responses: {
-        /** OK */
-        200: {
-          schema: definitions["CheckInsLocationEntryRaw"][];
-        };
-        /** Bad Request */
-        400: {
-          schema: definitions["ErrorDto"];
-        };
-        /** Unauthorized */
-        401: {
-          schema: definitions["ErrorDto"];
-        };
-        /** Not Found */
-        404: {
           schema: definitions["ErrorDto"];
         };
         /** Internal Server Error */
@@ -703,7 +721,7 @@ export type definitions = {
     schoolName?: string;
   };
   CheckInsLocationEntryRaw: {
-    capacity?: number;
+    capacities?: { [key: string]: number };
     schools?: { [key: string]: number };
   };
   CreateCheckInDto: {

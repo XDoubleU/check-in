@@ -58,17 +58,25 @@ func (service LocationService) GetCheckInsEntriesDay(
 	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
 
 	_, lastEntrySchoolsMap := service.schools.GetSchoolMaps(schools)
+	capacities := orderedmap.New[string, int64]()
 	for _, checkIn := range checkIns {
 		schoolName := schoolsIDNameMap[checkIn.SchoolID]
 
+		// Used to deep copy schoolsMap
 		var schoolsMap dtos.SchoolsMap
-
 		data, _ := json.Marshal(lastEntrySchoolsMap)
 		_ = json.Unmarshal(data, &schoolsMap)
 
+		capacities.Set(checkIn.LocationID, checkIn.Capacity)
+
+		// Used to deep copy capacities
+		var capacitiesCopy *orderedmap.OrderedMap[string, int64]
+		data, _ = json.Marshal(capacities)
+		_ = json.Unmarshal(data, &capacitiesCopy)
+
 		checkInEntry := &dtos.CheckInsLocationEntryRaw{
-			Capacity: checkIn.Capacity,
-			Schools:  schoolsMap,
+			Capacities: capacitiesCopy,
+			Schools:    schoolsMap,
 		}
 
 		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
@@ -100,8 +108,8 @@ func (service LocationService) GetCheckInsEntriesRange(
 		_, schoolsMap := service.schools.GetSchoolMaps(schools)
 
 		checkInEntry := &dtos.CheckInsLocationEntryRaw{
-			Capacity: 0,
-			Schools:  schoolsMap,
+			Capacities: orderedmap.New[string, int64](),
+			Schools:    schoolsMap,
 		}
 
 		checkInEntries.Set(dVal.Format(time.RFC3339), checkInEntry)
@@ -117,9 +125,16 @@ func (service LocationService) GetCheckInsEntriesRange(
 		schoolValue++
 		checkInEntry.Schools.Set(schoolName, schoolValue)
 
-		if checkIns[i].Capacity > checkInEntry.Capacity {
-			checkInEntry.Capacity = checkIns[i].Capacity
+		capacity, present := checkInEntry.Capacities.Get(checkIns[i].LocationID)
+		if !present {
+			capacity = 0
 		}
+
+		if checkIns[i].Capacity > capacity {
+			capacity = checkIns[i].Capacity
+		}
+
+		checkInEntry.Capacities.Set(checkIns[i].LocationID, capacity)
 	}
 
 	return checkInEntries

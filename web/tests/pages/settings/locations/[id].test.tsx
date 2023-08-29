@@ -36,7 +36,9 @@ describe("LocationDetail (page)", () => {
         ok: true,
         data: {
           "2023-08-24": {
-            capacity: 10,
+            capacities: {
+              locationId: 10
+            },
             schools: {
               Andere: 5
             }
@@ -84,7 +86,9 @@ describe("LocationDetail (page)", () => {
         ok: true,
         data: {
           "2023-08-24": {
-            capacity: 10,
+            capacities: {
+              locationId: 10
+            },
             schools: {
               Andere: 5
             }
@@ -143,7 +147,9 @@ describe("LocationDetail (page)", () => {
         ok: true,
         data: {
           "2023-08-24": {
-            capacity: 10,
+            capacities: {
+              locationId: 10
+            },
             schools: {
               Andere: 5
             }
