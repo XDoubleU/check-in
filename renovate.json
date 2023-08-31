@@ -3,8 +3,18 @@
   "extends": [
     "config:base"
   ],
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "Makefile"
+      ],
+      "matchStrings": [
+        "go install (?<depName>[^@]+?)@(?<currentValue>[0-9.-a-zA-Z]+)"
+      ],
+      "datasourceTemplate": "go"
+    }
+  ],
   "timezone":"Europe/Brussels",
-  "ignoreDeps": ["mikro-orm-config","types-custom","tsconfig-custom"],
   "labels": ["dependencies"],
   "dependencyDashboardLabels": ["dependencies"],
   "lockFileMaintenance": { "enabled": true, "schedule": ["monthly"] },
