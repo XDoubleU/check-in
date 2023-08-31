@@ -6,7 +6,7 @@
   "regexManagers": [
     {
       "fileMatch": [
-        "Makefile"
+        "^api/Makefile$"
       ],
       "matchStrings": [
         "go install (?<depName>[^@]+?)@(?<currentValue>[0-9.-a-zA-Z]+)"
