@@ -65,7 +65,7 @@
     "jest-websocket-mock": "2.5.0",
     "jscpd": "3.5.9",
     "knip": "2.17.3",
-    "next-router-mock": "0.9.9",
+    "next-router-mock": "0.9.10",
     "npm-package-json-lint": "7.0.0",
     "openapi-typescript": "6.7.0",
     "prettier": "3.0.3",
