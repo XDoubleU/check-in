@@ -72,7 +72,7 @@
     "ts-jest": "29.1.1"
   },
   "engines": {
-    "node": "16.20.x || 20.5.x || 20.8.x",
+    "node": "16.20.x || 20.8.x",
     "yarn": "1.x"
   },
   "npmpackagejsonlint": {
