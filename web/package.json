@@ -108,7 +108,9 @@
     ],
     "ignoreDependencies": [
       "styles",
-      "jest-environment-jsdom"
+      "jest-environment-jsdom",
+      "@types/jest",
+      "eslint-config-next"
     ]
   },
   "prettier": {
