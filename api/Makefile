@@ -1,11 +1,11 @@
 db ?= postgres://postgres@localhost/postgres
 
 init:
-	go install github.com/pressly/goose/v3/cmd/goose@latest
-	go install github.com/segmentio/golines@latest
-	go install github.com/daixiang0/gci@latest
-	go install github.com/securego/gosec/v2/cmd/gosec@latest
-	go install github.com/swaggo/swag/cmd/swag@master
+	go install github.com/pressly/goose/v3/cmd/goose@v3.15.0
+	go install github.com/segmentio/golines@v0.11.0
+	go install github.com/daixiang0/gci@v0.11.2
+	go install github.com/securego/gosec/v2/cmd/gosec@v2.17.0
+	go install github.com/swaggo/swag/cmd/swag@v1.16.2
 
 lint:
 	golangci-lint run
