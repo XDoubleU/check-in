@@ -9,7 +9,7 @@
         "^api/Makefile$"
       ],
       "matchStrings": [
-        "go install (?<depName>[^@]+?)@(?<currentValue>[0-9.-a-zA-Z]+)"
+        "go install (?<depName>[^@]+)@(?<currentValue>[0-9a-zA-Z\.]+)"
       ],
       "datasourceTemplate": "go"
     }
