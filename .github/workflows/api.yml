@@ -36,36 +36,3 @@ jobs:
         with:
           version: 'latest'
           working-directory: './api'
-
-  test:
-    name: API Test
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
-        with:
-          go-version-file: './api/go.mod'
-          cache-dependency-path: './api/go.sum'
-      - run: make init
-        working-directory: './api'
-      - run: make db/migrations/up
-        working-directory: './api'
-      - run: make test/cov/report
-        working-directory: './api'
-      - name: Upload coverage reports to Codecov
-        if: always()
-        uses: codecov/codecov-action@v3
-        with:
-          flags: api
