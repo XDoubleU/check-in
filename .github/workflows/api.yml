@@ -38,5 +38,5 @@ jobs:
           working-directory: './api'
 
   test:
-    name: API Test
+    name: API Test Workflow
     uses: ./.github/workflows/api-test.yml
