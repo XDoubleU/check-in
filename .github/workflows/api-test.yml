@@ -1,15 +1,13 @@
 name: API Test Workflow
 
-on:
-  workflow_run:
-    workflows: [API Workflow]
-    types: [completed]
+on: 
   schedule:
     - cron: "0 22,23 * * 5"
     - cron: "0 0,1,2 * * 6"
     
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  workflow_run: 
 
 jobs:
   test:
