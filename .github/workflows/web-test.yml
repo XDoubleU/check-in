@@ -16,8 +16,10 @@ jobs:
     name: Web Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: web.yml
+          commit: ${{github.event.pull_request.head.sha}}
           name: build
           path: ./web
       - run: unzip build.zip
