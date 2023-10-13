@@ -14,15 +14,7 @@ jobs:
     name: Web Test
     runs-on: ubuntu-latest
     steps:
-      - uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: web.yml
-          pr: ${{github.event.pull_request.number}}
-          commit: ${{github.event.pull_request.head.sha}}
-          name: build
-          path: ./web
-      - run: unzip build.zip
-        working-directory: './web'
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           cache: 'yarn'
