@@ -36,3 +36,7 @@ jobs:
         with:
           version: 'latest'
           working-directory: './api'
+
+  test:
+    name: API Test
+    uses: ./.github/workflows/api-test.yml
