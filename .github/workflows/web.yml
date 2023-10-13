@@ -24,24 +24,12 @@ jobs:
         working-directory: './web'
       - run: yarn build
         working-directory: './web'
-      - run: zip build.zip . -r -x "*node_modules*"
-        working-directory: './web'
-      - uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: ./web/build.zip
 
   lint:
-    needs: [build]
     name: Web Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: ./web
-      - run: unzip build.zip
-        working-directory: './web'
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           cache: 'yarn'
