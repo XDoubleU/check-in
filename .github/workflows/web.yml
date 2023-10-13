@@ -54,5 +54,5 @@ jobs:
 
   test:
     needs: [build]
-    name: Web Test
+    name: Web Test Workflow
     uses: ./.github/workflows/web-test.yml
