@@ -15,7 +15,7 @@ type SchoolsMap = *orderedmap.OrderedMap[string, int]
 
 type CheckInsLocationEntryRaw struct {
 	Capacities CapacityMap `json:"capacities" swaggertype:"object,number"`
-	Schools    SchoolsMap  `json:"schools"  swaggertype:"object,number"`
+	Schools    SchoolsMap  `json:"schools"    swaggertype:"object,number"`
 } //	@name	CheckInsLocationEntryRaw
 
 func ConvertCheckInsLocationEntryRawMapToCSV(
