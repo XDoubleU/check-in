@@ -81,9 +81,7 @@ describe("UserListView (page)", () => {
 
     render(<UserListView />)
 
-    await screen.findByRole("heading", { name: "Users" })
-
-    const createButton = screen.getByRole("button", { name: "Create" })
+    const createButton = await screen.findByRole("button", { name: "Create" })
     await userEvent.click(createButton)
 
     const userNameField = screen.getByLabelText("Username")
@@ -137,9 +135,7 @@ describe("UserListView (page)", () => {
 
     render(<UserListView />)
 
-    await screen.findByRole("heading", { name: "Users" })
-
-    const createButton = screen.getByRole("button", { name: "Create" })
+    const createButton = await screen.findByRole("button", { name: "Create" })
     await userEvent.click(createButton)
 
     const userNameField = screen.getByLabelText("Username")
@@ -195,9 +191,7 @@ describe("UserListView (page)", () => {
 
     render(<UserListView />)
 
-    await screen.findByRole("heading", { name: "Users" })
-
-    const updateButton = screen.getByRole("button", { name: "Update" })
+    const updateButton = await screen.findByRole("button", { name: "Update" })
     await userEvent.click(updateButton)
 
     const nameField = screen.getByLabelText("Username")
@@ -239,9 +233,7 @@ describe("UserListView (page)", () => {
 
     render(<UserListView />)
 
-    await screen.findByRole("heading", { name: "Users" })
-
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = await screen.findByRole("button", { name: "Delete" })
     await userEvent.click(deleteButton)
 
     const deleteButtons = screen.getAllByRole("button", { name: "Delete" })
