@@ -368,8 +368,7 @@ func (app *application) deleteLocationCheckInHandler(
 		return
 	}
 
-	loc, _ := time.LoadLocation("UTC")
-	today := time.Now().In(loc)
+	today := helpers.TimeZoneIndependentTimeNow(location.TimeZone)
 	startOfToday := helpers.StartOfDay(&today)
 	endOfToday := helpers.EndOfDay(&today)
 

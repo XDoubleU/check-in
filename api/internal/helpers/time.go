@@ -25,3 +25,18 @@ func EndOfDay(dateTime *time.Time) *time.Time {
 
 	return &output
 }
+
+func TimeZoneIndependentTimeNow(locationTimeZone string) time.Time {
+	timeZone, _ := time.LoadLocation(locationTimeZone)
+	utcTimeZone, _ := time.LoadLocation("UTC")
+	now := time.Now().In(timeZone)
+	return time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		now.Hour(),
+		now.Minute(),
+		now.Second(),
+		now.Nanosecond(),
+		utcTimeZone)
+}
