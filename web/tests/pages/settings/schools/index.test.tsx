@@ -73,9 +73,7 @@ describe("SchoolListView (page)", () => {
 
     render(<SchoolListView />)
 
-    await screen.findByRole("heading", { name: "Schools" })
-
-    const createButton = screen.getByRole("button", { name: "Create" })
+    const createButton = await screen.findByRole("button", { name: "Create" })
     await userEvent.click(createButton)
 
     const nameField = screen.getByLabelText("Name")
@@ -125,9 +123,7 @@ describe("SchoolListView (page)", () => {
 
     render(<SchoolListView />)
 
-    await screen.findByRole("heading", { name: "Schools" })
-
-    const createButton = screen.getByRole("button", { name: "Create" })
+    const createButton = await screen.findByRole("button", { name: "Create" })
     await userEvent.click(createButton)
 
     const nameField = screen.getByLabelText("Name")
@@ -170,9 +166,7 @@ describe("SchoolListView (page)", () => {
 
     render(<SchoolListView />)
 
-    await screen.findByRole("heading", { name: "Schools" })
-
-    const createButton = screen.getByRole("button", { name: "Create" })
+    const createButton = await screen.findByRole("button", { name: "Create" })
     await userEvent.click(createButton)
 
     const cancelButton = screen.getByRole("button", { name: "Cancel" })
@@ -211,9 +205,7 @@ describe("SchoolListView (page)", () => {
 
     render(<SchoolListView />)
 
-    await screen.findByRole("heading", { name: "Schools" })
-
-    const updateButton = screen.getByRole("button", { name: "Update" })
+    const updateButton = await screen.findByRole("button", { name: "Update" })
     await userEvent.click(updateButton)
 
     const nameField = screen.getByLabelText("Name")
@@ -263,9 +255,7 @@ describe("SchoolListView (page)", () => {
 
     render(<SchoolListView />)
 
-    await screen.findByRole("heading", { name: "Schools" })
-
-    const updateButton = screen.getByRole("button", { name: "Update" })
+    const updateButton = await screen.findByRole("button", { name: "Update" })
     await userEvent.click(updateButton)
 
     const nameField = screen.getByLabelText("Name")
@@ -315,9 +305,7 @@ describe("SchoolListView (page)", () => {
 
     render(<SchoolListView />)
 
-    await screen.findByRole("heading", { name: "Schools" })
-
-    const updateButton = screen.getByRole("button", { name: "Update" })
+    const updateButton = await screen.findByRole("button", { name: "Update" })
     await userEvent.click(updateButton)
 
     const nameField = screen.getByLabelText("Name")
@@ -360,9 +348,7 @@ describe("SchoolListView (page)", () => {
 
     render(<SchoolListView />)
 
-    await screen.findByRole("heading", { name: "Schools" })
-
-    const updateButton = screen.getByRole("button", { name: "Update" })
+    const updateButton = await screen.findByRole("button", { name: "Update" })
     await userEvent.click(updateButton)
 
     const cancelButton = screen.getByRole("button", { name: "Cancel" })
@@ -395,9 +381,7 @@ describe("SchoolListView (page)", () => {
 
     render(<SchoolListView />)
 
-    await screen.findByRole("heading", { name: "Schools" })
-
-    const deleteButton = screen.getByRole("button", { name: "Delete" })
+    const deleteButton = await screen.findByRole("button", { name: "Delete" })
     await userEvent.click(deleteButton)
 
     const deleteButtons = screen.getAllByRole("button", { name: "Delete" })
