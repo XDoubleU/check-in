@@ -25,7 +25,7 @@ describe("SignIn (page)", () => {
     await userEvent.type(passwordInput, "validpassword")
     fireEvent.click(signInButton)
 
-    await waitFor(() => expect(signIn).toBeCalled())
+    await waitFor(() => expect(signIn).toHaveBeenCalled())
     expect(mockRouter.asPath).toBe("/")
   })
 
@@ -51,7 +51,7 @@ describe("SignIn (page)", () => {
     await userEvent.type(passwordInput, "invalidpassword")
     fireEvent.click(signInButton)
 
-    await waitFor(() => expect(signIn).toBeCalled())
+    await waitFor(() => expect(signIn).toHaveBeenCalled())
 
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent("Invalid credentials")
