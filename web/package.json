@@ -19,7 +19,7 @@
     "@popperjs/core": "2.11.8",
     "@sentry/nextjs": "7.77.0",
     "bootstrap": "5.3.2",
-    "bootstrap-icons": "1.11.1",
+    "bootstrap-icons": "1.11.2",
     "moment": "2.29.4",
     "moment-timezone": "0.5.43",
     "next": "14.0.1",
