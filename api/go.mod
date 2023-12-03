@@ -13,7 +13,7 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/xhit/go-str2duration/v2 v2.1.0
-	golang.org/x/time v0.3.0
+	golang.org/x/time v0.5.0
 	nhooyr.io/websocket v1.8.10
 )
 
