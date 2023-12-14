@@ -1,7 +1,7 @@
 repo_name: XDoubleU/check-in
-report_id: ef81e7dd8dba7050999483cd90548997
+report_id: '0486c9d3e73905f7f3c9f6584a7d0a1f'
 repo_type: Public
-timestamp: '2023-11-22T16:04:16+00:00'
+timestamp: '2023-12-14T09:49:35+00:00'
 requested_by: renovate[bot]
 provider: github
 branch: main
@@ -69,20 +69,20 @@ tools:
   category: Languages & Frameworks
   sub_category: Front-End Frameworks
   image_url: https://img.stackshare.io/service/1101/C9QJ7V3X.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 08:06:24.000000000 Z
+  last_updated_on: 2023-12-03 21:08:40.000000000 Z
 - name: Next.js
   description: 'A small framework for server-rendered universal JavaScript apps '
   website_url: https://nextjs.org/
-  version: 14.0.1
+  version: 14.0.3
   open_source: true
   hosted_saas: false
   category: Languages & Frameworks
   sub_category: Frameworks (Full Stack)
   image_url: https://img.stackshare.io/service/5936/nextjs.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -95,7 +95,7 @@ tools:
   category: Languages & Frameworks
   sub_category: Frameworks (Full Stack)
   image_url: https://img.stackshare.io/service/1011/n1JRsFeB_400x400.png
-  detection_source: web/package.json
+  detection_source: web/Dockerfile
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
 - name: React
@@ -108,10 +108,34 @@ tools:
   category: Libraries
   sub_category: Javascript UI Libraries
   image_url: https://img.stackshare.io/service/1020/OYIaJ1KK.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:26:52.000000000 Z
+  last_updated_on: 2023-12-03 21:18:19.000000000 Z
+- name: Recharts
+  description: Redefined chart library built with React and D3
+  website_url: http://recharts.org/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Charting Libraries
+  image_url: https://img.stackshare.io/service/5608/13690587.png
+  detection_source: web/package.json
+  last_updated_by: renovate[bot]
+  last_updated_on: 2023-12-03 21:18:37.000000000 Z
+- name: Sass
+  description: Syntactically Awesome Style Sheets
+  website_url: http://sass-lang.com/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: CSS Pre-processors / Extensions
+  image_url: https://img.stackshare.io/service/1171/jCR2zNJV.png
+  detection_source: web/package.json
+  last_updated_by: Xander Warszawski
+  last_updated_on: 2023-07-31 19:51:20.000000000 Z
 - name: Heroku Postgres
   description: Heroku's Database-as-a-Service. Based on the most powerful open-source
     database, PostgreSQL
@@ -121,7 +145,7 @@ tools:
   category: Data Stores
   sub_category: PostgreSQL as a Service
   image_url: https://img.stackshare.io/service/2516/original.png
-  detection_source: docker-compose.yml
+  detection_source: api/docker-compose.yml
   last_updated_by: renovate[bot]
   last_updated_on: 2023-10-01 08:26:37.000000000 Z
 - name: PostgreSQL
@@ -132,7 +156,7 @@ tools:
   category: Data Stores
   sub_category: Databases
   image_url: https://img.stackshare.io/service/1028/ASOhU5xJ.png
-  detection_source: docker-compose.yml
+  detection_source: api/docker-compose.yml
   last_updated_by: renovate[bot]
   last_updated_on: 2023-10-01 08:26:37.000000000 Z
 - name: Codecov
@@ -185,7 +209,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Continuous Integration
   image_url: https://img.stackshare.io/service/11563/actions.png
-  detection_source: ".github/workflows/web.yml"
+  detection_source: ".github/workflows/api-test.yml"
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-10-13 18:34:32.000000000 Z
 - name: Jest
@@ -198,24 +222,24 @@ tools:
   category: Build, Test, Deploy
   sub_category: Javascript Testing Framework
   image_url: https://img.stackshare.io/service/830/jest.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
 - name: Prettier
   description: 'Prettier is an opinionated code formatter. '
   website_url: https://prettier.io/
-  version: 3.0.3
+  version: 3.1.0
   license: MIT
   open_source: true
   hosted_saas: false
   category: Build, Test, Deploy
   sub_category: Code Review
   image_url: https://img.stackshare.io/service/7035/default_66f265943abed56bcdbfca1c866a4261b1fbb063.jpg
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-09-01 05:00:41.000000000 Z
+  last_updated_on: 2023-12-03 21:23:59.000000000 Z
 - name: Testify
   description: A toolkit with common assertions and mocks that plays nicely with the
     standard library
@@ -237,7 +261,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Front End Package Manager
   image_url: https://img.stackshare.io/service/5848/44mC-kJ3.jpg
-  detection_source: yarn.lock
+  detection_source: web/yarn.lock
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-04-01 18:15:57.000000000 Z
 - name: npm
@@ -262,7 +286,7 @@ tools:
   category: Libraries
   sub_category: Javascript Utilities & Libraries
   image_url: https://img.stackshare.io/service/3643/Xrtdc94q_400x400.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-10-01 20:04:43.000000000 Z
@@ -276,95 +300,95 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/17624/default_61a119a7701a0e8224ca0e4dce7ff951cd67972f.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:26:52.000000000 Z
+  last_updated_on: 2023-12-03 21:18:19.000000000 Z
 - name: "@testing-library/jest-dom"
   description: Custom jest matchers to test the state of the DOM
   package_url: https://www.npmjs.com/@testing-library/jest-dom
-  version: 6.1.4
+  version: 6.1.5
   license: MIT
   open_source: true
   hosted_saas: false
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/17424/default_1cdcda15ebb7caed879f8340bc212b44c4ec9dac.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-03 21:23:26.000000000 Z
 - name: "@testing-library/react"
   description: Simple and complete React DOM testing utilities that encourage good
     testing practices
   package_url: https://www.npmjs.com/@testing-library/react
-  version: 14.0.0
+  version: 14.1.2
   license: MIT
   open_source: true
   hosted_saas: false
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/16549/default_d522554c6a41cb28d922d6d3ad32ad4afa0e3bb5.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:26:52.000000000 Z
+  last_updated_on: 2023-12-03 21:23:26.000000000 Z
 - name: "@types/jest"
   description: TypeScript definitions for Jest
   package_url: https://www.npmjs.com/@types/jest
-  version: 29.5.7
+  version: 29.5.10
   license: MIT
   open_source: true
   hosted_saas: false
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15840/default_004658cda9b38934f2871435e9dc15608c86e8be.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-03 21:18:54.000000000 Z
 - name: "@types/node"
   description: TypeScript definitions for Node.js
   package_url: https://www.npmjs.com/@types/node
-  version: 20.8.10
+  version: 20.10.3
   license: MIT
   open_source: true
   hosted_saas: false
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15809/default_5e5e8ac63beda29f31f1844df64d4b8247570a66.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-03 21:18:54.000000000 Z
 - name: "@types/react"
   description: TypeScript definitions for React
   package_url: https://www.npmjs.com/@types/react
-  version: 18.2.33
+  version: 18.2.41
   license: MIT
   open_source: true
   hosted_saas: false
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15894/default_1d65e37e65b7f80761374f0202776043277d505d.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:26:52.000000000 Z
+  last_updated_on: 2023-12-03 21:18:54.000000000 Z
 - name: "@types/uuid"
   description: TypeScript definitions for uuid
   package_url: https://www.npmjs.com/@types/uuid
-  version: 9.0.6
+  version: 9.0.7
   license: MIT
   open_source: true
   hosted_saas: false
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/16257/default_ab17554b7e80af3d234b14168ed61e75d43f8eee.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-03 21:18:54.000000000 Z
 - name: "@typescript-eslint/eslint-plugin"
   description: TypeScript plugin for ESLint
   package_url: https://www.npmjs.com/@typescript-eslint/eslint-plugin
@@ -375,10 +399,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15982/default_8b5680d4e916298d08363c291a0d6e34c07ceb15.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-03 21:23:43.000000000 Z
 - name: "@typescript-eslint/parser"
   description: An ESLint custom parser which leverages TypeScript ESTree
   package_url: https://www.npmjs.com/@typescript-eslint/parser
@@ -389,10 +413,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15980/default_732016a20524708efe7a4c77497fe9bfeea19ba6.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-03 21:23:43.000000000 Z
 - name: cross-env
   description: Run scripts that set and use environment variables across platforms
   package_url: https://www.npmjs.com/cross-env
@@ -403,24 +427,24 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15828/default_14fd11531839d935f920b6d55bd6f3528c890ad7.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-10-01 20:04:43.000000000 Z
 - name: eslint-config-prettier
   description: Turns off all rules that are unnecessary or might conflict with Prettier
   package_url: https://www.npmjs.com/eslint-config-prettier
-  version: 9.0.0
+  version: 9.1.0
   license: MIT
   open_source: true
   hosted_saas: false
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15879/default_0b10af8ca19c215f781dc07442e75bdc831089d0.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:20:50.000000000 Z
+  last_updated_on: 2023-12-03 21:23:59.000000000 Z
 - name: eslint-import-resolver-typescript
   description: TypeScript .ts .tsx module resolver for `eslint-plugin-import`
   package_url: https://www.npmjs.com/eslint-import-resolver-typescript
@@ -431,10 +455,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/18380/default_d0ba753d47207ad8f04b02befcab81c50f38718f.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-03 21:23:43.000000000 Z
 - name: eslint-plugin-import
   description: Import with sanity
   package_url: https://www.npmjs.com/eslint-plugin-import
@@ -445,10 +469,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15806/default_98aa227f51aa9d787815ec3fd98d0ab2bfebbb91.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:20:50.000000000 Z
+  last_updated_on: 2023-12-03 21:23:43.000000000 Z
 - name: jest-environment-jsdom
   description: Delightful JavaScript Testing
   package_url: https://www.npmjs.com/jest-environment-jsdom
@@ -459,10 +483,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/18413/default_867ef7396016341fd213fa568d6de11cc98fefff.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-01 00:10:55.000000000 Z
 - name: moment
   description: Parse, validate, manipulate, and display dates
   package_url: https://www.npmjs.com/moment
@@ -473,7 +497,7 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15847/default_4479dbac220be99e50e724b2df6cf415241d71fd.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-10-01 20:04:43.000000000 Z
@@ -487,7 +511,7 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/16298/default_8b65a873fd3277d73483d6846fa38192391abf23.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-10-01 20:04:43.000000000 Z
@@ -501,10 +525,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15843/default_b71c906aeda030a5e2f1fe40bf12a93be52404ab.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-03 21:18:54.000000000 Z
 - name: query-string
   description: Parse and stringify URL query strings
   package_url: https://www.npmjs.com/query-string
@@ -515,7 +539,7 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/16244/default_380ae3d73e22c7ca1f42b96479bcd0095dabc0d3.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -529,10 +553,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/16383/default_92302d1bbf4c0f67b862869662b4f69002c94aad.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:26:52.000000000 Z
+  last_updated_on: 2023-12-03 21:18:19.000000000 Z
 - name: react-dom
   description: React package for working with the DOM
   package_url: https://www.npmjs.com/react-dom
@@ -543,38 +567,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15808/default_14fd11531839d935f920b6d55bd6f3528c890ad7.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:26:52.000000000 Z
-- name: recharts
-  description: React charts
-  package_url: https://www.npmjs.com/recharts
-  version: 2.9.2
-  license: MIT
-  open_source: true
-  hosted_saas: false
-  category: Libraries
-  sub_category: npm Packages
-  image_url: https://img.stackshare.io/package/18162/default_77d2e8738857baa38b19bd635d4e8653809e03e4.png
-  detection_source_url: web/yarn.lock
-  detection_source: web/package.json
-  last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:18.000000000 Z
-- name: sass
-  description: A pure JavaScript implementation of Sass
-  package_url: https://www.npmjs.com/sass
-  version: 1.69.5
-  license: MIT
-  open_source: true
-  hosted_saas: false
-  category: Libraries
-  sub_category: npm Packages
-  image_url: https://img.stackshare.io/package/16057/default_5fd43aeff4d6a935abc13737de01a0355210499d.png
-  detection_source_url: web/yarn.lock
-  detection_source: web/package.json
-  last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 11:07:16.000000000 Z
+  last_updated_on: 2023-12-03 21:18:19.000000000 Z
 - name: ts-jest
   description: A preprocessor with source maps support to help use TypeScript with
     Jest
@@ -586,10 +582,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15864/default_6743ba96cf149a3c3c68a185199f9705d6eff80e.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 17:22:43.000000000 Z
+  last_updated_on: 2023-12-01 00:10:55.000000000 Z
 - name: uuid
   description: RFC4122
   package_url: https://www.npmjs.com/uuid
@@ -600,10 +596,10 @@ tools:
   category: Libraries
   sub_category: npm Packages
   image_url: https://img.stackshare.io/package/15916/default_e0a4fb1126d7400f419f0931cf1669947a5bc552.png
-  detection_source_url: web/yarn.lock
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/web/yarn.lock
   detection_source: web/package.json
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-11-01 08:06:48.000000000 Z
+  last_updated_on: 2023-12-03 21:08:19.000000000 Z
 - name: alice
   description: Painless middleware chaining for Go
   package_url: https://pkg.go.dev/github.com/justinas/alice
@@ -614,7 +610,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -628,7 +624,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -642,7 +638,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: renovate[bot]
   last_updated_on: 2023-10-01 08:39:50.000000000 Z
@@ -656,10 +652,10 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
-  last_updated_by: dependabot[bot]
-  last_updated_on: 2023-10-12 05:51:35.000000000 Z
+  last_updated_by: renovate[bot]
+  last_updated_on: 2023-12-03 21:19:30.000000000 Z
 - name: easyjson
   description: Fast JSON serializer for golang
   package_url: https://pkg.go.dev/github.com/mailru/easyjson
@@ -670,7 +666,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -684,7 +680,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -699,7 +695,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: renovate[bot]
   last_updated_on: 2023-11-01 17:22:09.000000000 Z
@@ -713,7 +709,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -727,7 +723,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -741,10 +737,10 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-10-01 08:27:29.000000000 Z
+  last_updated_on: 2023-12-03 21:19:30.000000000 Z
 - name: net
   description: Go supplementary network libraries
   package_url: https://pkg.go.dev/golang.org/x/net
@@ -755,7 +751,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -769,7 +765,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -783,7 +779,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: renovate[bot]
   last_updated_on: 2023-10-13 19:55:08.000000000 Z
@@ -797,7 +793,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
@@ -811,7 +807,7 @@ tools:
   category: Libraries
   sub_category: Go Modules Packages
   image_url: https://img.stackshare.io/package/go-packages/image.png
-  detection_source_url: api/go.sum
+  detection_source_url: https://github.com/XDoubleU/check-in/blob/main/api/go.sum
   detection_source: api/go.mod
   last_updated_by: renovate[bot]
-  last_updated_on: 2023-10-01 08:27:29.000000000 Z
+  last_updated_on: 2023-12-03 21:19:30.000000000 Z
