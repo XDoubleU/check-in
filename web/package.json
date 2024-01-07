@@ -33,7 +33,7 @@
     "react-spinners": "0.13.8",
     "recharts": "2.10.3",
     "sass": "1.69.7",
-    "typescript": "5.3.2",
+    "typescript": "5.3.3",
     "uuid": "9.0.1"
   },
   "devDependencies": {
