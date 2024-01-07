@@ -20,7 +20,7 @@
     "@sentry/nextjs": "7.92.0",
     "bootstrap": "5.3.2",
     "bootstrap-icons": "1.11.3",
-    "moment": "2.29.4",
+    "moment": "2.30.1",
     "moment-timezone": "0.5.44",
     "next": "14.0.4",
     "next-pwa": "5.6.0",
