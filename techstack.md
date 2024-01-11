@@ -64,7 +64,7 @@ Full tech stack [here](/techstack.md)
 # Tech Stack File
 ![](https://img.stackshare.io/repo.svg "repo") [XDoubleU/check-in](https://github.com/XDoubleU/check-in)![](https://img.stackshare.io/public_badge.svg "public")
 <br/><br/>
-|61<br/>Tools used|01/05/24 <br/>Report generated|
+|62<br/>Tools used|01/11/24 <br/>Report generated|
 |------|------|
 </div>
 
@@ -128,7 +128,7 @@ Full tech stack [here](/techstack.md)
   <br>
   <sub><a href="https://nextjs.org/">Next.js</a></sub>
   <br>
-  <sub>v14.0.3</sub>
+  <sub>v14.0.4</sub>
 </td>
 
 <td align='center'>
@@ -242,7 +242,7 @@ Full tech stack [here](/techstack.md)
   <br>
   <sub><a href="https://prettier.io/">Prettier</a></sub>
   <br>
-  <sub>v3.1.0</sub>
+  <sub>v3.1.1</sub>
 </td>
 
 <td align='center'>
@@ -281,40 +281,41 @@ Full tech stack [here](/techstack.md)
   <br>
   <sub><a href="http://momentjs.com/">Moment.js</a></sub>
   <br>
-  <sub>v2.29.4</sub>
+  <sub>v2.30.1</sub>
 </td>
 
 </tr>
 </table>
 
 
-## <img src='https://img.stackshare.io/group.svg' /> Open source packages (37)</h2>
+## <img src='https://img.stackshare.io/group.svg' /> Open source packages (38)</h2>
 
-## <img width='24' height='24' src='https://img.stackshare.io/service/1120/lejvzrnlpb308aftn31u.png'/> npm (22)
+## <img width='24' height='24' src='https://img.stackshare.io/service/1120/lejvzrnlpb308aftn31u.png'/> npm (23)
 
 |NAME|VERSION|LAST UPDATED|LAST UPDATED BY|LICENSE|VULNERABILITIES|
 |:------|:------|:------|:------|:------|:------|
-|[@mdx-js/react](https://www.npmjs.com/@mdx-js/react)|v3.0.0|12/03/23|renovate[bot] |MIT|N/A|
-|[@testing-library/jest-dom](https://www.npmjs.com/@testing-library/jest-dom)|v6.1.5|12/03/23|renovate[bot] |MIT|N/A|
-|[@testing-library/react](https://www.npmjs.com/@testing-library/react)|v14.1.2|12/03/23|renovate[bot] |MIT|N/A|
-|[@types/jest](https://www.npmjs.com/@types/jest)|v29.5.10|12/03/23|renovate[bot] |MIT|N/A|
-|[@types/node](https://www.npmjs.com/@types/node)|v20.10.3|12/03/23|renovate[bot] |MIT|N/A|
-|[@types/react](https://www.npmjs.com/@types/react)|v18.2.41|12/03/23|renovate[bot] |MIT|N/A|
-|[@types/uuid](https://www.npmjs.com/@types/uuid)|v9.0.7|12/03/23|renovate[bot] |MIT|N/A|
-|[@typescript-eslint/eslint-plugin](https://www.npmjs.com/@typescript-eslint/eslint-plugin)|v6.7.5|12/03/23|renovate[bot] |MIT|N/A|
-|[@typescript-eslint/parser](https://www.npmjs.com/@typescript-eslint/parser)|v6.7.5|12/03/23|renovate[bot] |BSD-2-Clause|N/A|
+|[@mdx-js/react](https://www.npmjs.com/@mdx-js/react)|v3.0.0|01/07/24|renovate[bot] |MIT|N/A|
+|[@testing-library/jest-dom](https://www.npmjs.com/@testing-library/jest-dom)|v6.2.0|01/07/24|renovate[bot] |MIT|N/A|
+|[@testing-library/react](https://www.npmjs.com/@testing-library/react)|v14.1.2|01/07/24|renovate[bot] |MIT|N/A|
+|[@types/jest](https://www.npmjs.com/@types/jest)|v29.5.11|01/07/24|renovate[bot] |MIT|N/A|
+|[@types/node](https://www.npmjs.com/@types/node)|v20.10.7|01/07/24|renovate[bot] |MIT|N/A|
+|[@types/react](https://www.npmjs.com/@types/react)|v18.2.47|01/07/24|renovate[bot] |MIT|N/A|
+|[@types/uuid](https://www.npmjs.com/@types/uuid)|v9.0.7|01/07/24|renovate[bot] |MIT|N/A|
+|[@typescript-eslint/eslint-plugin](https://www.npmjs.com/@typescript-eslint/eslint-plugin)|v6.7.5|01/07/24|renovate[bot] |MIT|N/A|
+|[@typescript-eslint/parser](https://www.npmjs.com/@typescript-eslint/parser)|v6.7.5|01/07/24|renovate[bot] |BSD-2-Clause|N/A|
 |[cross-env](https://www.npmjs.com/cross-env)|v7.0.3|10/01/23|Xander Warszawski |MIT|N/A|
-|[eslint-config-prettier](https://www.npmjs.com/eslint-config-prettier)|v9.1.0|12/03/23|renovate[bot] |MIT|N/A|
-|[eslint-import-resolver-typescript](https://www.npmjs.com/eslint-import-resolver-typescript)|v3.6.1|12/03/23|renovate[bot] |ISC|N/A|
-|[eslint-plugin-import](https://www.npmjs.com/eslint-plugin-import)|v2.29.0|12/03/23|renovate[bot] |MIT|N/A|
-|[jest-environment-jsdom](https://www.npmjs.com/jest-environment-jsdom)|v29.7.0|12/01/23|renovate[bot] |MIT|N/A|
-|[moment](https://www.npmjs.com/moment)|v2.29.4|10/01/23|Xander Warszawski |MIT|N/A|
-|[moment-timezone](https://www.npmjs.com/moment-timezone)|v0.5.43|10/01/23|Xander Warszawski |MIT|N/A|
-|[prop-types](https://www.npmjs.com/prop-types)|v15.8.1|12/03/23|renovate[bot] |MIT|N/A|
+|[eslint-config-next](https://www.npmjs.com/eslint-config-next)|v14.0.4|01/07/24|renovate[bot] |N/A|N/A|
+|[eslint-config-prettier](https://www.npmjs.com/eslint-config-prettier)|v9.1.0|01/07/24|renovate[bot] |MIT|N/A|
+|[eslint-import-resolver-typescript](https://www.npmjs.com/eslint-import-resolver-typescript)|v3.6.1|01/07/24|renovate[bot] |ISC|N/A|
+|[eslint-plugin-import](https://www.npmjs.com/eslint-plugin-import)|v2.29.1|01/07/24|renovate[bot] |MIT|N/A|
+|[jest-environment-jsdom](https://www.npmjs.com/jest-environment-jsdom)|v29.7.0|01/07/24|renovate[bot] |MIT|N/A|
+|[moment](https://www.npmjs.com/moment)|v2.30.1|01/07/24|renovate[bot] |MIT|N/A|
+|[moment-timezone](https://www.npmjs.com/moment-timezone)|v0.5.44|01/07/24|renovate[bot] |MIT|N/A|
+|[prop-types](https://www.npmjs.com/prop-types)|v15.8.1|01/07/24|renovate[bot] |MIT|N/A|
 |[query-string](https://www.npmjs.com/query-string)|v8.1.0|07/31/23|Xander Warszawski |MIT|N/A|
-|[react-bootstrap](https://www.npmjs.com/react-bootstrap)|v2.9.1|12/03/23|renovate[bot] |MIT|N/A|
-|[react-dom](https://www.npmjs.com/react-dom)|v18.2.0|12/03/23|renovate[bot] |MIT|N/A|
-|[ts-jest](https://www.npmjs.com/ts-jest)|v29.1.1|12/01/23|renovate[bot] |MIT|N/A|
+|[react-bootstrap](https://www.npmjs.com/react-bootstrap)|v2.9.2|01/07/24|renovate[bot] |MIT|N/A|
+|[react-dom](https://www.npmjs.com/react-dom)|v18.2.0|01/07/24|renovate[bot] |MIT|N/A|
+|[ts-jest](https://www.npmjs.com/ts-jest)|v29.1.1|01/03/24|renovate[bot] |MIT|N/A|
 |[uuid](https://www.npmjs.com/uuid)|v9.0.1|12/03/23|renovate[bot] |MIT|N/A|
 
 
@@ -325,10 +326,10 @@ Full tech stack [here](/techstack.md)
 |[alice](https://pkg.go.dev/github.com/justinas/alice)|v1.2.0|07/31/23|Xander Warszawski |MIT|N/A|
 |[compress](https://pkg.go.dev/github.com/klauspost/compress)|v1.10.3|07/31/23|Xander Warszawski |BSD-3-Clause|N/A|
 |[cors](https://pkg.go.dev/github.com/rs/cors)|v1.10.1|10/01/23|renovate[bot] |MIT|N/A|
-|[crypto](https://pkg.go.dev/golang.org/x/crypto)|v0.14.0|12/03/23|renovate[bot] |BSD-3-Clause|N/A|
+|[crypto](https://pkg.go.dev/golang.org/x/crypto)|v0.14.0|12/19/23|renovate[bot] |BSD-3-Clause|N/A|
 |[easyjson](https://pkg.go.dev/github.com/mailru/easyjson)|v0.7.7|07/31/23|Xander Warszawski |MIT|N/A|
 |[exp](https://pkg.go.dev/golang.org/x/exp)|v0.0.0|07/31/23|Xander Warszawski |BSD-3-Clause|N/A|
-|[google/uuid](https://pkg.go.dev/github.com/google/uuid)|v1.3.1|11/01/23|renovate[bot] |BSD-3-Clause|N/A|
+|[google/uuid](https://pkg.go.dev/github.com/google/uuid)|v1.3.1|01/07/24|renovate[bot] |BSD-3-Clause|N/A|
 |[httprouter](https://pkg.go.dev/github.com/julienschmidt/httprouter)|v1.3.0|07/31/23|Xander Warszawski |BSD-3-Clause|N/A|
 |[jsonparser](https://pkg.go.dev/github.com/buger/jsonparser)|v1.1.1|07/31/23|Xander Warszawski |MIT|N/A|
 |[kr/text](https://pkg.go.dev/github.com/kr/text)|v0.2.0|12/03/23|renovate[bot] |MIT|N/A|
