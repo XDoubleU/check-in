@@ -27,7 +27,7 @@
     "prop-types": "15.8.1",
     "query-string": "8.1.0",
     "react": "18.2.0",
-    "react-bootstrap": "2.9.2",
+    "react-bootstrap": "2.10.1",
     "react-dom": "18.2.0",
     "react-hook-form": "7.49.2",
     "react-spinners": "0.13.8",
