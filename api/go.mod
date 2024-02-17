@@ -8,7 +8,7 @@ require github.com/julienschmidt/httprouter v1.3.0
 
 require (
 	github.com/dlclark/regexp2 v1.10.0
-	github.com/getsentry/sentry-go v0.25.0
+	github.com/getsentry/sentry-go v0.27.0
 	github.com/goddtriffin/helmet v1.0.2
 	github.com/google/uuid v1.6.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
