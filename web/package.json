@@ -42,7 +42,7 @@
     "@testing-library/react": "14.1.2",
     "@testing-library/user-event": "14.5.2",
     "@types/jest": "29.5.12",
-    "@types/node": "20.10.7",
+    "@types/node": "20.11.19",
     "@types/react": "18.2.56",
     "@types/testing-library__jest-dom": "5.14.9",
     "@types/uuid": "9.0.8",
@@ -72,7 +72,7 @@
     "ts-jest": "29.1.1"
   },
   "engines": {
-    "node": "20.10.x",
+    "node": "20.11.x",
     "yarn": "1.x"
   },
   "npmpackagejsonlint": {
