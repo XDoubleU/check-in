@@ -2,7 +2,7 @@ repo_name: XDoubleU/check-in
 report_id: ef81e7dd8dba7050999483cd90548997
 version: 0.1
 repo_type: Public
-timestamp: '2024-01-11T12:34:26+00:00'
+timestamp: '2024-02-29T18:17:13+00:00'
 requested_by: renovate[bot]
 provider: github
 branch: main
@@ -80,7 +80,7 @@ tools:
   last_updated_by: renovate[bot]
   last_updated_on: 2024-01-07 19:33:27.000000000 Z
 - name: Next.js
-  description: 'A small framework for server-rendered universal JavaScript apps '
+  description: A small framework for server-rendered universal JavaScript apps
   website_url: https://nextjs.org/
   version: 14.0.4
   open_source: true
@@ -243,7 +243,7 @@ tools:
   last_updated_by: Xander Warszawski
   last_updated_on: 2023-07-31 19:51:20.000000000 Z
 - name: Prettier
-  description: 'Prettier is an opinionated code formatter. '
+  description: Prettier is an opinionated code formatter.
   website_url: https://prettier.io/
   version: 3.1.1
   license: MIT
