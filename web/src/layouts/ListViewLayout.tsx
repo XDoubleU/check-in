@@ -69,6 +69,7 @@ export default function ListViewLayout<
 }: ListViewLayoutProps<T, U, V, W, X>) {
   const router = useRouter()
 
+  const hasPagination = isList(list)
   const fetchData = useCallback(async () => {
     const page = router.query.page
       ? parseInt(router.query.page as string)
@@ -76,7 +77,7 @@ export default function ListViewLayout<
 
     const args = apiCallArgs ?? ([] as unknown as W)
 
-    if (isList(list)) {
+    if (hasPagination) {
       args.push(page)
     }
 
@@ -101,7 +102,7 @@ export default function ListViewLayout<
     } else {
       setList(data as unknown as U)
     }
-  }, [])
+  }, [apiCall, apiCallArgs, preprocessList, setList, router, hasPagination])
 
   useEffect(() => {
     void fetchData()
