@@ -31,6 +31,20 @@ func GetEnvInt(key string, defaultValue int) int {
 	return intVal
 }
 
+func GetEnvFloat(key string, defaultValue float64) float64 {
+	strVal := GetEnvStr(key, "")
+	if len(strVal) == 0 {
+		return defaultValue
+	}
+
+	floatVal, err := strconv.ParseFloat(strVal, 64)
+	if err != nil {
+		panic(fmt.Sprintf(errorMessage, key, strVal, "float64"))
+	}
+
+	return floatVal
+}
+
 func GetEnvBool(key string, defaultValue bool) bool {
 	strVal := GetEnvStr(key, "")
 	if len(strVal) == 0 {

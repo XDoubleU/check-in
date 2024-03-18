@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS locations (
     capacity int4 NOT NULL,
     user_id uuid NOT NULL UNIQUE REFERENCES users ON DELETE CASCADE,
     time_zone text CHECK (
-        now() AT TIME ZONE time_zone IS NOT NULL
+        now() AT TIME ZONE time_zone IS NOT null
     )
 );
 

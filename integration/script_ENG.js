@@ -30,14 +30,14 @@ function fill(location){
 
     capacity.innerHTML = `<b>${location.available}</b> of the <b>${location.capacity}</b> spots remaining`
 
-    let output = "Wasn't full yesterday"
+    let output = `Yesterday <b>${location.availableYesterday}</b> of the <b>${location.capacityYesterday}</b> spots remained`
     if (location.yesterdayFullAt) {
       const time = new Date(location.yesterdayFullAt).toUTCString([], {
         timeStyle: "short",
         hourCycle: "h23"
       })
 
-      output = `Yesterday full at: ${time}`
+      output = `Yesterday full at ${time}`
     }
 
     yesterdayFullAt.innerHTML = output

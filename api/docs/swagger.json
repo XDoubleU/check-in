@@ -1265,7 +1265,13 @@
                 "available": {
                     "type": "integer"
                 },
+                "availableYesterday": {
+                    "type": "integer"
+                },
                 "capacity": {
+                    "type": "integer"
+                },
+                "capacityYesterday": {
                     "type": "integer"
                 },
                 "id": {
@@ -1294,7 +1300,13 @@
                 "available": {
                     "type": "integer"
                 },
+                "availableYesterday": {
+                    "type": "integer"
+                },
                 "capacity": {
+                    "type": "integer"
+                },
+                "capacityYesterday": {
                     "type": "integer"
                 },
                 "normalizedName": {

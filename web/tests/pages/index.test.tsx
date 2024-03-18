@@ -91,7 +91,9 @@ describe("CheckIn (page)", () => {
       available: 1,
       capacity: 10,
       normalizedName: "location",
-      yesterdayFullAt: ""
+      yesterdayFullAt: "",
+      availableYesterday: 0,
+      capacityYesterday: 0
     }
 
     server.send(JSON.stringify(update))

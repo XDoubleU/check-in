@@ -107,7 +107,9 @@ export default function LocationListView() {
           timeZone: location.timeZone,
           username: username,
           available: location.available,
-          yesterdayFullAt: location.yesterdayFullAt
+          yesterdayFullAt: location.yesterdayFullAt,
+          availableYesterday: location.availableYesterday,
+          capacityYesterday: location.capacityYesterday
         })
       }
 

@@ -45,7 +45,9 @@ export default function LocationDetail() {
       username: responseUser.username,
       available: responseLocation.data.available,
       yesterdayFullAt: responseLocation.data.yesterdayFullAt,
-      timeZone: responseLocation.data.timeZone
+      timeZone: responseLocation.data.timeZone,
+      availableYesterday: responseLocation.data.availableYesterday,
+      capacityYesterday: responseLocation.data.capacityYesterday
     }
 
     updateLocation(locationWithUsername)

@@ -101,7 +101,7 @@ export default function ListViewLayout<
     } else {
       setList(data as unknown as U)
     }
-  }, [apiCall, apiCallArgs, list, preprocessList, router, setList])
+  }, [])
 
   useEffect(() => {
     void fetchData()

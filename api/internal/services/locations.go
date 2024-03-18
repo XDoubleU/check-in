@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -16,38 +17,10 @@ import (
 )
 
 type LocationService struct {
-	db      database.DB
-	schools SchoolService
+	db       database.DB
+	schools  SchoolService
+	checkins CheckInService
 }
-
-const availableQuery = `
-	(	capacity - (	
-			SELECT COUNT(*) 
-			FROM check_ins 
-			WHERE DATE(check_ins.created_at AT TIME ZONE locations.time_zone) 
-			= DATE(NOW() AT TIME ZONE locations.time_zone) 
-			AND check_ins.location_id = locations.id
-		)
-	)
-`
-
-const yesterdayFullAtQuery = `
-	(	SELECT MAX(check_ins.created_at AT TIME ZONE locations.time_zone)
-		FROM check_ins
-		INNER JOIN (
-			SELECT location_id, COUNT(*) AS total_check_ins, MAX(capacity) AS max_capacity
-			FROM check_ins
-			WHERE DATE(created_at AT TIME ZONE locations.time_zone) 
-			= (DATE(NOW() AT TIME ZONE locations.time_zone) - INTERVAL '1' DAY)
-			GROUP BY location_id
-		) daily_stats 
-		ON check_ins.location_id = daily_stats.location_id
-		WHERE check_ins.location_id = locations.id
-		AND DATE(check_ins.created_at AT TIME ZONE locations.time_zone) 
-		= (DATE(NOW() AT TIME ZONE locations.time_zone) - INTERVAL '1' DAY)
-		AND daily_stats.total_check_ins >= daily_stats.max_capacity
-	)
-`
 
 func (service LocationService) GetCheckInsEntriesDay(
 	checkIns []*models.CheckIn,
@@ -158,12 +131,10 @@ func (service LocationService) GetTotalCount(ctx context.Context) (*int64, error
 
 func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, error) {
 	query := `
-		SELECT id, name, capacity, time_zone, user_id, %s, %s
+		SELECT id, name, capacity, time_zone, user_id
 		FROM locations
 		ORDER BY name ASC
 	`
-
-	query = fmt.Sprintf(query, availableQuery, yesterdayFullAtQuery)
 
 	rows, err := service.db.Query(ctx, query)
 	if err != nil {
@@ -171,7 +142,6 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 	}
 
 	locations := []*models.Location{}
-
 	for rows.Next() {
 		var location models.Location
 
@@ -181,10 +151,7 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 			&location.Capacity,
 			&location.TimeZone,
 			&location.UserID,
-			&location.Available,
-			&location.YesterdayFullAt,
 		)
-
 		if err != nil {
 			return nil, handleError(err)
 		}
@@ -199,6 +166,44 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 
 	if err = rows.Err(); err != nil {
 		return nil, handleError(err)
+	}
+
+	today := time.Now()
+	yesterday := today.AddDate(0, 0, -1)
+
+	for i, location := range locations {
+		var checkInsToday []*models.CheckIn
+		var checkInsYesterday []*models.CheckIn
+		var lastCheckInYesterday *models.CheckIn
+
+		checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, &today)
+		if err != nil {
+			return nil, handleError(err)
+		}
+
+		checkInsYesterday, err = service.checkins.GetAllOfDay(
+			ctx,
+			location.ID,
+			&yesterday,
+		)
+		if err != nil {
+			return nil, handleError(err)
+		}
+
+		lastCheckInYesterday, err = service.checkins.GetLastOfDay(
+			ctx,
+			location.ID,
+			&yesterday,
+		)
+		if err != nil && !errors.Is(err, ErrRecordNotFound) {
+			return nil, handleError(err)
+		}
+
+		locations[i].SetCheckInRelatedFields(
+			checkInsToday,
+			checkInsYesterday,
+			lastCheckInYesterday,
+		)
 	}
 
 	return locations, nil
@@ -210,13 +215,11 @@ func (service LocationService) GetAllPaginated(
 	offset int64,
 ) ([]*models.Location, error) {
 	query := `
-		SELECT id, name, capacity, user_id, time_zone, %s, %s
+		SELECT id, name, capacity, time_zone, user_id
 		FROM locations
 		ORDER BY name ASC
 		LIMIT $1 OFFSET $2
 	`
-
-	query = fmt.Sprintf(query, availableQuery, yesterdayFullAtQuery)
 
 	rows, err := service.db.Query(ctx, query, limit, offset)
 	if err != nil {
@@ -224,7 +227,6 @@ func (service LocationService) GetAllPaginated(
 	}
 
 	locations := []*models.Location{}
-
 	for rows.Next() {
 		var location models.Location
 
@@ -232,12 +234,9 @@ func (service LocationService) GetAllPaginated(
 			&location.ID,
 			&location.Name,
 			&location.Capacity,
-			&location.UserID,
 			&location.TimeZone,
-			&location.Available,
-			&location.YesterdayFullAt,
+			&location.UserID,
 		)
-
 		if err != nil {
 			return nil, handleError(err)
 		}
@@ -254,6 +253,44 @@ func (service LocationService) GetAllPaginated(
 		return nil, handleError(err)
 	}
 
+	today := time.Now()
+	yesterday := today.AddDate(0, 0, -1)
+
+	for i, location := range locations {
+		var checkInsToday []*models.CheckIn
+		var checkInsYesterday []*models.CheckIn
+		var lastCheckInYesterday *models.CheckIn
+
+		checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, &today)
+		if err != nil {
+			return nil, handleError(err)
+		}
+
+		checkInsYesterday, err = service.checkins.GetAllOfDay(
+			ctx,
+			location.ID,
+			&yesterday,
+		)
+		if err != nil {
+			return nil, handleError(err)
+		}
+
+		lastCheckInYesterday, err = service.checkins.GetLastOfDay(
+			ctx,
+			location.ID,
+			&yesterday,
+		)
+		if err != nil && !errors.Is(err, ErrRecordNotFound) {
+			return nil, handleError(err)
+		}
+
+		locations[i].SetCheckInRelatedFields(
+			checkInsToday,
+			checkInsYesterday,
+			lastCheckInYesterday,
+		)
+	}
+
 	return locations, nil
 }
 
@@ -261,74 +298,76 @@ func (service LocationService) GetByID(
 	ctx context.Context,
 	id string,
 ) (*models.Location, error) {
-	query := `
-		SELECT name, capacity, user_id, time_zone, %s, %s
-		FROM locations
-		WHERE locations.id = $1
-	`
-
-	query = fmt.Sprintf(query, availableQuery, yesterdayFullAtQuery)
-
-	location := models.Location{
-		ID: id,
-	}
-
-	err := service.db.QueryRow(
-		ctx,
-		query,
-		id,
-	).Scan(
-		&location.Name,
-		&location.Capacity,
-		&location.UserID,
-		&location.TimeZone,
-		&location.Available,
-		&location.YesterdayFullAt,
-	)
-
-	if err != nil {
-		return nil, handleError(err)
-	}
-
-	err = location.NormalizeName()
-	if err != nil {
-		return nil, err
-	}
-
-	return &location, nil
+	return service.getBy(ctx, "WHERE locations.id = $1", id)
 }
 
 func (service LocationService) GetByUserID(
 	ctx context.Context,
 	id string,
 ) (*models.Location, error) {
+	return service.getBy(ctx, "WHERE user_id = $1", id)
+}
+
+func (service LocationService) getBy(
+	ctx context.Context,
+	whereQuery string,
+	value string,
+) (*models.Location, error) {
+	var checkInsToday []*models.CheckIn
+	var checkInsYesterday []*models.CheckIn
+	var lastCheckInYesterday *models.CheckIn
+
 	query := `
-		SELECT id, name, capacity, time_zone, %s, %s
+		SELECT id, name, capacity, time_zone, user_id
 		FROM locations
-		WHERE user_id = $1
+		%s
 	`
 
-	query = fmt.Sprintf(query, availableQuery, yesterdayFullAtQuery)
+	query = fmt.Sprintf(query, whereQuery)
 
-	location := models.Location{
-		UserID: id,
-	}
+	location := models.Location{}
 
 	err := service.db.QueryRow(
 		ctx,
 		query,
-		id).Scan(
+		value).Scan(
 		&location.ID,
 		&location.Name,
 		&location.Capacity,
 		&location.TimeZone,
-		&location.Available,
-		&location.YesterdayFullAt,
+		&location.UserID,
 	)
-
 	if err != nil {
 		return nil, handleError(err)
 	}
+
+	today := time.Now()
+	yesterday := today.AddDate(0, 0, -1)
+
+	checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, &today)
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	checkInsYesterday, err = service.checkins.GetAllOfDay(ctx, location.ID, &yesterday)
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	lastCheckInYesterday, err = service.checkins.GetLastOfDay(
+		ctx,
+		location.ID,
+		&yesterday,
+	)
+	if err != nil && !errors.Is(err, ErrRecordNotFound) {
+		return nil, handleError(err)
+	}
+
+	location.SetCheckInRelatedFields(
+		checkInsToday,
+		checkInsYesterday,
+		lastCheckInYesterday,
+	)
 
 	err = location.NormalizeName()
 	if err != nil {
