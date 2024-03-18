@@ -46,7 +46,7 @@ describe("CheckIn (page)", () => {
     await waitFor(() => expect(document.title).toBe("Check-In"))
 
     // First check-in
-    let button = screen.getByRole("button", { name: "CHECK-IN" })
+    const button = screen.getByRole("button", { name: "CHECK-IN" })
     fireEvent.click(button)
 
     await screen.findByRole("heading", { name: "KIES JE SCHOOL:" })
@@ -57,11 +57,7 @@ describe("CheckIn (page)", () => {
 
     // Check if button is disabled and becomes enabled again
     expect(button).toBeDisabled()
-    await waitFor(
-      () =>
-        expect(button).toBeEnabled(),
-      { timeout: 1500 }
-    )
+    await waitFor(() => expect(button).toBeEnabled(), { timeout: 1500 })
 
     // Second check-in
     fireEvent.click(button)
