@@ -35,7 +35,7 @@ export default function DeleteModal<T extends FieldValues>({
 
   return (
     <>
-      <Modal show={showDelete} onHide={handleCloseDelete}>
+      <Modal show={showDelete} onHide={handleCloseDelete} animation={false}>
         <Modal.Body>
           <Modal.Title>Delete {typeName.toLowerCase()}</Modal.Title>
           <br />

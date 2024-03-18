@@ -60,6 +60,7 @@ describe("LocationListView (page)", () => {
     render(<LocationListView />)
 
     await screen.findByRole("heading", { name: "Locations" })
+    expect(getAllLocationsPaged).toHaveBeenCalledTimes(1)
   })
 
   it("Creates a location", async () => {
