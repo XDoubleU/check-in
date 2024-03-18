@@ -9,7 +9,9 @@ export const DefaultLocation: Location = {
   capacity: 10,
   timeZone: "Europe/Brussels",
   userId: "userId",
-  yesterdayFullAt: ""
+  yesterdayFullAt: "",
+  availableYesterday: 0,
+  capacityYesterday: 0
 }
 
 export async function noUserMock(): Promise<APIResponse<User>> {

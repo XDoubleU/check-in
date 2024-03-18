@@ -8,15 +8,39 @@ import (
 )
 
 type Location struct {
-	ID              string             `json:"id"`
-	Name            string             `json:"name"`
-	NormalizedName  string             `json:"normalizedName"`
-	Available       int64              `json:"available"`
-	Capacity        int64              `json:"capacity"`
-	YesterdayFullAt pgtype.Timestamptz `json:"yesterdayFullAt" swaggertype:"string"`
-	TimeZone        string             `json:"timeZone"`
-	UserID          string             `json:"userId"`
+	ID                 string             `json:"id"`
+	Name               string             `json:"name"`
+	NormalizedName     string             `json:"normalizedName"`
+	Available          int64              `json:"available"`
+	Capacity           int64              `json:"capacity"`
+	AvailableYesterday int64              `json:"availableYesterday"`
+	CapacityYesterday  int64              `json:"capacityYesterday"`
+	YesterdayFullAt    pgtype.Timestamptz `json:"yesterdayFullAt"    swaggertype:"string"`
+	TimeZone           string             `json:"timeZone"`
+	UserID             string             `json:"userId"`
 } //	@name	Location
+
+func (location *Location) SetCheckInRelatedFields(
+	checkInsToday []*CheckIn,
+	checkInsYesterday []*CheckIn,
+	lastCheckInYesterday *CheckIn,
+) {
+	location.Available = location.Capacity - int64(len(checkInsToday))
+	location.CapacityYesterday = 0
+
+	if lastCheckInYesterday != nil {
+		location.CapacityYesterday = lastCheckInYesterday.Capacity
+	}
+
+	location.AvailableYesterday = location.CapacityYesterday - int64(
+		len(checkInsYesterday),
+	)
+	location.YesterdayFullAt = pgtype.Timestamptz{}
+
+	if location.AvailableYesterday == 0 && lastCheckInYesterday != nil {
+		location.YesterdayFullAt = lastCheckInYesterday.CreatedAt
+	}
+}
 
 func (location *Location) NormalizeName() error {
 	output, err := normalize(location.Name)

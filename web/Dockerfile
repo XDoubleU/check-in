@@ -1,4 +1,4 @@
-FROM node:20.11-alpine AS deps
+FROM node:21-alpine AS deps
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
@@ -6,7 +6,7 @@ WORKDIR /app
 COPY --link package.json yarn.lock ./
 RUN yarn install --frozen-lockfile --production && yarn cache clean
 
-FROM node:20.11-alpine AS builder
+FROM node:21-alpine AS builder
 WORKDIR /app
 
 ARG NEXT_PUBLIC_API_URL
