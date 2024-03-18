@@ -45,7 +45,7 @@ export default function CreateModal<T extends FieldValues, Y>({
 
   return (
     <>
-      <Modal show={showCreate} onHide={onCancel}>
+      <Modal show={showCreate} onHide={onCancel} animation={false}>
         <Modal.Body>
           <Modal.Title>Create {typeName.toLowerCase()}</Modal.Title>
           <br />

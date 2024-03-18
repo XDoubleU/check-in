@@ -56,12 +56,10 @@ describe("CheckIn (page)", () => {
     await waitFor(() => expect(school).not.toBeVisible())
 
     // Check if button is disabled and becomes enabled again
-    expect(screen.getByRole("button", { name: "CHECK-IN" })).toBeDisabled()
+    expect(button).toBeDisabled()
     await waitFor(
       () =>
-        expect(
-          (button = screen.getByRole("button", { name: "CHECK-IN" }))
-        ).toBeEnabled(),
+        expect(button).toBeEnabled(),
       { timeout: 1500 }
     )
 

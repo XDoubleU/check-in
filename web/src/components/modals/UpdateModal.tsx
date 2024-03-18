@@ -49,7 +49,7 @@ export default function UpdateModal<T extends FieldValues, Y>({
 
   return (
     <>
-      <Modal show={showUpdate} onHide={onCancel}>
+      <Modal show={showUpdate} onHide={onCancel} animation={false}>
         <Modal.Body>
           <Modal.Title>Update {typeName.toLowerCase()}</Modal.Title>
           <br />
