@@ -1,6 +1,6 @@
 module check-in/api
 
-go 1.22
+go 1.21
 
 require github.com/justinas/alice v1.2.0
 
