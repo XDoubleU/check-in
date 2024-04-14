@@ -7,7 +7,7 @@ require github.com/justinas/alice v1.2.0
 require github.com/julienschmidt/httprouter v1.3.0
 
 require (
-	github.com/dlclark/regexp2 v1.10.0
+	github.com/dlclark/regexp2 v1.11.0
 	github.com/getsentry/sentry-go v0.27.0
 	github.com/goddtriffin/helmet v1.0.2
 	github.com/google/uuid v1.6.0
