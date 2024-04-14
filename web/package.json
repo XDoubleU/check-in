@@ -67,7 +67,7 @@
     "knip": "5.9.4",
     "next-router-mock": "0.9.12",
     "npm-package-json-lint": "7.1.0",
-    "openapi-typescript": "5.4",
+    "openapi-typescript": "6.7",
     "prettier": "3.2.5",
     "ts-jest": "29.1.2"
   },
