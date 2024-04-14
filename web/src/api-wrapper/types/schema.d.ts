@@ -745,7 +745,9 @@ export type definitions = {
   };
   Location: {
     available?: number;
+    availableYesterday?: number;
     capacity?: number;
+    capacityYesterday?: number;
     id?: string;
     name?: string;
     normalizedName?: string;
@@ -755,7 +757,9 @@ export type definitions = {
   };
   LocationUpdateEvent: {
     available?: number;
+    availableYesterday?: number;
     capacity?: number;
+    capacityYesterday?: number;
     normalizedName?: string;
     yesterdayFullAt?: string;
   };

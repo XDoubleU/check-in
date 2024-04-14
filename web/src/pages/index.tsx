@@ -77,6 +77,8 @@ export default function CheckIn() {
   }
 
   const onClick: MouseEventHandler<HTMLButtonElement> = (event) => {
+    setDisabled(true)
+
     void createCheckIn({
       schoolId: parseInt((event.target as HTMLButtonElement).value)
     })
@@ -84,10 +86,6 @@ export default function CheckIn() {
     setAvailable(available - 1)
 
     handleClose()
-
-    setTimeout(() => {
-      setDisabled(true)
-    })
 
     setTimeout(function () {
       setDisabled(false)
@@ -106,6 +104,7 @@ export default function CheckIn() {
             backdrop="static"
             fullscreen={true}
             scrollable={true}
+            animation={false}
           >
             <div className={styles.modalContent}>
               <Modal.Body style={{ maxHeight: "100vh" }}>

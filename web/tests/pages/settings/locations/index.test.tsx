@@ -30,7 +30,9 @@ describe("LocationListView (page)", () => {
               capacity: 10,
               timeZone: "Europe/Brussels",
               userId: "userId",
-              yesterdayFullAt: ""
+              yesterdayFullAt: "",
+              availableYesterday: 0,
+              capacityYesterday: 0
             },
             {
               id: "locationId2",
@@ -40,7 +42,9 @@ describe("LocationListView (page)", () => {
               capacity: 10,
               timeZone: "Europe/Brussels",
               userId: "userId2",
-              yesterdayFullAt: new Date().toISOString()
+              yesterdayFullAt: new Date().toISOString(),
+              availableYesterday: 0,
+              capacityYesterday: 0
             }
           ],
           pagination: {
@@ -56,6 +60,7 @@ describe("LocationListView (page)", () => {
     render(<LocationListView />)
 
     await screen.findByRole("heading", { name: "Locations" })
+    expect(getAllLocationsPaged).toHaveBeenCalledTimes(1)
   })
 
   it("Creates a location", async () => {
@@ -74,7 +79,9 @@ describe("LocationListView (page)", () => {
               capacity: 10,
               timeZone: "Europe/Brussels",
               userId: "userId",
-              yesterdayFullAt: ""
+              yesterdayFullAt: "",
+              availableYesterday: 0,
+              capacityYesterday: 0
             }
           ],
           pagination: {
@@ -139,7 +146,9 @@ describe("LocationListView (page)", () => {
               capacity: 10,
               timeZone: "Europe/Brussels",
               userId: "userId",
-              yesterdayFullAt: ""
+              yesterdayFullAt: "",
+              availableYesterday: 0,
+              capacityYesterday: 0
             }
           ],
           pagination: {
@@ -192,7 +201,9 @@ describe("LocationListView (page)", () => {
               capacity: 10,
               timeZone: "Europe/Brussels",
               userId: "userId",
-              yesterdayFullAt: ""
+              yesterdayFullAt: "",
+              availableYesterday: 0,
+              capacityYesterday: 0
             }
           ],
           pagination: {

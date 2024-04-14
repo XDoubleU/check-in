@@ -46,6 +46,7 @@ describe("UserListView (page)", () => {
     render(<UserListView />)
 
     await screen.findByRole("heading", { name: "Users" })
+    expect(getAllUsersPaged).toHaveBeenCalledTimes(1)
   })
 
   it("Creates a user", async () => {

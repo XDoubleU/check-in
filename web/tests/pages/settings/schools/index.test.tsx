@@ -39,6 +39,7 @@ describe("SchoolListView (page)", () => {
     render(<SchoolListView />)
 
     await screen.findByRole("heading", { name: "Schools" })
+    expect(getAllSchoolsPaged).toHaveBeenCalledTimes(1)
   })
 
   it("Creates a school", async () => {

@@ -32,17 +32,17 @@
     "react-hook-form": "7.50.1",
     "react-spinners": "0.13.8",
     "recharts": "2.10.3",
-    "sass": "1.69.7",
+    "sass": "1.71.0",
     "typescript": "5.3.3",
     "uuid": "9.0.1"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "14.0.4",
-    "@testing-library/jest-dom": "6.2.0",
-    "@testing-library/react": "14.2.1",
+    "@testing-library/jest-dom": "6.4.2",
+    "@testing-library/react": "14.3.0",
     "@testing-library/user-event": "14.5.2",
     "@types/jest": "29.5.12",
-    "@types/node": "20.11.19",
+    "@types/node": "20.11.28",
     "@types/react": "18.2.56",
     "@types/testing-library__jest-dom": "5.14.9",
     "@types/uuid": "9.0.8",
@@ -64,15 +64,15 @@
     "jest-mock": "29.7.0",
     "jest-websocket-mock": "2.5.0",
     "jscpd": "3.5.10",
-    "knip": "3.13.2",
-    "next-router-mock": "0.9.11",
+    "knip": "5.9.1",
+    "next-router-mock": "0.9.12",
     "npm-package-json-lint": "7.1.0",
-    "openapi-typescript": "6.7.3",
+    "openapi-typescript": "5.4",
     "prettier": "3.2.5",
-    "ts-jest": "29.1.1"
+    "ts-jest": "29.1.2"
   },
   "engines": {
-    "node": "20.11.x",
+    "node": "21.x",
     "yarn": "1.x"
   },
   "npmpackagejsonlint": {

@@ -52,10 +52,12 @@ func (service WebSocketService) GetByNormalizedName(
 
 func (service WebSocketService) AddUpdateEvent(location models.Location) {
 	locationUpdateEvent := models.LocationUpdateEvent{
-		NormalizedName:  location.NormalizedName,
-		Available:       location.Available,
-		Capacity:        location.Capacity,
-		YesterdayFullAt: location.YesterdayFullAt,
+		NormalizedName:     location.NormalizedName,
+		Available:          location.Available,
+		Capacity:           location.Capacity,
+		YesterdayFullAt:    location.YesterdayFullAt,
+		AvailableYesterday: location.AvailableYesterday,
+		CapacityYesterday:  location.CapacityYesterday,
 	}
 
 	for _, subscriber := range service.subscribers {

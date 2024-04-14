@@ -20,7 +20,7 @@ func (app *application) getSentryHandler() *sentryhttp.Handler {
 		Environment:      app.config.Env,
 		Release:          app.config.Release,
 		EnableTracing:    true,
-		TracesSampleRate: 1.0,
+		TracesSampleRate: app.config.SampleRate,
 	})
 
 	if err != nil {

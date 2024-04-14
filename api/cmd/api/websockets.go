@@ -155,10 +155,12 @@ func (app *application) getAllCurrentLocationStates(
 
 	for _, location := range locations {
 		locationUpdateEvent := models.LocationUpdateEvent{
-			NormalizedName:  location.NormalizedName,
-			Available:       location.Available,
-			Capacity:        location.Capacity,
-			YesterdayFullAt: location.YesterdayFullAt,
+			NormalizedName:     location.NormalizedName,
+			Available:          location.Available,
+			Capacity:           location.Capacity,
+			YesterdayFullAt:    location.YesterdayFullAt,
+			AvailableYesterday: location.AvailableYesterday,
+			CapacityYesterday:  location.CapacityYesterday,
 		}
 
 		locationUpdateEvents = append(

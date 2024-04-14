@@ -102,6 +102,8 @@ func TestYesterdayFullAt(t *testing.T) {
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
+	assert.Equal(t, rsData.AvailableYesterday, 0)
+	assert.Equal(t, rsData.CapacityYesterday, fixtureData.DefaultLocation.Capacity)
 	assert.Equal(t, rsData.YesterdayFullAt.Valid, true)
 	assert.Equal(t, rsData.YesterdayFullAt.Time.Day(), now.Day())
 	assert.Equal(t, rsData.YesterdayFullAt.Time.Hour(), now.Hour())
@@ -293,8 +295,8 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	endDate := time.Now().AddDate(0, 0, 2).Format(constants.DateFormat)
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -1276,6 +1278,8 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 		)
 		assert.Equal(t, rsData.Data[0].Available, fixtureData.DefaultLocation.Available)
 		assert.Equal(t, rsData.Data[0].Capacity, fixtureData.DefaultLocation.Capacity)
+		assert.Equal(t, rsData.Data[0].AvailableYesterday, 0)
+		assert.Equal(t, rsData.Data[0].CapacityYesterday, 0)
 		assert.Equal(
 			t,
 			rsData.Data[0].YesterdayFullAt,
@@ -1320,6 +1324,8 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	)
 	assert.Equal(t, rsData.Data[0].Available, fixtureData.Locations[10].Available)
 	assert.Equal(t, rsData.Data[0].Capacity, fixtureData.Locations[10].Capacity)
+	assert.Equal(t, rsData.Data[0].AvailableYesterday, 0)
+	assert.Equal(t, rsData.Data[0].CapacityYesterday, 0)
 	assert.Equal(
 		t,
 		rsData.Data[0].YesterdayFullAt,
@@ -1400,6 +1406,8 @@ func TestGetAllLocations(t *testing.T) {
 		)
 		assert.Equal(t, rsData[0].Available, fixtureData.DefaultLocation.Available)
 		assert.Equal(t, rsData[0].Capacity, fixtureData.DefaultLocation.Capacity)
+		assert.Equal(t, rsData[0].AvailableYesterday, 0)
+		assert.Equal(t, rsData[0].CapacityYesterday, 0)
 		assert.Equal(
 			t,
 			rsData[0].YesterdayFullAt,
@@ -1465,6 +1473,8 @@ func TestGetLocation(t *testing.T) {
 		)
 		assert.Equal(t, rsData.Available, fixtureData.DefaultLocation.Available)
 		assert.Equal(t, rsData.Capacity, fixtureData.DefaultLocation.Capacity)
+		assert.Equal(t, rsData.AvailableYesterday, 0)
+		assert.Equal(t, rsData.CapacityYesterday, 0)
 		assert.Equal(
 			t,
 			rsData.YesterdayFullAt,
@@ -1606,6 +1616,8 @@ func TestCreateLocation(t *testing.T) {
 		assert.Equal(t, rsData.NormalizedName, data.Name)
 		assert.Equal(t, rsData.Available, data.Capacity)
 		assert.Equal(t, rsData.Capacity, data.Capacity)
+		assert.Equal(t, rsData.AvailableYesterday, 0)
+		assert.Equal(t, rsData.CapacityYesterday, 0)
 		assert.Equal(t, rsData.YesterdayFullAt.Valid, false)
 		assert.Equal(t, rsData.TimeZone, data.TimeZone)
 		assert.IsUUID(t, rsData.UserID)
@@ -1855,6 +1867,8 @@ func TestUpdateLocation(t *testing.T) {
 		assert.Equal(t, rsData.NormalizedName, *data.Name)
 		assert.Equal(t, rsData.Available, 0)
 		assert.Equal(t, rsData.Capacity, *data.Capacity)
+		assert.Equal(t, rsData.AvailableYesterday, 0)
+		assert.Equal(t, rsData.CapacityYesterday, 0)
 		assert.Equal(t, rsData.YesterdayFullAt.Valid, false)
 		assert.Equal(t, rsData.TimeZone, *data.TimeZone)
 		assert.Equal(t, rsData.UserID, fixtureData.Locations[0].UserID)
@@ -2206,6 +2220,8 @@ func TestDeleteLocation(t *testing.T) {
 		assert.Equal(t, rsData.NormalizedName, fixtureData.Locations[i].NormalizedName)
 		assert.Equal(t, rsData.Available, fixtureData.Locations[i].Available)
 		assert.Equal(t, rsData.Capacity, fixtureData.Locations[i].Capacity)
+		assert.Equal(t, rsData.AvailableYesterday, 0)
+		assert.Equal(t, rsData.CapacityYesterday, 0)
 		assert.Equal(
 			t,
 			rsData.YesterdayFullAt,

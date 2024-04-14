@@ -109,7 +109,7 @@ export default function LocationCard({ data, fetchData }: LocationCardProps) {
                   ? `Yesterday full at ${moment
                       .utc(data.yesterdayFullAt)
                       .format(TIME_FORMAT)}`
-                  : "Yesterday not full"}
+                  : `Yesterday ${data.availableYesterday} / ${data.capacityYesterday} spots available`}
               </Card.Subtitle>
             </div>
             <div className="ms-auto">
