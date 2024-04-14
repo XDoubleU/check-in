@@ -32,7 +32,7 @@
     "react-hook-form": "7.51.3",
     "react-spinners": "0.13.8",
     "recharts": "2.10.3",
-    "sass": "1.71.0",
+    "sass": "1.75.0",
     "typescript": "5.3.3",
     "uuid": "9.0.1"
   },
