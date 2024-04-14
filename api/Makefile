@@ -5,7 +5,7 @@ init:
 	go install github.com/swaggo/swag/cmd/swag@v1.16.3
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.56.2
 	go install github.com/segmentio/golines@v0.12.2
-	go install github.com/daixiang0/gci@v0.12.1
+	go install github.com/daixiang0/gci@v0.13.4
 	go install github.com/securego/gosec/v2/cmd/gosec@v2.19.0
 	pip install sqlfluff
 
