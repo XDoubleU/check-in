@@ -33,7 +33,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
-	github.com/rs/cors v1.10.1
+	github.com/rs/cors v1.11.0
 	golang.org/x/crypto v0.22.0
 	golang.org/x/exp v0.0.0-20240409090435-93d18d7e34b8
 	golang.org/x/sync v0.7.0 // indirect
