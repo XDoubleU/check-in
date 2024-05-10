@@ -22,7 +22,7 @@
     "bootstrap-icons": "1.11.3",
     "moment": "2.30.1",
     "moment-timezone": "0.5.45",
-    "next": "14.0.4",
+    "next": "14.1.1",
     "next-pwa": "5.6.0",
     "prop-types": "15.8.1",
     "query-string": "9.0.0",
