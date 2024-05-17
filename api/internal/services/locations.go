@@ -168,13 +168,14 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 		return nil, handleError(err)
 	}
 
-	today := time.Now()
-	yesterday := today.AddDate(0, 0, -1)
-
 	for i, location := range locations {
 		var checkInsToday []*models.CheckIn
 		var checkInsYesterday []*models.CheckIn
 		var lastCheckInYesterday *models.CheckIn
+
+		loc, _ := time.LoadLocation(location.TimeZone)
+		today := time.Now().In(loc)
+		yesterday := today.AddDate(0, 0, -1)
 
 		checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, &today)
 		if err != nil {
@@ -253,13 +254,14 @@ func (service LocationService) GetAllPaginated(
 		return nil, handleError(err)
 	}
 
-	today := time.Now()
-	yesterday := today.AddDate(0, 0, -1)
-
 	for i, location := range locations {
 		var checkInsToday []*models.CheckIn
 		var checkInsYesterday []*models.CheckIn
 		var lastCheckInYesterday *models.CheckIn
+
+		loc, _ := time.LoadLocation(location.TimeZone)
+		today := time.Now().In(loc)
+		yesterday := today.AddDate(0, 0, -1)
 
 		checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, &today)
 		if err != nil {
@@ -341,7 +343,8 @@ func (service LocationService) getBy(
 		return nil, handleError(err)
 	}
 
-	today := time.Now()
+	loc, _ := time.LoadLocation(location.TimeZone)
+	today := time.Now().In(loc)
 	yesterday := today.AddDate(0, 0, -1)
 
 	checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, &today)
