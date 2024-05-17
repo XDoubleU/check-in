@@ -6,7 +6,7 @@ init:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.58.1
 	go install github.com/segmentio/golines@v0.12.2
 	go install github.com/daixiang0/gci@v0.13.4
-	go install github.com/securego/gosec/v2/cmd/gosec@v2.19.0
+	go install github.com/securego/gosec/v2/cmd/gosec@v2.20.0
 	pip install sqlfluff
 
 lint:
