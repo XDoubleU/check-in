@@ -70,9 +70,13 @@
     "prettier": "3.2.5",
     "ts-jest": "29.1.2"
   },
+  "resolutions": {
+    "wrap-ansi": "7.0.0",
+    "string-width": "4.2.3"
+  },
   "engines": {
     "node": "21.x",
-    "yarn": "4.x"
+    "yarn": "1.x"
   },
   "npmpackagejsonlint": {
     "rules": {
@@ -100,6 +104,5 @@
     "parser": "typescript",
     "semi": false,
     "trailingComma": "none"
-  },
-  "packageManager": "yarn@4.2.2"
+  }
 }
