@@ -71,7 +71,7 @@
     "ts-jest": "29.1.2"
   },
   "resolutions": {
-    "wrap-ansi": "7.0.0",
+    "wrap-ansi": "9.0.0",
     "string-width": "4.2.3"
   },
   "engines": {
