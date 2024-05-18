@@ -87,6 +87,10 @@ module.exports = {
         "format": null
       },
       {
+        "selector": "import",
+        "format": null
+      },
+      {
         "selector": "variable",
         "modifiers": ["const", "exported"],
         "format": ["PascalCase", "UPPER_CASE"]
