@@ -1,11 +1,8 @@
 module.exports = {
-    "exclude": [
-        "classMembers",
-        "enumMembers"
-    ],
+    "entry": ["src/pages/index.tsx"],
+    "project": ["**/*.{ts,tsx}"],
     "ignore": [
         "src/api-wrapper/types/*",
-        ".yarn"
     ],
     "ignoreDependencies": [
         "jest-environment-jsdom"
