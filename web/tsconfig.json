@@ -2,17 +2,20 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "baseUrl": "./src",
-
     "paths": {
       "test-utils": ["../utils/test-utils"],
       "mocks": ["../utils/mocks"]
     },
-
     "target": "es5",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
+    ],
+    "types": [
+      "node",
+      "jest",
+      "@testing-library/jest-dom"
     ],
     "allowJs": true,
     "skipLibCheck": true,
