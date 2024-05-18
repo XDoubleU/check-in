@@ -97,22 +97,6 @@
       "tsx"
     ]
   },
-  "knip": {
-    "exclude": [
-      "classMembers",
-      "enumMembers"
-    ],
-    "ignore": [
-      "src/api-wrapper/types/*",
-      ".yarn"
-    ],
-    "ignoreDependencies": [
-      "styles",
-      "jest-environment-jsdom",
-      "@types/jest",
-      "eslint-config-next"
-    ]
-  },
   "prettier": {
     "parser": "typescript",
     "semi": false,

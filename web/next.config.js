@@ -42,9 +42,6 @@ const nextConfig = {
   },
   output: "export",
   trailingSlash: true,
-  sentry: {
-    hideSourceMaps: true
-  },
   webpack: (config, { webpack }) => {
     config.plugins.push(
       new webpack.DefinePlugin({
@@ -56,8 +53,10 @@ const nextConfig = {
     return config;
   },
 }
-
-module.exports = withSentryConfig(nextConfig, { silent: false })
+module.exports = withSentryConfig(nextConfig, {
+  silent: false,
+  hideSourceMaps: true,
+});
 
 if (process.env.ANALYZE === "true") {
   const withBundleAnalyzer = require("@next/bundle-analyzer")({
