@@ -1,7 +1,4 @@
-import {
-    getAllLocationsPaged,
-  getMyUser,
-  getUser} from "api-wrapper"
+import { getAllLocationsPaged, getMyUser, getUser } from "api-wrapper"
 import { mocked } from "jest-mock"
 import { defaultUserMock, managerUserMock } from "mocks"
 import mockRouter from "next-router-mock"

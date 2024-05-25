@@ -35,9 +35,7 @@ interface ListViewLayoutProps<
   form?: UseFormReturn<any>
   list: U
   setList: Dispatch<SetStateAction<U>>
-  apiCall: (
-    ...args: W
-  ) => Promise<APIResponse<WithRequired<List<X>, "data">>>
+  apiCall: (...args: W) => Promise<APIResponse<WithRequired<List<X>, "data">>>
   apiCallArgs?: W
   preprocessList?: (data: WithRequired<List<X>, "data">) => Promise<U>
   createModal?: (props: ICreateModalProps<V>) => ReactNode
@@ -107,28 +105,23 @@ export default function ListViewLayout<
       <br />
 
       <div className="min-vh-51">
-        {!list.data && (
-          <Loader message="Fetching data." />
-        )}
+        {!list.data && <Loader message="Fetching data." />}
 
-        {list.data?.length == 0
-          ? "Nothing to see here."
-          : ""}
+        {list.data?.length == 0 ? "Nothing to see here." : ""}
 
         {list.data?.map((item) => {
-              return (
-                <div key={item.id}>
-                  {card({ data: item, fetchData: fetchData })}
-                </div>
-              )
-          })
-        }
+          return (
+            <div key={item.id}>
+              {card({ data: item, fetchData: fetchData })}
+            </div>
+          )
+        })}
       </div>
 
       <CustomPagination
-          current={list.pagination.current}
-          total={list.pagination.total}
-        />
+        current={list.pagination.current}
+        total={list.pagination.total}
+      />
     </ManagerLayout>
   )
 }
