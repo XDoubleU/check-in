@@ -40,3 +40,4 @@ jobs:
   test:
     name: API Test Workflow
     uses: ./.github/workflows/api-test.yml
+    secrets: inherit

@@ -43,3 +43,4 @@ jobs:
   test:
     name: Web Test Workflow
     uses: ./.github/workflows/web-test.yml
+    secrets: inherit
