@@ -1,8 +1,15 @@
 # <p align="center">Check-In 👉🔴</p>
 
 ![GitHub](https://img.shields.io/github/license/XDoubleU/check-in)
-[![API Workflow](https://github.com/XDoubleU/check-in/actions/workflows/api.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/api.yml)
-[![Web Workflow](https://github.com/XDoubleU/check-in/actions/workflows/web.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/web.yml)
+
+[![Build API & Web Workflow](https://github.com/XDoubleU/check-in/actions/workflows/build.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/build.yml)
+
+[![API Lint Workflow](https://github.com/XDoubleU/check-in/actions/workflows/api-lint.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/api-lint.yml)
+[![Web Lint Workflow](https://github.com/XDoubleU/check-in/actions/workflows/web-lint.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/web-lint.yml)
+
+[![API Test Workflow](https://github.com/XDoubleU/check-in/actions/workflows/api-test.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/api-test.yml)
+[![Web Test Workflow](https://github.com/XDoubleU/check-in/actions/workflows/web-test.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/web-test.yml)
+
 [![codecov](https://codecov.io/gh/XDoubleU/check-in/branch/main/graph/badge.svg?token=8IY0BGQ5RW)](https://codecov.io/gh/XDoubleU/check-in)
 ![GitHub last commit](https://img.shields.io/github/last-commit/XDoubleU/check-in)
 
