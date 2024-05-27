@@ -46,7 +46,7 @@ jobs:
           git push
       
       - name: Stop run if commit has been made
-        if: steps.build.outcome == 'success'
+        if: steps.commit.outcome == 'success'
         run: |
           gh run cancel ${{ github.run_id }}
           gh run watch ${{ github.run_id }}
