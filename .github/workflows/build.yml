@@ -9,6 +9,8 @@ jobs:
   build:
     name: Build API & Web
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
