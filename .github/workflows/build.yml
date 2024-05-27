@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
       - uses: actions/setup-go@v5
         with:
           go-version-file: './api/go.mod'
@@ -37,6 +35,5 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "GitHub Actions[bot]"
-          git add .
-          git commit -m "Commit generated files"
-          git push origin
+          git commit -am "Commit generated files"
+          git push
