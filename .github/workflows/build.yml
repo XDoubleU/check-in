@@ -14,6 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          token: ${{ secrets.PAT }}
           ref: ${{ github.head_ref }}
       - uses: actions/setup-go@v5
         with:
@@ -42,3 +43,13 @@ jobs:
           git add .
           git commit -m "Commit generated files"
           git push
+      
+      - name: Stop run if commit has been made
+        if: ${{ success() }}
+        run: |
+          gh run cancel ${{ github.run_id }}
+          gh run watch ${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      
