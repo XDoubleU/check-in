@@ -16,6 +16,7 @@ jobs:
     secrets: inherit
     permissions:
       contents: write
+      actions: write
 
   api-lint:
     needs: build
