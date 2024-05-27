@@ -1,26 +1,39 @@
 db ?= postgres://postgres@localhost/postgres
 
-init:
-	go install github.com/pressly/goose/v3/cmd/goose@v3.20.0
+tools: tools/db tools/lint tools/swagger
+	
+tools/swagger:
 	go install github.com/swaggo/swag/cmd/swag@v1.16.3
+
+tools/db:
+	go install github.com/pressly/goose/v3/cmd/goose@v3.20.0
+
+tools/lint: tools/lint/go tools/lint/sql
+
+tools/lint/go:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.58.2
 	go install github.com/segmentio/golines@v0.12.2
 	go install github.com/daixiang0/gci@v0.13.4
 	go install github.com/securego/gosec/v2/cmd/gosec@v2.20.0
+
+tools/lint/sql:
 	pip install sqlfluff
 
-lint:
-	golangci-lint run
+lint/sql: tools/lint/sql
 	sqlfluff lint --dialect postgres ./migrations
 
-lint/fix:
+lint: tools/lint
+	golangci-lint run
+	make lint/sql
+
+lint/fix: tools/swagger
 	swag fmt
 	golines . -m 88 -w
 	golangci-lint run --fix
 	gci write --skip-generated -s standard -s default -s "prefix(check-in/api)" .
 	sqlfluff fix --dialect postgres ./migrations
 
-build:
+build: 
 	go build -o=./bin/api ./cmd/api
 
 run/api:
@@ -46,14 +59,14 @@ test/cov:
 test/cov/open:
 	CMD /C start chrome /new-tab %CD%/coverage.html
 
-db/migrations/new:
+db/migrations/new: tools/db
 	goose -s -dir=./migrations create ${name} sql
 
-db/migrations/up:
+db/migrations/up: tools/db
 	goose -dir=./migrations postgres ${db} up
 
-db/migrations/down:
+db/migrations/down: tools/db
 	goose -dir=./migrations postgres ${db} down
 
-swag:
+swag: tools/swagger
 	swag init --ot json --parseDependency -g cmd/api/main.go 

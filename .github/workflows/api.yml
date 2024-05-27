@@ -36,6 +36,8 @@ jobs:
         with:
           version: 'latest'
           working-directory: './api'
+      - run: make lint/sql
+        working-directory: './api'
 
   test:
     name: API Test Workflow

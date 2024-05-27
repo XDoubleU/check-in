@@ -1,6 +1,6 @@
 # Check-In API
 
-(Prereq.) Install required packages used by some commands:  `make init`
+(Prereq.) Install required tools used by some commands:  `make tools`
 
 ## Lint Commands
 

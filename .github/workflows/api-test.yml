@@ -31,8 +31,6 @@ jobs:
         with:
           go-version-file: './api/go.mod'
           cache-dependency-path: './api/go.sum'
-      - run: make init
-        working-directory: './api'
       - run: make db/migrations/up
         working-directory: './api'
       - run: make test/cov/report
