@@ -1,21 +1,17 @@
-name: Web Test Workflow
+name: Web Lint Workflow
 
 on:
   workflow_run:
     workflows: [Build Workflow]
     types:
       - completed
-
-  schedule:
-    - cron: "0 22,23 * * 5"
-    - cron: "0 0,1,2 * * 6"
     
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  test:
-    name: Web Test
+  lint:
+    name: Web Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,11 +22,6 @@ jobs:
           cache-dependency-path: './web/yarn.lock'
       - run: yarn install
         working-directory: './web'
-      - run: yarn test:cov
+      - run: yarn lint
         working-directory: './web'
-      - name: Upload coverage reports to Codecov
-        if: always()
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }} # required
-          flags: web
+

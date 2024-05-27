@@ -1,27 +1,15 @@
-name: API Workflow
+name: API Lint Workflow
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_run:
+    workflows: [Build Workflow]
+    types:
+      - completed
     
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  build:
-    name: API Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: './api/go.mod'
-          cache-dependency-path: './api/go.sum'
-      - run: make build
-        working-directory: './api'
-
   lint:
     name: API Lint
     runs-on: ubuntu-latest
@@ -38,8 +26,3 @@ jobs:
           working-directory: './api'
       - run: make lint/sql
         working-directory: './api'
-
-  test:
-    name: API Test Workflow
-    uses: ./.github/workflows/api-test.yml
-    secrets: inherit

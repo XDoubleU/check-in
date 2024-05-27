@@ -35,6 +35,7 @@ lint/fix: tools/swagger
 
 build: 
 	go build -o=./bin/api ./cmd/api
+	make swag
 
 run/api:
 	go run ./cmd/api

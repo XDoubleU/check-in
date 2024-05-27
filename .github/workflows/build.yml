@@ -1,0 +1,40 @@
+name: Build API & Web Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build API & Web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: './api/go.mod'
+          cache-dependency-path: './api/go.sum'
+      - run: make build
+        working-directory: './api'
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: 'yarn'
+          node-version-file: './web/package.json'
+          cache-dependency-path: './web/yarn.lock'
+      - run: yarn install
+        working-directory: './web'
+      - run: yarn build
+        working-directory: './web'        
+
+      - name: Commit generated files
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git commit -m "Commit generated files"
+          git push origin
