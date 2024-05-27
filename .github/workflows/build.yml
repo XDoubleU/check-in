@@ -34,6 +34,7 @@ jobs:
         working-directory: './web'        
 
       - name: Commit generated files
+        id: commit
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +46,7 @@ jobs:
           git push
       
       - name: Stop run if commit has been made
-        if: ${{ success() }}
+        if: steps.build.outcome == 'success'
         run: |
           gh run cancel ${{ github.run_id }}
           gh run watch ${{ github.run_id }}
