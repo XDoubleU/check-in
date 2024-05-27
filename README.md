@@ -5,10 +5,8 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/XDoubleU/check-in)
 
 [![Build API & Web Workflow](https://github.com/XDoubleU/check-in/actions/workflows/build.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/build.yml)
-
 [![API Lint Workflow](https://github.com/XDoubleU/check-in/actions/workflows/api-lint.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/api-lint.yml)
 [![Web Lint Workflow](https://github.com/XDoubleU/check-in/actions/workflows/web-lint.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/web-lint.yml)
-
 [![API Test Workflow](https://github.com/XDoubleU/check-in/actions/workflows/api-test.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/api-test.yml)
 [![Web Test Workflow](https://github.com/XDoubleU/check-in/actions/workflows/web-test.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/web-test.yml)
 
