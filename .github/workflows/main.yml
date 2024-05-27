@@ -1,0 +1,41 @@
+name: Main Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build API & Web Workflow
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  api-lint:
+    needs: build
+    name: API Lint Workflow
+    uses: ./.github/workflows/api-lint.yml
+    secrets: inherit
+    
+  web-lint:
+    needs: build
+    name: Web Lint Workflow
+    uses: ./.github/workflows/web-lint.yml
+    secrets: inherit
+
+  api-test:
+    needs: build
+    name: API Test Workflow
+    uses: ./.github/workflows/api-test.yml
+    secrets: inherit
+    
+  web-test:
+    needs: build
+    name: Web Test Workflow
+    uses: ./.github/workflows/web-test.yml
+    secrets: inherit
+
