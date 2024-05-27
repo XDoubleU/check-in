@@ -1,21 +1,26 @@
 name: Build API & Web Workflow
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-    
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  workflow_call:
+    outputs:
+      committed_generated_files:
+        value: ${{ jobs.build.outputs.committed_generated_files }}
 
 jobs:
   build:
     name: Build API & Web
     runs-on: ubuntu-latest
+    outputs:
+      committed_generated_files: ${{ steps.set_output.outputs.committed_generated_files }}
+    permissions:
+      contents: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
         with:
+          token: ${{ secrets.PAT }}
           ref: ${{ github.head_ref }}
       - uses: actions/setup-go@v5
         with:
@@ -35,12 +40,18 @@ jobs:
         working-directory: './web'        
 
       - name: Commit generated files
+        id: commit
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "GitHub Actions[bot]"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
           git add .
           git commit -m "Commit generated files"
-          git push origin
+          git push
+      
+      - id: set_output
+        run: echo "committed_generated_files=${{ steps.commit.outcome == 'success' }}" >> $GITHUB_OUTPUT
+
+      
