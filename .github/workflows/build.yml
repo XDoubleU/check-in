@@ -6,7 +6,7 @@ on:
   workflow_call:
     outputs:
       committed_generated_files:
-        value: {{ jobs.build.outputs.committed_generated_files }}
+        value: ${{ jobs.build.outputs.committed_generated_files }}
 
 jobs:
   build:
