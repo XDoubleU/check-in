@@ -2,7 +2,7 @@ name: Web Test Workflow
 
 on:
   workflow_run:
-    workflows: [Build Workflow]
+    workflows: [Build API & Web Workflow]
     types:
       - completed
 

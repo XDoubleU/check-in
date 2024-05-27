@@ -2,7 +2,7 @@ name: API Lint Workflow
 
 on:
   workflow_run:
-    workflows: [Build Workflow]
+    workflows: [Build API & Web Workflow]
     types:
       - completed
     
