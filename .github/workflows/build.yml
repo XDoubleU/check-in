@@ -35,6 +35,7 @@ jobs:
         working-directory: './web'        
 
       - name: Commit generated files
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
