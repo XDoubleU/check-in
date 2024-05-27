@@ -4,11 +4,16 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   workflow_call:
+    outputs:
+      committed_generated_files:
+        value: {{ jobs.build.outputs.committed_generated_files }}
 
 jobs:
   build:
     name: Build API & Web
     runs-on: ubuntu-latest
+    outputs:
+      committed_generated_files: ${{ steps.set_output.outputs.committed_generated_files }}
     permissions:
       contents: write
       actions: write
@@ -46,12 +51,7 @@ jobs:
           git commit -m "Commit generated files"
           git push
       
-      - name: Stop run if commit has been made
-        if: steps.commit.outcome == 'success'
-        run: |
-          gh run cancel ${{ github.run_id }}
-          gh run watch ${{ github.run_id }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - id: set_output
+        run: echo "committed_generated_files=${{ steps.commit.outcome == 'success' }}" >> $GITHUB_OUTPUT
 
       

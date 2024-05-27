@@ -23,22 +23,26 @@ jobs:
     name: API Lint Workflow
     uses: ./.github/workflows/api-lint.yml
     secrets: inherit
+    if: needs.build.outputs.committed_generated_files == 'false'
     
   web-lint:
     needs: build
     name: Web Lint Workflow
     uses: ./.github/workflows/web-lint.yml
     secrets: inherit
+    if: needs.build.outputs.committed_generated_files == 'false'
 
   api-test:
     needs: build
     name: API Test Workflow
     uses: ./.github/workflows/api-test.yml
     secrets: inherit
+    if: needs.build.outputs.committed_generated_files == 'false'
     
   web-test:
     needs: build
     name: Web Test Workflow
     uses: ./.github/workflows/web-test.yml
     secrets: inherit
+    if: needs.build.outputs.committed_generated_files == 'false'
 
