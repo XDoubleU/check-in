@@ -1243,8 +1243,16 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 		)
 		assert.Equal(t, rsData.Data[0].Available, fixtureData.DefaultLocation.Available)
 		assert.Equal(t, rsData.Data[0].Capacity, fixtureData.DefaultLocation.Capacity)
-		assert.Equal(t, rsData.Data[0].AvailableYesterday, fixtureData.CheckIns[0].Capacity)
-		assert.Equal(t, rsData.Data[0].CapacityYesterday, fixtureData.CheckIns[0].Capacity)
+		assert.Equal(
+			t,
+			rsData.Data[0].AvailableYesterday,
+			fixtureData.CheckIns[0].Capacity,
+		)
+		assert.Equal(
+			t,
+			rsData.Data[0].CapacityYesterday,
+			fixtureData.CheckIns[0].Capacity,
+		)
 		assert.Equal(
 			t,
 			rsData.Data[0].YesterdayFullAt,
@@ -1289,8 +1297,16 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	)
 	assert.Equal(t, rsData.Data[0].Available, fixtureData.Locations[10].Available)
 	assert.Equal(t, rsData.Data[0].Capacity, fixtureData.Locations[10].Capacity)
-	assert.Equal(t, rsData.Data[0].AvailableYesterday, fixtureData.Locations[10].AvailableYesterday)
-	assert.Equal(t, rsData.Data[0].CapacityYesterday, fixtureData.Locations[10].CapacityYesterday)
+	assert.Equal(
+		t,
+		rsData.Data[0].AvailableYesterday,
+		fixtureData.Locations[10].AvailableYesterday,
+	)
+	assert.Equal(
+		t,
+		rsData.Data[0].CapacityYesterday,
+		fixtureData.Locations[10].CapacityYesterday,
+	)
 	assert.Equal(
 		t,
 		rsData.Data[0].YesterdayFullAt,
@@ -1832,8 +1848,16 @@ func TestUpdateLocation(t *testing.T) {
 		assert.Equal(t, rsData.NormalizedName, *data.Name)
 		assert.Equal(t, rsData.Available, 0)
 		assert.Equal(t, rsData.Capacity, *data.Capacity)
-		assert.Equal(t, rsData.AvailableYesterday, fixtureData.Locations[0].AvailableYesterday)
-		assert.Equal(t, rsData.CapacityYesterday, fixtureData.Locations[0].CapacityYesterday)
+		assert.Equal(
+			t,
+			rsData.AvailableYesterday,
+			fixtureData.Locations[0].AvailableYesterday,
+		)
+		assert.Equal(
+			t,
+			rsData.CapacityYesterday,
+			fixtureData.Locations[0].CapacityYesterday,
+		)
 		assert.Equal(t, rsData.YesterdayFullAt.Valid, false)
 		assert.Equal(t, rsData.TimeZone, *data.TimeZone)
 		assert.Equal(t, rsData.UserID, fixtureData.Locations[0].UserID)
@@ -2185,8 +2209,16 @@ func TestDeleteLocation(t *testing.T) {
 		assert.Equal(t, rsData.NormalizedName, fixtureData.Locations[i].NormalizedName)
 		assert.Equal(t, rsData.Available, fixtureData.Locations[i].Available)
 		assert.Equal(t, rsData.Capacity, fixtureData.Locations[i].Capacity)
-		assert.Equal(t, rsData.AvailableYesterday, fixtureData.Locations[i].AvailableYesterday)
-		assert.Equal(t, rsData.CapacityYesterday, fixtureData.Locations[i].CapacityYesterday)
+		assert.Equal(
+			t,
+			rsData.AvailableYesterday,
+			fixtureData.Locations[i].AvailableYesterday,
+		)
+		assert.Equal(
+			t,
+			rsData.CapacityYesterday,
+			fixtureData.Locations[i].CapacityYesterday,
+		)
 		assert.Equal(
 			t,
 			rsData.YesterdayFullAt,
