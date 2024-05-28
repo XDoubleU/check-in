@@ -41,6 +41,7 @@ func (service CheckInService) GetAllInRange(
 		WHERE check_ins.location_id = any($1)
 		AND (check_ins.created_at AT TIME ZONE locations.time_zone) >= $2
 		AND (check_ins.created_at AT TIME ZONE locations.time_zone) <= $3
+		ORDER BY check_ins.created_at 
 	`
 
 	rows, err := service.db.Query(
@@ -79,48 +80,6 @@ func (service CheckInService) GetAllInRange(
 	}
 
 	return checkIns, nil
-}
-
-func (service CheckInService) GetLastOfDay(
-	ctx context.Context,
-	locationID string,
-	date *time.Time,
-) (*models.CheckIn, error) {
-	query := `
-		SELECT check_ins.id, check_ins.school_id,
-		 check_ins.capacity, (check_ins.created_at AT TIME ZONE locations.time_zone)
-		FROM check_ins
-		INNER JOIN locations
-		ON locations.id = check_ins.location_id
-		WHERE check_ins.location_id = $1
-		AND (check_ins.created_at AT TIME ZONE locations.time_zone) >= $2
-		AND (check_ins.created_at AT TIME ZONE locations.time_zone) <= $3
-		ORDER BY check_ins.created_at DESC
-		LIMIT 1
-	`
-
-	checkIn := models.CheckIn{
-		LocationID: locationID,
-	}
-
-	err := service.db.QueryRow(
-		ctx,
-		query,
-		locationID,
-		helpers.StartOfDay(date),
-		helpers.EndOfDay(date),
-	).Scan(
-		&checkIn.ID,
-		&checkIn.SchoolID,
-		&checkIn.Capacity,
-		&checkIn.CreatedAt,
-	)
-
-	if err != nil {
-		return nil, handleError(err)
-	}
-
-	return &checkIn, nil
 }
 
 func (service CheckInService) GetByID(

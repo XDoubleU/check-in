@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
@@ -293,7 +292,6 @@ func (service LocationService) prepareLocation(
 ) error {
 	var checkInsToday []*models.CheckIn
 	var checkInsYesterday []*models.CheckIn
-	var lastCheckInYesterday *models.CheckIn
 	var err error
 
 	loc, _ := time.LoadLocation(location.TimeZone)
@@ -310,19 +308,9 @@ func (service LocationService) prepareLocation(
 		return err
 	}
 
-	lastCheckInYesterday, err = service.checkins.GetLastOfDay(
-		ctx,
-		location.ID,
-		&yesterday,
-	)
-	if err != nil && !errors.Is(err, ErrRecordNotFound) {
-		return err
-	}
-
 	location.SetCheckInRelatedFields(
 		checkInsToday,
 		checkInsYesterday,
-		lastCheckInYesterday,
 	)
 
 	err = location.NormalizeName()
@@ -468,6 +456,8 @@ func createLocation(
 	if err != nil {
 		return nil, err
 	}
+
+	location.SetCheckInRelatedFields([]*models.CheckIn{}, []*models.CheckIn{})
 
 	return &location, nil
 }
