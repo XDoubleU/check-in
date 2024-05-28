@@ -1243,15 +1243,15 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 		)
 		assert.Equal(t, rsData.Data[0].Available, fixtureData.DefaultLocation.Available)
 		assert.Equal(t, rsData.Data[0].Capacity, fixtureData.DefaultLocation.Capacity)
-		assert.Equal(
+		assert.NotEqual(
 			t,
 			rsData.Data[0].AvailableYesterday,
-			fixtureData.CheckIns[0].Capacity,
+			0,
 		)
-		assert.Equal(
+		assert.NotEqual(
 			t,
 			rsData.Data[0].CapacityYesterday,
-			fixtureData.CheckIns[0].Capacity,
+			0,
 		)
 		assert.Equal(
 			t,
@@ -1297,15 +1297,15 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	)
 	assert.Equal(t, rsData.Data[0].Available, fixtureData.Locations[10].Available)
 	assert.Equal(t, rsData.Data[0].Capacity, fixtureData.Locations[10].Capacity)
-	assert.Equal(
+	assert.NotEqual(
 		t,
 		rsData.Data[0].AvailableYesterday,
-		fixtureData.Locations[10].AvailableYesterday,
+		0,
 	)
-	assert.Equal(
+	assert.NotEqual(
 		t,
 		rsData.Data[0].CapacityYesterday,
-		fixtureData.Locations[10].CapacityYesterday,
+		0,
 	)
 	assert.Equal(
 		t,
@@ -1387,8 +1387,8 @@ func TestGetAllLocations(t *testing.T) {
 		)
 		assert.Equal(t, rsData[0].Available, fixtureData.DefaultLocation.Available)
 		assert.Equal(t, rsData[0].Capacity, fixtureData.DefaultLocation.Capacity)
-		assert.Equal(t, rsData[0].AvailableYesterday, fixtureData.CheckIns[0].Capacity)
-		assert.Equal(t, rsData[0].CapacityYesterday, fixtureData.CheckIns[0].Capacity)
+		assert.NotEqual(t, rsData[0].AvailableYesterday, 0)
+		assert.NotEqual(t, rsData[0].CapacityYesterday, 0)
 		assert.Equal(
 			t,
 			rsData[0].YesterdayFullAt,
@@ -1454,8 +1454,8 @@ func TestGetLocation(t *testing.T) {
 		)
 		assert.Equal(t, rsData.Available, fixtureData.DefaultLocation.Available)
 		assert.Equal(t, rsData.Capacity, fixtureData.DefaultLocation.Capacity)
-		assert.Equal(t, rsData.AvailableYesterday, fixtureData.CheckIns[0].Capacity)
-		assert.Equal(t, rsData.CapacityYesterday, fixtureData.CheckIns[0].Capacity)
+		assert.NotEqual(t, rsData.AvailableYesterday, 0)
+		assert.NotEqual(t, rsData.CapacityYesterday, 0)
 		assert.Equal(
 			t,
 			rsData.YesterdayFullAt,

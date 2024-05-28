@@ -16,6 +16,14 @@ func Equal[T comparable](t *testing.T, actual, expected T) {
 	}
 }
 
+func NotEqual[T comparable](t *testing.T, actual, expected T) {
+	t.Helper()
+	if actual == expected {
+		t.Errorf("got: %v; didn't want: %v", actual, expected)
+		t.FailNow()
+	}
+}
+
 func InRange[T constraints.Integer](t *testing.T, actual, lowerBound, upperBound T) {
 	t.Helper()
 
