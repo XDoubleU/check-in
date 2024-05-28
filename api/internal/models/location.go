@@ -23,19 +23,28 @@ type Location struct {
 func (location *Location) SetCheckInRelatedFields(
 	checkInsToday []*CheckIn,
 	checkInsYesterday []*CheckIn,
-	lastCheckInYesterday *CheckIn,
 ) {
+	var lastCheckInYesterday *CheckIn
+
 	location.Available = location.Capacity - int64(len(checkInsToday))
 	location.CapacityYesterday = 0
-
-	if lastCheckInYesterday != nil {
-		location.CapacityYesterday = lastCheckInYesterday.Capacity
-	}
-
-	location.AvailableYesterday = location.CapacityYesterday - int64(
-		len(checkInsYesterday),
-	)
 	location.YesterdayFullAt = pgtype.Timestamptz{}
+
+	switch {
+	case len(checkInsYesterday) > 0:
+		lastCheckInYesterday = checkInsYesterday[len(checkInsYesterday)-1]
+
+		location.CapacityYesterday = lastCheckInYesterday.Capacity
+		location.AvailableYesterday = location.CapacityYesterday - int64(
+			len(checkInsYesterday),
+		)
+	case len(checkInsToday) > 0:
+		location.CapacityYesterday = checkInsToday[0].Capacity
+		location.AvailableYesterday = checkInsToday[0].Capacity
+	default:
+		location.CapacityYesterday = location.Capacity
+		location.AvailableYesterday = location.Capacity
+	}
 
 	if location.AvailableYesterday == 0 && lastCheckInYesterday != nil {
 		location.YesterdayFullAt = lastCheckInYesterday.CreatedAt
