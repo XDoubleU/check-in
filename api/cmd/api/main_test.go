@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"testing"
 	"time"
 
@@ -236,6 +237,10 @@ func locationFixtures(services services.Services) error {
 
 		fixtureData.CheckIns = append(fixtureData.CheckIns, checkIn)
 	}
+
+	sort.Slice(fixtureData.CheckIns, func(i, j int) bool {
+		return fixtureData.CheckIns[i].CreatedAt.Time.UnixMilli() < fixtureData.CheckIns[j].CreatedAt.Time.UnixMilli()
+	})
 
 	for i := 0; i < 20; i++ {
 		var location *models.Location
