@@ -1,7 +1,11 @@
 //nolint:gomnd //no magic number
 package config
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/XDoubleU/essentia/pkg/config"
+)
 
 type Config struct {
 	Env           string
@@ -28,43 +32,43 @@ const (
 
 //nolint:forbidigo //returns value of config
 func New() Config {
-	var config Config
+	var cfg Config
 
-	config.Env = GetEnvStr("ENV", ProdEnv)
-	fmt.Println("config.Env: ", config.Env)
+	cfg.Env = config.GetEnvStr("ENV", ProdEnv)
+	fmt.Println("cfg.Env: ", cfg.Env)
 
-	config.Port = GetEnvInt("PORT", 8000)
-	fmt.Println("config.Port: ", config.Port)
+	cfg.Port = config.GetEnvInt("PORT", 8000)
+	fmt.Println("cfg.Port: ", cfg.Port)
 
-	config.Throttle = GetEnvBool("THROTTLE", true)
-	fmt.Println("config.Throttle: ", config.Throttle)
+	cfg.Throttle = config.GetEnvBool("THROTTLE", true)
+	fmt.Println("cfg.Throttle: ", cfg.Throttle)
 
-	config.WebURL = GetEnvStr("WEB_URL", "http://localhost:3000")
-	fmt.Println("config.WebURL: ", config.WebURL)
+	cfg.WebURL = config.GetEnvStr("WEB_URL", "http://localhost:3000")
+	fmt.Println("cfg.WebURL: ", cfg.WebURL)
 
-	config.SentryDsn = GetEnvStr("SENTRY_DSN", "")
-	fmt.Println("config.SentryDsn: ", config.SentryDsn)
+	cfg.SentryDsn = config.GetEnvStr("SENTRY_DSN", "")
+	fmt.Println("cfg.SentryDsn: ", cfg.SentryDsn)
 
-	config.SampleRate = GetEnvFloat("SAMPLE_RATE", 1.0)
-	fmt.Println("config.SampleRate: ", config.SampleRate)
+	cfg.SampleRate = config.GetEnvFloat("SAMPLE_RATE", 1.0)
+	fmt.Println("cfg.SampleRate: ", cfg.SampleRate)
 
-	config.AccessExpiry = GetEnvStr("ACCESS_EXPIRY", "1h")
-	fmt.Println("config.AccessExpiry: ", config.AccessExpiry)
+	cfg.AccessExpiry = config.GetEnvStr("ACCESS_EXPIRY", "1h")
+	fmt.Println("cfg.AccessExpiry: ", cfg.AccessExpiry)
 
-	config.RefreshExpiry = GetEnvStr("REFRESH_EXPIRY", "7d")
-	fmt.Println("config.RefreshExpiry: ", config.RefreshExpiry)
+	cfg.RefreshExpiry = config.GetEnvStr("REFRESH_EXPIRY", "7d")
+	fmt.Println("cfg.RefreshExpiry: ", cfg.RefreshExpiry)
 
-	config.DB.Dsn = GetEnvStr("DB_DSN", "postgres://postgres@localhost/postgres")
-	fmt.Println("config.DB.Dsn: ", config.DB.Dsn)
+	cfg.DB.Dsn = config.GetEnvStr("DB_DSN", "postgres://postgres@localhost/postgres")
+	fmt.Println("cfg.DB.Dsn: ", cfg.DB.Dsn)
 
-	config.DB.MaxConns = GetEnvInt("DB_MAX_CONNS", 25)
-	fmt.Println("config.DB.MaxConns: ", config.DB.MaxConns)
+	cfg.DB.MaxConns = config.GetEnvInt("DB_MAX_CONNS", 25)
+	fmt.Println("cfg.DB.MaxConns: ", cfg.DB.MaxConns)
 
-	config.DB.MaxIdleTime = GetEnvStr("DB_MAX_IDLE_TIME", "15m")
-	fmt.Println("config.DB.MaxIdleTime: ", config.DB.MaxIdleTime)
+	cfg.DB.MaxIdleTime = config.GetEnvStr("DB_MAX_IDLE_TIME", "15m")
+	fmt.Println("cfg.DB.MaxIdleTime: ", cfg.DB.MaxIdleTime)
 
-	config.Release = GetEnvStr("RELEASE", DevEnv)
-	fmt.Println("config.Release: ", config.Release)
+	cfg.Release = config.GetEnvStr("RELEASE", DevEnv)
+	fmt.Println("cfg.Release: ", cfg.Release)
 
-	return config
+	return cfg
 }
