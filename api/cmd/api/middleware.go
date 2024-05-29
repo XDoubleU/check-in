@@ -11,6 +11,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	"golang.org/x/time/rate"
 
+	"check-in/api/internal/config"
 	"check-in/api/internal/models"
 	"check-in/api/internal/services"
 )
@@ -29,6 +30,12 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 }
 
 func (app *application) rateLimit(next http.Handler) http.Handler {
+	if app.config.Env == config.TestEnv {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			next.ServeHTTP(w, r)
+		})
+	}
+
 	var rps rate.Limit = 10
 	var bucketSize = 30
 
