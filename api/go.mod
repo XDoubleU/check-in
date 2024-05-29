@@ -1,12 +1,15 @@
 module check-in/api
 
-go 1.21.0
+go 1.22
+
+toolchain go1.22.1
 
 require github.com/justinas/alice v1.2.0
 
 require github.com/julienschmidt/httprouter v1.3.0
 
 require (
+	github.com/XDoubleU/essentia v0.0.0-00010101000000-000000000000
 	github.com/dlclark/regexp2 v1.11.0
 	github.com/getsentry/sentry-go v0.27.0
 	github.com/goddtriffin/helmet v1.0.2
@@ -39,3 +42,5 @@ require (
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 )
+
+replace github.com/XDoubleU/essentia => ../../essentia
