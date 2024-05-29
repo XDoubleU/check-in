@@ -1,21 +1,20 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"check-in/api/internal/assert"
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 	"check-in/api/internal/tests"
+
+	"github.com/XDoubleU/essentia/pkg/test"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetSortedSchoolsOK(t *testing.T) {
@@ -43,17 +42,15 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/checkins/schools", nil)
-	req.AddCookie(tokens.DefaultAccessToken)
-
-	rs, _ := ts.Client().Do(req)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/checkins/schools")
+	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData []models.School
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 	assert.Equal(t, rsData[0].ID, fixtureData.Schools[0].ID)
-	assert.Equal(t, rsData[len(rsData)-1].ID, 1)
+	assert.Equal(t, rsData[len(rsData)-1].ID, int64(1))
 }
 
 func TestGetSortedSchoolsAccess(t *testing.T) {
@@ -63,17 +60,17 @@ func TestGetSortedSchoolsAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/checkins/schools", nil)
+	tReq1 := test.CreateTestRequest(t, ts, http.MethodGet, "/checkins/schools")
 
-	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/checkins/schools", nil)
-	req2.AddCookie(tokens.ManagerAccessToken)
+	tReq2 := test.CreateTestRequest(t, ts, http.MethodGet, "/checkins/schools")
+	tReq2.AddCookie(tokens.ManagerAccessToken)
 
-	req3, _ := http.NewRequest(http.MethodGet, ts.URL+"/checkins/schools", nil)
-	req3.AddCookie(tokens.AdminAccessToken)
+	tReq3 := test.CreateTestRequest(t, ts, http.MethodGet, "/checkins/schools")
+	tReq3.AddCookie(tokens.AdminAccessToken)
 
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-	rs3, _ := ts.Client().Do(req3)
+	rs1 := tReq1.Do(nil)
+	rs2 := tReq2.Do(nil)
+	rs3 := tReq3.Do(nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
@@ -87,22 +84,18 @@ func TestCreateCheckIn(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+
 	data := dtos.CreateCheckInDto{
 		SchoolID: fixtureData.Schools[0].ID,
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/checkins",
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.DefaultAccessToken)
+	tReq.SetReqData(data)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -124,22 +117,18 @@ func TestCreateCheckInAndere(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+
 	data := dtos.CreateCheckInDto{
 		SchoolID: 1,
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/checkins",
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.DefaultAccessToken)
+	tReq.SetReqData(data)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -161,26 +150,22 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+
 	data := dtos.CreateCheckInDto{
 		SchoolID: 1,
 	}
 
-	body, _ := json.Marshal(data)
+	tReq.SetReqData(data)
+
+	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rs *http.Response
-	for i := 0; i < int(fixtureData.DefaultLocation.Capacity)+1; i++ {
-		req, _ := http.NewRequest(
-			http.MethodPost,
-			ts.URL+"/checkins",
-			bytes.NewReader(body),
-		)
-		req.AddCookie(tokens.DefaultAccessToken)
-
-		rs, _ = ts.Client().Do(req)
-	}
-
 	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+
+	for i := 0; i < int(fixtureData.DefaultLocation.Capacity)+1; i++ {
+		rs = tReq.Do(&rsData)
+	}
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message, "location has no available spots")
@@ -193,22 +178,18 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+
 	data := dtos.CreateCheckInDto{
 		SchoolID: 8000,
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/checkins",
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.DefaultAccessToken)
+	tReq.SetReqData(data)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -225,22 +206,18 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+
 	data := dtos.CreateCheckInDto{
 		SchoolID: 0,
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/checkins",
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.DefaultAccessToken)
+	tReq.SetReqData(data)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
 	assert.Equal(
@@ -257,17 +234,17 @@ func TestCreateCheckInAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req1, _ := http.NewRequest(http.MethodPost, ts.URL+"/checkins", nil)
+	tReq1 := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
 
-	req2, _ := http.NewRequest(http.MethodPost, ts.URL+"/checkins", nil)
-	req2.AddCookie(tokens.ManagerAccessToken)
+	tReq2 := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq2.AddCookie(tokens.ManagerAccessToken)
 
-	req3, _ := http.NewRequest(http.MethodPost, ts.URL+"/checkins", nil)
-	req3.AddCookie(tokens.AdminAccessToken)
+	tReq3 := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq3.AddCookie(tokens.AdminAccessToken)
 
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-	rs3, _ := ts.Client().Do(req3)
+	rs1 := tReq1.Do(nil)
+	rs2 := tReq2.Do(nil)
+	rs3 := tReq3.Do(nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)

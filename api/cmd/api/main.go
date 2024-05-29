@@ -23,14 +23,14 @@ type application struct {
 //	@Produce		json
 
 func main() {
-	config := config.New()
+	cfg := config.New()
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
 	db, err := database.Connect(
-		config.DB.Dsn,
-		config.DB.MaxConns,
-		config.DB.MaxIdleTime,
+		cfg.DB.Dsn,
+		cfg.DB.MaxConns,
+		cfg.DB.MaxIdleTime,
 	)
 	if err != nil {
 		panic(err)
@@ -44,7 +44,7 @@ func main() {
 	logger.Printf("connected to database")
 
 	app := &application{
-		config:   config,
+		config:   cfg,
 		logger:   logger,
 		services: services.New(spandb),
 	}

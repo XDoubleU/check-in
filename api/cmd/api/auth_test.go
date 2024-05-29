@@ -1,17 +1,17 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"check-in/api/internal/assert"
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 	"check-in/api/internal/tests"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/XDoubleU/essentia/pkg/test"
 )
 
 func TestSignInUser(t *testing.T) {
@@ -21,22 +21,17 @@ func TestSignInUser(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/auth/signin")
+
 	data := dtos.SignInDto{
 		Username:   "Default",
 		Password:   "testpassword",
 		RememberMe: true,
 	}
-
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/auth/signin",
-		bytes.NewReader(body),
-	)
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
 	var rsData models.User
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -57,22 +52,17 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/auth/signin")
+
 	data := dtos.SignInDto{
 		Username:   "Default",
 		Password:   "testpassword",
 		RememberMe: false,
 	}
-
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/auth/signin",
-		bytes.NewReader(body),
-	)
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
 	var rsData models.User
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -92,22 +82,17 @@ func TestSignInAdmin(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/auth/signin")
+
 	data := dtos.SignInDto{
 		Username:   "Admin",
 		Password:   "testpassword",
 		RememberMe: true,
 	}
-
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/auth/signin",
-		bytes.NewReader(body),
-	)
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
 	var rsData models.User
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -127,22 +112,17 @@ func TestSignInInexistentUser(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/auth/signin")
+
 	data := dtos.SignInDto{
 		Username:   "inexistentuser",
 		Password:   "testpassword",
 		RememberMe: true,
 	}
-
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/auth/signin",
-		bytes.NewReader(body),
-	)
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
 	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rsData.Message, "Invalid Credentials")
@@ -155,22 +135,17 @@ func TestSignInWrongPassword(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/auth/signin")
+
 	data := dtos.SignInDto{
 		Username:   "Default",
 		Password:   "wrongpassword",
 		RememberMe: true,
 	}
-
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/auth/signin",
-		bytes.NewReader(body),
-	)
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
 	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rsData.Message, "Invalid Credentials")
@@ -183,22 +158,17 @@ func TestSignInFailValidation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/auth/signin")
+
 	data := dtos.SignInDto{
 		Username:   "",
 		Password:   "",
 		RememberMe: true,
 	}
-
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/auth/signin",
-		bytes.NewReader(body),
-	)
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
 	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
 	assert.Equal(
@@ -220,11 +190,12 @@ func TestSignOut(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/signout", nil)
-	req.AddCookie(tokens.DefaultAccessToken)
-	req.AddCookie(tokens.DefaultRefreshToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/auth/signout")
 
-	rs, _ := ts.Client().Do(req)
+	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(tokens.DefaultRefreshToken)
+
+	rs := tReq.Do(nil)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken=;")
@@ -238,10 +209,11 @@ func TestSignOutNoRefresh(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/signout", nil)
-	req.AddCookie(tokens.DefaultAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/auth/signout")
 
-	rs, _ := ts.Client().Do(req)
+	tReq.AddCookie(tokens.DefaultAccessToken)
+
+	rs := tReq.Do(nil)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 	assert.Equal(t, len(rs.Header.Values("set-cookie")), 1)
@@ -255,8 +227,9 @@ func TestSignOutNotLoggedIn(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/signout", nil)
-	rs, _ := ts.Client().Do(req)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/auth/signout")
+
+	rs := tReq.Do(nil)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnauthorized)
 }
@@ -268,10 +241,11 @@ func TestRefresh(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/refresh", nil)
-	req.AddCookie(tokens.DefaultRefreshToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/auth/refresh")
 
-	rs, _ := ts.Client().Do(req)
+	tReq.AddCookie(tokens.DefaultRefreshToken)
+
+	rs := tReq.Do(nil)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
@@ -285,11 +259,12 @@ func TestRefreshReusedToken(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/refresh", nil)
-	req.AddCookie(tokens.DefaultRefreshToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/auth/refresh")
 
-	rs1, _ := ts.Client().Do(req)
-	rs2, _ := ts.Client().Do(req)
+	tReq.AddCookie(tokens.DefaultRefreshToken)
+
+	rs1 := tReq.Do(nil)
+	rs2 := tReq.Do(nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusOK)
 	assert.Equal(t, rs2.StatusCode, http.StatusUnauthorized)
@@ -302,10 +277,11 @@ func TestRefreshInvalidToken(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/auth/refresh", nil)
-	req.AddCookie(tokens.DefaultAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/auth/refresh")
 
-	rs, _ := ts.Client().Do(req)
+	tReq.AddCookie(tokens.DefaultAccessToken)
+
+	rs := tReq.Do(nil)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnauthorized)
 }

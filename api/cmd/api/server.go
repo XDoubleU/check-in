@@ -12,6 +12,8 @@ import (
 )
 
 func (app *application) serve() error {
+	app.config.Print()
+
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", app.config.Port),
 		Handler:      app.routes(),
