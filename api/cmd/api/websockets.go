@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
@@ -132,7 +133,7 @@ func (app *application) handleWsError(
 		app.unsubAndClose(conn)
 		err = wsjson.Write(ctx, conn, err)
 		if err != nil {
-			app.logError(err)
+			http_tools.LogError(err)
 		}
 		return
 	}

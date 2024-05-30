@@ -6,6 +6,8 @@ import (
 	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
+
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 )
 
 type UserService struct {
@@ -252,7 +254,7 @@ func (service UserService) Update(
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return ErrRecordNotFound
+		return http_tools.ErrRecordNotFound
 	}
 
 	return nil
@@ -275,7 +277,7 @@ func (service UserService) Delete(
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return ErrRecordNotFound
+		return http_tools.ErrRecordNotFound
 	}
 
 	return nil

@@ -3,17 +3,13 @@ package services
 import (
 	"errors"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"nhooyr.io/websocket"
 
 	"check-in/api/internal/database"
 	"check-in/api/internal/models"
-)
-
-var (
-	ErrRecordNotFound    = errors.New("record not found")
-	ErrRecordUniqueValue = errors.New("record unique value already used")
 )
 
 type Services struct {
@@ -51,11 +47,11 @@ func handleError(err error) error {
 
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return ErrRecordNotFound
+		return http_tools.ErrRecordNotFound
 	case pgxError.Code == "23503":
-		return ErrRecordNotFound
+		return http_tools.ErrRecordNotFound
 	case pgxError.Code == "23505":
-		return ErrRecordUniqueValue
+		return http_tools.ErrRecordUniqueValue
 	default:
 		return err
 	}

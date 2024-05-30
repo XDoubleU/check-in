@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
@@ -54,9 +55,9 @@ func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	r *http.Request) {
 	user := app.contextGetUser(r)
 
-	err := helpers.WriteJSON(w, http.StatusOK, user, nil)
+	err := http_tools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -72,19 +73,19 @@ func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadUUIDURLParam(r, "id")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	user, err := app.services.Users.GetByID(r.Context(), id, models.DefaultRole)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "user", "id", id, "id")
+		http_tools.NotFoundResponse(w, r, err, "user", "id", id, "id", app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, user, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -102,7 +103,7 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 
 	page, err := helpers.ReadIntQueryParam(r, "page", 1)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
@@ -113,13 +114,13 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 		pageSize,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, result, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, result, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -138,16 +139,16 @@ func (app *application) createManagerUserHandler(
 ) {
 	var createUserDto dtos.CreateUserDto
 
-	err := helpers.ReadJSON(r.Body, &createUserDto)
+	err := http_tools.ReadJSON(r.Body, &createUserDto)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
 
 	if dtos.ValidateCreateUserDto(v, createUserDto); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -158,7 +159,7 @@ func (app *application) createManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		app.conflictResponse(
+		http_tools.ConflictResponse(
 			w,
 			r,
 			err,
@@ -166,13 +167,14 @@ func (app *application) createManagerUserHandler(
 			"username",
 			createUserDto.Username,
 			"username",
+			app.hideErrors,
 		)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusCreated, user, nil)
+	err = http_tools.WriteJSON(w, http.StatusCreated, user, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -194,26 +196,26 @@ func (app *application) updateManagerUserHandler(
 
 	id, err := helpers.ReadUUIDURLParam(r, "id")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	err = helpers.ReadJSON(r.Body, &updateUserDto)
+	err = http_tools.ReadJSON(r.Body, &updateUserDto)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
 
 	if dtos.ValidateUpdateUserDto(v, updateUserDto); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	user, err := app.services.Users.GetByID(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "user", "id", id, "id")
+		http_tools.NotFoundResponse(w, r, err, "user", "id", id, "id", app.hideErrors)
 		return
 	}
 
@@ -224,7 +226,7 @@ func (app *application) updateManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		app.conflictResponse(
+		http_tools.ConflictResponse(
 			w,
 			r,
 			err,
@@ -232,13 +234,14 @@ func (app *application) updateManagerUserHandler(
 			"username",
 			*updateUserDto.Username,
 			"username",
+			app.hideErrors,
 		)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, user, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -257,24 +260,24 @@ func (app *application) deleteManagerUserHandler(
 ) {
 	id, err := helpers.ReadUUIDURLParam(r, "id")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	user, err := app.services.Users.GetByID(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "user", "id", id, "id")
+		http_tools.NotFoundResponse(w, r, err, "user", "id", id, "id", app.hideErrors)
 		return
 	}
 
 	err = app.services.Users.Delete(r.Context(), user.ID, models.ManagerRole)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, user, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }

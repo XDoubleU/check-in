@@ -7,6 +7,8 @@ import (
 	"check-in/api/internal/database"
 	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
+
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 )
 
 type CheckInService struct {
@@ -165,7 +167,7 @@ func (service CheckInService) Delete(ctx context.Context, id int64) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return ErrRecordNotFound
+		return http_tools.ErrRecordNotFound
 	}
 
 	return nil

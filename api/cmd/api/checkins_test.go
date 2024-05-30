@@ -13,6 +13,7 @@ import (
 	"check-in/api/internal/models"
 	"check-in/api/internal/tests"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/XDoubleU/essentia/pkg/test"
 	"github.com/stretchr/testify/assert"
 )
@@ -161,7 +162,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rs *http.Response
-	var rsData dtos.ErrorDto
+	var rsData http_tools.ErrorDto
 
 	for i := 0; i < int(fixtureData.DefaultLocation.Capacity)+1; i++ {
 		rs = tReq.Do(&rsData)
@@ -188,7 +189,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
-	var rsData dtos.ErrorDto
+	var rsData http_tools.ErrorDto
 	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
@@ -216,7 +217,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
-	var rsData dtos.ErrorDto
+	var rsData http_tools.ErrorDto
 	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)

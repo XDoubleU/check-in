@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"testing"
@@ -42,7 +41,6 @@ type FixtureData struct {
 var mainTestEnv *tests.MainTestEnv //nolint:gochecknoglobals //global var for tests
 var tokens Tokens                  //nolint:gochecknoglobals //global var for tests
 var cfg config.Config              //nolint:gochecknoglobals //global var for tests
-var logger *log.Logger             //nolint:gochecknoglobals //global var for tests
 var fixtureData FixtureData        //nolint:gochecknoglobals //global var for tests
 
 func clearAll(services services.Services) error {
@@ -323,8 +321,7 @@ func TestMain(m *testing.M) {
 
 	cfg = config.New()
 	cfg.Env = config.TestEnv
-
-	logger = log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	cfg.Throttle = false
 
 	mainTestEnv, err = tests.SetupGlobal(
 		cfg.DB.Dsn,
@@ -354,9 +351,9 @@ func setupTest(
 	testEnv := tests.SetupSingle(mainTestEnv)
 
 	testApp := &application{
-		config:   cfg,
-		logger:   logger,
-		services: services.New(testEnv.TestTx),
+		config:     cfg,
+		services:   services.New(testEnv.TestTx),
+		hideErrors: false,
 	}
 
 	return testEnv, testApp
