@@ -4,13 +4,12 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
-	"check-in/api/internal/services"
 	"check-in/api/internal/validator"
 )
 
@@ -39,25 +38,25 @@ func (app *application) authRoutes(router *httprouter.Router) {
 func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 	var signInDto dtos.SignInDto
 
-	err := helpers.ReadJSON(r.Body, &signInDto)
+	err := http_tools.ReadJSON(r.Body, &signInDto)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
 
 	if dtos.ValidateSignInDto(v, signInDto); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	user, err := app.services.Users.GetByUsername(r.Context(), signInDto.Username)
 	if err != nil {
-		if errors.Is(err, services.ErrRecordNotFound) {
-			app.unauthorizedResponse(w, r, "Invalid Credentials")
+		if errors.Is(err, http_tools.ErrRecordNotFound) {
+			http_tools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		} else {
-			app.serverErrorResponse(w, r, err)
+			http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		}
 
 		return
@@ -65,7 +64,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	match, _ := user.CompareHashAndPassword(signInDto.Password)
 	if !match {
-		app.unauthorizedResponse(w, r, "Invalid Credentials")
+		http_tools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		return
 	}
 
@@ -78,7 +77,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -94,16 +93,16 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 			secure,
 		)
 		if err != nil {
-			app.serverErrorResponse(w, r, err)
+			http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 			return
 		}
 
 		http.SetCookie(w, refreshTokenCookie)
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, user, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -121,7 +120,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 		accessToken.Value,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -136,7 +135,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 		refreshToken.Value,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -161,7 +160,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -175,7 +174,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 

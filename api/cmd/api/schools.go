@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
@@ -48,7 +49,7 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 
 	page, err := helpers.ReadIntQueryParam(r, "page", 1)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
@@ -59,13 +60,13 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 		pageSize,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, result, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, result, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -81,28 +82,28 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	var schoolDto dtos.SchoolDto
 
-	err := helpers.ReadJSON(r.Body, &schoolDto)
+	err := http_tools.ReadJSON(r.Body, &schoolDto)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
 
 	if dtos.ValidateSchoolDto(v, schoolDto); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	school, err := app.services.Schools.Create(r.Context(), schoolDto.Name)
 	if err != nil {
-		app.conflictResponse(w, r, err, "school", "name", schoolDto.Name, "name")
+		http_tools.ConflictResponse(w, r, err, "school", "name", schoolDto.Name, "name", app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusCreated, school, nil)
+	err = http_tools.WriteJSON(w, http.StatusCreated, school, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -121,38 +122,38 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	id, err := helpers.ReadIntURLParam(r, "id")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	err = helpers.ReadJSON(r.Body, &schoolDto)
+	err = http_tools.ReadJSON(r.Body, &schoolDto)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
 
 	if dtos.ValidateSchoolDto(v, schoolDto); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "school", "id", id, "id")
+		http_tools.NotFoundResponse(w, r, err, "school", "id", id, "id", app.hideErrors)
 		return
 	}
 
 	err = app.services.Schools.Update(r.Context(), school, schoolDto)
 	if err != nil {
-		app.conflictResponse(w, r, err, "school", "name", schoolDto.Name, "name")
+		http_tools.ConflictResponse(w, r, err, "school", "name", schoolDto.Name, "name", app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, school, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, school, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -168,24 +169,24 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadIntURLParam(r, "id")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "school", "id", id, "id")
+		http_tools.NotFoundResponse(w, r, err, "school", "id", id, "id", app.hideErrors)
 		return
 	}
 
 	err = app.services.Schools.Delete(r.Context(), school.ID)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, school, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, school, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }

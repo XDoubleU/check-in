@@ -1,19 +1,19 @@
 package main
 
 import (
-	"log"
-	"os"
 	_ "time/tzdata"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/database"
 	"check-in/api/internal/services"
+
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 )
 
 type application struct {
-	config   config.Config
-	logger   *log.Logger
-	services services.Services
+	config     config.Config
+	services   services.Services
+	hideErrors bool
 }
 
 //	@title			Check-In API
@@ -24,8 +24,6 @@ type application struct {
 
 func main() {
 	cfg := config.New()
-
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
 	db, err := database.Connect(
 		cfg.DB.Dsn,
@@ -41,16 +39,18 @@ func main() {
 		DB: db,
 	}
 
-	logger.Printf("connected to database")
+	http_tools.GetLogger().Printf("connected to database")
 
 	app := &application{
-		config:   cfg,
-		logger:   logger,
-		services: services.New(spandb),
+		config:     cfg,
+		services:   services.New(spandb),
+		hideErrors: cfg.Env == config.ProdEnv,
 	}
 
-	err = app.serve()
+	app.config.Print()
+
+	err = http_tools.Serve(app.config.Port, app.routes(), app.config.Env)
 	if err != nil {
-		logger.Fatal(err)
+		http_tools.GetLogger().Fatal(err)
 	}
 }

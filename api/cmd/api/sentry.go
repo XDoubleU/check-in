@@ -7,31 +7,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	sentryhttp "github.com/getsentry/sentry-go/http"
 )
-
-func (app *application) getSentryHandler() *sentryhttp.Handler {
-	if len(app.config.SentryDsn) == 0 {
-		return nil
-	}
-
-	err := sentry.Init(sentry.ClientOptions{
-		Dsn:              app.config.SentryDsn,
-		Environment:      app.config.Env,
-		Release:          app.config.Release,
-		EnableTracing:    true,
-		TracesSampleRate: app.config.SampleRate,
-	})
-
-	if err != nil {
-		app.logger.Printf("sentry initialization failed: %v\n", err)
-		return nil
-	}
-
-	return sentryhttp.New(sentryhttp.Options{
-		Repanic: true,
-	})
-}
 
 func sentryGoRoutineErrorHandler(name string, f func(ctx context.Context) error) {
 	name = fmt.Sprintf("GO ROUTINE %s", name)

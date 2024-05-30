@@ -4,10 +4,10 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/validator"
 )
 
@@ -38,7 +38,7 @@ func (app *application) getSortedSchoolsHandler(
 	user := app.contextGetUser(r)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -47,13 +47,13 @@ func (app *application) getSortedSchoolsHandler(
 		location.ID,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, schools, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, schools, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -69,29 +69,29 @@ func (app *application) getSortedSchoolsHandler(
 func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
 	var createCheckInDto dtos.CreateCheckInDto
 
-	err := helpers.ReadJSON(r.Body, &createCheckInDto)
+	err := http_tools.ReadJSON(r.Body, &createCheckInDto)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
 
 	if dtos.ValidateCreateCheckInDto(v, createCheckInDto); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	user := app.contextGetUser(r)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
 	school, err := app.services.Schools.GetByID(r.Context(), createCheckInDto.SchoolID)
 	if err != nil {
-		app.notFoundResponse(
+		http_tools.NotFoundResponse(
 			w,
 			r,
 			err,
@@ -99,12 +99,13 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 			"id",
 			createCheckInDto.SchoolID,
 			"schoolId",
+			app.hideErrors,
 		)
 		return
 	}
 
 	if location.Available <= 0 {
-		app.badRequestResponse(w, r, errors.New("location has no available spots"))
+		http_tools.BadRequestResponse(w, r, errors.New("location has no available spots"))
 		return
 	}
 
@@ -114,7 +115,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		school,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -128,8 +129,8 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		CreatedAt:  checkIn.CreatedAt,
 	}
 
-	err = helpers.WriteJSON(w, http.StatusCreated, checkInDto, nil)
+	err = http_tools.WriteJSON(w, http.StatusCreated, checkInDto, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
