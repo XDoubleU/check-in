@@ -11,6 +11,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/XDoubleU/essentia/pkg/test"
 )
 
@@ -121,7 +122,7 @@ func TestSignInInexistentUser(t *testing.T) {
 	}
 	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
+	var rsData http_tools.ErrorDto
 	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnauthorized)
@@ -144,7 +145,7 @@ func TestSignInWrongPassword(t *testing.T) {
 	}
 	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
+	var rsData http_tools.ErrorDto
 	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnauthorized)
@@ -167,7 +168,7 @@ func TestSignInFailValidation(t *testing.T) {
 	}
 	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
+	var rsData http_tools.ErrorDto
 	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)

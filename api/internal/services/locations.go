@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/jackc/pgx/v5"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
@@ -343,7 +344,7 @@ func (service LocationService) GetByName(
 		}
 	}
 
-	return nil, ErrRecordNotFound
+	return nil, http_tools.ErrRecordNotFound
 }
 
 func (service LocationService) Create(
@@ -559,7 +560,7 @@ func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) e
 
 	rowsAffected := resultLocation.RowsAffected()
 	if rowsAffected == 0 {
-		return ErrRecordNotFound
+		return http_tools.ErrRecordNotFound
 	}
 
 	err = location.NormalizeName()
@@ -591,7 +592,7 @@ func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 
 	rowsAffected := resultUser.RowsAffected()
 	if rowsAffected == 0 {
-		return ErrRecordNotFound
+		return http_tools.ErrRecordNotFound
 	}
 
 	return nil
@@ -638,7 +639,7 @@ func deleteLocation(ctx context.Context, tx pgx.Tx, id string) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return ErrRecordNotFound
+		return http_tools.ErrRecordNotFound
 	}
 
 	return nil
@@ -657,7 +658,7 @@ func deleteUser(ctx context.Context, tx pgx.Tx, id string) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return ErrRecordNotFound
+		return http_tools.ErrRecordNotFound
 	}
 
 	return nil

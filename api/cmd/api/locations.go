@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
-	"check-in/api/internal/services"
 	"check-in/api/internal/validator"
 )
 
@@ -83,29 +83,29 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	r *http.Request) {
 	ids, err := helpers.ReadUUIDArrayQueryParam(r, "ids")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	returnType := helpers.ReadStrQueryParam(r, "returnType", "")
 	if returnType == "" {
-		app.badRequestResponse(w, r, errors.New("missing returnType param in query"))
+		http_tools.BadRequestResponse(w, r, errors.New("missing returnType param in query"))
 		return
 	}
 
 	date, err := helpers.ReadDateQueryParam(r, "date", nil)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 	if date == nil {
-		app.badRequestResponse(w, r, errors.New("missing date param in query"))
+		http_tools.BadRequestResponse(w, r, errors.New("missing date param in query"))
 		return
 	}
 
 	schools, err := app.services.Schools.GetAll(r.Context())
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -119,7 +119,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		location, err = app.services.Locations.GetByID(r.Context(), id)
 		if err != nil ||
 			(user.Role == models.DefaultRole && location.UserID != user.ID) {
-			app.notFoundResponse(w, r, err, "location", "id", id, "id")
+			http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
 			return
 		}
 	}
@@ -131,7 +131,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		endDate,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -149,13 +149,13 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		data := dtos.ConvertCheckInsLocationEntryRawMapToCSV(
 			checkInEntries,
 		)
-		err = helpers.WriteCSV(w, filename, data)
+		err = http_tools.WriteCSV(w, filename, data)
 	} else {
-		err = helpers.WriteJSON(w, http.StatusOK, checkInEntries, nil)
+		err = http_tools.WriteJSON(w, http.StatusOK, checkInEntries, nil)
 	}
 
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -177,33 +177,33 @@ func (app *application) getLocationCheckInsRangeHandler(
 ) {
 	ids, err := helpers.ReadUUIDArrayQueryParam(r, "ids")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	returnType := helpers.ReadStrQueryParam(r, "returnType", "")
 	if returnType == "" {
-		app.badRequestResponse(w, r, errors.New("missing returnType param in query"))
+		http_tools.BadRequestResponse(w, r, errors.New("missing returnType param in query"))
 		return
 	}
 
 	startDate, err := helpers.ReadDateQueryParam(r, "startDate", nil)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 	if startDate == nil {
-		app.badRequestResponse(w, r, errors.New("missing startDate param in query"))
+		http_tools.BadRequestResponse(w, r, errors.New("missing startDate param in query"))
 		return
 	}
 
 	endDate, err := helpers.ReadDateQueryParam(r, "endDate", nil)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 	if endDate == nil {
-		app.badRequestResponse(w, r, errors.New("missing endDate param in query"))
+		http_tools.BadRequestResponse(w, r, errors.New("missing endDate param in query"))
 		return
 	}
 
@@ -212,7 +212,7 @@ func (app *application) getLocationCheckInsRangeHandler(
 
 	schools, err := app.services.Schools.GetAll(r.Context())
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -223,7 +223,7 @@ func (app *application) getLocationCheckInsRangeHandler(
 		location, err = app.services.Locations.GetByID(r.Context(), id)
 		if err != nil ||
 			(user.Role == models.DefaultRole && location.UserID != user.ID) {
-			app.notFoundResponse(w, r, err, "location", "id", id, "id")
+			http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
 			return
 		}
 	}
@@ -235,7 +235,7 @@ func (app *application) getLocationCheckInsRangeHandler(
 		endDate,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -255,13 +255,13 @@ func (app *application) getLocationCheckInsRangeHandler(
 		data := dtos.ConvertCheckInsLocationEntryRawMapToCSV(
 			checkInEntries,
 		)
-		err = helpers.WriteCSV(w, filename, data)
+		err = http_tools.WriteCSV(w, filename, data)
 	} else {
-		err = helpers.WriteJSON(w, http.StatusOK, checkInEntries, nil)
+		err = http_tools.WriteJSON(w, http.StatusOK, checkInEntries, nil)
 	}
 
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -276,7 +276,7 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 	r *http.Request) {
 	id, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
@@ -284,7 +284,7 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		app.notFoundResponse(w, r, err, "location", "id", id, "id")
+		http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
 		return
 	}
 
@@ -300,13 +300,13 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		endOfToday,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
 	schools, err := app.services.Schools.GetAll(r.Context())
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -324,9 +324,9 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		checkInDtos = append(checkInDtos, checkInDto)
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, checkInDtos, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, checkInDtos, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -346,25 +346,25 @@ func (app *application) deleteLocationCheckInHandler(
 ) {
 	locationID, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	checkInID, err := helpers.ReadIntURLParam(r, "checkInId")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	location, err := app.services.Locations.GetByID(r.Context(), locationID)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "location", "id", locationID, "id")
+		http_tools.NotFoundResponse(w, r, err, "location", "id", locationID, "id", app.hideErrors)
 		return
 	}
 
 	checkIn, err := app.services.CheckIns.GetByID(r.Context(), location, checkInID)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "checkIn", "id", checkInID, "id")
+		http_tools.NotFoundResponse(w, r, err, "checkIn", "id", checkInID, "id", app.hideErrors)
 		return
 	}
 
@@ -374,7 +374,7 @@ func (app *application) deleteLocationCheckInHandler(
 
 	if !(checkIn.CreatedAt.Time.After(*startOfToday) &&
 		checkIn.CreatedAt.Time.Before(*endOfToday)) {
-		app.badRequestResponse(
+		http_tools.BadRequestResponse(
 			w,
 			r,
 			errors.New("checkIn didn't occur today and thus can't be deleted"),
@@ -384,13 +384,13 @@ func (app *application) deleteLocationCheckInHandler(
 
 	err = app.services.CheckIns.Delete(r.Context(), checkIn.ID)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
 	schools, err := app.services.Schools.GetAll(r.Context())
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 	schoolMap, _ := app.services.Schools.GetSchoolMaps(schools)
@@ -403,9 +403,9 @@ func (app *application) deleteLocationCheckInHandler(
 		CreatedAt:  checkIn.CreatedAt,
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, checkInDto, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, checkInDto, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -421,7 +421,7 @@ func (app *application) deleteLocationCheckInHandler(
 func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
@@ -429,13 +429,13 @@ func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		app.notFoundResponse(w, r, err, "location", "id", id, "id")
+		http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, location, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, location, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -453,7 +453,7 @@ func (app *application) getPaginatedLocationsHandler(w http.ResponseWriter,
 
 	page, err := helpers.ReadIntQueryParam(r, "page", 1)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
@@ -464,13 +464,13 @@ func (app *application) getPaginatedLocationsHandler(w http.ResponseWriter,
 		pageSize,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, result, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, result, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -485,13 +485,13 @@ func (app *application) getAllLocationsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	locations, err := app.services.Locations.GetAll(r.Context())
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, locations, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, locations, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -507,16 +507,16 @@ func (app *application) getAllLocationsHandler(w http.ResponseWriter,
 func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Request) {
 	var createLocationDto dtos.CreateLocationDto
 
-	err := helpers.ReadJSON(r.Body, &createLocationDto)
+	err := http_tools.ReadJSON(r.Body, &createLocationDto)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
 
 	if dtos.ValidateCreateLocationDto(v, createLocationDto); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -524,8 +524,8 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		r.Context(),
 		createLocationDto.Name,
 	)
-	if existingLocation != nil || !errors.Is(err, services.ErrRecordNotFound) {
-		app.conflictResponse(
+	if existingLocation != nil || !errors.Is(err, http_tools.ErrRecordNotFound) {
+		http_tools.ConflictResponse(
 			w,
 			r,
 			err,
@@ -533,6 +533,7 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 			"name",
 			createLocationDto.Name,
 			"name",
+			app.hideErrors,
 		)
 		return
 	}
@@ -541,8 +542,8 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		r.Context(),
 		createLocationDto.Username,
 	)
-	if existingUser != nil || !errors.Is(err, services.ErrRecordNotFound) {
-		app.conflictResponse(
+	if existingUser != nil || !errors.Is(err, http_tools.ErrRecordNotFound) {
+		http_tools.ConflictResponse(
 			w,
 			r,
 			err,
@@ -550,6 +551,7 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 			"username",
 			createLocationDto.Username,
 			"username",
+			app.hideErrors,
 		)
 		return
 	}
@@ -563,13 +565,13 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		createLocationDto.Password,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusCreated, location, nil)
+	err = http_tools.WriteJSON(w, http.StatusCreated, location, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -589,20 +591,20 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 
 	id, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	err = helpers.ReadJSON(r.Body, &updateLocationDto)
+	err = http_tools.ReadJSON(r.Body, &updateLocationDto)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
 
 	if dtos.ValidateUpdateLocationDto(v, updateLocationDto); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -615,7 +617,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		app.notFoundResponse(w, r, err, "location", "id", id, "id")
+		http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
 		return
 	}
 
@@ -625,7 +627,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 		models.DefaultRole,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
@@ -636,15 +638,15 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 		updateLocationDto,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
 	app.services.WebSockets.AddUpdateEvent(*location)
 
-	err = helpers.WriteJSON(w, http.StatusOK, location, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, location, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
 
@@ -659,8 +661,8 @@ func (app *application) checkForConflictsOnUpdate(
 			*updateLocationDto.Name,
 		)
 
-		if existingLocation != nil || !errors.Is(err, services.ErrRecordNotFound) {
-			app.conflictResponse(
+		if existingLocation != nil || !errors.Is(err, http_tools.ErrRecordNotFound) {
+			http_tools.ConflictResponse(
 				w,
 				r,
 				err,
@@ -668,6 +670,7 @@ func (app *application) checkForConflictsOnUpdate(
 				"name",
 				*updateLocationDto.Name,
 				"name",
+				app.hideErrors,
 			)
 			return true
 		}
@@ -679,8 +682,8 @@ func (app *application) checkForConflictsOnUpdate(
 			*updateLocationDto.Username,
 		)
 
-		if existingUser != nil || !errors.Is(err, services.ErrRecordNotFound) {
-			app.conflictResponse(
+		if existingUser != nil || !errors.Is(err, http_tools.ErrRecordNotFound) {
+			http_tools.ConflictResponse(
 				w,
 				r,
 				err,
@@ -688,6 +691,7 @@ func (app *application) checkForConflictsOnUpdate(
 				"username",
 				*updateLocationDto.Username,
 				"username",
+				app.hideErrors,
 			)
 			return true
 		}
@@ -708,24 +712,24 @@ func (app *application) checkForConflictsOnUpdate(
 func (app *application) deleteLocationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := helpers.ReadUUIDURLParam(r, "locationId")
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil {
-		app.notFoundResponse(w, r, err, "location", "id", id, "id")
+		http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
 		return
 	}
 
 	err = app.services.Locations.Delete(r.Context(), location)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, location, nil)
+	err = http_tools.WriteJSON(w, http.StatusOK, location, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 	}
 }
