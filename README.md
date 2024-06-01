@@ -1,9 +1,9 @@
 # <p align="center">Check-In 👉🔴</p>
 
 ![GitHub](https://img.shields.io/github/license/XDoubleU/check-in)
+[![Main Workflow](https://github.com/XDoubleU/check-in/actions/workflows/main.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/XDoubleU/check-in/branch/main/graph/badge.svg?token=8IY0BGQ5RW)](https://codecov.io/gh/XDoubleU/check-in)
 ![GitHub last commit](https://img.shields.io/github/last-commit/XDoubleU/check-in)
-[![Main Workflow](https://github.com/XDoubleU/check-in/actions/workflows/main.yml/badge.svg)](https://github.com/XDoubleU/check-in/actions/workflows/main.yml)
 
 This web application allows you to manage check-ins at multiple locations. Users can anonymously check-in by simply pressing a button. The app utilizes a websocket connection to display live location capacity on your website, allowing you to provide up-to-date information to your visitors.
 
