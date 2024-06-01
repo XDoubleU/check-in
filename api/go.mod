@@ -35,7 +35,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/rs/cors v1.11.0
 	golang.org/x/crypto v0.23.0
-	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
+	golang.org/x/exp v0.0.0-20240531132922-fd00a4e0eefc
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 )
