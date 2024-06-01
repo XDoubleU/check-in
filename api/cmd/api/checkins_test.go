@@ -51,7 +51,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 	assert.Equal(t, rsData[0].ID, fixtureData.Schools[0].ID)
-	assert.Equal(t, rsData[len(rsData)-1].ID, int64(1))
+	assert.EqualValues(t, rsData[len(rsData)-1].ID, 1)
 }
 
 func TestGetSortedSchoolsAccess(t *testing.T) {
@@ -209,23 +209,19 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 
 	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
 
-	data := dtos.CreateCheckInDto{
+	tReq.SetReqData(dtos.CreateCheckInDto{
 		SchoolID: 0,
-	}
-
-	tReq.SetReqData(data)
+	})
 
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	vt := test.CreateValidatorTester(t)
 
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["schoolId"],
-		"must be greater than zero",
-	)
+	vt.AddTestCase(tReq, map[string]interface{}{
+		"schoolId": "must be greater than zero",
+	})
+
+	vt.Do()
 }
 
 func TestCreateCheckInAccess(t *testing.T) {

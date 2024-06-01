@@ -12,7 +12,6 @@ import (
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
-	"check-in/api/internal/validator"
 )
 
 func (app *application) locationsRoutes(router *httprouter.Router) {
@@ -513,9 +512,7 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateCreateLocationDto(v, createLocationDto); !v.Valid() {
+	if v := createLocationDto.Validate(); !v.Valid() {
 		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
@@ -601,9 +598,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateUpdateLocationDto(v, updateLocationDto); !v.Valid() {
+	if v := updateLocationDto.Validate(); !v.Valid() {
 		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}

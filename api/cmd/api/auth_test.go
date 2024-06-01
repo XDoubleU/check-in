@@ -161,27 +161,20 @@ func TestSignInFailValidation(t *testing.T) {
 
 	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/auth/signin")
 
-	data := dtos.SignInDto{
+	tReq.SetReqData(dtos.SignInDto{
 		Username:   "",
 		Password:   "",
 		RememberMe: true,
+	})
+
+	errorMessage := map[string]interface{}{
+		"username": "must be provided",
+		"password": "must be provided",
 	}
-	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
-
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["username"],
-		"must be provided",
-	)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["password"],
-		"must be provided",
-	)
+	vt := test.CreateValidatorTester(t)
+	vt.AddTestCase(tReq, errorMessage)
+	vt.Do()
 }
 
 func TestSignOut(t *testing.T) {

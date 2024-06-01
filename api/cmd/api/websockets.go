@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -15,7 +14,6 @@ import (
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/validator"
 )
 
 func (app *application) websocketsRoutes(router *httprouter.Router) {
@@ -48,10 +46,8 @@ func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateSubscribeMessageDto(v, msg); !v.Valid() {
-		app.handleWsError(r.Context(), conn, errors.New(v.Errors["normalizedName"]))
+	if v := msg.Validate(); !v.Valid() {
+		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 

@@ -2,7 +2,8 @@ package dtos
 
 import (
 	"check-in/api/internal/models"
-	"check-in/api/internal/validator"
+
+	"github.com/XDoubleU/essentia/pkg/validator"
 )
 
 type PaginatedUsersDto struct {
@@ -19,17 +20,25 @@ type UpdateUserDto struct {
 	Password *string `json:"password"`
 } //	@name	UpdateUserDto
 
-func ValidateCreateUserDto(v *validator.Validator, createUserDto CreateUserDto) {
-	v.Check(createUserDto.Username != "", "username", "must be provided")
-	v.Check(createUserDto.Password != "", "password", "must be provided")
+func (dto CreateUserDto) Validate() *validator.Validator {
+	v := validator.New()
+
+	v.Check(dto.Username != "", "username", "must be provided")
+	v.Check(dto.Password != "", "password", "must be provided")
+
+	return v
 }
 
-func ValidateUpdateUserDto(v *validator.Validator, updateUserDto UpdateUserDto) {
-	if updateUserDto.Username != nil {
-		v.Check(*updateUserDto.Username != "", "username", "must be provided")
+func (dto UpdateUserDto) Validate() *validator.Validator {
+	v := validator.New()
+
+	if dto.Username != nil {
+		v.Check(*dto.Username != "", "username", "must be provided")
 	}
 
-	if updateUserDto.Password != nil {
-		v.Check(*updateUserDto.Password != "", "password", "must be provided")
+	if dto.Password != nil {
+		v.Check(*dto.Password != "", "password", "must be provided")
 	}
+
+	return v
 }

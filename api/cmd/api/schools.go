@@ -9,7 +9,6 @@ import (
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
-	"check-in/api/internal/validator"
 )
 
 func (app *application) schoolsRoutes(router *httprouter.Router) {
@@ -88,9 +87,7 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateSchoolDto(v, schoolDto); !v.Valid() {
+	if v := schoolDto.Validate(); !v.Valid() {
 		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
@@ -132,9 +129,7 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateSchoolDto(v, schoolDto); !v.Valid() {
+	if v := schoolDto.Validate(); !v.Valid() {
 		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}

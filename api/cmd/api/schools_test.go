@@ -39,10 +39,10 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
 		assert.EqualValues(t, rsData.Pagination.Current, 1)
-		assert.Equal(
+		assert.EqualValues(
 			t,
 			rsData.Pagination.Total,
-			int64(math.Ceil(float64(fixtureData.AmountOfLocations)/4)),
+			math.Ceil(float64(fixtureData.AmountOfLocations)/4),
 		)
 		assert.Equal(t, len(rsData.Data), 4)
 
@@ -72,10 +72,10 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
 	assert.EqualValues(t, rsData.Pagination.Current, 2)
-	assert.Equal(
+	assert.EqualValues(
 		t,
 		rsData.Pagination.Total,
-		int64(math.Ceil(float64(fixtureData.AmountOfLocations)/4)),
+		math.Ceil(float64(fixtureData.AmountOfLocations)/4),
 	)
 	assert.Equal(t, len(rsData.Data), 4)
 
@@ -191,24 +191,19 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	data := dtos.SchoolDto{
-		Name: "",
-	}
-
 	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetReqData(dtos.SchoolDto{
+		Name: "",
+	})
 
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	vt := test.CreateValidatorTester(t)
+	vt.AddTestCase(tReq, map[string]interface{}{
+		"name": "must be provided",
+	})
 
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["name"],
-		"must be provided",
-	)
+	vt.Do()
 }
 
 func TestCreateSchoolAccess(t *testing.T) {
@@ -375,24 +370,19 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	data := dtos.SchoolDto{
-		Name: "",
-	}
-
 	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetReqData(dtos.SchoolDto{
+		Name: "",
+	})
 
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	vt := test.CreateValidatorTester(t)
+	vt.AddTestCase(tReq, map[string]interface{}{
+		"name": "must be provided",
+	})
 
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["name"],
-		"must be provided",
-	)
+	vt.Do()
 }
 
 func TestUpdateSchoolAccess(t *testing.T) {
