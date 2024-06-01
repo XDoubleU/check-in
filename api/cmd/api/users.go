@@ -9,7 +9,6 @@ import (
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
-	"check-in/api/internal/validator"
 )
 
 func (app *application) usersRoutes(router *httprouter.Router) {
@@ -145,9 +144,7 @@ func (app *application) createManagerUserHandler(
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateCreateUserDto(v, createUserDto); !v.Valid() {
+	if v := createUserDto.Validate(); !v.Valid() {
 		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
@@ -206,9 +203,7 @@ func (app *application) updateManagerUserHandler(
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateUpdateUserDto(v, updateUserDto); !v.Valid() {
+	if v := updateUserDto.Validate(); !v.Valid() {
 		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}

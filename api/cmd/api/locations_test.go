@@ -62,7 +62,7 @@ func TestYesterdayFullAt(t *testing.T) {
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-	assert.Equal(t, rsData.AvailableYesterday, int64(0))
+	assert.EqualValues(t, rsData.AvailableYesterday, 0)
 	assert.Equal(t, rsData.CapacityYesterday, fixtureData.DefaultLocation.Capacity)
 	assert.Equal(t, rsData.YesterdayFullAt.Valid, true)
 	assert.Equal(t, rsData.YesterdayFullAt.Time.Day(), now.Day())
@@ -1045,11 +1045,11 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-		assert.Equal(t, rsData.Pagination.Current, int64(1))
-		assert.Equal(
+		assert.EqualValues(t, rsData.Pagination.Current, 1)
+		assert.EqualValues(
 			t,
 			rsData.Pagination.Total,
-			int64(math.Ceil(float64(fixtureData.AmountOfLocations)/3)),
+			math.Ceil(float64(fixtureData.AmountOfLocations)/3),
 		)
 		assert.Equal(t, len(rsData.Data), 3)
 
@@ -1101,11 +1101,11 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-	assert.Equal(t, rsData.Pagination.Current, int64(2))
-	assert.Equal(
+	assert.EqualValues(t, rsData.Pagination.Current, 2)
+	assert.EqualValues(
 		t,
 		rsData.Pagination.Total,
-		int64(math.Ceil(float64(fixtureData.AmountOfLocations)/3)),
+		math.Ceil(float64(fixtureData.AmountOfLocations)/3),
 	)
 	assert.Equal(t, len(rsData.Data), 3)
 
@@ -1498,65 +1498,46 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 	)
 }
 
-func TestCreateLocationInvalidCapacity(t *testing.T) {
+func TestCreateLocationFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	data := dtos.CreateLocationDto{
+	vt := test.CreateValidatorTester(t)
+
+	tReq1 := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
+	tReq1.AddCookie(tokens.ManagerAccessToken)
+
+	tReq1.SetReqData(dtos.CreateLocationDto{
 		Name:     "test",
 		Capacity: -1,
 		Username: "test",
 		Password: "testpassword",
-	}
+		TimeZone: "Europe/Brussels",
+	})
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
-	tReq.AddCookie(tokens.ManagerAccessToken)
+	vt.AddTestCase(tReq1, map[string]interface{}{
+		"capacity": "must be greater than zero",
+	})
 
-	tReq.SetReqData(data)
+	tReq2 := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
+	tReq2.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
-
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["capacity"],
-		"must be greater than zero",
-	)
-}
-
-func TestCreateLocationInvalidTimeZone(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
-	data := dtos.CreateLocationDto{
+	tReq2.SetReqData(dtos.CreateLocationDto{
 		Name:     "test",
 		Capacity: 10,
 		Username: "test",
 		Password: "testpassword",
 		TimeZone: "wrong",
-	}
+	})
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
-	tReq.AddCookie(tokens.ManagerAccessToken)
+	vt.AddTestCase(tReq2, map[string]interface{}{
+		"timeZone": "must be a valid IANA value",
+	})
 
-	tReq.SetReqData(data)
-
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
-
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["timeZone"],
-		"must be provided and must be a valid IANA value",
-	)
+	vt.Do()
 }
 
 func TestCreateLocationAccess(t *testing.T) {
@@ -1615,7 +1596,7 @@ func TestUpdateLocation(t *testing.T) {
 		assert.Equal(t, rsData.ID, fixtureData.Locations[0].ID)
 		assert.Equal(t, rsData.Name, *data.Name)
 		assert.Equal(t, rsData.NormalizedName, *data.Name)
-		assert.Equal(t, rsData.Available, int64(0))
+		assert.EqualValues(t, rsData.Available, 0)
 		assert.Equal(t, rsData.Capacity, *data.Capacity)
 		assert.Equal(
 			t,
@@ -1729,69 +1710,53 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 	)
 }
 
-func TestUpdateLocationInvalidCapacity(t *testing.T) {
+func TestUpdateLocationFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer tests.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	vt := test.CreateValidatorTester(t)
+
 	name, username, password := "test", "test", "testpassword"
-	var capacity int64 = -1
-	data := dtos.UpdateLocationDto{
+	var capacity1 int64 = -1
+	data1 := dtos.UpdateLocationDto{
 		Name:     &name,
-		Capacity: &capacity,
+		Capacity: &capacity1,
 		Username: &username,
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
-	tReq.AddCookie(tokens.ManagerAccessToken)
+	tReq1 := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq1.AddCookie(tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq1.SetReqData(data1)
 
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
-
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["capacity"],
-		"must be greater than zero",
-	)
-}
-
-func TestUpdateLocationInvalidTimeZone(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	vt.AddTestCase(tReq1, map[string]interface{}{
+		"capacity": "must be greater than zero",
+	})
 
 	name, username, password, timeZone := "test", "test", "testpassword", "wrong"
-	var capacity int64 = 10
-	data := dtos.UpdateLocationDto{
+	var capacity2 int64 = 10
+	data2 := dtos.UpdateLocationDto{
 		Name:     &name,
-		Capacity: &capacity,
+		Capacity: &capacity2,
 		Username: &username,
 		Password: &password,
 		TimeZone: &timeZone,
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
-	tReq.AddCookie(tokens.ManagerAccessToken)
+	tReq2 := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq2.AddCookie(tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq2.SetReqData(data2)
 
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	vt.AddTestCase(tReq2, map[string]interface{}{
+		"timeZone": "must be a valid IANA value",
+	})
 
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["timeZone"],
-		"must be provided and must be a valid IANA value",
-	)
+	vt.Do()
 }
 
 func TestUpdateLocationNotFound(t *testing.T) {

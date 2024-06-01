@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/validator"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/models"
-	"check-in/api/internal/validator"
 )
 
 type CapacityMap = *orderedmap.OrderedMap[string, int64]
@@ -83,53 +83,62 @@ type UpdateLocationDto struct {
 	TimeZone *string `json:"timeZone"`
 } //	@name	UpdateLocationDto
 
-func ValidateCreateLocationDto(
-	v *validator.Validator,
-	createLocationDto CreateLocationDto,
-) {
-	v.Check(createLocationDto.Name != "", "name", "must be provided")
-	v.Check(createLocationDto.Capacity > 0, "capacity", "must be greater than zero")
-	v.Check(createLocationDto.Username != "", "username", "must be provided")
-	v.Check(createLocationDto.Password != "", "password", "must be provided")
+func (dto CreateLocationDto) Validate() *validator.Validator {
+	v := validator.New()
 
-	_, err := time.LoadLocation(createLocationDto.TimeZone)
+	v.Check(dto.Name != "", "name", "must be provided")
+	v.Check(dto.Capacity > 0, "capacity", "must be greater than zero")
+	v.Check(dto.Username != "", "username", "must be provided")
+	v.Check(dto.Password != "", "password", "must be provided")
+	v.Check(dto.TimeZone != "", "timeZone", "must be provided")
+
+	_, err := time.LoadLocation(dto.TimeZone)
 	v.Check(
-		createLocationDto.TimeZone != "" && err == nil,
+		err == nil,
 		"timeZone",
-		"must be provided and must be a valid IANA value",
+		"must be a valid IANA value",
 	)
+
+	return v
 }
 
-func ValidateUpdateLocationDto(
-	v *validator.Validator,
-	updateLocationDto UpdateLocationDto,
-) {
-	if updateLocationDto.Name != nil {
-		v.Check(*updateLocationDto.Name != "", "name", "must be provided")
+func (dto UpdateLocationDto) Validate() *validator.Validator {
+	v := validator.New()
+
+	if dto.Name != nil {
+		v.Check(*dto.Name != "", "name", "must be provided")
 	}
 
-	if updateLocationDto.Capacity != nil {
+	if dto.Capacity != nil {
 		v.Check(
-			*updateLocationDto.Capacity > 0,
+			*dto.Capacity > 0,
 			"capacity",
 			"must be greater than zero",
 		)
 	}
 
-	if updateLocationDto.Username != nil {
-		v.Check(*updateLocationDto.Username != "", "username", "must be provided")
+	if dto.Username != nil {
+		v.Check(*dto.Username != "", "username", "must be provided")
 	}
 
-	if updateLocationDto.Password != nil {
-		v.Check(*updateLocationDto.Password != "", "password", "must be provided")
+	if dto.Password != nil {
+		v.Check(*dto.Password != "", "password", "must be provided")
 	}
 
-	if updateLocationDto.TimeZone != nil {
-		_, err := time.LoadLocation(*updateLocationDto.TimeZone)
+	if dto.TimeZone != nil {
+		v.Check(
+			*dto.TimeZone != "",
+			"timeZone",
+			"must be provided",
+		)
+
+		_, err := time.LoadLocation(*dto.TimeZone)
 		v.Check(
 			err == nil,
 			"timeZone",
-			"must be provided and must be a valid IANA value",
+			"must be a valid IANA value",
 		)
 	}
+
+	return v
 }

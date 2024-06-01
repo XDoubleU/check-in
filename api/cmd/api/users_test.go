@@ -205,10 +205,10 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
 	assert.EqualValues(t, rsData.Pagination.Current, 1)
-	assert.Equal(
+	assert.EqualValues(
 		t,
 		rsData.Pagination.Total,
-		int64(math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4)),
+		math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4),
 	)
 	assert.Equal(t, len(rsData.Data), 4)
 
@@ -239,10 +239,10 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
 	assert.EqualValues(t, rsData.Pagination.Current, 2)
-	assert.Equal(
+	assert.EqualValues(
 		t,
 		rsData.Pagination.Total,
-		int64(math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4)),
+		math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4),
 	)
 	assert.Equal(t, len(rsData.Data), 4)
 
@@ -362,26 +362,18 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	data := dtos.CreateUserDto{
+	tReq.SetReqData(dtos.CreateUserDto{
 		Username: "",
 		Password: "",
-	}
-	tReq.SetReqData(data)
+	})
 
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	vt := test.CreateValidatorTester(t)
+	vt.AddTestCase(tReq, map[string]interface{}{
+		"username": "must be provided",
+		"password": "must be provided",
+	})
 
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["username"],
-		"must be provided",
-	)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["password"],
-		"must be provided",
-	)
+	vt.Do()
 }
 
 func TestCreateManagerUserAccess(t *testing.T) {
@@ -540,20 +532,13 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	vt := test.CreateValidatorTester(t)
+	vt.AddTestCase(tReq, map[string]interface{}{
+		"username": "must be provided",
+		"password": "must be provided",
+	})
 
-	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["username"],
-		"must be provided",
-	)
-	assert.Equal(
-		t,
-		rsData.Message.(map[string]interface{})["password"],
-		"must be provided",
-	)
+	vt.Do()
 }
 
 func TestUpdateManagerUserAccess(t *testing.T) {

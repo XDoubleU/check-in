@@ -2,7 +2,8 @@ package dtos
 
 import (
 	"check-in/api/internal/models"
-	"check-in/api/internal/validator"
+
+	"github.com/XDoubleU/essentia/pkg/validator"
 )
 
 type SubscribeMessageDto struct {
@@ -10,15 +11,16 @@ type SubscribeMessageDto struct {
 	NormalizedName string                  `json:"normalizedName"`
 } //	@name	SubscribeMessageDto
 
-func ValidateSubscribeMessageDto(
-	v *validator.Validator,
-	subscribeMessageDto SubscribeMessageDto,
-) {
-	if subscribeMessageDto.Subject == models.SingleLocation {
+func (dto SubscribeMessageDto) Validate() *validator.Validator {
+	v := validator.New()
+
+	if dto.Subject == models.SingleLocation {
 		v.Check(
-			subscribeMessageDto.NormalizedName != "",
+			dto.NormalizedName != "",
 			"normalizedName",
 			"must be provided",
 		)
 	}
+
+	return v
 }

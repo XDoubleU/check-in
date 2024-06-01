@@ -8,7 +8,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/validator"
 )
 
 func (app *application) checkInsRoutes(router *httprouter.Router) {
@@ -75,9 +74,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateCreateCheckInDto(v, createCheckInDto); !v.Valid() {
+	if v := createCheckInDto.Validate(); !v.Valid() {
 		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}

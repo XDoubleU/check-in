@@ -10,7 +10,6 @@ import (
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/validator"
 )
 
 func (app *application) authRoutes(router *httprouter.Router) {
@@ -44,9 +43,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateSignInDto(v, signInDto); !v.Valid() {
+	if v := signInDto.Validate(); !v.Valid() {
 		http_tools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}

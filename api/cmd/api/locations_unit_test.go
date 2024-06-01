@@ -55,10 +55,10 @@ func TestSetCheckInRelatedFields(t *testing.T) {
 		Capacity: 15,
 	}
 	location1.SetCheckInRelatedFields(noCheckIns, fiveCheckIns)
-	assert.Equal(t, location1.Available, int64(15))
-	assert.Equal(t, location1.Capacity, int64(15))
-	assert.Equal(t, location1.AvailableYesterday, int64(5))
-	assert.Equal(t, location1.CapacityYesterday, int64(10))
+	assert.EqualValues(t, location1.Available, 15)
+	assert.EqualValues(t, location1.Capacity, 15)
+	assert.EqualValues(t, location1.AvailableYesterday, 5)
+	assert.EqualValues(t, location1.CapacityYesterday, 10)
 	assert.Equal(t, location1.YesterdayFullAt, pgtype.Timestamptz{})
 
 	// Case 2: yesterday full
@@ -66,10 +66,10 @@ func TestSetCheckInRelatedFields(t *testing.T) {
 		Capacity: 15,
 	}
 	location2.SetCheckInRelatedFields(noCheckIns, tenCheckIns)
-	assert.Equal(t, location2.Available, int64(15))
-	assert.Equal(t, location2.Capacity, int64(15))
-	assert.Equal(t, location2.AvailableYesterday, int64(0))
-	assert.Equal(t, location2.CapacityYesterday, int64(10))
+	assert.EqualValues(t, location2.Available, 15)
+	assert.EqualValues(t, location2.Capacity, 15)
+	assert.EqualValues(t, location2.AvailableYesterday, 0)
+	assert.EqualValues(t, location2.CapacityYesterday, 10)
 	assert.Equal(t, location2.YesterdayFullAt.Time, createdAt)
 
 	// Case 3: yesterday no check-ins, today check-ins
@@ -77,10 +77,10 @@ func TestSetCheckInRelatedFields(t *testing.T) {
 		Capacity: 15,
 	}
 	location3.SetCheckInRelatedFields(fiveCheckIns, noCheckIns)
-	assert.Equal(t, location3.Available, int64(10))
-	assert.Equal(t, location3.Capacity, int64(15))
-	assert.Equal(t, location3.AvailableYesterday, int64(10))
-	assert.Equal(t, location3.CapacityYesterday, int64(10))
+	assert.EqualValues(t, location3.Available, 10)
+	assert.EqualValues(t, location3.Capacity, 15)
+	assert.EqualValues(t, location3.AvailableYesterday, 10)
+	assert.EqualValues(t, location3.CapacityYesterday, 10)
 	assert.Equal(t, location3.YesterdayFullAt, pgtype.Timestamptz{})
 
 	// Case 4: yesterday no check-ins, today no check-ins (yet?)
@@ -88,10 +88,10 @@ func TestSetCheckInRelatedFields(t *testing.T) {
 		Capacity: 15,
 	}
 	location4.SetCheckInRelatedFields(noCheckIns, noCheckIns)
-	assert.Equal(t, location4.Available, int64(15))
-	assert.Equal(t, location4.Capacity, int64(15))
-	assert.Equal(t, location4.AvailableYesterday, int64(15))
-	assert.Equal(t, location4.CapacityYesterday, int64(15))
+	assert.EqualValues(t, location4.Available, 15)
+	assert.EqualValues(t, location4.Capacity, 15)
+	assert.EqualValues(t, location4.AvailableYesterday, 15)
+	assert.EqualValues(t, location4.CapacityYesterday, 15)
 	assert.Equal(t, location4.YesterdayFullAt, pgtype.Timestamptz{})
 }
 

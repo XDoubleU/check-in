@@ -1,9 +1,9 @@
 package dtos
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/XDoubleU/essentia/pkg/validator"
 
-	"check-in/api/internal/validator"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type CreateCheckInDto struct {
@@ -18,9 +18,10 @@ type CheckInDto struct {
 	CreatedAt  pgtype.Timestamptz `json:"createdAt"  swaggertype:"string"`
 } //	@name	CheckInDto
 
-func ValidateCreateCheckInDto(
-	v *validator.Validator,
-	createCheckInDto CreateCheckInDto,
-) {
-	v.Check(createCheckInDto.SchoolID > 0, "schoolId", "must be greater than zero")
+func (dto CreateCheckInDto) Validate() *validator.Validator {
+	v := validator.New()
+
+	v.Check(dto.SchoolID > 0, "schoolId", "must be greater than zero")
+
+	return v
 }
