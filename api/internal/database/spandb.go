@@ -14,7 +14,7 @@ type SpanDB struct {
 
 func (spandb SpanDB) Exec(ctx context.Context, sql string,
 	arguments ...any) (pgconn.CommandTag, error) {
-	span := sentry.StartSpan(ctx, "db", sentry.WithTransactionName(sql))
+	span := startSpan(ctx, sql)
 	defer span.Finish()
 
 	return spandb.DB.Exec(span.Context(), sql, arguments...)
@@ -22,14 +22,14 @@ func (spandb SpanDB) Exec(ctx context.Context, sql string,
 
 func (spandb SpanDB) Query(ctx context.Context, sql string,
 	args ...any) (pgx.Rows, error) {
-	span := sentry.StartSpan(ctx, "db", sentry.WithTransactionName(sql))
+	span := startSpan(ctx, sql)
 	defer span.Finish()
 
 	return spandb.DB.Query(span.Context(), sql, args...)
 }
 
 func (spandb SpanDB) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
-	span := sentry.StartSpan(ctx, "db", sentry.WithTransactionName(sql))
+	span := startSpan(ctx, sql)
 	defer span.Finish()
 
 	return spandb.DB.QueryRow(span.Context(), sql, args...)
@@ -37,4 +37,11 @@ func (spandb SpanDB) QueryRow(ctx context.Context, sql string, args ...any) pgx.
 
 func (spandb SpanDB) Begin(ctx context.Context) (pgx.Tx, error) {
 	return spandb.DB.Begin(ctx)
+}
+
+func startSpan(ctx context.Context, sql string) *sentry.Span {
+	span := sentry.StartSpan(ctx, "db.query", sentry.WithDescription(sql))
+	span.SetData("db.system", "postgresql")
+
+	return span
 }
