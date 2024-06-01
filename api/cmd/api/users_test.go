@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"math"
 	"net/http"
@@ -10,11 +8,12 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/test"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 
-	"check-in/api/internal/assert"
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 	"check-in/api/internal/tests"
 )
@@ -26,37 +25,33 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-user", nil)
-	req1.AddCookie(tokens.AdminAccessToken)
+	tReq1 := test.CreateTestRequest(t, ts, http.MethodGet, "/current-user")
+	tReq1.AddCookie(tokens.AdminAccessToken)
 
-	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-user", nil)
-	req2.AddCookie(tokens.ManagerAccessToken)
+	tReq2 := test.CreateTestRequest(t, ts, http.MethodGet, "/current-user")
+	tReq2.AddCookie(tokens.ManagerAccessToken)
 
-	req3, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-user", nil)
-	req3.AddCookie(tokens.DefaultAccessToken)
-
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-	rs3, _ := ts.Client().Do(req3)
+	tReq3 := test.CreateTestRequest(t, ts, http.MethodGet, "/current-user")
+	tReq3.AddCookie(tokens.DefaultAccessToken)
 
 	var rs1Data, rs2Data, rs3Data models.User
-	_ = helpers.ReadJSON(rs1.Body, &rs1Data)
-	_ = helpers.ReadJSON(rs2.Body, &rs2Data)
-	_ = helpers.ReadJSON(rs3.Body, &rs3Data)
+	rs1 := tReq1.Do(&rs1Data)
+	rs2 := tReq2.Do(&rs2Data)
+	rs3 := tReq3.Do(&rs3Data)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusOK)
 	assert.Equal(t, rs1Data.ID, fixtureData.AdminUser.ID)
 	assert.Equal(t, rs1Data.Username, fixtureData.AdminUser.Username)
 	assert.Equal(t, rs1Data.Role, fixtureData.AdminUser.Role)
 	assert.Equal(t, len(rs1Data.PasswordHash), 0)
-	assert.Equal(t, rs1Data.Location, nil)
+	assert.Nil(t, rs1Data.Location)
 
 	assert.Equal(t, rs2.StatusCode, http.StatusOK)
 	assert.Equal(t, rs2Data.ID, fixtureData.ManagerUser.ID)
 	assert.Equal(t, rs2Data.Username, fixtureData.ManagerUser.Username)
 	assert.Equal(t, rs2Data.Role, fixtureData.ManagerUser.Role)
 	assert.Equal(t, len(rs2Data.PasswordHash), 0)
-	assert.Equal(t, rs2Data.Location, nil)
+	assert.Nil(t, rs2Data.Location)
 
 	assert.Equal(t, rs3.StatusCode, http.StatusOK)
 	assert.Equal(t, rs3Data.ID, fixtureData.DefaultUser.ID)
@@ -87,9 +82,8 @@ func TestGetInfoLoggedInUserAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/current-user", nil)
-
-	rs, _ := ts.Client().Do(req)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/current-user")
+	rs := tReq.Do(nil)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnauthorized)
 }
@@ -107,17 +101,11 @@ func TestGetUser(t *testing.T) {
 	}
 
 	for _, user := range users {
-		req, _ := http.NewRequest(
-			http.MethodGet,
-			ts.URL+"/users/"+fixtureData.DefaultUsers[0].ID,
-			nil,
-		)
-		req.AddCookie(user)
-
-		rs, _ := ts.Client().Do(req)
+		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/users/"+fixtureData.DefaultUsers[0].ID)
+		tReq.AddCookie(user)
 
 		var rsData models.User
-		_ = helpers.ReadJSON(rs.Body, &rsData)
+		rs := tReq.Do(&rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.DefaultUsers[0].ID)
@@ -150,13 +138,12 @@ func TestGetUserNotFound(t *testing.T) {
 	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users/"+id.String(), nil)
-	req.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/users/"+id.String())
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -173,13 +160,11 @@ func TestGetUserNotUUID(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users/8000", nil)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/users/8000")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
-
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
@@ -192,21 +177,13 @@ func TestGetUserAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req1, _ := http.NewRequest(
-		http.MethodGet,
-		ts.URL+"/users/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
-		nil,
-	)
+	tReq1 := test.CreateTestRequest(t, ts, http.MethodGet, "/users/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
 
-	req2, _ := http.NewRequest(
-		http.MethodGet,
-		ts.URL+"/users/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
-		nil,
-	)
-	req2.AddCookie(tokens.DefaultAccessToken)
+	tReq2 := test.CreateTestRequest(t, ts, http.MethodGet, "/users/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+	tReq2.AddCookie(tokens.DefaultAccessToken)
 
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
+	rs1 := tReq1.Do(nil)
+	rs2 := tReq2.Do(nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
@@ -219,17 +196,15 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users", nil)
-	req.AddCookie(tokens.AdminAccessToken)
-
-	rs, _ := ts.Client().Do(req)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/users")
+	tReq.AddCookie(tokens.AdminAccessToken)
 
 	var rsData dtos.PaginatedUsersDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-	assert.Equal(t, rsData.Pagination.Current, 1)
+	assert.EqualValues(t, rsData.Pagination.Current, 1)
 	assert.Equal(
 		t,
 		rsData.Pagination.Total,
@@ -241,7 +216,7 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	assert.Equal(t, rsData.Data[0].Username, fixtureData.ManagerUser.Username)
 	assert.Equal(t, len(rsData.Data[0].PasswordHash), 0)
 	assert.Equal(t, rsData.Data[0].Role, fixtureData.ManagerUser.Role)
-	assert.Equal(t, rsData.Data[0].Location, nil)
+	assert.Nil(t, rsData.Data[0].Location)
 }
 
 func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
@@ -251,17 +226,19 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users?page=2", nil)
-	req.AddCookie(tokens.AdminAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/users")
+	tReq.AddCookie(tokens.AdminAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetQuery(map[string]string{
+		"page": "2",
+	})
 
 	var rsData dtos.PaginatedUsersDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-	assert.Equal(t, rsData.Pagination.Current, 2)
+	assert.EqualValues(t, rsData.Pagination.Current, 2)
 	assert.Equal(
 		t,
 		rsData.Pagination.Total,
@@ -273,7 +250,7 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	assert.Equal(t, rsData.Data[0].Username, fixtureData.ManagerUsers[3].Username)
 	assert.Equal(t, len(rsData.Data[0].PasswordHash), 0)
 	assert.Equal(t, rsData.Data[0].Role, fixtureData.ManagerUsers[3].Role)
-	assert.Equal(t, rsData.Data[0].Location, nil)
+	assert.Nil(t, rsData.Data[0].Location)
 }
 
 func TestGetPaginatedManagerUsersPageZero(t *testing.T) {
@@ -283,13 +260,15 @@ func TestGetPaginatedManagerUsersPageZero(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/users?page=0", nil)
-	req.AddCookie(tokens.AdminAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/users")
+	tReq.AddCookie(tokens.AdminAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetQuery(map[string]string{
+		"page": "0",
+	})
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message, "invalid page query param")
@@ -302,17 +281,17 @@ func TestGetPaginatedManagerUsersAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/users", nil)
+	tReq1 := test.CreateTestRequest(t, ts, http.MethodGet, "/users")
 
-	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/users", nil)
-	req2.AddCookie(tokens.DefaultAccessToken)
+	tReq2 := test.CreateTestRequest(t, ts, http.MethodGet, "/users")
+	tReq2.AddCookie(tokens.DefaultAccessToken)
 
-	req3, _ := http.NewRequest(http.MethodGet, ts.URL+"/users", nil)
-	req3.AddCookie(tokens.ManagerAccessToken)
+	tReq3 := test.CreateTestRequest(t, ts, http.MethodGet, "/users")
+	tReq3.AddCookie(tokens.ManagerAccessToken)
 
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-	rs3, _ := ts.Client().Do(req3)
+	rs1 := tReq1.Do(nil)
+	rs2 := tReq2.Do(nil)
+	rs3 := tReq3.Do(nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
@@ -326,26 +305,24 @@ func TestCreateManagerUser(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/users")
+	tReq.AddCookie(tokens.AdminAccessToken)
+
 	data := dtos.CreateUserDto{
 		Username: "test",
 		Password: "testpassword",
 	}
-
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", bytes.NewReader(body))
-	req.AddCookie(tokens.AdminAccessToken)
-
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
 	var rsData models.User
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusCreated)
-	assert.IsUUID(t, rsData.ID)
+	assert.Nil(t, uuid.Validate(rsData.ID))
 	assert.Equal(t, rsData.Username, "test")
 	assert.Equal(t, rsData.Role, models.ManagerRole)
 	assert.Equal(t, len(rsData.PasswordHash), 0)
-	assert.Equal(t, rsData.Location, nil)
+	assert.Nil(t, rsData.Location)
 }
 
 func TestCreateManagerUserUserNameExists(t *testing.T) {
@@ -355,19 +332,17 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/users")
+	tReq.AddCookie(tokens.AdminAccessToken)
+
 	data := dtos.CreateUserDto{
 		Username: "TestManagerUser0",
 		Password: "testpassword",
 	}
+	tReq.SetReqData(data)
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", bytes.NewReader(body))
-	req.AddCookie(tokens.AdminAccessToken)
-
-	rs, _ := ts.Client().Do(req)
-
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -384,19 +359,17 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/users")
+	tReq.AddCookie(tokens.AdminAccessToken)
+
 	data := dtos.CreateUserDto{
 		Username: "",
 		Password: "",
 	}
+	tReq.SetReqData(data)
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", bytes.NewReader(body))
-	req.AddCookie(tokens.AdminAccessToken)
-
-	rs, _ := ts.Client().Do(req)
-
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
 	assert.Equal(
@@ -418,17 +391,17 @@ func TestCreateManagerUserAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req1, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", nil)
+	tReq1 := test.CreateTestRequest(t, ts, http.MethodPost, "/users")
 
-	req2, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", nil)
-	req2.AddCookie(tokens.DefaultAccessToken)
+	tReq2 := test.CreateTestRequest(t, ts, http.MethodPost, "/users")
+	tReq2.AddCookie(tokens.DefaultAccessToken)
 
-	req3, _ := http.NewRequest(http.MethodPost, ts.URL+"/users", nil)
-	req3.AddCookie(tokens.ManagerAccessToken)
+	tReq3 := test.CreateTestRequest(t, ts, http.MethodPost, "/users")
+	tReq3.AddCookie(tokens.ManagerAccessToken)
 
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-	rs3, _ := ts.Client().Do(req3)
+	rs1 := tReq1.Do(nil)
+	rs2 := tReq2.Do(nil)
+	rs3 := tReq3.Do(nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
@@ -448,25 +421,20 @@ func TestUpdateManagerUser(t *testing.T) {
 		Password: &password,
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.AdminAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/users/"+fixtureData.ManagerUsers[0].ID)
+	tReq.AddCookie(tokens.AdminAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
 	var rsData models.User
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 	assert.Equal(t, rsData.ID, fixtureData.ManagerUsers[0].ID)
 	assert.Equal(t, rsData.Username, "test")
 	assert.Equal(t, rsData.Role, models.ManagerRole)
 	assert.Equal(t, len(rsData.PasswordHash), 0)
-	assert.Equal(t, rsData.Location, nil)
+	assert.Nil(t, rsData.Location)
 }
 
 func TestUpdateManagerUserUserNameExists(t *testing.T) {
@@ -482,18 +450,13 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 		Password: &password,
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.AdminAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/users/"+fixtureData.ManagerUsers[0].ID)
+	tReq.AddCookie(tokens.AdminAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -516,20 +479,15 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 		Password: &password,
 	}
 
-	body, _ := json.Marshal(data)
-
 	id, _ := uuid.NewUUID()
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/users/"+id.String(),
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.AdminAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/users/"+id.String())
+	tReq.AddCookie(tokens.AdminAccessToken)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	tReq.SetReqData(data)
+
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -552,19 +510,13 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 		Password: &password,
 	}
 
-	body, _ := json.Marshal(data)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/users/8000")
+	tReq.AddCookie(tokens.AdminAccessToken)
 
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/users/8000",
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.AdminAccessToken)
+	tReq.SetReqData(data)
 
-	rs, _ := ts.Client().Do(req)
-
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
@@ -583,18 +535,13 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 		Password: &password,
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.AdminAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/users/"+fixtureData.ManagerUsers[0].ID)
+	tReq.AddCookie(tokens.AdminAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
 	assert.Equal(
@@ -652,24 +599,18 @@ func TestDeleteManagerUser(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(
-		http.MethodDelete,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		nil,
-	)
-	req.AddCookie(tokens.AdminAccessToken)
-
-	rs, _ := ts.Client().Do(req)
+	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/users/"+fixtureData.ManagerUsers[0].ID)
+	tReq.AddCookie(tokens.AdminAccessToken)
 
 	var rsData models.User
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 	assert.Equal(t, rsData.ID, fixtureData.ManagerUsers[0].ID)
 	assert.Equal(t, rsData.Username, fixtureData.ManagerUsers[0].Username)
 	assert.Equal(t, rsData.Role, fixtureData.ManagerUsers[0].Role)
 	assert.Equal(t, len(rsData.PasswordHash), 0)
-	assert.Equal(t, rsData.Location, nil)
+	assert.Nil(t, rsData.Location)
 }
 
 func TestDeleteManagerUserNotFound(t *testing.T) {
@@ -680,13 +621,11 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
-	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/users/"+id.String(), nil)
-	req.AddCookie(tokens.AdminAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/users/"+id.String())
+	tReq.AddCookie(tokens.AdminAccessToken)
 
-	rs, _ := ts.Client().Do(req)
-
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -703,13 +642,11 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/users/8000", nil)
-	req.AddCookie(tokens.AdminAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/users/8000")
+	tReq.AddCookie(tokens.AdminAccessToken)
 
-	rs, _ := ts.Client().Do(req)
-
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")

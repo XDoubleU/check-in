@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"math"
 	"net/http"
@@ -10,11 +8,13 @@ import (
 	"strconv"
 	"testing"
 
-	"check-in/api/internal/assert"
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 	"check-in/api/internal/tests"
+
+	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/test"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
@@ -30,17 +30,15 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	}
 
 	for _, user := range users {
-		req, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools", nil)
-		req.AddCookie(user)
-
-		rs, _ := ts.Client().Do(req)
+		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
+		tReq.AddCookie(user)
 
 		var rsData dtos.PaginatedSchoolsDto
-		_ = helpers.ReadJSON(rs.Body, &rsData)
+		rs := tReq.Do(&rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-		assert.Equal(t, rsData.Pagination.Current, 1)
+		assert.EqualValues(t, rsData.Pagination.Current, 1)
 		assert.Equal(
 			t,
 			rsData.Pagination.Total,
@@ -48,7 +46,7 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 		)
 		assert.Equal(t, len(rsData.Data), 4)
 
-		assert.Equal(t, rsData.Data[0].ID, 1)
+		assert.EqualValues(t, rsData.Data[0].ID, 1)
 		assert.Equal(t, rsData.Data[0].Name, "Andere")
 		assert.Equal(t, rsData.Data[0].ReadOnly, true)
 	}
@@ -61,17 +59,19 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools?page=2", nil)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetQuery(map[string]string{
+		"page": "2",
+	})
 
 	var rsData dtos.PaginatedSchoolsDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-	assert.Equal(t, rsData.Pagination.Current, 2)
+	assert.EqualValues(t, rsData.Pagination.Current, 2)
 	assert.Equal(
 		t,
 		rsData.Pagination.Total,
@@ -91,13 +91,15 @@ func TestGetPaginatedSchoolsPageZero(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools?page=0", nil)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetQuery(map[string]string{
+		"page": "0",
+	})
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message, "invalid page query param")
@@ -110,13 +112,13 @@ func TestGetPaginatedSchoolsAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req1, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools", nil)
+	tReq1 := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
 
-	req2, _ := http.NewRequest(http.MethodGet, ts.URL+"/schools", nil)
-	req2.AddCookie(tokens.DefaultAccessToken)
+	tReq2 := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
+	tReq2.AddCookie(tokens.DefaultAccessToken)
 
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
+	rs1 := tReq1.Do(nil)
+	rs2 := tReq2.Do(nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
@@ -141,18 +143,13 @@ func TestCreateSchool(t *testing.T) {
 			Name: unique,
 		}
 
-		body, _ := json.Marshal(data)
-		req, _ := http.NewRequest(
-			http.MethodPost,
-			ts.URL+"/schools",
-			bytes.NewReader(body),
-		)
-		req.AddCookie(user)
+		tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/schools")
+		tReq.AddCookie(user)
 
-		rs, _ := ts.Client().Do(req)
+		tReq.SetReqData(data)
 
 		var rsData models.School
-		_ = helpers.ReadJSON(rs.Body, &rsData)
+		rs := tReq.Do(&rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusCreated)
 		assert.Equal(t, rsData.Name, unique)
@@ -171,14 +168,13 @@ func TestCreateSchoolNameExists(t *testing.T) {
 		Name: "TestSchool0",
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/schools", bytes.NewReader(body))
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/schools")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -199,14 +195,13 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 		Name: "",
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(http.MethodPost, ts.URL+"/schools", bytes.NewReader(body))
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/schools")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
 	assert.Equal(
@@ -254,18 +249,13 @@ func TestUpdateSchool(t *testing.T) {
 			Name: unique,
 		}
 
-		body, _ := json.Marshal(data)
-		req, _ := http.NewRequest(
-			http.MethodPatch,
-			ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
-			bytes.NewReader(body),
-		)
-		req.AddCookie(user)
+		tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+		tReq.AddCookie(user)
 
-		rs, _ := ts.Client().Do(req)
+		tReq.SetReqData(data)
 
 		var rsData models.School
-		_ = helpers.ReadJSON(rs.Body, &rsData)
+		rs := tReq.Do(&rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.Schools[0].ID)
@@ -285,18 +275,13 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 		Name: "TestSchool1",
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -317,18 +302,13 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 		Name: "test",
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/schools/1",
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/1")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -349,18 +329,13 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 		Name: "test",
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/schools/8000",
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/8000")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -381,18 +356,13 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 		Name: "test",
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/schools/aaaa",
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/aaaa")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message, "invalid id parameter")
@@ -409,18 +379,13 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 		Name: "",
 	}
 
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	tReq.SetReqData(data)
 
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
 	assert.Equal(
@@ -470,17 +435,11 @@ func TestDeleteSchool(t *testing.T) {
 	}
 
 	for i, user := range users {
-		req, _ := http.NewRequest(
-			http.MethodDelete,
-			ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[i].ID, 10),
-			nil,
-		)
-		req.AddCookie(user)
-
-		rs, _ := ts.Client().Do(req)
+		tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/schools/"+strconv.FormatInt(fixtureData.Schools[i].ID, 10))
+		tReq.AddCookie(user)
 
 		var rsData models.School
-		_ = helpers.ReadJSON(rs.Body, &rsData)
+		rs := tReq.Do(&rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.Schools[i].ID)
@@ -496,13 +455,11 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/schools/1", nil)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/schools/1")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
-
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -519,13 +476,11 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/schools/8000", nil)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/schools/8000")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
-
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -542,13 +497,11 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/schools/aaaa", nil)
-	req.AddCookie(tokens.ManagerAccessToken)
+	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/schools/aaaa")
+	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	rs, _ := ts.Client().Do(req)
-
-	var rsData dtos.ErrorDto
-	_ = helpers.ReadJSON(rs.Body, &rsData)
+	var rsData http_tools.ErrorDto
+	rs := tReq.Do(&rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message.(string), "invalid id parameter")
