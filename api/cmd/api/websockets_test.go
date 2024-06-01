@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"nhooyr.io/websocket/wsjson"
 
-	"check-in/api/internal/assert"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/tests"
@@ -132,7 +132,7 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 	}
 
 	assert.Equal(t, len(locationUpdateEvents), 1)
-	assert.Equal(t, locationUpdateEvents[0].Capacity, 10)
+	assert.EqualValues(t, locationUpdateEvents[0].Capacity, 10)
 }
 
 func TestSingleLocationWebSocketCheckIn(t *testing.T) {
@@ -235,5 +235,5 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 		locationUpdateEvent.NormalizedName,
 		fixtureData.DefaultLocation.NormalizedName,
 	)
-	assert.Equal(t, locationUpdateEvent.Capacity, 10)
+	assert.EqualValues(t, locationUpdateEvent.Capacity, 10)
 }
