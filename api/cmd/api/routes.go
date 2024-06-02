@@ -1,6 +1,7 @@
 package main
 
 import (
+	"check-in/api/internal/config"
 	"net/http"
 
 	"github.com/XDoubleU/essentia/pkg/middleware"
@@ -30,8 +31,9 @@ func (app *application) routes() http.Handler {
 		}
 	}
 
+	isTestEnv := app.config.Env == config.TestEnv
 	allowedOrigins := []string{app.config.WebURL}
-	handlers := middleware.Default(app.config.Throttle, allowedOrigins, sentryClientOptions)
+	handlers := middleware.Default(isTestEnv, allowedOrigins, sentryClientOptions)
 
 	standard := alice.New(handlers...)
 

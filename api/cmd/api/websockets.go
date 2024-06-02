@@ -129,7 +129,8 @@ func (app *application) handleWsError(
 		app.unsubAndClose(conn)
 		err = wsjson.Write(ctx, conn, err)
 		if err != nil {
-			http_tools.LogError(err)
+			//todo
+			http_tools.GetLogger().Print(err)
 		}
 		return
 	}
