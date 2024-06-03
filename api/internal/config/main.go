@@ -2,9 +2,8 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/XDoubleU/essentia/pkg/config"
+	"github.com/XDoubleU/essentia/pkg/logger"
 )
 
 type Config struct {
@@ -49,18 +48,17 @@ func New() Config {
 	return cfg
 }
 
-//nolint:forbidigo //returns value of config
 func (cfg Config) Print() {
-	fmt.Println("cfg.Env: ", cfg.Env)
-	fmt.Println("cfg.Port: ", cfg.Port)
-	fmt.Println("cfg.Throttle: ", cfg.Throttle)
-	fmt.Println("cfg.WebURL: ", cfg.WebURL)
-	fmt.Println("cfg.SentryDsn: ", cfg.SentryDsn)
-	fmt.Println("cfg.SampleRate: ", cfg.SampleRate)
-	fmt.Println("cfg.AccessExpiry: ", cfg.AccessExpiry)
-	fmt.Println("cfg.RefreshExpiry: ", cfg.RefreshExpiry)
-	fmt.Println("cfg.DB.Dsn: ", cfg.DB.Dsn)
-	fmt.Println("cfg.DB.MaxConns: ", cfg.DB.MaxConns)
-	fmt.Println("cfg.DB.MaxIdleTime: ", cfg.DB.MaxIdleTime)
-	fmt.Println("cfg.Release: ", cfg.Release)
+	logger.GetLogger().Println("cfg.Env: ", cfg.Env)
+	logger.GetLogger().Println("cfg.Port: ", cfg.Port)
+	logger.GetLogger().Println("cfg.Throttle: ", cfg.Throttle)
+	logger.GetLogger().Println("cfg.WebURL: ", cfg.WebURL)
+	logger.GetLogger().Println("cfg.SentryDsn: ", cfg.SentryDsn)
+	logger.GetLogger().Println("cfg.SampleRate: ", cfg.SampleRate)
+	logger.GetLogger().Println("cfg.AccessExpiry: ", cfg.AccessExpiry)
+	logger.GetLogger().Println("cfg.RefreshExpiry: ", cfg.RefreshExpiry)
+	logger.GetLogger().Println("cfg.DB.Dsn: ", cfg.DB.Dsn)
+	logger.GetLogger().Println("cfg.DB.MaxConns: ", cfg.DB.MaxConns)
+	logger.GetLogger().Println("cfg.DB.MaxIdleTime: ", cfg.DB.MaxIdleTime)
+	logger.GetLogger().Println("cfg.Release: ", cfg.Release)
 }

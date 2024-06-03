@@ -43,11 +43,11 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/checkins/schools")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/checkins/schools")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData []models.School
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 	assert.Equal(t, rsData[0].ID, fixtureData.Schools[0].ID)
@@ -61,17 +61,17 @@ func TestGetSortedSchoolsAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq1 := test.CreateTestRequest(t, ts, http.MethodGet, "/checkins/schools")
+	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/checkins/schools")
 
-	tReq2 := test.CreateTestRequest(t, ts, http.MethodGet, "/checkins/schools")
+	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/checkins/schools")
 	tReq2.AddCookie(tokens.ManagerAccessToken)
 
-	tReq3 := test.CreateTestRequest(t, ts, http.MethodGet, "/checkins/schools")
+	tReq3 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/checkins/schools")
 	tReq3.AddCookie(tokens.AdminAccessToken)
 
-	rs1 := tReq1.Do(nil)
-	rs2 := tReq2.Do(nil)
-	rs3 := tReq3.Do(nil)
+	rs1 := tReq1.Do(t, nil)
+	rs2 := tReq2.Do(t, nil)
+	rs3 := tReq3.Do(t, nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
@@ -85,7 +85,7 @@ func TestCreateCheckIn(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/checkins")
 
 	data := dtos.CreateCheckInDto{
 		SchoolID: fixtureData.Schools[0].ID,
@@ -96,7 +96,7 @@ func TestCreateCheckIn(t *testing.T) {
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -118,7 +118,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/checkins")
 
 	data := dtos.CreateCheckInDto{
 		SchoolID: 1,
@@ -129,7 +129,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -151,7 +151,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/checkins")
 
 	data := dtos.CreateCheckInDto{
 		SchoolID: 1,
@@ -165,7 +165,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	var rsData http_tools.ErrorDto
 
 	for i := 0; i < int(fixtureData.DefaultLocation.Capacity)+1; i++ {
-		rs = tReq.Do(&rsData)
+		rs = tReq.Do(t, &rsData)
 	}
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
@@ -179,7 +179,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/checkins")
 
 	data := dtos.CreateCheckInDto{
 		SchoolID: 8000,
@@ -190,7 +190,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -207,7 +207,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/checkins")
 
 	tReq.SetReqData(dtos.CreateCheckInDto{
 		SchoolID: 0,
@@ -221,7 +221,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 		"schoolId": "must be greater than zero",
 	})
 
-	vt.Do()
+	vt.Do(t)
 }
 
 func TestCreateCheckInAccess(t *testing.T) {
@@ -231,17 +231,17 @@ func TestCreateCheckInAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq1 := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/checkins")
 
-	tReq2 := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/checkins")
 	tReq2.AddCookie(tokens.ManagerAccessToken)
 
-	tReq3 := test.CreateTestRequest(t, ts, http.MethodPost, "/checkins")
+	tReq3 := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/checkins")
 	tReq3.AddCookie(tokens.AdminAccessToken)
 
-	rs1 := tReq1.Do(nil)
-	rs2 := tReq2.Do(nil)
-	rs3 := tReq3.Do(nil)
+	rs1 := tReq1.Do(t, nil)
+	rs2 := tReq2.Do(t, nil)
+	rs3 := tReq3.Do(t, nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)

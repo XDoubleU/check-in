@@ -8,6 +8,7 @@ import (
 	"check-in/api/internal/services"
 
 	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/logger"
 )
 
 type application struct {
@@ -39,7 +40,7 @@ func main() {
 		DB: db,
 	}
 
-	http_tools.GetLogger().Printf("connected to database")
+	logger.GetLogger().Printf("connected to database")
 
 	app := &application{
 		config:     cfg,
@@ -51,6 +52,6 @@ func main() {
 
 	err = http_tools.Serve(app.config.Port, app.routes(), app.config.Env)
 	if err != nil {
-		http_tools.GetLogger().Fatal(err)
+		logger.GetLogger().Fatal(err)
 	}
 }

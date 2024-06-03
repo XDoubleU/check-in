@@ -30,11 +30,11 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
 		tReq.AddCookie(user)
 
 		var rsData dtos.PaginatedSchoolsDto
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -59,7 +59,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -67,7 +67,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	})
 
 	var rsData dtos.PaginatedSchoolsDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -91,7 +91,7 @@ func TestGetPaginatedSchoolsPageZero(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -99,7 +99,7 @@ func TestGetPaginatedSchoolsPageZero(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message, "invalid page query param")
@@ -112,13 +112,13 @@ func TestGetPaginatedSchoolsAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq1 := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
+	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
 
-	tReq2 := test.CreateTestRequest(t, ts, http.MethodGet, "/schools")
+	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
 	tReq2.AddCookie(tokens.DefaultAccessToken)
 
-	rs1 := tReq1.Do(nil)
-	rs2 := tReq2.Do(nil)
+	rs1 := tReq1.Do(t, nil)
+	rs2 := tReq2.Do(t, nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
@@ -143,13 +143,13 @@ func TestCreateSchool(t *testing.T) {
 			Name: unique,
 		}
 
-		tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/schools")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/schools")
 		tReq.AddCookie(user)
 
 		tReq.SetReqData(data)
 
 		var rsData models.School
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusCreated)
 		assert.Equal(t, rsData.Name, unique)
@@ -168,13 +168,13 @@ func TestCreateSchoolNameExists(t *testing.T) {
 		Name: "TestSchool0",
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/schools")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -191,7 +191,7 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/schools")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(dtos.SchoolDto{
@@ -203,7 +203,7 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 		"name": "must be provided",
 	})
 
-	vt.Do()
+	vt.Do(t)
 }
 
 func TestCreateSchoolAccess(t *testing.T) {
@@ -244,13 +244,13 @@ func TestUpdateSchool(t *testing.T) {
 			Name: unique,
 		}
 
-		tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
 		tReq.AddCookie(user)
 
 		tReq.SetReqData(data)
 
 		var rsData models.School
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.Schools[0].ID)
@@ -270,13 +270,13 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 		Name: "TestSchool1",
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -297,13 +297,13 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 		Name: "test",
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/1")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/1")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -324,13 +324,13 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 		Name: "test",
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/8000")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -351,13 +351,13 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 		Name: "test",
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/aaaa")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/aaaa")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message, "invalid id parameter")
@@ -370,7 +370,7 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(dtos.SchoolDto{
@@ -382,7 +382,7 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 		"name": "must be provided",
 	})
 
-	vt.Do()
+	vt.Do(t)
 }
 
 func TestUpdateSchoolAccess(t *testing.T) {
@@ -425,11 +425,11 @@ func TestDeleteSchool(t *testing.T) {
 	}
 
 	for i, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/schools/"+strconv.FormatInt(fixtureData.Schools[i].ID, 10))
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/"+strconv.FormatInt(fixtureData.Schools[i].ID, 10))
 		tReq.AddCookie(user)
 
 		var rsData models.School
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.Schools[i].ID)
@@ -445,11 +445,11 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/schools/1")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/1")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -466,11 +466,11 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/schools/8000")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -487,11 +487,11 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/schools/aaaa")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/aaaa")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message.(string), "invalid id parameter")
