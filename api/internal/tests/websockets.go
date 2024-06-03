@@ -11,8 +11,8 @@ func DialWebsocket(url string, timeout time.Duration) *websocket.Conn {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	ws, _, err := websocket.Dial(ctx, url, nil)
-	if err != nil {
+	ws, rs, err := websocket.Dial(ctx, url, nil)
+	if rs != nil || err != nil {
 		return nil
 	}
 
