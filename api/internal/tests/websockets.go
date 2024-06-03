@@ -13,7 +13,7 @@ func DialWebsocket(url string, timeout time.Duration) *websocket.Conn {
 
 	ws, _, err := websocket.Dial(ctx, url, nil)
 	if err != nil {
-		panic(err)
+		return nil
 	}
 
 	return ws

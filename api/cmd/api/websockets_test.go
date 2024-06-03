@@ -30,6 +30,10 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 
 	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
 	ws := tests.DialWebsocket(wsURL, timeout)
+	if ws == nil {
+		t.Fail()
+		return
+	}
 
 	msg := dtos.SubscribeMessageDto{
 		Subject: "all-locations",
@@ -37,13 +41,17 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 
 	err := wsjson.Write(context.Background(), ws, msg)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	var locationUpdateEvents []models.LocationUpdateEvent
 	err = wsjson.Read(context.Background(), ws, &locationUpdateEvents)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	assert.Equal(t, len(locationUpdateEvents), 21)
@@ -70,7 +78,9 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 
 	err = wsjson.Read(context.Background(), ws, &locationUpdateEvents)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	assert.Equal(t, len(locationUpdateEvents), 1)
@@ -90,6 +100,10 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 
 	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
 	ws := tests.DialWebsocket(wsURL, timeout)
+	if ws == nil {
+		t.Fail()
+		return
+	}
 
 	msg := dtos.SubscribeMessageDto{
 		Subject: "all-locations",
@@ -97,13 +111,17 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 
 	err := wsjson.Write(context.Background(), ws, msg)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	var locationUpdateEvents []models.LocationUpdateEvent
 	err = wsjson.Read(context.Background(), ws, &locationUpdateEvents)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	assert.Equal(t, len(locationUpdateEvents), 21)
@@ -128,7 +146,9 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 
 	err = wsjson.Read(context.Background(), ws, &locationUpdateEvents)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	assert.Equal(t, len(locationUpdateEvents), 1)
@@ -144,6 +164,10 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 
 	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
 	ws := tests.DialWebsocket(wsURL, timeout)
+	if ws == nil {
+		t.Fail()
+		return
+	}
 
 	msg := dtos.SubscribeMessageDto{
 		Subject:        "single-location",
@@ -152,7 +176,9 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 
 	err := wsjson.Write(context.Background(), ws, msg)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	go func() {
@@ -175,7 +201,9 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	var locationUpdateEvent models.LocationUpdateEvent
 	err = wsjson.Read(context.Background(), ws, &locationUpdateEvent)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	assert.Equal(
@@ -195,6 +223,10 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 
 	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
 	ws := tests.DialWebsocket(wsURL, timeout)
+	if ws == nil {
+		t.Fail()
+		return
+	}
 
 	msg := dtos.SubscribeMessageDto{
 		Subject:        "single-location",
@@ -203,7 +235,9 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 
 	err := wsjson.Write(context.Background(), ws, msg)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	go func() {
@@ -227,7 +261,9 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 	var locationUpdateEvent models.LocationUpdateEvent
 	err = wsjson.Read(context.Background(), ws, &locationUpdateEvent)
 	if err != nil {
-		panic(err)
+		t.Fail()
+		return
+		//panic(err)
 	}
 
 	assert.Equal(

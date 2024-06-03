@@ -37,12 +37,16 @@ func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		return
 	}
-	defer app.unsubAndClose(conn)
+	defer func() {
+		//todo
+		app.services.WebSockets.RemoveSubscriber(conn)
+		conn.Close(websocket.StatusInternalError, "")
+	}()
 
 	var msg dtos.SubscribeMessageDto
 	err = wsjson.Read(r.Context(), conn, &msg)
 	if err != nil {
-		app.handleWsError(r.Context(), conn, err)
+		http_tools.WSErrorResponse(r.Context(), conn, app.services.WebSockets.RemoveSubscriber, err)
 		return
 	}
 
@@ -75,7 +79,7 @@ func allLocationsHandler(
 
 	err := wsjson.Write(ctx, conn, locationUpdateEventDtos)
 	if err != nil {
-		app.handleWsError(ctx, conn, err)
+		http_tools.WSErrorResponse(ctx, conn, app.services.WebSockets.RemoveSubscriber, err)
 		return
 	}
 
@@ -84,7 +88,7 @@ func allLocationsHandler(
 		if len(updateEvents) > 0 {
 			err = wsjson.Write(ctx, conn, updateEvents)
 			if err != nil {
-				app.handleWsError(ctx, conn, err)
+				http_tools.WSErrorResponse(ctx, conn, app.services.WebSockets.RemoveSubscriber, err)
 				return
 			}
 		}
@@ -108,7 +112,7 @@ func singleLocationHandler(
 		if updateEvent.NormalizedName == msg.NormalizedName {
 			err := wsjson.Write(ctx, conn, updateEvent)
 			if err != nil {
-				app.handleWsError(ctx, conn, err)
+				http_tools.WSErrorResponse(ctx, conn, app.services.WebSockets.RemoveSubscriber, err)
 				return
 			}
 		}
@@ -117,28 +121,6 @@ func singleLocationHandler(
 			time.Sleep(time.Second)
 		}
 	}
-}
-
-func (app *application) handleWsError(
-	ctx context.Context,
-	conn *websocket.Conn,
-	err error,
-) {
-	if websocket.CloseStatus(err) != websocket.StatusNormalClosure &&
-		websocket.CloseStatus(err) != websocket.StatusGoingAway {
-		app.unsubAndClose(conn)
-		err = wsjson.Write(ctx, conn, err)
-		if err != nil {
-			//todo
-			http_tools.GetLogger().Print(err)
-		}
-		return
-	}
-}
-
-func (app *application) unsubAndClose(conn *websocket.Conn) {
-	app.services.WebSockets.RemoveSubscriber(conn)
-	conn.Close(websocket.StatusInternalError, "")
 }
 
 func (app *application) getAllCurrentLocationStates(

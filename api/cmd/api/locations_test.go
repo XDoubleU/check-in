@@ -54,11 +54,11 @@ func TestYesterdayFullAt(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations/"+fixtureData.DefaultLocation.ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.DefaultLocation.ID)
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData models.Location
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -94,7 +94,7 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
 		tReq.AddCookie(user)
 
 		tReq.SetQuery(map[string]string{
@@ -105,7 +105,7 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 		})
 
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -167,7 +167,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
 		tReq.AddCookie(user)
 
 		id := fmt.Sprintf(
@@ -184,7 +184,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 		})
 
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -250,7 +250,7 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
 		tReq.AddCookie(user)
 
 		tReq.SetQuery(map[string]string{
@@ -260,7 +260,7 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 			"returnType": "csv",
 		})
 
-		rs := tReq.Do(nil)
+		rs := tReq.Do(t, nil)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rs.Header.Get("content-type"), "text/csv")
@@ -279,7 +279,7 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -290,7 +290,7 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -310,7 +310,7 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 	startDate := time.Now().Format(constants.DateFormat)
 	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -321,7 +321,7 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -340,7 +340,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 
 	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -350,7 +350,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message.(string), "missing startDate param in query")
@@ -365,7 +365,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 
 	startDate := time.Now().Format(constants.DateFormat)
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -375,7 +375,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message.(string), "missing endDate param in query")
@@ -391,7 +391,7 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 	startDate := time.Now().Format(constants.DateFormat)
 	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -401,7 +401,7 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message.(string), "missing returnType param in query")
@@ -417,7 +417,7 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 	startDate := time.Now().Format(constants.DateFormat)
 	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -428,7 +428,7 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
@@ -441,8 +441,8 @@ func TestGetCheckInsLocationRangeAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq1 := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/range")
-	rs1 := tReq1.Do(nil)
+	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/range")
+	rs1 := tReq1.Do(t, nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 }
@@ -468,7 +468,7 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/day")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/day")
 		tReq.AddCookie(user)
 
 		tReq.SetQuery(map[string]string{
@@ -478,7 +478,7 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 		})
 
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -520,7 +520,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/day")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/day")
 		tReq.AddCookie(user)
 
 		id := fmt.Sprintf(
@@ -535,7 +535,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 		})
 
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -580,7 +580,7 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/day")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/day")
 		tReq.AddCookie(user)
 
 		tReq.SetQuery(map[string]string{
@@ -589,7 +589,7 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 			"returnType": "csv",
 		})
 
-		rs := tReq.Do(nil)
+		rs := tReq.Do(t, nil)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rs.Header.Get("content-type"), "text/csv")
@@ -607,7 +607,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/day")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/day")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -617,7 +617,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -636,7 +636,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 
 	date := time.Now().Format(constants.DateFormat)
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/day")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/day")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -646,7 +646,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -663,7 +663,7 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/day")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/day")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -672,7 +672,7 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message.(string), "missing date param in query")
@@ -687,7 +687,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 
 	date := time.Now().Format(constants.DateFormat)
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/day")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/day")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -696,7 +696,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message.(string), "missing returnType param in query")
@@ -711,7 +711,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 
 	date := time.Now().Format(constants.DateFormat)
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/day")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/day")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -721,7 +721,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
@@ -734,8 +734,8 @@ func TestGetCheckInsLocationDayAccess(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq1 := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations/checkins/day")
-	rs1 := tReq1.Do(nil)
+	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations/checkins/day")
+	rs1 := tReq1.Do(t, nil)
 
 	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
 }
@@ -754,11 +754,11 @@ func TestGetAllCheckInsToday(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins")
 		tReq.AddCookie(user)
 
 		var rsData []dtos.CheckInDto
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -783,11 +783,11 @@ func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations/"+id.String()+"/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+id.String()+"/checkins")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -804,11 +804,11 @@ func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations/"+fixtureData.Locations[0].ID+"/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.Locations[0].ID+"/checkins")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -825,11 +825,11 @@ func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations/8000/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/8000/checkins")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
@@ -870,11 +870,11 @@ func TestDeleteCheckIn(t *testing.T) {
 			fixtureData.CheckIns[i].ID,
 			10,
 		)
-		tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins/"+id)
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins/"+id)
 		tReq.AddCookie(user)
 
 		var rsData dtos.CheckInDto
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -899,11 +899,11 @@ func TestDeleteCheckInLocationNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/locations/"+id.String()+"/checkins/1")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+id.String()+"/checkins/1")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -920,11 +920,11 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins/8000")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -965,11 +965,11 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 		checkIn.ID,
 		10,
 	)
-	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins/"+id)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins/"+id)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(
@@ -986,11 +986,11 @@ func TestDeleteCheckInNotUUID(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/locations/800O/checkins/1")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/800O/checkins/1")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
@@ -1037,11 +1037,11 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations")
 		tReq.AddCookie(user)
 
 		var rsData dtos.PaginatedLocationsDto
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -1089,7 +1089,7 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -1097,7 +1097,7 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	})
 
 	var rsData dtos.PaginatedLocationsDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -1144,7 +1144,7 @@ func TestGetPaginatedLocationsPageZero(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -1152,7 +1152,7 @@ func TestGetPaginatedLocationsPageZero(t *testing.T) {
 	})
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Equal(t, rsData.Message, "invalid page query param")
@@ -1190,11 +1190,11 @@ func TestGetAllLocations(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/all-locations")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/all-locations")
 		tReq.AddCookie(user)
 
 		var rsData []models.Location
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 
@@ -1253,11 +1253,11 @@ func TestGetLocation(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations/"+fixtureData.DefaultLocation.ID)
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.DefaultLocation.ID)
 		tReq.AddCookie(user)
 
 		var rsData models.Location
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.DefaultLocation.ID)
@@ -1290,11 +1290,11 @@ func TestGetLocationNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations/"+id.String())
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+id.String())
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -1311,11 +1311,11 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -1332,11 +1332,11 @@ func TestGetLocationNotUUID(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodGet, "/locations/8000")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
@@ -1383,13 +1383,13 @@ func TestCreateLocation(t *testing.T) {
 			TimeZone: "Europe/Brussels",
 		}
 
-		tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/locations")
 		tReq.AddCookie(user)
 
 		tReq.SetReqData(data)
 
 		var rsData models.Location
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusCreated)
 		assert.Nil(t, uuid.Validate(rsData.ID))
@@ -1420,13 +1420,13 @@ func TestCreateLocationNameExists(t *testing.T) {
 		TimeZone: "Europe/Brussels",
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/locations")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -1451,13 +1451,13 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 		TimeZone: "Europe/Brussels",
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/locations")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -1482,13 +1482,13 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 		TimeZone: "Europe/Brussels",
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/locations")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -1507,7 +1507,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 
 	vt := test.CreateValidatorTester(t)
 
-	tReq1 := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
+	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/locations")
 	tReq1.AddCookie(tokens.ManagerAccessToken)
 
 	tReq1.SetReqData(dtos.CreateLocationDto{
@@ -1522,7 +1522,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 		"capacity": "must be greater than zero",
 	})
 
-	tReq2 := test.CreateTestRequest(t, ts, http.MethodPost, "/locations")
+	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/locations")
 	tReq2.AddCookie(tokens.ManagerAccessToken)
 
 	tReq2.SetReqData(dtos.CreateLocationDto{
@@ -1537,7 +1537,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 		"timeZone": "must be a valid IANA value",
 	})
 
-	vt.Do()
+	vt.Do(t)
 }
 
 func TestCreateLocationAccess(t *testing.T) {
@@ -1584,13 +1584,13 @@ func TestUpdateLocation(t *testing.T) {
 			TimeZone: &timeZone,
 		}
 
-		tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
 		tReq.AddCookie(user)
 
 		tReq.SetReqData(data)
 
 		var rsData models.Location
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.Locations[0].ID)
@@ -1630,13 +1630,13 @@ func TestUpdateLocationNameExists(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -1662,13 +1662,13 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -1694,13 +1694,13 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusConflict)
 	assert.Equal(
@@ -1728,7 +1728,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq1 := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
 	tReq1.AddCookie(tokens.ManagerAccessToken)
 
 	tReq1.SetReqData(data1)
@@ -1747,7 +1747,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 		TimeZone: &timeZone,
 	}
 
-	tReq2 := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
 	tReq2.AddCookie(tokens.ManagerAccessToken)
 
 	tReq2.SetReqData(data2)
@@ -1756,7 +1756,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 		"timeZone": "must be a valid IANA value",
 	})
 
-	vt.Do()
+	vt.Do(t)
 }
 
 func TestUpdateLocationNotFound(t *testing.T) {
@@ -1777,13 +1777,13 @@ func TestUpdateLocationNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+id.String())
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+id.String())
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -1809,13 +1809,13 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -1841,13 +1841,13 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodPatch, "/locations/8000")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
@@ -1884,11 +1884,11 @@ func TestDeleteLocation(t *testing.T) {
 	}
 
 	for i, user := range users {
-		tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/locations/"+fixtureData.Locations[i].ID)
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+fixtureData.Locations[i].ID)
 		tReq.AddCookie(user)
 
 		var rsData models.Location
-		rs := tReq.Do(&rsData)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, rs.StatusCode, http.StatusOK)
 		assert.Equal(t, rsData.ID, fixtureData.Locations[i].ID)
@@ -1925,11 +1925,11 @@ func TestDeleteLocationNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/locations/"+id.String())
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+id.String())
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
 	assert.Equal(
@@ -1946,11 +1946,11 @@ func TestDeleteLocationNotUUID(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(t, ts, http.MethodDelete, "/locations/8000")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
-	rs := tReq.Do(&rsData)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
