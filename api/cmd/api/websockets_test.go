@@ -18,7 +18,7 @@ import (
 	"check-in/api/internal/tests"
 )
 
-const timeout = time.Minute
+const timeout = 10 * time.Second
 const sleep = time.Second
 
 func TestAllLocationsWebSocketCheckIn(t *testing.T) {

@@ -35,6 +35,7 @@ func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request)
 		OriginPatterns: []string{url},
 	})
 	if err != nil {
+		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
 		return
 	}
 	defer func() {
@@ -46,7 +47,7 @@ func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request)
 	var msg dtos.SubscribeMessageDto
 	err = wsjson.Read(r.Context(), conn, &msg)
 	if err != nil {
-		http_tools.WSErrorResponse(r.Context(), conn, app.services.WebSockets.RemoveSubscriber, err)
+		http_tools.WSErrorResponse(w, r, conn, app.services.WebSockets.RemoveSubscriber, err)
 		return
 	}
 
@@ -57,10 +58,10 @@ func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request)
 
 	switch {
 	case msg.Subject == models.AllLocations:
-		allLocationsHandler(r.Context(), app, conn, msg)
+		allLocationsHandler(w, r, app, conn, msg)
 
 	case msg.Subject == models.SingleLocation:
-		singleLocationHandler(r.Context(), app, conn, msg)
+		singleLocationHandler(w, r, app, conn, msg)
 
 	default:
 		return
@@ -68,27 +69,28 @@ func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func allLocationsHandler(
-	ctx context.Context,
+	w http.ResponseWriter,
+	r *http.Request,
 	app *application,
 	conn *websocket.Conn,
 	msg dtos.SubscribeMessageDto,
 ) {
 	app.services.WebSockets.AddSubscriber(conn, msg.Subject, msg.NormalizedName)
 
-	locationUpdateEventDtos, _ := app.getAllCurrentLocationStates(ctx)
+	locationUpdateEventDtos, _ := app.getAllCurrentLocationStates(r.Context())
 
-	err := wsjson.Write(ctx, conn, locationUpdateEventDtos)
+	err := wsjson.Write(r.Context(), conn, locationUpdateEventDtos)
 	if err != nil {
-		http_tools.WSErrorResponse(ctx, conn, app.services.WebSockets.RemoveSubscriber, err)
+		http_tools.WSErrorResponse(w, r, conn, app.services.WebSockets.RemoveSubscriber, err)
 		return
 	}
 
 	for {
 		updateEvents := app.services.WebSockets.GetAllUpdateEvents(conn)
 		if len(updateEvents) > 0 {
-			err = wsjson.Write(ctx, conn, updateEvents)
+			err = wsjson.Write(r.Context(), conn, updateEvents)
 			if err != nil {
-				http_tools.WSErrorResponse(ctx, conn, app.services.WebSockets.RemoveSubscriber, err)
+				http_tools.WSErrorResponse(w, r, conn, app.services.WebSockets.RemoveSubscriber, err)
 				return
 			}
 		}
@@ -100,7 +102,8 @@ func allLocationsHandler(
 }
 
 func singleLocationHandler(
-	ctx context.Context,
+	w http.ResponseWriter,
+	r *http.Request,
 	app *application,
 	conn *websocket.Conn,
 	msg dtos.SubscribeMessageDto,
@@ -110,9 +113,9 @@ func singleLocationHandler(
 	for {
 		updateEvent := app.services.WebSockets.GetByNormalizedName(conn)
 		if updateEvent.NormalizedName == msg.NormalizedName {
-			err := wsjson.Write(ctx, conn, updateEvent)
+			err := wsjson.Write(r.Context(), conn, updateEvent)
 			if err != nil {
-				http_tools.WSErrorResponse(ctx, conn, app.services.WebSockets.RemoveSubscriber, err)
+				http_tools.WSErrorResponse(w, r, conn, app.services.WebSockets.RemoveSubscriber, err)
 				return
 			}
 		}

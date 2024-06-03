@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 
+	"github.com/XDoubleU/essentia/pkg/logger"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -17,6 +18,8 @@ type MainTestEnv struct {
 
 func SetupGlobal(dbDsn string, dbMaxConns int,
 	dbMaxIdletime string) (*MainTestEnv, error) {
+	logger.SetLogger(logger.NullLogger)
+
 	testDB, err := database.Connect(
 		dbDsn,
 		dbMaxConns,
