@@ -31,6 +31,7 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
 	ws := tests.DialWebsocket(wsURL, timeout)
 	if ws == nil {
+		//todo: log
 		t.Fail()
 		return
 	}
