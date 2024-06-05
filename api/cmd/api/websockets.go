@@ -35,7 +35,7 @@ func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request)
 		OriginPatterns: []string{url},
 	})
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.WSUpgradeErrorResponse(w, r, err)
 		return
 	}
 	defer func() {
