@@ -14,6 +14,8 @@ import (
 	"check-in/api/internal/models"
 	"check-in/api/internal/services"
 	"check-in/api/internal/tests"
+
+	"github.com/XDoubleU/essentia/pkg/http_tools"
 )
 
 type Tokens struct {
@@ -43,16 +45,25 @@ var tokens Tokens                  //nolint:gochecknoglobals //global var for te
 var cfg config.Config              //nolint:gochecknoglobals //global var for tests
 var fixtureData FixtureData        //nolint:gochecknoglobals //global var for tests
 
-func clearAll(services services.Services) error {
+func clearAll(services services.Services) {
+	user, err := services.Users.GetByUsername(context.Background(), "Admin")
+	if user != nil {
+		err = services.Users.Delete(context.Background(), user.ID, user.Role)
+	}
+
+	if err != http_tools.ErrRecordNotFound && err != nil {
+		panic(err)
+	}
+
 	users, err := services.Users.GetAll(context.Background())
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	for _, user := range users {
 		err = services.Users.Delete(context.Background(), user.ID, user.Role)
 		if err != nil {
-			return err
+			panic(err)
 		}
 	}
 
@@ -60,13 +71,13 @@ func clearAll(services services.Services) error {
 
 	locations, err := services.Locations.GetAll(context.Background())
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	for _, location := range locations {
 		err = services.Locations.Delete(context.Background(), location)
 		if err != nil {
-			return err
+			panic(err)
 		}
 	}
 
@@ -74,7 +85,7 @@ func clearAll(services services.Services) error {
 
 	schools, err := services.Schools.GetAll(context.Background())
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	for _, school := range schools {
@@ -84,16 +95,14 @@ func clearAll(services services.Services) error {
 
 		err = services.Schools.Delete(context.Background(), school.ID)
 		if err != nil {
-			return err
+			panic(err)
 		}
 	}
 
 	fixtureData.AmountOfSchools = 0
-
-	return nil
 }
 
-func userFixtures(services services.Services) error {
+func userFixtures(services services.Services) {
 	password := "testpassword"
 
 	adminUser, err := services.Users.Create(context.Background(),
@@ -102,7 +111,7 @@ func userFixtures(services services.Services) error {
 		models.AdminRole,
 	)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	managerUser, err := services.Users.Create(context.Background(),
@@ -111,7 +120,7 @@ func userFixtures(services services.Services) error {
 		models.ManagerRole,
 	)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	fixtureData.AmountOfManagerUsers++
 
@@ -126,7 +135,7 @@ func userFixtures(services services.Services) error {
 			models.ManagerRole,
 		)
 		if err != nil {
-			return err
+			panic(err)
 		}
 
 		fixtureData.AmountOfManagerUsers++
@@ -141,7 +150,7 @@ func userFixtures(services services.Services) error {
 		false,
 	)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	managerAccessToken, err := services.Auth.CreateCookie(context.Background(),
@@ -151,19 +160,17 @@ func userFixtures(services services.Services) error {
 		false,
 	)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	tokens.AdminAccessToken = adminAccessToken
 	tokens.ManagerAccessToken = managerAccessToken
-
-	return nil
 }
 
-func locationFixtures(services services.Services) error {
+func locationFixtures(services services.Services) {
 	timezone, err := time.LoadLocation("Europe/Brussels")
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	fixtureData.DefaultLocation, err = services.Locations.Create(
@@ -175,7 +182,7 @@ func locationFixtures(services services.Services) error {
 		"testpassword",
 	)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	fixtureData.AmountOfLocations++
 
@@ -185,7 +192,7 @@ func locationFixtures(services services.Services) error {
 		models.DefaultRole,
 	)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	tokens.DefaultAccessToken, err = services.Auth.CreateCookie(context.Background(),
@@ -195,7 +202,7 @@ func locationFixtures(services services.Services) error {
 		false,
 	)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	tokens.DefaultRefreshToken, err = services.Auth.CreateCookie(context.Background(),
@@ -205,7 +212,7 @@ func locationFixtures(services services.Services) error {
 		false,
 	)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	for i := 0; i < 5; i++ {
@@ -219,7 +226,7 @@ func locationFixtures(services services.Services) error {
 			},
 		)
 		if err != nil {
-			return err
+			panic(err)
 		}
 
 		var checkIn *models.CheckIn
@@ -229,7 +236,7 @@ func locationFixtures(services services.Services) error {
 			&models.School{ID: 1},
 		)
 		if err != nil {
-			return err
+			panic(err)
 		}
 
 		fixtureData.CheckIns = append(fixtureData.CheckIns, checkIn)
@@ -246,7 +253,7 @@ func locationFixtures(services services.Services) error {
 			"testpassword",
 		)
 		if err != nil {
-			return err
+			panic(err)
 		}
 		fixtureData.AmountOfLocations++
 
@@ -257,7 +264,7 @@ func locationFixtures(services services.Services) error {
 			models.DefaultRole,
 		)
 		if err != nil {
-			return err
+			panic(err)
 		}
 		fixtureData.DefaultUsers = append(fixtureData.DefaultUsers, user)
 
@@ -268,52 +275,39 @@ func locationFixtures(services services.Services) error {
 				&models.School{ID: 1},
 			)
 			if err != nil {
-				return err
+				panic(err)
 			}
 		}
 
 		fixtureData.Locations = append(fixtureData.Locations, location)
 	}
-
-	return nil
 }
 
-func schoolFixtures(services services.Services) error {
+func schoolFixtures(services services.Services) {
 	for i := 0; i < 20; i++ {
 		school, err := services.Schools.Create(context.Background(),
 			fmt.Sprintf("TestSchool%d", i))
 		if err != nil {
-			return err
+			panic(err)
 		}
 		fixtureData.Schools = append(fixtureData.Schools, school)
 		fixtureData.AmountOfSchools++
 	}
-
-	return nil
 }
 
-func fixtures(tx database.DB) {
-	services := services.New(tx)
+func fixtures(db database.DB) {
+	services := services.New(db)
 
-	err := clearAll(services)
-	if err != nil {
-		panic(err)
-	}
+	clearAll(services)
+	userFixtures(services)
+	locationFixtures(services)
+	schoolFixtures(services)
+}
 
-	err = userFixtures(services)
-	if err != nil {
-		panic(err)
-	}
+func removeFixtures(db database.DB) {
+	services := services.New(db)
 
-	err = locationFixtures(services)
-	if err != nil {
-		panic(err)
-	}
-
-	err = schoolFixtures(services)
-	if err != nil {
-		panic(err)
-	}
+	clearAll(services)
 }
 
 func TestMain(m *testing.M) {
@@ -332,9 +326,10 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	fixtures(mainTestEnv.TestTx)
-
+	fixtures(mainTestEnv.TestDB)
 	exitCode := m.Run()
+	removeFixtures(mainTestEnv.TestDB)
+
 	err = tests.TeardownGlobal(mainTestEnv)
 	if err != nil {
 		panic(err)
@@ -344,10 +339,10 @@ func TestMain(m *testing.M) {
 }
 
 func setupTest(
-	_ *testing.T,
+	t *testing.T,
 	mainTestEnv *tests.MainTestEnv,
 ) (tests.TestEnv, *application) {
-	// t.Parallel()
+	//t.Parallel()
 	testEnv := tests.SetupSingle(mainTestEnv)
 
 	testApp := &application{

@@ -16,7 +16,7 @@ func SetupSingle(mainTestEnv *MainTestEnv) TestEnv {
 	var testTx TestTx
 	var mu sync.Mutex
 	for {
-		tx, err := mainTestEnv.TestTx.Begin(testCtx)
+		tx, err := mainTestEnv.TestDB.Begin(testCtx)
 		if err == nil {
 			testTx = TestTx{
 				tx: tx,
