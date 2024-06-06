@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/XDoubleU/essentia/pkg/http_tools"
@@ -16,62 +15,28 @@ import (
 	"check-in/api/internal/models"
 )
 
-func (app *application) websocketsRoutes(router *httprouter.Router) {
-	router.HandlerFunc(http.MethodGet, "/", app.webSocketHandler)
-}
-
 // @Summary	WebSocket for receiving update events
 // @Tags		websocket
 // @Param		subscribeMessageDto	body		SubscribeMessageDto	true	"SubscribeMessageDto"
 // @Success	200					{object}	LocationUpdateEvent
 // @Router		/ws [get].
-func (app *application) webSocketHandler(w http.ResponseWriter, r *http.Request) {
-	url := app.config.WebURL
-	if strings.Contains(url, "://") {
-		url = strings.Split(app.config.WebURL, "://")[1]
-	}
-
-	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
-		OriginPatterns: []string{url},
-	})
-	if err != nil {
-		http_tools.WSUpgradeErrorResponse(w, r, err)
-		return
-	}
-	defer func() {
-		//todo
-		app.services.WebSockets.RemoveSubscriber(conn)
-		conn.Close(websocket.StatusInternalError, "")
-	}()
-
-	var msg dtos.SubscribeMessageDto
-	err = wsjson.Read(r.Context(), conn, &msg)
-	if err != nil {
-		http_tools.WSErrorResponse(w, r, conn, app.services.WebSockets.RemoveSubscriber, err)
-		return
-	}
-
-	if v := msg.Validate(); !v.Valid() {
-		http_tools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	switch {
-	case msg.Subject == models.AllLocations:
-		allLocationsHandler(w, r, app, conn, msg)
-
-	case msg.Subject == models.SingleLocation:
-		singleLocationHandler(w, r, app, conn, msg)
-
-	default:
-		return
-	}
+func (app *application) websocketsRoutes(router *httprouter.Router) {
+	router.HandlerFunc(http.MethodGet, "/", app.getWebSocketHandler())
 }
 
-func allLocationsHandler(
+func (app *application) getWebSocketHandler() http.HandlerFunc {
+	wsh := http_tools.CreateWebsocketHandler[dtos.SubscribeMessageDto](app.config.WebURL)
+	wsh.SetOnCloseCallback(app.services.WebSockets.RemoveSubscriber)
+
+	wsh.AddSubjectHandler(string(models.AllLocations), app.allLocationsHandler)
+	wsh.AddSubjectHandler(string(models.SingleLocation), app.singleLocationHandler)
+
+	return wsh.GetHandler()
+}
+
+func (app *application) allLocationsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
-	app *application,
 	conn *websocket.Conn,
 	msg dtos.SubscribeMessageDto,
 ) {
@@ -96,15 +61,15 @@ func allLocationsHandler(
 		}
 
 		if app.config.Env != config.TestEnv {
+			// todo: use an events based system?
 			time.Sleep(30 * time.Second) //nolint:gomnd //no magic number
 		}
 	}
 }
 
-func singleLocationHandler(
+func (app *application) singleLocationHandler(
 	w http.ResponseWriter,
 	r *http.Request,
-	app *application,
 	conn *websocket.Conn,
 	msg dtos.SubscribeMessageDto,
 ) {
