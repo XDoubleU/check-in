@@ -11,6 +11,10 @@ type SubscribeMessageDto struct {
 	NormalizedName string                  `json:"normalizedName"`
 } //	@name	SubscribeMessageDto
 
+func (dto SubscribeMessageDto) GetSubject() string {
+	return string(dto.Subject)
+}
+
 func (dto SubscribeMessageDto) Validate() *validator.Validator {
 	v := validator.New()
 

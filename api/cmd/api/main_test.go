@@ -342,7 +342,7 @@ func setupTest(
 	t *testing.T,
 	mainTestEnv *tests.MainTestEnv,
 ) (tests.TestEnv, *application) {
-	//t.Parallel()
+	t.Parallel()
 	testEnv := tests.SetupSingle(mainTestEnv)
 
 	testApp := &application{
