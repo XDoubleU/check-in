@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"check-in/api/internal/config"
-	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/services"
-	"check-in/api/internal/tests"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/test"
 )
 
 type Tokens struct {
@@ -40,10 +40,10 @@ type FixtureData struct {
 	AmountOfManagerUsers int
 }
 
-var mainTestEnv *tests.MainTestEnv //nolint:gochecknoglobals //global var for tests
-var tokens Tokens                  //nolint:gochecknoglobals //global var for tests
-var cfg config.Config              //nolint:gochecknoglobals //global var for tests
-var fixtureData FixtureData        //nolint:gochecknoglobals //global var for tests
+var mainTestEnv *test.MainTestEnv //nolint:gochecknoglobals //global var for tests
+var tokens Tokens                 //nolint:gochecknoglobals //global var for tests
+var cfg config.Config             //nolint:gochecknoglobals //global var for tests
+var fixtureData FixtureData       //nolint:gochecknoglobals //global var for tests
 
 func clearAll(services services.Services) {
 	user, err := services.Users.GetByUsername(context.Background(), "Admin")
@@ -295,7 +295,7 @@ func schoolFixtures(services services.Services) {
 	}
 }
 
-func fixtures(db database.DB) {
+func fixtures(db postgres.DB) {
 	services := services.New(db)
 
 	clearAll(services)
@@ -304,7 +304,7 @@ func fixtures(db database.DB) {
 	schoolFixtures(services)
 }
 
-func removeFixtures(db database.DB) {
+func removeFixtures(db postgres.DB) {
 	services := services.New(db)
 
 	clearAll(services)
@@ -317,7 +317,7 @@ func TestMain(m *testing.M) {
 	cfg.Env = config.TestEnv
 	cfg.Throttle = false
 
-	mainTestEnv, err = tests.SetupGlobal(
+	mainTestEnv, err = test.SetupGlobal(
 		cfg.DB.Dsn,
 		cfg.DB.MaxConns,
 		cfg.DB.MaxIdleTime,
@@ -330,7 +330,7 @@ func TestMain(m *testing.M) {
 	exitCode := m.Run()
 	removeFixtures(mainTestEnv.TestDB)
 
-	err = tests.TeardownGlobal(mainTestEnv)
+	err = test.TeardownGlobal(mainTestEnv)
 	if err != nil {
 		panic(err)
 	}
@@ -340,10 +340,10 @@ func TestMain(m *testing.M) {
 
 func setupTest(
 	t *testing.T,
-	mainTestEnv *tests.MainTestEnv,
-) (tests.TestEnv, *application) {
+	mainTestEnv *test.MainTestEnv,
+) (test.TestEnv, *application) {
 	t.Parallel()
-	testEnv := tests.SetupSingle(mainTestEnv)
+	testEnv := test.SetupSingle(mainTestEnv)
 
 	testApp := &application{
 		config:     cfg,

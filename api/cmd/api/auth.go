@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/goroutine"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
 
@@ -178,7 +179,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, refreshTokenCookie)
 
 	go func() {
-		sentryGoRoutineErrorHandler(
+		goroutine.SentryErrorHandler(
 			"delete expired tokens",
 			app.services.Auth.DeleteExpiredTokens,
 		)

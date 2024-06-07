@@ -93,7 +93,6 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 			r,
 			err,
 			"school",
-			"id",
 			createCheckInDto.SchoolID,
 			"schoolId",
 			app.hideErrors,

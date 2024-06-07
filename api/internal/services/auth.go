@@ -8,14 +8,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	str2duration "github.com/xhit/go-str2duration/v2"
 
-	"check-in/api/internal/database"
 	"check-in/api/internal/models"
 )
 
 type AuthService struct {
-	db        database.DB
+	db        postgres.DB
 	locations LocationService
 }
 

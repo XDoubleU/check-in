@@ -5,7 +5,6 @@ import (
 	"math"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 
 	"github.com/XDoubleU/essentia/pkg/http_tools"
@@ -15,12 +14,11 @@ import (
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/tests"
 )
 
 func TestGetInfoLoggedInUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -77,7 +75,7 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 
 func TestGetInfoLoggedInUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -90,7 +88,7 @@ func TestGetInfoLoggedInUserAccess(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -101,7 +99,7 @@ func TestGetUser(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/"+fixtureData.DefaultUsers[0].ID)
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%s", fixtureData.DefaultUsers[0].ID)
 		tReq.AddCookie(user)
 
 		var rsData models.User
@@ -132,14 +130,14 @@ func TestGetUser(t *testing.T) {
 
 func TestGetUserNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/"+id.String())
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%s", id.String())
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -155,7 +153,7 @@ func TestGetUserNotFound(t *testing.T) {
 
 func TestGetUserNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -172,14 +170,14 @@ func TestGetUserNotUUID(t *testing.T) {
 
 func TestGetUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%d", fixtureData.Schools[0].ID)
 
-	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%d", fixtureData.Schools[0].ID)
 	tReq2.AddCookie(tokens.DefaultAccessToken)
 
 	rs1 := tReq1.Do(t, nil)
@@ -191,7 +189,7 @@ func TestGetUserAccess(t *testing.T) {
 
 func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -221,7 +219,7 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 
 func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -255,7 +253,7 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 
 func TestGetPaginatedManagerUsersPageZero(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -276,7 +274,7 @@ func TestGetPaginatedManagerUsersPageZero(t *testing.T) {
 
 func TestGetPaginatedManagerUsersAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -300,7 +298,7 @@ func TestGetPaginatedManagerUsersAccess(t *testing.T) {
 
 func TestCreateManagerUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -327,7 +325,7 @@ func TestCreateManagerUser(t *testing.T) {
 
 func TestCreateManagerUserUserNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -354,7 +352,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 
 func TestCreateManagerUserFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -378,7 +376,7 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 
 func TestCreateManagerUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -402,7 +400,7 @@ func TestCreateManagerUserAccess(t *testing.T) {
 
 func TestUpdateManagerUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -413,7 +411,7 @@ func TestUpdateManagerUser(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/"+fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", fixtureData.ManagerUsers[0].ID)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	tReq.SetReqData(data)
@@ -431,7 +429,7 @@ func TestUpdateManagerUser(t *testing.T) {
 
 func TestUpdateManagerUserUserNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -442,7 +440,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/"+fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", fixtureData.ManagerUsers[0].ID)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	tReq.SetReqData(data)
@@ -460,7 +458,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 
 func TestUpdateManagerUserNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -473,7 +471,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/"+id.String())
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", id.String())
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	tReq.SetReqData(data)
@@ -491,7 +489,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 
 func TestUpdateManagerUserNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -516,7 +514,7 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 
 func TestUpdateManagerUserFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -527,7 +525,7 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/"+fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", fixtureData.ManagerUsers[0].ID)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	tReq.SetReqData(data)
@@ -543,7 +541,7 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 
 func TestUpdateManagerUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -579,12 +577,12 @@ func TestUpdateManagerUserAccess(t *testing.T) {
 
 func TestDeleteManagerUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/"+fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/%s", fixtureData.ManagerUsers[0].ID)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	var rsData models.User
@@ -600,13 +598,13 @@ func TestDeleteManagerUser(t *testing.T) {
 
 func TestDeleteManagerUserNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/"+id.String())
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/%s", id.String())
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -622,7 +620,7 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 
 func TestDeleteManagerUserNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -639,7 +637,7 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 
 func TestDeleteManagerUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()

@@ -3,16 +3,16 @@ package services
 import (
 	"context"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
-	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
 type SchoolService struct {
-	db database.DB
+	db postgres.DB
 }
 
 func (service SchoolService) GetTotalCount(ctx context.Context) (*int64, error) {

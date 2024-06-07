@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,12 +10,11 @@ import (
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/tests"
 )
 
 func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	tWeb := test.CreateTestWebsocket(testApp.routes())
 
@@ -42,7 +39,7 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 
 func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	tWeb := test.CreateTestWebsocket(testApp.routes())
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
@@ -61,7 +58,7 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 
 func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	tWeb := test.CreateTestWebsocket(testApp.routes())
 
@@ -85,7 +82,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 
 func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	tWeb := test.CreateTestWebsocket(testApp.routes())
 
@@ -112,16 +109,12 @@ func createCheckIn(t *testing.T, ts *httptest.Server) {
 		SchoolID: fixtureData.Schools[0].ID,
 	}
 
-	//todo: want to use TestRequest here, currently not possible
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(
-		http.MethodPost,
-		ts.URL+"/checkins",
-		bytes.NewReader(body),
-	)
-	req.AddCookie(tokens.DefaultAccessToken)
+	tReq := test.CreateTestRequest(nil, http.MethodPost, "/checkins")
+	tReq.SetTestServer(ts)
+	tReq.SetReqData(data)
+	tReq.AddCookie(tokens.DefaultAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	rs := tReq.Do(t, nil)
 
 	assert.Equal(t, rs.StatusCode, http.StatusCreated)
 }
@@ -132,13 +125,12 @@ func updateCapacity(t *testing.T, ts *httptest.Server) {
 		Capacity: &capacity,
 	}
 
-	//todo want to use testrequest here
-	body, _ := json.Marshal(data)
-	req, _ := http.NewRequest(http.MethodPatch,
-		ts.URL+"/locations/"+fixtureData.DefaultLocation.ID, bytes.NewReader(body))
-	req.AddCookie(tokens.DefaultAccessToken)
+	tReq := test.CreateTestRequest(nil, http.MethodPatch, "/locations/%s", fixtureData.DefaultLocation.ID)
+	tReq.SetTestServer(ts)
+	tReq.SetReqData(data)
+	tReq.AddCookie(tokens.DefaultAccessToken)
 
-	rs, _ := ts.Client().Do(req)
+	rs := tReq.Do(t, nil)
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 }

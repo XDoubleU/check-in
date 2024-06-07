@@ -3,15 +3,15 @@ package services
 import (
 	"context"
 
-	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 )
 
 type UserService struct {
-	db        database.DB
+	db        postgres.DB
 	locations LocationService
 }
 

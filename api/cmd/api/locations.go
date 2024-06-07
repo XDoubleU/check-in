@@ -118,7 +118,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		location, err = app.services.Locations.GetByID(r.Context(), id)
 		if err != nil ||
 			(user.Role == models.DefaultRole && location.UserID != user.ID) {
-			http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
+			http_tools.NotFoundResponse(w, r, err, "location", id, "id", app.hideErrors)
 			return
 		}
 	}
@@ -222,7 +222,7 @@ func (app *application) getLocationCheckInsRangeHandler(
 		location, err = app.services.Locations.GetByID(r.Context(), id)
 		if err != nil ||
 			(user.Role == models.DefaultRole && location.UserID != user.ID) {
-			http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
+			http_tools.NotFoundResponse(w, r, err, "location", id, "id", app.hideErrors)
 			return
 		}
 	}
@@ -283,7 +283,7 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "location", id, "id", app.hideErrors)
 		return
 	}
 
@@ -357,13 +357,13 @@ func (app *application) deleteLocationCheckInHandler(
 
 	location, err := app.services.Locations.GetByID(r.Context(), locationID)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "location", "id", locationID, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "location", locationID, "id", app.hideErrors)
 		return
 	}
 
 	checkIn, err := app.services.CheckIns.GetByID(r.Context(), location, checkInID)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "checkIn", "id", checkInID, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "checkIn", checkInID, "id", app.hideErrors)
 		return
 	}
 
@@ -428,7 +428,7 @@ func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "location", id, "id", app.hideErrors)
 		return
 	}
 
@@ -612,7 +612,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "location", id, "id", app.hideErrors)
 		return
 	}
 
@@ -713,7 +713,7 @@ func (app *application) deleteLocationHandler(w http.ResponseWriter, r *http.Req
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "location", "id", id, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "location", id, "id", app.hideErrors)
 		return
 	}
 

@@ -7,7 +7,6 @@ import (
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/tests"
 
 	"github.com/stretchr/testify/assert"
 
@@ -17,7 +16,7 @@ import (
 
 func TestSignInUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/auth/signin")
 
@@ -45,7 +44,7 @@ func TestSignInUser(t *testing.T) {
 
 func TestSignInUserNoRefresh(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/auth/signin")
 
@@ -72,7 +71,7 @@ func TestSignInUserNoRefresh(t *testing.T) {
 
 func TestSignInAdmin(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -102,7 +101,7 @@ func TestSignInAdmin(t *testing.T) {
 
 func TestSignInInexistentUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/auth/signin")
 
@@ -122,7 +121,7 @@ func TestSignInInexistentUser(t *testing.T) {
 
 func TestSignInWrongPassword(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -145,7 +144,7 @@ func TestSignInWrongPassword(t *testing.T) {
 
 func TestSignInFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -170,7 +169,7 @@ func TestSignInFailValidation(t *testing.T) {
 
 func TestSignOut(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -189,7 +188,7 @@ func TestSignOut(t *testing.T) {
 
 func TestSignOutNoRefresh(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -207,7 +206,7 @@ func TestSignOutNoRefresh(t *testing.T) {
 
 func TestSignOutNotLoggedIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -221,7 +220,7 @@ func TestSignOutNotLoggedIn(t *testing.T) {
 
 func TestRefresh(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -239,7 +238,7 @@ func TestRefresh(t *testing.T) {
 
 func TestRefreshReusedToken(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -257,7 +256,7 @@ func TestRefreshReusedToken(t *testing.T) {
 
 func TestRefreshInvalidToken(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
