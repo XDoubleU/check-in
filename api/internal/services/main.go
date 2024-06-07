@@ -3,12 +3,12 @@ package services
 import (
 	"errors"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"nhooyr.io/websocket"
 
-	"check-in/api/internal/database"
 	"check-in/api/internal/models"
 )
 
@@ -21,7 +21,7 @@ type Services struct {
 	WebSockets WebSocketService
 }
 
-func New(db database.DB) Services {
+func New(db postgres.DB) Services {
 	checkIns := CheckInService{db: db}
 	schools := SchoolService{db: db}
 	locations := LocationService{db: db, schools: schools, checkins: checkIns}

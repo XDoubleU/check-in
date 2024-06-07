@@ -4,15 +4,15 @@ import (
 	"context"
 	"time"
 
-	"check-in/api/internal/database"
 	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 )
 
 type CheckInService struct {
-	db database.DB
+	db postgres.DB
 }
 
 func (service CheckInService) GetAllOfDay(

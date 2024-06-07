@@ -11,7 +11,6 @@ import (
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/tests"
 
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/XDoubleU/essentia/pkg/test"
@@ -20,7 +19,7 @@ import (
 
 func TestGetSortedSchoolsOK(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	defaultLocation := *fixtureData.DefaultLocation
 
@@ -56,7 +55,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 
 func TestGetSortedSchoolsAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -80,7 +79,7 @@ func TestGetSortedSchoolsAccess(t *testing.T) {
 
 func TestCreateCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -113,7 +112,7 @@ func TestCreateCheckIn(t *testing.T) {
 
 func TestCreateCheckInAndere(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -146,7 +145,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 
 func TestCreateCheckInAboveCap(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -174,7 +173,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 
 func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -196,13 +195,13 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		rsData.Message.(map[string]interface{})["schoolId"].(string),
-		fmt.Sprintf("school with id '%d' doesn't exist", data.SchoolID),
+		fmt.Sprintf("school with schoolId '%d' doesn't exist", data.SchoolID),
 	)
 }
 
 func TestCreateCheckInFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -226,7 +225,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 
 func TestCreateCheckInAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()

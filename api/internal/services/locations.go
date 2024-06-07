@@ -6,18 +6,18 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/jackc/pgx/v5"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
-	"check-in/api/internal/database"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 )
 
 type LocationService struct {
-	db       database.DB
+	db       postgres.DB
 	schools  SchoolService
 	checkins CheckInService
 }

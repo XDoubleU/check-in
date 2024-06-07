@@ -136,7 +136,7 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "school", "id", id, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "school", id, "id", app.hideErrors)
 		return
 	}
 
@@ -170,7 +170,7 @@ func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "school", "id", id, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "school", id, "id", app.hideErrors)
 		return
 	}
 

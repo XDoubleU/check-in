@@ -10,7 +10,6 @@ import (
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/tests"
 
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/XDoubleU/essentia/pkg/test"
@@ -19,7 +18,7 @@ import (
 
 func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -54,7 +53,7 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 
 func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -86,7 +85,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 
 func TestGetPaginatedSchoolsPageZero(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -107,7 +106,7 @@ func TestGetPaginatedSchoolsPageZero(t *testing.T) {
 
 func TestGetPaginatedSchoolsAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -126,7 +125,7 @@ func TestGetPaginatedSchoolsAccess(t *testing.T) {
 
 func TestCreateSchool(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -159,7 +158,7 @@ func TestCreateSchool(t *testing.T) {
 
 func TestCreateSchoolNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -186,7 +185,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 
 func TestCreateSchoolFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -208,7 +207,7 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 
 func TestCreateSchoolAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -227,7 +226,7 @@ func TestCreateSchoolAccess(t *testing.T) {
 
 func TestUpdateSchool(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -244,7 +243,7 @@ func TestUpdateSchool(t *testing.T) {
 			Name: unique,
 		}
 
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/%d", fixtureData.Schools[0].ID)
 		tReq.AddCookie(user)
 
 		tReq.SetReqData(data)
@@ -261,7 +260,7 @@ func TestUpdateSchool(t *testing.T) {
 
 func TestUpdateSchoolNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -270,7 +269,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 		Name: "TestSchool1",
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/%d", fixtureData.Schools[0].ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
@@ -288,7 +287,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 
 func TestUpdateSchoolReadOnly(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -315,7 +314,7 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 
 func TestUpdateSchoolNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -342,7 +341,7 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 
 func TestUpdateSchoolNotInt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -365,12 +364,12 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 
 func TestUpdateSchoolFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10))
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/%d", fixtureData.Schools[0].ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(dtos.SchoolDto{
@@ -387,7 +386,7 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 
 func TestUpdateSchoolAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -414,7 +413,7 @@ func TestUpdateSchoolAccess(t *testing.T) {
 
 func TestDeleteSchool(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -425,7 +424,7 @@ func TestDeleteSchool(t *testing.T) {
 	}
 
 	for i, user := range users {
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/"+strconv.FormatInt(fixtureData.Schools[i].ID, 10))
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/%d", fixtureData.Schools[i].ID)
 		tReq.AddCookie(user)
 
 		var rsData models.School
@@ -440,7 +439,7 @@ func TestDeleteSchool(t *testing.T) {
 
 func TestDeleteSchoolReadOnly(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -461,7 +460,7 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 
 func TestDeleteSchoolNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -482,7 +481,7 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 
 func TestDeleteSchoolNotInt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -499,7 +498,7 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 
 func TestDeleteSchoolAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()

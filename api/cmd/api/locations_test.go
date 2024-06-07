@@ -18,14 +18,13 @@ import (
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
-	"check-in/api/internal/tests"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestYesterdayFullAt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -54,7 +53,7 @@ func TestYesterdayFullAt(t *testing.T) {
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.DefaultLocation.ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/%s", fixtureData.DefaultLocation.ID)
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData models.Location
@@ -71,7 +70,7 @@ func TestYesterdayFullAt(t *testing.T) {
 
 func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -145,7 +144,7 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 
 func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -235,7 +234,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 
 func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -269,7 +268,7 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 
 func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -302,7 +301,7 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 
 func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -333,7 +332,7 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 
 func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -358,7 +357,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 
 func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -383,7 +382,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 
 func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -409,7 +408,7 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 
 func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -436,7 +435,7 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 
 func TestGetCheckInsLocationRangeAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -449,7 +448,7 @@ func TestGetCheckInsLocationRangeAccess(t *testing.T) {
 
 func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -502,7 +501,7 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 
 func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -566,7 +565,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 
 func TestGetCheckInsLocationDayCSV(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -598,7 +597,7 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 
 func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -629,7 +628,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 
 func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -658,7 +657,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 
 func TestGetCheckInsLocationDateMissing(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -680,7 +679,7 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 
 func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -704,7 +703,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 
 func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -729,7 +728,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 
 func TestGetCheckInsLocationDayAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -742,7 +741,7 @@ func TestGetCheckInsLocationDayAccess(t *testing.T) {
 
 func TestGetAllCheckInsToday(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -754,7 +753,7 @@ func TestGetAllCheckInsToday(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins")
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/%s/checkins", fixtureData.DefaultLocation.ID)
 		tReq.AddCookie(user)
 
 		var rsData []dtos.CheckInDto
@@ -776,14 +775,14 @@ func TestGetAllCheckInsToday(t *testing.T) {
 
 func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+id.String()+"/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/%s/checkins", id.String())
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -799,12 +798,12 @@ func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 
 func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.Locations[0].ID+"/checkins")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/%s/checkins", fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -820,7 +819,7 @@ func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
 
 func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -837,7 +836,7 @@ func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
 
 func TestGetCheckInsTodayAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -855,7 +854,7 @@ func TestGetCheckInsTodayAccess(t *testing.T) {
 
 func TestDeleteCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -870,7 +869,7 @@ func TestDeleteCheckIn(t *testing.T) {
 			fixtureData.CheckIns[i].ID,
 			10,
 		)
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins/"+id)
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/%s/checkins/%s", fixtureData.DefaultLocation.ID, id)
 		tReq.AddCookie(user)
 
 		var rsData dtos.CheckInDto
@@ -892,14 +891,14 @@ func TestDeleteCheckIn(t *testing.T) {
 
 func TestDeleteCheckInLocationNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+id.String()+"/checkins/1")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/%s/checkins/1", id.String())
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -915,12 +914,12 @@ func TestDeleteCheckInLocationNotFound(t *testing.T) {
 
 func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins/8000")
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/%s/checkins/8000", fixtureData.DefaultLocation.ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -936,7 +935,7 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 
 func TestDeleteCheckInNotToday(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -965,7 +964,7 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 		checkIn.ID,
 		10,
 	)
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+fixtureData.DefaultLocation.ID+"/checkins/"+id)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/%s/checkins/%s", fixtureData.DefaultLocation.ID, id)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -981,7 +980,7 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 
 func TestDeleteCheckInNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -998,7 +997,7 @@ func TestDeleteCheckInNotUUID(t *testing.T) {
 
 func TestDeleteCheckInAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1026,7 +1025,7 @@ func TestDeleteCheckInAccess(t *testing.T) {
 
 func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1084,7 +1083,7 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 
 func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1139,7 +1138,7 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 
 func TestGetPaginatedLocationsPageZero(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1160,7 +1159,7 @@ func TestGetPaginatedLocationsPageZero(t *testing.T) {
 
 func TestGetPaginatedLocationsAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1179,7 +1178,7 @@ func TestGetPaginatedLocationsAccess(t *testing.T) {
 
 func TestGetAllLocations(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1222,7 +1221,7 @@ func TestGetAllLocations(t *testing.T) {
 
 func TestGetAllLocationsAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1241,7 +1240,7 @@ func TestGetAllLocationsAccess(t *testing.T) {
 
 func TestGetLocation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1253,7 +1252,7 @@ func TestGetLocation(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.DefaultLocation.ID)
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/%s", fixtureData.DefaultLocation.ID)
 		tReq.AddCookie(user)
 
 		var rsData models.Location
@@ -1283,14 +1282,14 @@ func TestGetLocation(t *testing.T) {
 
 func TestGetLocationNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+id.String())
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/%s", id.String())
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -1306,12 +1305,12 @@ func TestGetLocationNotFound(t *testing.T) {
 
 func TestGetLocationNotFoundNotOwner(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/locations/%s", fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -1327,7 +1326,7 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 
 func TestGetLocationNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1344,7 +1343,7 @@ func TestGetLocationNotUUID(t *testing.T) {
 
 func TestGetLocationAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1362,7 +1361,7 @@ func TestGetLocationAccess(t *testing.T) {
 
 func TestCreateLocation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1407,7 +1406,7 @@ func TestCreateLocation(t *testing.T) {
 
 func TestCreateLocationNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1438,7 +1437,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 
 func TestCreateLocationNormalizedNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1469,7 +1468,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 
 func TestCreateLocationUserNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1500,7 +1499,7 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 
 func TestCreateLocationFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1542,7 +1541,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 
 func TestCreateLocationAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1561,7 +1560,7 @@ func TestCreateLocationAccess(t *testing.T) {
 
 func TestUpdateLocation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1584,7 +1583,7 @@ func TestUpdateLocation(t *testing.T) {
 			TimeZone: &timeZone,
 		}
 
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/%s", fixtureData.Locations[0].ID)
 		tReq.AddCookie(user)
 
 		tReq.SetReqData(data)
@@ -1616,7 +1615,7 @@ func TestUpdateLocation(t *testing.T) {
 
 func TestUpdateLocationNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1630,7 +1629,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/%s", fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
@@ -1648,7 +1647,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 
 func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1662,7 +1661,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/%s", fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
@@ -1680,7 +1679,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 
 func TestUpdateLocationUserNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1694,7 +1693,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/%s", fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
@@ -1712,7 +1711,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 
 func TestUpdateLocationFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1728,7 +1727,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/%s", fixtureData.Locations[0].ID)
 	tReq1.AddCookie(tokens.ManagerAccessToken)
 
 	tReq1.SetReqData(data1)
@@ -1747,7 +1746,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 		TimeZone: &timeZone,
 	}
 
-	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/%s", fixtureData.Locations[0].ID)
 	tReq2.AddCookie(tokens.ManagerAccessToken)
 
 	tReq2.SetReqData(data2)
@@ -1761,7 +1760,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 
 func TestUpdateLocationNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1777,7 +1776,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+id.String())
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/%s", id.String())
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
@@ -1795,7 +1794,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 
 func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1809,7 +1808,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/"+fixtureData.Locations[0].ID)
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/locations/%s", fixtureData.Locations[0].ID)
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	tReq.SetReqData(data)
@@ -1827,7 +1826,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 
 func TestUpdateLocationNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1855,7 +1854,7 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 
 func TestUpdateLocationAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1873,7 +1872,7 @@ func TestUpdateLocationAccess(t *testing.T) {
 
 func TestDeleteLocation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1884,7 +1883,7 @@ func TestDeleteLocation(t *testing.T) {
 	}
 
 	for i, user := range users {
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+fixtureData.Locations[i].ID)
+		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/%s", fixtureData.Locations[i].ID)
 		tReq.AddCookie(user)
 
 		var rsData models.Location
@@ -1918,14 +1917,14 @@ func TestDeleteLocation(t *testing.T) {
 
 func TestDeleteLocationNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/"+id.String())
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/locations/%s", id.String())
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
@@ -1941,7 +1940,7 @@ func TestDeleteLocationNotFound(t *testing.T) {
 
 func TestDeleteLocationNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()
@@ -1958,7 +1957,7 @@ func TestDeleteLocationNotUUID(t *testing.T) {
 
 func TestDeleteLocationAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
 	ts := httptest.NewTLSServer(testApp.routes())
 	defer ts.Close()

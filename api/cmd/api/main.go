@@ -4,9 +4,9 @@ import (
 	_ "time/tzdata"
 
 	"check-in/api/internal/config"
-	"check-in/api/internal/database"
 	"check-in/api/internal/services"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/XDoubleU/essentia/pkg/logger"
 )
@@ -26,7 +26,7 @@ type application struct {
 func main() {
 	cfg := config.New()
 
-	db, err := database.Connect(
+	db, err := postgres.Connect(
 		cfg.DB.Dsn,
 		cfg.DB.MaxConns,
 		cfg.DB.MaxIdleTime,
@@ -36,7 +36,7 @@ func main() {
 	}
 	defer db.Close()
 
-	spandb := database.SpanDB{
+	spandb := postgres.SpanDB{
 		DB: db,
 	}
 
