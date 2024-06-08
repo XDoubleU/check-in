@@ -54,7 +54,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, http_tools.ErrRecordNotFound) {
 			http_tools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		} else {
-			http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+			http_tools.ServerErrorResponse(w, r, err)
 		}
 
 		return
@@ -75,7 +75,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -91,7 +91,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 			secure,
 		)
 		if err != nil {
-			http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+			http_tools.ServerErrorResponse(w, r, err)
 			return
 		}
 
@@ -100,7 +100,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = http_tools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -118,7 +118,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 		accessToken.Value,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -133,7 +133,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 		refreshToken.Value,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -158,7 +158,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -172,7 +172,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 

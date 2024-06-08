@@ -8,11 +8,11 @@ import (
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/tools"
 	"github.com/jackc/pgx/v5"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 )
 
@@ -76,7 +76,7 @@ func (service LocationService) GetCheckInsEntriesRange(
 
 	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
 	for d := *startDate; !d.After(*endDate); d = d.AddDate(0, 0, 1) {
-		dVal := helpers.StartOfDay(&d)
+		dVal := tools.StartOfDay(&d)
 
 		_, schoolsMap := service.schools.GetSchoolMaps(schools)
 
@@ -89,7 +89,7 @@ func (service LocationService) GetCheckInsEntriesRange(
 	}
 
 	for i := range checkIns {
-		datetime := helpers.StartOfDay(&checkIns[i].CreatedAt.Time)
+		datetime := tools.StartOfDay(&checkIns[i].CreatedAt.Time)
 		schoolName := schoolsIDNameMap[checkIns[i].SchoolID]
 
 		checkInEntry, _ := checkInEntries.Get(datetime.Format(time.RFC3339))

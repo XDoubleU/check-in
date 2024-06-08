@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/tools"
 )
 
 type CheckInService struct {
@@ -23,8 +23,8 @@ func (service CheckInService) GetAllOfDay(
 	return service.GetAllInRange(
 		ctx,
 		[]string{locationID},
-		helpers.StartOfDay(date),
-		helpers.EndOfDay(date),
+		tools.StartOfDay(date),
+		tools.EndOfDay(date),
 	)
 }
 

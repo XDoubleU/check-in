@@ -12,9 +12,8 @@ import (
 )
 
 type application struct {
-	config     config.Config
-	services   services.Services
-	hideErrors bool
+	config   config.Config
+	services services.Services
 }
 
 //	@title			Check-In API
@@ -43,9 +42,8 @@ func main() {
 	logger.GetLogger().Printf("connected to database")
 
 	app := &application{
-		config:     cfg,
-		services:   services.New(spandb),
-		hideErrors: cfg.Env == config.ProdEnv,
+		config:   cfg,
+		services: services.New(spandb),
 	}
 
 	app.config.Print()

@@ -33,7 +33,7 @@ func (app *application) routes() http.Handler {
 
 	isTestEnv := app.config.Env == config.TestEnv
 	allowedOrigins := []string{app.config.WebURL}
-	handlers := middleware.Default(isTestEnv, allowedOrigins, sentryClientOptions)
+	handlers := middleware.Default(isTestEnv, allowedOrigins, sentryClientOptions, app.config.Env == config.DevEnv || app.config.Env == config.TestEnv)
 
 	standard := alice.New(handlers...)
 

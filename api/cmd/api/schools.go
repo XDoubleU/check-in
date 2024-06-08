@@ -59,13 +59,13 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 		pageSize,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
 	err = http_tools.WriteJSON(w, http.StatusOK, result, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -94,13 +94,13 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.Create(r.Context(), schoolDto.Name)
 	if err != nil {
-		http_tools.ConflictResponse(w, r, err, "school", "name", schoolDto.Name, "name", app.hideErrors)
+		http_tools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
 		return
 	}
 
 	err = http_tools.WriteJSON(w, http.StatusCreated, school, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -136,19 +136,19 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "school", id, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "school", id, "id")
 		return
 	}
 
 	err = app.services.Schools.Update(r.Context(), school, schoolDto)
 	if err != nil {
-		http_tools.ConflictResponse(w, r, err, "school", "name", schoolDto.Name, "name", app.hideErrors)
+		http_tools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
 		return
 	}
 
 	err = http_tools.WriteJSON(w, http.StatusOK, school, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -170,18 +170,18 @@ func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "school", id, "id", app.hideErrors)
+		http_tools.NotFoundResponse(w, r, err, "school", id, "id")
 		return
 	}
 
 	err = app.services.Schools.Delete(r.Context(), school.ID)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
 	err = http_tools.WriteJSON(w, http.StatusOK, school, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 	}
 }
