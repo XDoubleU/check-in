@@ -37,7 +37,7 @@ func (app *application) getSortedSchoolsHandler(
 	user := app.contextGetUser(r)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -46,13 +46,13 @@ func (app *application) getSortedSchoolsHandler(
 		location.ID,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
 	err = http_tools.WriteJSON(w, http.StatusOK, schools, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -82,7 +82,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 	user := app.contextGetUser(r)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -95,7 +95,6 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 			"school",
 			createCheckInDto.SchoolID,
 			"schoolId",
-			app.hideErrors,
 		)
 		return
 	}
@@ -111,7 +110,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		school,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -127,6 +126,6 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 
 	err = http_tools.WriteJSON(w, http.StatusCreated, checkInDto, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+		http_tools.ServerErrorResponse(w, r, err)
 	}
 }

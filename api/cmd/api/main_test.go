@@ -346,9 +346,8 @@ func setupTest(
 	testEnv := test.SetupSingle(mainTestEnv)
 
 	testApp := &application{
-		config:     cfg,
-		services:   services.New(testEnv.TestTx),
-		hideErrors: false,
+		config:   cfg,
+		services: services.New(testEnv.TestTx),
 	}
 
 	return testEnv, testApp

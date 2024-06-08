@@ -12,11 +12,11 @@ import (
 
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/XDoubleU/essentia/pkg/test"
+	"github.com/XDoubleU/essentia/pkg/tools"
 	"github.com/google/uuid"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 
 	"github.com/stretchr/testify/assert"
@@ -81,10 +81,10 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	now := time.Now().In(loc)
 
 	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = *helpers.StartOfDay(&startDate)
+	startDate = *tools.StartOfDay(&startDate)
 
 	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = *helpers.StartOfDay(&endDate)
+	endDate = *tools.StartOfDay(&endDate)
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -155,10 +155,10 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	now := time.Now().In(loc)
 
 	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = *helpers.StartOfDay(&startDate)
+	startDate = *tools.StartOfDay(&startDate)
 
 	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = *helpers.StartOfDay(&endDate)
+	endDate = *tools.StartOfDay(&endDate)
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,

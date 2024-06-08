@@ -29,7 +29,7 @@ func (app *application) authAccess(allowedRoles []models.Role,
 			case errors.Is(err, http_tools.ErrRecordNotFound):
 				http_tools.UnauthorizedResponse(w, r, "Invalid token")
 			default:
-				http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+				http_tools.ServerErrorResponse(w, r, err)
 			}
 			return
 		}
@@ -69,7 +69,7 @@ func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 			case errors.Is(err, http_tools.ErrRecordNotFound):
 				http_tools.UnauthorizedResponse(w, r, "Invalid token")
 			default:
-				http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+				http_tools.ServerErrorResponse(w, r, err)
 			}
 			return
 		}
@@ -87,7 +87,7 @@ func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 
 		err = app.services.Auth.SetTokenAsUsed(r.Context(), tokenCookie.Value)
 		if err != nil {
-			http_tools.ServerErrorResponse(w, r, err, app.hideErrors)
+			http_tools.ServerErrorResponse(w, r, err)
 			return
 		}
 
