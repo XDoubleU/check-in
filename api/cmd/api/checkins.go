@@ -4,10 +4,12 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/context_tools"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
 )
 
 func (app *application) checkInsRoutes(router *httprouter.Router) {
@@ -34,7 +36,7 @@ func (app *application) getSortedSchoolsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	user := app.contextGetUser(r)
+	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
 		http_tools.ServerErrorResponse(w, r, err)
@@ -79,7 +81,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	user := app.contextGetUser(r)
+	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
 		http_tools.ServerErrorResponse(w, r, err)

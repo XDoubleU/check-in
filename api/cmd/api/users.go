@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/context_tools"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
 
@@ -52,7 +53,7 @@ func (app *application) usersRoutes(router *httprouter.Router) {
 // @Router		/current-user [get].
 func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	r *http.Request) {
-	user := app.contextGetUser(r)
+	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 
 	err := http_tools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {

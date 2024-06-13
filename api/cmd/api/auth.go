@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/context_tools"
 	"github.com/XDoubleU/essentia/pkg/goroutine"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/julienschmidt/httprouter"
@@ -147,7 +148,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure	500	{object}	ErrorDto
 // @Router		/auth/refresh [get].
 func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
-	user := app.contextGetUser(r)
+	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 	secure := app.config.Env == config.ProdEnv
 
 	accessTokenCookie, err := app.services.Auth.CreateCookie(
