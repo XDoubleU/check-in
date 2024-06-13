@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/context_tools"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
 	"github.com/XDoubleU/essentia/pkg/tools"
 	"github.com/julienschmidt/httprouter"
@@ -112,7 +113,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	startDate := tools.StartOfDay(date)
 	endDate := tools.EndOfDay(date)
 
-	user := app.contextGetUser(r)
+	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 
 	for _, id := range ids {
 		var location *models.Location
@@ -216,7 +217,7 @@ func (app *application) getLocationCheckInsRangeHandler(
 		return
 	}
 
-	user := app.contextGetUser(r)
+	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 
 	for _, id := range ids {
 		var location *models.Location
@@ -280,7 +281,7 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		return
 	}
 
-	user := app.contextGetUser(r)
+	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
@@ -425,7 +426,7 @@ func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user := app.contextGetUser(r)
+	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
@@ -605,7 +606,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 		return
 	}
 
-	user := app.contextGetUser(r)
+	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
