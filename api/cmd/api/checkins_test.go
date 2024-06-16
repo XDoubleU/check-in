@@ -26,7 +26,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 		_, _ = testApp.repositories.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
-			&models.School{ID: 1},
+			&models.School{ID: 1}, // Should always stay at the bottom
 		)
 	}
 
@@ -180,17 +180,17 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/checkins")
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
-	vt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(t, tReq)
 
 	reqData := dtos.CreateCheckInDto{
 		SchoolID: 0,
 	}
 
-	vt.AddTestCaseErrorMessage(reqData, map[string]interface{}{
+	mt.AddTestCaseErrorMessage(reqData, map[string]interface{}{
 		"schoolId": "must be greater than 0",
 	})
 
-	vt.Do(t)
+	mt.Do(t)
 }
 
 func TestCreateCheckInAccess(t *testing.T) {

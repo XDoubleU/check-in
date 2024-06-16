@@ -8,7 +8,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/models"
 )
 
 func (app *application) schoolsRoutes(router *httprouter.Router) {
@@ -52,7 +51,7 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 		return
 	}
 
-	result, err := getAllPaginated[models.School](
+	result, err := getAllPaginated(
 		r.Context(),
 		app.repositories.Schools,
 		page,
