@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/XDoubleU/essentia/pkg/http_tools"
@@ -20,9 +19,6 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/current-user")
 	tReq1.AddCookie(tokens.AdminAccessToken)
 
@@ -37,61 +33,57 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	rs2 := tReq2.Do(t, &rs2Data)
 	rs3 := tReq3.Do(t, &rs3Data)
 
-	assert.Equal(t, rs1.StatusCode, http.StatusOK)
-	assert.Equal(t, rs1Data.ID, fixtureData.AdminUser.ID)
-	assert.Equal(t, rs1Data.Username, fixtureData.AdminUser.Username)
-	assert.Equal(t, rs1Data.Role, fixtureData.AdminUser.Role)
-	assert.Equal(t, len(rs1Data.PasswordHash), 0)
+	assert.Equal(t, http.StatusOK, rs1.StatusCode)
+	assert.Equal(t, fixtureData.AdminUser.ID, rs1Data.ID)
+	assert.Equal(t, fixtureData.AdminUser.Username, rs1Data.Username)
+	assert.Equal(t, fixtureData.AdminUser.Role, rs1Data.Role)
+	assert.Equal(t, 0, len(rs1Data.PasswordHash))
 	assert.Nil(t, rs1Data.Location)
 
-	assert.Equal(t, rs2.StatusCode, http.StatusOK)
-	assert.Equal(t, rs2Data.ID, fixtureData.ManagerUser.ID)
-	assert.Equal(t, rs2Data.Username, fixtureData.ManagerUser.Username)
-	assert.Equal(t, rs2Data.Role, fixtureData.ManagerUser.Role)
-	assert.Equal(t, len(rs2Data.PasswordHash), 0)
+	assert.Equal(t, http.StatusOK, rs2.StatusCode)
+	assert.Equal(t, fixtureData.ManagerUser.ID, rs2Data.ID)
+	assert.Equal(t, fixtureData.ManagerUser.Username, rs2Data.Username)
+	assert.Equal(t, fixtureData.ManagerUser.Role, rs2Data.Role)
+	assert.Equal(t, 0, len(rs2Data.PasswordHash))
 	assert.Nil(t, rs2Data.Location)
 
-	assert.Equal(t, rs3.StatusCode, http.StatusOK)
-	assert.Equal(t, rs3Data.ID, fixtureData.DefaultUser.ID)
-	assert.Equal(t, rs3Data.Username, fixtureData.DefaultUser.Username)
-	assert.Equal(t, rs3Data.Role, fixtureData.DefaultUser.Role)
-	assert.Equal(t, len(rs3Data.PasswordHash), 0)
-	assert.Equal(t, rs3Data.Location.ID, fixtureData.DefaultLocation.ID)
-	assert.Equal(t, rs3Data.Location.Name, fixtureData.DefaultLocation.Name)
+	assert.Equal(t, http.StatusOK, rs3.StatusCode)
+	assert.Equal(t, fixtureData.DefaultUser.ID, rs3Data.ID)
+	assert.Equal(t, fixtureData.DefaultUser.Username, rs3Data.Username)
+	assert.Equal(t, fixtureData.DefaultUser.Role, rs3Data.Role)
+	assert.Equal(t, 0, len(rs3Data.PasswordHash))
+	assert.Equal(t, fixtureData.DefaultLocation.ID, rs3Data.Location.ID)
+	assert.Equal(t, fixtureData.DefaultLocation.Name, rs3Data.Location.Name)
 	assert.Equal(
 		t,
-		rs3Data.Location.NormalizedName,
 		fixtureData.DefaultLocation.NormalizedName,
+		rs3Data.Location.NormalizedName,
 	)
-	assert.Equal(t, rs3Data.Location.Available, fixtureData.DefaultLocation.Available)
-	assert.Equal(t, rs3Data.Location.Capacity, fixtureData.DefaultLocation.Capacity)
+	assert.Equal(t, fixtureData.DefaultLocation.Available, rs3Data.Location.Available)
+	assert.Equal(t, fixtureData.DefaultLocation.Capacity, rs3Data.Location.Capacity)
 	assert.Equal(
 		t,
-		rs3Data.Location.YesterdayFullAt,
 		fixtureData.DefaultLocation.YesterdayFullAt,
+		rs3Data.Location.YesterdayFullAt,
 	)
-	assert.Equal(t, rs3Data.Location.UserID, fixtureData.DefaultLocation.UserID)
+	assert.Equal(t, fixtureData.DefaultLocation.UserID, rs3Data.Location.UserID)
 }
 
 func TestGetInfoLoggedInUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/current-user")
-	rs := tReq.Do(t, nil)
 
-	assert.Equal(t, rs.StatusCode, http.StatusUnauthorized)
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+
+	mt.Do(t)
 }
 
 func TestGetUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -105,35 +97,32 @@ func TestGetUser(t *testing.T) {
 		var rsData models.User
 		rs := tReq.Do(t, &rsData)
 
-		assert.Equal(t, rs.StatusCode, http.StatusOK)
-		assert.Equal(t, rsData.ID, fixtureData.DefaultUsers[0].ID)
-		assert.Equal(t, rsData.Username, fixtureData.DefaultUsers[0].Username)
-		assert.Equal(t, rsData.Role, fixtureData.DefaultUsers[0].Role)
-		assert.Equal(t, len(rsData.PasswordHash), 0)
-		assert.Equal(t, rsData.Location.ID, fixtureData.Locations[0].ID)
-		assert.Equal(t, rsData.Location.Name, fixtureData.Locations[0].Name)
+		assert.Equal(t, http.StatusOK, rs.StatusCode)
+		assert.Equal(t, fixtureData.DefaultUsers[0].ID, rsData.ID)
+		assert.Equal(t, fixtureData.DefaultUsers[0].Username, rsData.Username)
+		assert.Equal(t, fixtureData.DefaultUsers[0].Role, rsData.Role)
+		assert.Equal(t, 0, len(rsData.PasswordHash))
+		assert.Equal(t, fixtureData.Locations[0].ID, rsData.Location.ID)
+		assert.Equal(t, fixtureData.Locations[0].Name, rsData.Location.Name)
 		assert.Equal(
 			t,
-			rsData.Location.NormalizedName,
 			fixtureData.Locations[0].NormalizedName,
+			rsData.Location.NormalizedName,
 		)
-		assert.Equal(t, rsData.Location.Available, fixtureData.Locations[0].Available)
-		assert.Equal(t, rsData.Location.Capacity, fixtureData.Locations[0].Capacity)
+		assert.Equal(t, fixtureData.Locations[0].Available, rsData.Location.Available)
+		assert.Equal(t, fixtureData.Locations[0].Capacity, rsData.Location.Capacity)
 		assert.Equal(
 			t,
-			rsData.Location.YesterdayFullAt,
 			fixtureData.Locations[0].YesterdayFullAt,
+			rsData.Location.YesterdayFullAt,
 		)
-		assert.Equal(t, rsData.Location.UserID, fixtureData.Locations[0].UserID)
+		assert.Equal(t, fixtureData.Locations[0].UserID, rsData.Location.UserID)
 	}
 }
 
 func TestGetUserNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
 
@@ -143,11 +132,11 @@ func TestGetUserNotFound(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("user with id '%s' doesn't exist", id.String()),
+		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
 
@@ -155,16 +144,13 @@ func TestGetUserNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
+	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
 }
 
@@ -172,27 +158,18 @@ func TestGetUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%d", fixtureData.Schools[0].ID)
 
-	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%d", fixtureData.Schools[0].ID)
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 
-	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%d", fixtureData.Schools[0].ID)
-	tReq2.AddCookie(tokens.DefaultAccessToken)
-
-	rs1 := tReq1.Do(t, nil)
-	rs2 := tReq2.Do(t, nil)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
+	mt.Do(t)
 }
 
 func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
@@ -200,29 +177,26 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	var rsData dtos.PaginatedUsersDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
+	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-	assert.EqualValues(t, rsData.Pagination.Current, 1)
+	assert.EqualValues(t, 1, rsData.Pagination.Current)
 	assert.EqualValues(
 		t,
-		rsData.Pagination.Total,
 		math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4),
+		rsData.Pagination.Total,
 	)
-	assert.Equal(t, len(rsData.Data), 4)
+	assert.Equal(t, 4, len(rsData.Data))
 
-	assert.Equal(t, rsData.Data[0].ID, fixtureData.ManagerUser.ID)
-	assert.Equal(t, rsData.Data[0].Username, fixtureData.ManagerUser.Username)
-	assert.Equal(t, len(rsData.Data[0].PasswordHash), 0)
-	assert.Equal(t, rsData.Data[0].Role, fixtureData.ManagerUser.Role)
+	assert.Equal(t, fixtureData.ManagerUser.ID, rsData.Data[0].ID)
+	assert.Equal(t, fixtureData.ManagerUser.Username, rsData.Data[0].Username)
+	assert.Equal(t, 0, len(rsData.Data[0].PasswordHash))
+	assert.Equal(t, fixtureData.ManagerUser.Role, rsData.Data[0].Role)
 	assert.Nil(t, rsData.Data[0].Location)
 }
 
 func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
@@ -234,29 +208,26 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	var rsData dtos.PaginatedUsersDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
+	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-	assert.EqualValues(t, rsData.Pagination.Current, 2)
+	assert.EqualValues(t, 2, rsData.Pagination.Current)
 	assert.EqualValues(
 		t,
-		rsData.Pagination.Total,
 		math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4),
+		rsData.Pagination.Total,
 	)
-	assert.Equal(t, len(rsData.Data), 4)
+	assert.Equal(t, 4, len(rsData.Data))
 
-	assert.Equal(t, rsData.Data[0].ID, fixtureData.ManagerUsers[3].ID)
-	assert.Equal(t, rsData.Data[0].Username, fixtureData.ManagerUsers[3].Username)
-	assert.Equal(t, len(rsData.Data[0].PasswordHash), 0)
-	assert.Equal(t, rsData.Data[0].Role, fixtureData.ManagerUsers[3].Role)
+	assert.Equal(t, fixtureData.ManagerUsers[3].ID, rsData.Data[0].ID)
+	assert.Equal(t, fixtureData.ManagerUsers[3].Username, rsData.Data[0].Username)
+	assert.Equal(t, 0, len(rsData.Data[0].PasswordHash))
+	assert.Equal(t, fixtureData.ManagerUsers[3].Role, rsData.Data[0].Role)
 	assert.Nil(t, rsData.Data[0].Location)
 }
 
 func TestGetPaginatedManagerUsersPageZero(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
@@ -268,40 +239,27 @@ func TestGetPaginatedManagerUsersPageZero(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message, "invalid query param 'page' with value '0', can't be '0'")
+	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	assert.Equal(t, "invalid query param 'page' with value '0', can't be '0'", rsData.Message)
 }
 
 func TestGetPaginatedManagerUsersAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
 
-	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
+	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)
 
-	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
-	tReq2.AddCookie(tokens.DefaultAccessToken)
-
-	tReq3 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
-	tReq3.AddCookie(tokens.ManagerAccessToken)
-
-	rs1 := tReq1.Do(t, nil)
-	rs2 := tReq2.Do(t, nil)
-	rs3 := tReq3.Do(t, nil)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
-	assert.Equal(t, rs3.StatusCode, http.StatusForbidden)
+	mt.Do(t)
 }
 
 func TestCreateManagerUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
@@ -315,20 +273,17 @@ func TestCreateManagerUser(t *testing.T) {
 	var rsData models.User
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusCreated)
+	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 	assert.Nil(t, uuid.Validate(rsData.ID))
-	assert.Equal(t, rsData.Username, "test")
-	assert.Equal(t, rsData.Role, models.ManagerRole)
-	assert.Equal(t, len(rsData.PasswordHash), 0)
+	assert.Equal(t, "test", rsData.Username)
+	assert.Equal(t, models.ManagerRole, rsData.Role)
+	assert.Equal(t, 0, len(rsData.PasswordHash))
 	assert.Nil(t, rsData.Location)
 }
 
 func TestCreateManagerUserUserNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
@@ -342,11 +297,11 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusConflict)
+	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["username"].(string),
 		fmt.Sprintf("user with username '%s' already exists", data.Username),
+		rsData.Message.(map[string]interface{})["username"].(string),
 	)
 }
 
@@ -354,56 +309,40 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	tReq.SetReqData(dtos.CreateUserDto{
+	data := dtos.CreateUserDto{
 		Username: "",
 		Password: "",
-	})
+	}
 
-	vt := test.CreateValidatorTester(t)
-	vt.AddTestCase(tReq, map[string]interface{}{
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseErrorMessage(data, map[string]interface{}{
 		"username": "must be provided",
 		"password": "must be provided",
 	})
 
-	vt.Do(t)
+	mt.Do(t)
 }
 
 func TestCreateManagerUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
 
-	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
+	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)
 
-	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
-	tReq2.AddCookie(tokens.DefaultAccessToken)
-
-	tReq3 := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
-	tReq3.AddCookie(tokens.ManagerAccessToken)
-
-	rs1 := tReq1.Do(t, nil)
-	rs2 := tReq2.Do(t, nil)
-	rs3 := tReq3.Do(t, nil)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
-	assert.Equal(t, rs3.StatusCode, http.StatusForbidden)
+	mt.Do(t)
 }
 
 func TestUpdateManagerUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	username, password := "test", "testpassword"
 	data := dtos.UpdateUserDto{
@@ -419,20 +358,17 @@ func TestUpdateManagerUser(t *testing.T) {
 	var rsData models.User
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
-	assert.Equal(t, rsData.ID, fixtureData.ManagerUsers[0].ID)
-	assert.Equal(t, rsData.Username, "test")
-	assert.Equal(t, rsData.Role, models.ManagerRole)
-	assert.Equal(t, len(rsData.PasswordHash), 0)
+	assert.Equal(t, http.StatusOK, rs.StatusCode)
+	assert.Equal(t, fixtureData.ManagerUsers[0].ID, rsData.ID)
+	assert.Equal(t, "test", rsData.Username)
+	assert.Equal(t, models.ManagerRole, rsData.Role)
+	assert.Equal(t, 0, len(rsData.PasswordHash))
 	assert.Nil(t, rsData.Location)
 }
 
 func TestUpdateManagerUserUserNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	username, password := "TestManagerUser1", "testpassword"
 	data := dtos.UpdateUserDto{
@@ -448,20 +384,17 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusConflict)
+	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["username"].(string),
 		fmt.Sprintf("user with username '%s' already exists", *data.Username),
+		rsData.Message.(map[string]interface{})["username"].(string),
 	)
 }
 
 func TestUpdateManagerUserNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	username, password := "test", "testpassword"
 	data := dtos.UpdateUserDto{
@@ -479,20 +412,17 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("user with id '%s' doesn't exist", id.String()),
+		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
 
 func TestUpdateManagerUserNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	username, password := "test", "testpassword"
 	data := dtos.UpdateUserDto{
@@ -508,16 +438,13 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
+	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
 }
 
 func TestUpdateManagerUserFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	username, password := "", ""
 	data := dtos.UpdateUserDto{
@@ -528,59 +455,32 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", fixtureData.ManagerUsers[0].ID)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	tReq.SetReqData(data)
-
-	vt := test.CreateValidatorTester(t)
-	vt.AddTestCase(tReq, map[string]interface{}{
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseErrorMessage(data, map[string]interface{}{
 		"username": "must be provided",
 		"password": "must be provided",
 	})
 
-	vt.Do(t)
+	mt.Do(t)
 }
 
 func TestUpdateManagerUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", fixtureData.ManagerUsers[0].ID)
 
-	req1, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		nil,
-	)
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
+	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)
 
-	req2, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		nil,
-	)
-	req2.AddCookie(tokens.DefaultAccessToken)
-
-	req3, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		nil,
-	)
-	req3.AddCookie(tokens.ManagerAccessToken)
-
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-	rs3, _ := ts.Client().Do(req3)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
-	assert.Equal(t, rs3.StatusCode, http.StatusForbidden)
+	mt.Do(t)
 }
 
 func TestDeleteManagerUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/%s", fixtureData.ManagerUsers[0].ID)
 	tReq.AddCookie(tokens.AdminAccessToken)
@@ -588,20 +488,17 @@ func TestDeleteManagerUser(t *testing.T) {
 	var rsData models.User
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
-	assert.Equal(t, rsData.ID, fixtureData.ManagerUsers[0].ID)
-	assert.Equal(t, rsData.Username, fixtureData.ManagerUsers[0].Username)
-	assert.Equal(t, rsData.Role, fixtureData.ManagerUsers[0].Role)
-	assert.Equal(t, len(rsData.PasswordHash), 0)
+	assert.Equal(t, http.StatusOK, rs.StatusCode)
+	assert.Equal(t, fixtureData.ManagerUsers[0].ID, rsData.ID)
+	assert.Equal(t, fixtureData.ManagerUsers[0].Username, rsData.Username)
+	assert.Equal(t, fixtureData.ManagerUsers[0].Role, rsData.Role)
+	assert.Equal(t, 0, len(rsData.PasswordHash))
 	assert.Nil(t, rsData.Location)
 }
 
 func TestDeleteManagerUserNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	id, _ := uuid.NewUUID()
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/%s", id.String())
@@ -610,11 +507,11 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["id"].(string),
 		fmt.Sprintf("user with id '%s' doesn't exist", id.String()),
+		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
 
@@ -622,16 +519,13 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/8000")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
+	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "invalid UUID")
 }
 
@@ -639,34 +533,12 @@ func TestDeleteManagerUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/%s", fixtureData.ManagerUsers[0].ID)
 
-	req1, _ := http.NewRequest(
-		http.MethodDelete,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		nil,
-	)
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
+	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)
 
-	req2, _ := http.NewRequest(
-		http.MethodDelete,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		nil,
-	)
-	req2.AddCookie(tokens.DefaultAccessToken)
-
-	req3, _ := http.NewRequest(
-		http.MethodDelete,
-		ts.URL+"/users/"+fixtureData.ManagerUsers[0].ID,
-		nil,
-	)
-	req3.AddCookie(tokens.ManagerAccessToken)
-
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-	rs3, _ := ts.Client().Do(req3)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
-	assert.Equal(t, rs3.StatusCode, http.StatusForbidden)
+	mt.Do(t)
 }

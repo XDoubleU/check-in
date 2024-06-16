@@ -28,12 +28,12 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 	var locationUpdateEventsFinal []models.LocationUpdateEvent
 	tWeb.Do(t, &locationUpdateEventsInitial, &locationUpdateEventsFinal)
 
-	assert.Equal(t, len(locationUpdateEventsInitial), 21)
-	assert.Equal(t, len(locationUpdateEventsFinal), 1)
+	assert.Equal(t, 21, len(locationUpdateEventsInitial))
+	assert.Equal(t, 1, len(locationUpdateEventsFinal))
 	assert.Equal(
 		t,
-		locationUpdateEventsFinal[0].Available,
 		locationUpdateEventsFinal[0].Capacity-6,
+		locationUpdateEventsFinal[0].Available,
 	)
 }
 
@@ -51,9 +51,9 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 	var locationUpdateEventsFinal []models.LocationUpdateEvent
 	tWeb.Do(t, &locationUpdateEventsInitial, &locationUpdateEventsFinal)
 
-	assert.Equal(t, len(locationUpdateEventsInitial), 21)
-	assert.Equal(t, len(locationUpdateEventsFinal), 1)
-	assert.EqualValues(t, locationUpdateEventsFinal[0].Capacity, 10)
+	assert.Equal(t, 21, len(locationUpdateEventsInitial))
+	assert.Equal(t, 1, len(locationUpdateEventsFinal))
+	assert.EqualValues(t, 10, locationUpdateEventsFinal[0].Capacity)
 }
 
 func TestSingleLocationWebSocketCheckIn(t *testing.T) {
@@ -77,7 +77,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 		locationUpdateEvent.NormalizedName,
 		fixtureData.DefaultLocation.NormalizedName,
 	)
-	assert.Equal(t, locationUpdateEvent.Available, locationUpdateEvent.Capacity-6)
+	assert.Equal(t, locationUpdateEvent.Capacity-6, locationUpdateEvent.Available)
 }
 
 func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
@@ -101,7 +101,7 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 		locationUpdateEvent.NormalizedName,
 		fixtureData.DefaultLocation.NormalizedName,
 	)
-	assert.EqualValues(t, locationUpdateEvent.Capacity, 10)
+	assert.EqualValues(t, 10, locationUpdateEvent.Capacity)
 }
 
 func createCheckIn(t *testing.T, ts *httptest.Server) {
@@ -116,7 +116,7 @@ func createCheckIn(t *testing.T, ts *httptest.Server) {
 
 	rs := tReq.Do(t, nil)
 
-	assert.Equal(t, rs.StatusCode, http.StatusCreated)
+	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 }
 
 func updateCapacity(t *testing.T, ts *httptest.Server) {
@@ -132,5 +132,5 @@ func updateCapacity(t *testing.T, ts *httptest.Server) {
 
 	rs := tReq.Do(t, nil)
 
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
+	assert.Equal(t, http.StatusOK, rs.StatusCode)
 }
