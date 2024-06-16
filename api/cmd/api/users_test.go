@@ -225,22 +225,14 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	assert.Nil(t, rsData.Data[0].Location)
 }
 
-func TestGetPaginatedManagerUsersPageZero(t *testing.T) {
+func TestGetPaginatedManagerUsersPageFull(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	tReq.SetQuery(map[string]string{
-		"page": "0",
-	})
-
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(t, &rsData)
-
-	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
-	assert.Equal(t, "invalid query param 'page' with value '0', can't be '0'", rsData.Message)
+	test.TestPaginatedEndpoint(t, tReq, "page", int(math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4)))
 }
 
 func TestGetPaginatedManagerUsersAccess(t *testing.T) {

@@ -99,7 +99,7 @@ func clearAll(repositories repositories.Repositories) {
 		}
 	}
 
-	fixtureData.AmountOfSchools = 0
+	fixtureData.AmountOfSchools = 1
 }
 
 func userFixtures(repositories repositories.Repositories) {

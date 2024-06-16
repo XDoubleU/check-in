@@ -35,7 +35,7 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 		assert.EqualValues(t, 1, rsData.Pagination.Current)
 		assert.EqualValues(
 			t,
-			math.Ceil(float64(fixtureData.AmountOfLocations)/4),
+			math.Ceil(float64(fixtureData.AmountOfSchools)/4),
 			rsData.Pagination.Total,
 		)
 		assert.Equal(t, 4, len(rsData.Data))
@@ -65,7 +65,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	assert.EqualValues(t, 2, rsData.Pagination.Current)
 	assert.EqualValues(
 		t,
-		math.Ceil(float64(fixtureData.AmountOfLocations)/4),
+		math.Ceil(float64(fixtureData.AmountOfSchools)/4),
 		rsData.Pagination.Total,
 	)
 	assert.Equal(t, 4, len(rsData.Data))
@@ -75,22 +75,14 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	assert.Equal(t, fixtureData.Schools[11].ReadOnly, rsData.Data[0].ReadOnly)
 }
 
-func TestGetPaginatedSchoolsPageZero(t *testing.T) {
+func TestGetPaginatedSchoolsFull(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	tReq.SetQuery(map[string]string{
-		"page": "0",
-	})
-
-	var rsData http_tools.ErrorDto
-	rs := tReq.Do(t, &rsData)
-
-	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
-	assert.Equal(t, "invalid query param 'page' with value '0', can't be '0'", rsData.Message)
+	test.TestPaginatedEndpoint(t, tReq, "page", int(math.Ceil(float64(fixtureData.AmountOfSchools)/4)))
 }
 
 func TestGetPaginatedSchoolsAccess(t *testing.T) {
