@@ -101,7 +101,7 @@ func TestGetPaginatedSchoolsPageZero(t *testing.T) {
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message, "invalid page query param")
+	assert.Equal(t, rsData.Message, "invalid query param 'page' with value '0', can't be '0'")
 }
 
 func TestGetPaginatedSchoolsAccess(t *testing.T) {
@@ -359,7 +359,7 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message, "invalid id parameter")
+	assert.Equal(t, rsData.Message, "invalid URL param 'id' with value 'aaaa', should be an integer")
 }
 
 func TestUpdateSchoolFailValidation(t *testing.T) {
@@ -493,7 +493,7 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message.(string), "invalid id parameter")
+	assert.Equal(t, rsData.Message.(string), "invalid URL param 'id' with value 'aaaa', should be an integer")
 }
 
 func TestDeleteSchoolAccess(t *testing.T) {

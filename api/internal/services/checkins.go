@@ -18,7 +18,7 @@ type CheckInService struct {
 func (service CheckInService) GetAllOfDay(
 	ctx context.Context,
 	locationID string,
-	date *time.Time,
+	date time.Time,
 ) ([]*models.CheckIn, error) {
 	return service.GetAllInRange(
 		ctx,
@@ -31,8 +31,8 @@ func (service CheckInService) GetAllOfDay(
 func (service CheckInService) GetAllInRange(
 	ctx context.Context,
 	locationIDs []string,
-	startDate *time.Time,
-	endDate *time.Time,
+	startDate time.Time,
+	endDate time.Time,
 ) ([]*models.CheckIn, error) {
 	query := `
 		SELECT check_ins.id, check_ins.location_id, check_ins.school_id,

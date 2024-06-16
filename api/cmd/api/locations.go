@@ -7,12 +7,12 @@ import (
 
 	"github.com/XDoubleU/essentia/pkg/context_tools"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/parser"
 	"github.com/XDoubleU/essentia/pkg/tools"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 )
 
@@ -82,25 +82,21 @@ func (app *application) locationsRoutes(router *httprouter.Router) {
 // @Router		/all-locations/checkins/day [get].
 func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	r *http.Request) {
-	ids, err := helpers.ReadUUIDArrayQueryParam(r, "ids")
+	ids, err := parser.ParseRequiredArrayQueryParam(r, "ids", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	returnType := helpers.ReadStrQueryParam(r, "returnType", "")
-	if returnType == "" {
-		http_tools.BadRequestResponse(w, r, errors.New("missing returnType param in query"))
-		return
-	}
-
-	date, err := helpers.ReadDateQueryParam(r, "date", nil)
+	returnType, err := parser.ParseRequiredQueryParam[string](r, "returnType", nil)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
-	if date == nil {
-		http_tools.BadRequestResponse(w, r, errors.New("missing date param in query"))
+
+	date, err := parser.ParseRequiredQueryParam(r, "date", parser.ParseDateFunc(constants.DateFormat))
+	if err != nil {
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
@@ -176,35 +172,27 @@ func (app *application) getLocationCheckInsRangeHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	ids, err := helpers.ReadUUIDArrayQueryParam(r, "ids")
+	ids, err := parser.ParseRequiredArrayQueryParam(r, "ids", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	returnType := helpers.ReadStrQueryParam(r, "returnType", "")
-	if returnType == "" {
-		http_tools.BadRequestResponse(w, r, errors.New("missing returnType param in query"))
-		return
-	}
-
-	startDate, err := helpers.ReadDateQueryParam(r, "startDate", nil)
+	returnType, err := parser.ParseRequiredQueryParam[string](r, "returnType", nil)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
-	if startDate == nil {
-		http_tools.BadRequestResponse(w, r, errors.New("missing startDate param in query"))
-		return
-	}
 
-	endDate, err := helpers.ReadDateQueryParam(r, "endDate", nil)
+	startDate, err := parser.ParseRequiredQueryParam(r, "startDate", parser.ParseDateFunc(constants.DateFormat))
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
-	if endDate == nil {
-		http_tools.BadRequestResponse(w, r, errors.New("missing endDate param in query"))
+
+	endDate, err := parser.ParseRequiredQueryParam(r, "endDate", parser.ParseDateFunc(constants.DateFormat))
+	if err != nil {
+		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
@@ -275,7 +263,7 @@ func (app *application) getLocationCheckInsRangeHandler(
 // @Router		/locations/{id}/checkins [get].
 func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 	r *http.Request) {
-	id, err := helpers.ReadUUIDURLParam(r, "locationId")
+	id, err := parser.ParseURLParam(r, "locationId", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
@@ -291,8 +279,8 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 
 	loc, _ := time.LoadLocation(location.TimeZone)
 	today := time.Now().In(loc)
-	startOfToday := tools.StartOfDay(&today)
-	endOfToday := tools.EndOfDay(&today)
+	startOfToday := tools.StartOfDay(today)
+	endOfToday := tools.EndOfDay(today)
 
 	checkIns, err := app.services.CheckIns.GetAllInRange(
 		r.Context(),
@@ -345,13 +333,13 @@ func (app *application) deleteLocationCheckInHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	locationID, err := helpers.ReadUUIDURLParam(r, "locationId")
+	locationID, err := parser.ParseURLParam(r, "locationId", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	checkInID, err := helpers.ReadIntURLParam(r, "checkInId")
+	checkInID, err := parser.ParseURLParam(r, "checkInId", parser.ParseInt64Func(true, false))
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
@@ -370,11 +358,11 @@ func (app *application) deleteLocationCheckInHandler(
 	}
 
 	today := tools.TimeZoneIndependentTimeNow(location.TimeZone)
-	startOfToday := tools.StartOfDay(&today)
-	endOfToday := tools.EndOfDay(&today)
+	startOfToday := tools.StartOfDay(today)
+	endOfToday := tools.EndOfDay(today)
 
-	if !(checkIn.CreatedAt.Time.After(*startOfToday) &&
-		checkIn.CreatedAt.Time.Before(*endOfToday)) {
+	if !(checkIn.CreatedAt.Time.After(startOfToday) &&
+		checkIn.CreatedAt.Time.Before(endOfToday)) {
 		http_tools.BadRequestResponse(
 			w,
 			r,
@@ -420,7 +408,7 @@ func (app *application) deleteLocationCheckInHandler(
 // @Failure	500	{object}	ErrorDto
 // @Router		/locations/{id} [get].
 func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadUUIDURLParam(r, "locationId")
+	id, err := parser.ParseURLParam(r, "locationId", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
@@ -452,13 +440,13 @@ func (app *application) getPaginatedLocationsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 3
 
-	page, err := helpers.ReadIntQueryParam(r, "page", 1)
+	page, err := parser.ParseQueryParam(r, "page", 1, parser.ParseInt64Func(true, false))
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	result, err := getAllPaginated[models.Location](
+	result, err := getAllPaginated(
 		r.Context(),
 		app.services.Locations,
 		page,
@@ -584,7 +572,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var updateLocationDto dtos.UpdateLocationDto
 
-	id, err := helpers.ReadUUIDURLParam(r, "locationId")
+	id, err := parser.ParseURLParam(r, "locationId", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
@@ -699,7 +687,7 @@ func (app *application) checkForConflictsOnUpdate(
 // @Failure	500	{object}	ErrorDto
 // @Router		/locations/{id} [delete].
 func (app *application) deleteLocationHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadUUIDURLParam(r, "locationId")
+	id, err := parser.ParseURLParam(r, "locationId", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
