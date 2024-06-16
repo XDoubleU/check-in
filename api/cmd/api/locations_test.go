@@ -81,10 +81,10 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	now := time.Now().In(loc)
 
 	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = *tools.StartOfDay(&startDate)
+	startDate = tools.StartOfDay(startDate)
 
 	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = *tools.StartOfDay(&endDate)
+	endDate = tools.StartOfDay(endDate)
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -155,10 +155,10 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	now := time.Now().In(loc)
 
 	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = *tools.StartOfDay(&startDate)
+	startDate = tools.StartOfDay(startDate)
 
 	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = *tools.StartOfDay(&endDate)
+	endDate = tools.StartOfDay(endDate)
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -352,7 +352,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message.(string), "missing startDate param in query")
+	assert.Equal(t, rsData.Message.(string), "missing query param 'startDate'")
 }
 
 func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
@@ -377,7 +377,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message.(string), "missing endDate param in query")
+	assert.Equal(t, rsData.Message.(string), "missing query param 'endDate'")
 }
 
 func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
@@ -403,7 +403,7 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message.(string), "missing returnType param in query")
+	assert.Equal(t, rsData.Message.(string), "missing query param 'returnType'")
 }
 
 func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
@@ -674,7 +674,7 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message.(string), "missing date param in query")
+	assert.Equal(t, rsData.Message.(string), "missing query param 'date'")
 }
 
 func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
@@ -698,7 +698,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message.(string), "missing returnType param in query")
+	assert.Equal(t, rsData.Message.(string), "missing query param 'returnType'")
 }
 
 func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
@@ -1154,7 +1154,7 @@ func TestGetPaginatedLocationsPageZero(t *testing.T) {
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message, "invalid page query param")
+	assert.Equal(t, rsData.Message, "invalid query param 'page' with value '0', can't be '0'")
 }
 
 func TestGetPaginatedLocationsAccess(t *testing.T) {

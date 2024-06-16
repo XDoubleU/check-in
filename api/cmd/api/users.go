@@ -5,10 +5,10 @@ import (
 
 	"github.com/XDoubleU/essentia/pkg/context_tools"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/parser"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 )
 
@@ -71,7 +71,7 @@ func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 // @Failure	500	{object}	ErrorDto
 // @Router		/users/{id} [get].
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadUUIDURLParam(r, "id")
+	id, err := parser.ParseURLParam(r, "id", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
@@ -101,7 +101,7 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
-	page, err := helpers.ReadIntQueryParam(r, "page", 1)
+	page, err := parser.ParseQueryParam(r, "page", 1, parser.ParseInt64Func(true, false))
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
@@ -190,7 +190,7 @@ func (app *application) updateManagerUserHandler(
 ) {
 	var updateUserDto dtos.UpdateUserDto
 
-	id, err := helpers.ReadUUIDURLParam(r, "id")
+	id, err := parser.ParseURLParam(r, "id", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
@@ -250,7 +250,7 @@ func (app *application) deleteManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	id, err := helpers.ReadUUIDURLParam(r, "id")
+	id, err := parser.ParseURLParam(r, "id", parser.ParseUUID)
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return

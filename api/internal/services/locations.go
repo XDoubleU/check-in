@@ -67,16 +67,16 @@ func (service LocationService) GetCheckInsEntriesDay(
 }
 
 func (service LocationService) GetCheckInsEntriesRange(
-	startDate *time.Time,
-	endDate *time.Time,
+	startDate time.Time,
+	endDate time.Time,
 	checkIns []*models.CheckIn,
 	schools []*models.School,
 ) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
 	schoolsIDNameMap, _ := service.schools.GetSchoolMaps(schools)
 
 	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
-	for d := *startDate; !d.After(*endDate); d = d.AddDate(0, 0, 1) {
-		dVal := tools.StartOfDay(&d)
+	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
+		dVal := tools.StartOfDay(d)
 
 		_, schoolsMap := service.schools.GetSchoolMaps(schools)
 
@@ -89,7 +89,7 @@ func (service LocationService) GetCheckInsEntriesRange(
 	}
 
 	for i := range checkIns {
-		datetime := tools.StartOfDay(&checkIns[i].CreatedAt.Time)
+		datetime := tools.StartOfDay(checkIns[i].CreatedAt.Time)
 		schoolName := schoolsIDNameMap[checkIns[i].SchoolID]
 
 		checkInEntry, _ := checkInEntries.Get(datetime.Format(time.RFC3339))
@@ -299,12 +299,12 @@ func (service LocationService) prepareLocation(
 	today := time.Now().In(loc)
 	yesterday := today.AddDate(0, 0, -1)
 
-	checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, &today)
+	checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, today)
 	if err != nil {
 		return err
 	}
 
-	checkInsYesterday, err = service.checkins.GetAllOfDay(ctx, location.ID, &yesterday)
+	checkInsYesterday, err = service.checkins.GetAllOfDay(ctx, location.ID, yesterday)
 	if err != nil {
 		return err
 	}

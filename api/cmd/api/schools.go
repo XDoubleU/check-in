@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/parser"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
 )
 
@@ -46,7 +46,7 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
-	page, err := helpers.ReadIntQueryParam(r, "page", 1)
+	page, err := parser.ParseQueryParam(r, "page", 1, parser.ParseInt64Func(true, false))
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
@@ -117,7 +117,7 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	var schoolDto dtos.SchoolDto
 
-	id, err := helpers.ReadIntURLParam(r, "id")
+	id, err := parser.ParseURLParam(r, "id", parser.ParseInt64Func(true, false))
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
@@ -162,7 +162,7 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	500	{object}	ErrorDto
 // @Router		/schools/{id} [delete].
 func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := helpers.ReadIntURLParam(r, "id")
+	id, err := parser.ParseURLParam(r, "id", parser.ParseInt64Func(true, false))
 	if err != nil {
 		http_tools.BadRequestResponse(w, r, err)
 		return
