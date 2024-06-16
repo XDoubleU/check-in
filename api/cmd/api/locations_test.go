@@ -1518,7 +1518,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 	})
 
 	vt.AddTestCase(tReq1, map[string]interface{}{
-		"capacity": "must be greater than zero",
+		"capacity": "must be greater than 0",
 	})
 
 	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/locations")
@@ -1733,7 +1733,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 	tReq1.SetReqData(data1)
 
 	vt.AddTestCase(tReq1, map[string]interface{}{
-		"capacity": "must be greater than zero",
+		"capacity": "must be greater than 0",
 	})
 
 	name, username, password, timeZone := "test", "test", "testpassword", "wrong"

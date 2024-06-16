@@ -19,7 +19,7 @@ func (app *application) authAccess(allowedRoles []models.Role,
 			return
 		}
 
-		_, user, err := app.services.Auth.GetToken(
+		_, user, err := app.repositories.Auth.GetToken(
 			r.Context(),
 			models.AccessScope,
 			tokenCookie.Value,
@@ -62,7 +62,7 @@ func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		token, user, err := app.services.Auth.GetToken(r.Context(),
+		token, user, err := app.repositories.Auth.GetToken(r.Context(),
 			models.RefreshScope, tokenCookie.Value)
 		if err != nil {
 			switch {
@@ -77,7 +77,7 @@ func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 		r = app.contextSetUser(r, user)
 
 		if token.Used {
-			err = app.services.Auth.DeleteAllTokensForUser(r.Context(), user.ID)
+			err = app.repositories.Auth.DeleteAllTokensForUser(r.Context(), user.ID)
 			if err != nil {
 				panic(err)
 			}
@@ -85,7 +85,7 @@ func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		err = app.services.Auth.SetTokenAsUsed(r.Context(), tokenCookie.Value)
+		err = app.repositories.Auth.SetTokenAsUsed(r.Context(), tokenCookie.Value)
 		if err != nil {
 			http_tools.ServerErrorResponse(w, r, err)
 			return

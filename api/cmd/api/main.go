@@ -4,7 +4,7 @@ import (
 	_ "time/tzdata"
 
 	"check-in/api/internal/config"
-	"check-in/api/internal/services"
+	"check-in/api/internal/repositories"
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/http_tools"
@@ -12,8 +12,8 @@ import (
 )
 
 type application struct {
-	config   config.Config
-	services services.Services
+	config       config.Config
+	repositories repositories.Repositories
 }
 
 //	@title			Check-In API
@@ -42,8 +42,8 @@ func main() {
 	logger.GetLogger().Printf("connected to database")
 
 	app := &application{
-		config:   cfg,
-		services: services.New(spandb),
+		config:       cfg,
+		repositories: repositories.New(spandb),
 	}
 
 	app.config.Print()
