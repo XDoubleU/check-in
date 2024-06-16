@@ -1,4 +1,4 @@
-package services
+package repositories
 
 import (
 	"context"
@@ -11,11 +11,11 @@ import (
 	"check-in/api/internal/models"
 )
 
-type SchoolService struct {
+type SchoolRepository struct {
 	db postgres.DB
 }
 
-func (service SchoolService) GetTotalCount(ctx context.Context) (*int64, error) {
+func (repo SchoolRepository) GetTotalCount(ctx context.Context) (*int64, error) {
 	query := `
 		SELECT COUNT(*)
 		FROM schools
@@ -23,15 +23,15 @@ func (service SchoolService) GetTotalCount(ctx context.Context) (*int64, error) 
 
 	var total *int64
 
-	err := service.db.QueryRow(ctx, query).Scan(&total)
+	err := repo.db.QueryRow(ctx, query).Scan(&total)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return total, nil
 }
 
-func (service SchoolService) GetSchoolMaps(
+func (repo SchoolRepository) GetSchoolMaps(
 	schools []*models.School,
 ) (map[int64]string, *orderedmap.OrderedMap[string, int]) {
 	schoolsIDNameMap := make(map[int64]string)
@@ -44,16 +44,16 @@ func (service SchoolService) GetSchoolMaps(
 	return schoolsIDNameMap, schoolsMap
 }
 
-func (service SchoolService) GetAll(ctx context.Context) ([]*models.School, error) {
+func (repo SchoolRepository) GetAll(ctx context.Context) ([]*models.School, error) {
 	query := `
 		SELECT id, name
 		FROM schools
 		ORDER BY name ASC
 	`
 
-	rows, err := service.db.Query(ctx, query)
+	rows, err := repo.db.Query(ctx, query)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	schools := []*models.School{}
@@ -67,20 +67,20 @@ func (service SchoolService) GetAll(ctx context.Context) ([]*models.School, erro
 		)
 
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		schools = append(schools, &school)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return schools, nil
 }
 
-func (service SchoolService) GetAllSortedByLocation(
+func (repo SchoolRepository) GetAllSortedByLocation(
 	ctx context.Context,
 	locationID string,
 ) ([]*models.School, error) {
@@ -100,9 +100,9 @@ func (service SchoolService) GetAllSortedByLocation(
 		DESC, name ASC
 	`
 
-	rows, err := service.db.Query(ctx, query, locationID)
+	rows, err := repo.db.Query(ctx, query, locationID)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	schools := []*models.School{}
@@ -116,20 +116,20 @@ func (service SchoolService) GetAllSortedByLocation(
 		)
 
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		schools = append(schools, &school)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return schools, nil
 }
 
-func (service SchoolService) GetAllPaginated(
+func (repo SchoolRepository) GetAllPaginated(
 	ctx context.Context,
 	limit int64,
 	offset int64,
@@ -141,9 +141,9 @@ func (service SchoolService) GetAllPaginated(
 		LIMIT $1 OFFSET $2
 	`
 
-	rows, err := service.db.Query(ctx, query, limit, offset)
+	rows, err := repo.db.Query(ctx, query, limit, offset)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	schools := []*models.School{}
@@ -158,20 +158,20 @@ func (service SchoolService) GetAllPaginated(
 		)
 
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		schools = append(schools, &school)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return schools, nil
 }
 
-func (service SchoolService) GetByID(
+func (repo SchoolRepository) GetByID(
 	ctx context.Context,
 	id int64,
 ) (*models.School, error) {
@@ -185,19 +185,19 @@ func (service SchoolService) GetByID(
 		ID: id,
 	}
 
-	err := service.db.QueryRow(
+	err := repo.db.QueryRow(
 		ctx,
 		query,
 		id).Scan(&school.Name, &school.ReadOnly)
 
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return &school, nil
 }
 
-func (service SchoolService) GetByIDWithoutReadOnly(
+func (repo SchoolRepository) GetByIDWithoutReadOnly(
 	ctx context.Context,
 	id int64,
 ) (*models.School, error) {
@@ -212,19 +212,19 @@ func (service SchoolService) GetByIDWithoutReadOnly(
 		ReadOnly: false,
 	}
 
-	err := service.db.QueryRow(
+	err := repo.db.QueryRow(
 		ctx,
 		query,
 		id).Scan(&school.Name)
 
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return &school, nil
 }
 
-func (service SchoolService) Create(
+func (repo SchoolRepository) Create(
 	ctx context.Context,
 	name string,
 ) (*models.School, error) {
@@ -238,16 +238,16 @@ func (service SchoolService) Create(
 		Name: name,
 	}
 
-	err := service.db.QueryRow(ctx, query, name).Scan(&school.ID)
+	err := repo.db.QueryRow(ctx, query, name).Scan(&school.ID)
 
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return &school, nil
 }
 
-func (service SchoolService) Update(
+func (repo SchoolRepository) Update(
 	ctx context.Context,
 	school *models.School,
 	schoolDto dtos.SchoolDto,
@@ -260,9 +260,9 @@ func (service SchoolService) Update(
 		WHERE id = $1 AND read_only = false
 	`
 
-	result, err := service.db.Exec(ctx, query, school.ID, school.Name)
+	result, err := repo.db.Exec(ctx, query, school.ID, school.Name)
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
@@ -273,15 +273,15 @@ func (service SchoolService) Update(
 	return nil
 }
 
-func (service SchoolService) Delete(ctx context.Context, id int64) error {
+func (repo SchoolRepository) Delete(ctx context.Context, id int64) error {
 	query := `
 		DELETE FROM schools
 		WHERE id = $1 AND read_only = false
 	`
 
-	result, err := service.db.Exec(ctx, query, id)
+	result, err := repo.db.Exec(ctx, query, id)
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	rowsAffected := result.RowsAffected()

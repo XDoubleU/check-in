@@ -7,7 +7,7 @@ import (
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/models"
-	"check-in/api/internal/services"
+	"check-in/api/internal/repositories"
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 )
@@ -23,7 +23,7 @@ func createAdmin(cfg config.Config, username string, password string) {
 		fmt.Println(err.Error())
 		return
 	}
-	srvs := services.New(db)
+	srvs := repositories.New(db)
 
 	_, err = srvs.Users.Create(
 		context.Background(),

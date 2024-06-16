@@ -77,7 +77,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.services.Users.GetByID(r.Context(), id, models.DefaultRole)
+	user, err := app.repositories.Users.GetByID(r.Context(), id, models.DefaultRole)
 	if err != nil {
 		http_tools.NotFoundResponse(w, r, err, "user", id, "id")
 		return
@@ -109,7 +109,7 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 
 	result, err := getAllPaginated[models.User](
 		r.Context(),
-		app.services.Users,
+		app.repositories.Users,
 		page,
 		pageSize,
 	)
@@ -150,7 +150,7 @@ func (app *application) createManagerUserHandler(
 		return
 	}
 
-	user, err := app.services.Users.Create(
+	user, err := app.repositories.Users.Create(
 		r.Context(),
 		createUserDto.Username,
 		createUserDto.Password,
@@ -207,13 +207,13 @@ func (app *application) updateManagerUserHandler(
 		return
 	}
 
-	user, err := app.services.Users.GetByID(r.Context(), id, models.ManagerRole)
+	user, err := app.repositories.Users.GetByID(r.Context(), id, models.ManagerRole)
 	if err != nil {
 		http_tools.NotFoundResponse(w, r, err, "user", id, "id")
 		return
 	}
 
-	err = app.services.Users.Update(
+	err = app.repositories.Users.Update(
 		r.Context(),
 		user,
 		updateUserDto,
@@ -256,13 +256,13 @@ func (app *application) deleteManagerUserHandler(
 		return
 	}
 
-	user, err := app.services.Users.GetByID(r.Context(), id, models.ManagerRole)
+	user, err := app.repositories.Users.GetByID(r.Context(), id, models.ManagerRole)
 	if err != nil {
 		http_tools.NotFoundResponse(w, r, err, "user", id, "id")
 		return
 	}
 
-	err = app.services.Users.Delete(r.Context(), user.ID, models.ManagerRole)
+	err = app.repositories.Users.Delete(r.Context(), user.ID, models.ManagerRole)
 	if err != nil {
 		http_tools.ServerErrorResponse(w, r, err)
 		return

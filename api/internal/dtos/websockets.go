@@ -19,11 +19,7 @@ func (dto SubscribeMessageDto) Validate() *validator.Validator {
 	v := validator.New()
 
 	if dto.Subject == models.SingleLocation {
-		v.Check(
-			dto.NormalizedName != "",
-			"normalizedName",
-			"must be provided",
-		)
+		validator.Check(v, dto.NormalizedName, validator.IsNotEmpty, "normalizedName")
 	}
 
 	return v

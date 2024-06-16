@@ -21,7 +21,7 @@ type CheckInDto struct {
 func (dto CreateCheckInDto) Validate() *validator.Validator {
 	v := validator.New()
 
-	v.Check(dto.SchoolID > 0, "schoolId", "must be greater than zero")
+	validator.Check(v, dto.SchoolID, validator.IsGreaterThanFunc(int64(0)), "schoolId")
 
 	return v
 }

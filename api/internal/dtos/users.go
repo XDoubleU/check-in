@@ -23,8 +23,8 @@ type UpdateUserDto struct {
 func (dto CreateUserDto) Validate() *validator.Validator {
 	v := validator.New()
 
-	v.Check(dto.Username != "", "username", "must be provided")
-	v.Check(dto.Password != "", "password", "must be provided")
+	validator.Check(v, dto.Username, validator.IsNotEmpty, "username")
+	validator.Check(v, dto.Password, validator.IsNotEmpty, "password")
 
 	return v
 }
@@ -33,11 +33,11 @@ func (dto UpdateUserDto) Validate() *validator.Validator {
 	v := validator.New()
 
 	if dto.Username != nil {
-		v.Check(*dto.Username != "", "username", "must be provided")
+		validator.Check(v, *dto.Username, validator.IsNotEmpty, "username")
 	}
 
 	if dto.Password != nil {
-		v.Check(*dto.Password != "", "password", "must be provided")
+		validator.Check(v, *dto.Password, validator.IsNotEmpty, "password")
 	}
 
 	return v

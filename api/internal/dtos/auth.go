@@ -11,8 +11,8 @@ type SignInDto struct {
 func (dto SignInDto) Validate() *validator.Validator {
 	v := validator.New()
 
-	v.Check(dto.Username != "", "username", "must be provided")
-	v.Check(dto.Password != "", "password", "must be provided")
+	validator.Check(v, dto.Username, validator.IsNotEmpty, "username")
+	validator.Check(v, dto.Password, validator.IsNotEmpty, "password")
 
 	return v
 }

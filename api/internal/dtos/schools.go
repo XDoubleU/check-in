@@ -17,7 +17,7 @@ type SchoolDto struct {
 func (dto SchoolDto) Validate() *validator.Validator {
 	v := validator.New()
 
-	v.Check(dto.Name != "", "name", "must be provided")
+	validator.Check(v, dto.Name, validator.IsNotEmpty, "name")
 
 	return v
 }

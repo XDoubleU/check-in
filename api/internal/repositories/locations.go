@@ -1,4 +1,4 @@
-package services
+package repositories
 
 import (
 	"context"
@@ -16,21 +16,21 @@ import (
 	"check-in/api/internal/models"
 )
 
-type LocationService struct {
+type LocationRepository struct {
 	db       postgres.DB
-	schools  SchoolService
-	checkins CheckInService
+	schools  SchoolRepository
+	checkins CheckInRepository
 }
 
-func (service LocationService) GetCheckInsEntriesDay(
+func (repo LocationRepository) GetCheckInsEntriesDay(
 	checkIns []*models.CheckIn,
 	schools []*models.School,
 ) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
-	schoolsIDNameMap, _ := service.schools.GetSchoolMaps(schools)
+	schoolsIDNameMap, _ := repo.schools.GetSchoolMaps(schools)
 
 	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
 
-	_, lastEntrySchoolsMap := service.schools.GetSchoolMaps(schools)
+	_, lastEntrySchoolsMap := repo.schools.GetSchoolMaps(schools)
 	capacities := orderedmap.New[string, int64]()
 	for _, checkIn := range checkIns {
 		schoolName := schoolsIDNameMap[checkIn.SchoolID]
@@ -66,19 +66,19 @@ func (service LocationService) GetCheckInsEntriesDay(
 	return checkInEntries
 }
 
-func (service LocationService) GetCheckInsEntriesRange(
+func (repo LocationRepository) GetCheckInsEntriesRange(
 	startDate time.Time,
 	endDate time.Time,
 	checkIns []*models.CheckIn,
 	schools []*models.School,
 ) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
-	schoolsIDNameMap, _ := service.schools.GetSchoolMaps(schools)
+	schoolsIDNameMap, _ := repo.schools.GetSchoolMaps(schools)
 
 	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
 	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
 		dVal := tools.StartOfDay(d)
 
-		_, schoolsMap := service.schools.GetSchoolMaps(schools)
+		_, schoolsMap := repo.schools.GetSchoolMaps(schools)
 
 		checkInEntry := &dtos.CheckInsLocationEntryRaw{
 			Capacities: orderedmap.New[string, int64](),
@@ -113,7 +113,7 @@ func (service LocationService) GetCheckInsEntriesRange(
 	return checkInEntries
 }
 
-func (service LocationService) GetTotalCount(ctx context.Context) (*int64, error) {
+func (repo LocationRepository) GetTotalCount(ctx context.Context) (*int64, error) {
 	query := `
 		SELECT COUNT(*)
 		FROM locations
@@ -121,24 +121,24 @@ func (service LocationService) GetTotalCount(ctx context.Context) (*int64, error
 
 	var total *int64
 
-	err := service.db.QueryRow(ctx, query).Scan(&total)
+	err := repo.db.QueryRow(ctx, query).Scan(&total)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return total, nil
 }
 
-func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, error) {
+func (repo LocationRepository) GetAll(ctx context.Context) ([]*models.Location, error) {
 	query := `
 		SELECT id, name, capacity, time_zone, user_id
 		FROM locations
 		ORDER BY name ASC
 	`
 
-	rows, err := service.db.Query(ctx, query)
+	rows, err := repo.db.Query(ctx, query)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	locations := []*models.Location{}
@@ -153,25 +153,25 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 			&location.UserID,
 		)
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		err = location.NormalizeName()
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		locations = append(locations, &location)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	for i, location := range locations {
-		err = service.prepareLocation(ctx, location)
+		err = repo.prepareLocation(ctx, location)
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		locations[i] = location
@@ -180,7 +180,7 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 	return locations, nil
 }
 
-func (service LocationService) GetAllPaginated(
+func (repo LocationRepository) GetAllPaginated(
 	ctx context.Context,
 	limit int64,
 	offset int64,
@@ -192,9 +192,9 @@ func (service LocationService) GetAllPaginated(
 		LIMIT $1 OFFSET $2
 	`
 
-	rows, err := service.db.Query(ctx, query, limit, offset)
+	rows, err := repo.db.Query(ctx, query, limit, offset)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	locations := []*models.Location{}
@@ -209,25 +209,25 @@ func (service LocationService) GetAllPaginated(
 			&location.UserID,
 		)
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		err = location.NormalizeName()
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		locations = append(locations, &location)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	for i, location := range locations {
-		err = service.prepareLocation(ctx, location)
+		err = repo.prepareLocation(ctx, location)
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		locations[i] = location
@@ -236,21 +236,21 @@ func (service LocationService) GetAllPaginated(
 	return locations, nil
 }
 
-func (service LocationService) GetByID(
+func (repo LocationRepository) GetByID(
 	ctx context.Context,
 	id string,
 ) (*models.Location, error) {
-	return service.getBy(ctx, "WHERE locations.id = $1", id)
+	return repo.getBy(ctx, "WHERE locations.id = $1", id)
 }
 
-func (service LocationService) GetByUserID(
+func (repo LocationRepository) GetByUserID(
 	ctx context.Context,
 	id string,
 ) (*models.Location, error) {
-	return service.getBy(ctx, "WHERE user_id = $1", id)
+	return repo.getBy(ctx, "WHERE user_id = $1", id)
 }
 
-func (service LocationService) getBy(
+func (repo LocationRepository) getBy(
 	ctx context.Context,
 	whereQuery string,
 	value string,
@@ -265,7 +265,7 @@ func (service LocationService) getBy(
 
 	location := models.Location{}
 
-	err := service.db.QueryRow(
+	err := repo.db.QueryRow(
 		ctx,
 		query,
 		value).Scan(
@@ -276,18 +276,18 @@ func (service LocationService) getBy(
 		&location.UserID,
 	)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
-	err = service.prepareLocation(ctx, &location)
+	err = repo.prepareLocation(ctx, &location)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return &location, nil
 }
 
-func (service LocationService) prepareLocation(
+func (repo LocationRepository) prepareLocation(
 	ctx context.Context,
 	location *models.Location,
 ) error {
@@ -299,12 +299,12 @@ func (service LocationService) prepareLocation(
 	today := time.Now().In(loc)
 	yesterday := today.AddDate(0, 0, -1)
 
-	checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, today)
+	checkInsToday, err = repo.checkins.GetAllOfDay(ctx, location.ID, today)
 	if err != nil {
 		return err
 	}
 
-	checkInsYesterday, err = service.checkins.GetAllOfDay(ctx, location.ID, yesterday)
+	checkInsYesterday, err = repo.checkins.GetAllOfDay(ctx, location.ID, yesterday)
 	if err != nil {
 		return err
 	}
@@ -322,13 +322,13 @@ func (service LocationService) prepareLocation(
 	return nil
 }
 
-func (service LocationService) GetByName(
+func (repo LocationRepository) GetByName(
 	ctx context.Context,
 	name string,
 ) (*models.Location, error) {
-	locations, err := service.GetAll(ctx)
+	locations, err := repo.GetAll(ctx)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	for _, location := range locations {
@@ -336,7 +336,7 @@ func (service LocationService) GetByName(
 
 		output, err = location.CompareNormalizedName(name)
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		if output {
@@ -347,7 +347,7 @@ func (service LocationService) GetByName(
 	return nil, http_tools.ErrRecordNotFound
 }
 
-func (service LocationService) Create(
+func (repo LocationRepository) Create(
 	ctx context.Context,
 	name string,
 	capacity int64,
@@ -355,10 +355,10 @@ func (service LocationService) Create(
 	username string,
 	password string,
 ) (*models.Location, error) {
-	tx, err := service.db.Begin(ctx)
+	tx, err := repo.db.Begin(ctx)
 	defer tx.Rollback(ctx) //nolint:errcheck //deferred
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	var user *models.User
@@ -412,7 +412,7 @@ func createUser(
 	).Scan(&user.ID)
 
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return &user, nil
@@ -450,7 +450,7 @@ func createLocation(
 	).Scan(&location.ID)
 
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	err = location.NormalizeName()
@@ -463,7 +463,7 @@ func createLocation(
 	return &location, nil
 }
 
-func (service LocationService) Update(
+func (repo LocationRepository) Update(
 	ctx context.Context,
 	location *models.Location,
 	user *models.User,
@@ -510,10 +510,10 @@ func (service LocationService) Update(
 		user.PasswordHash = passwordHash
 	}
 
-	tx, err := service.db.Begin(ctx)
+	tx, err := repo.db.Begin(ctx)
 	defer tx.Rollback(ctx) //nolint:errcheck //deferred
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	if locationChanged {
@@ -555,7 +555,7 @@ func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) e
 	)
 
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	rowsAffected := resultLocation.RowsAffected()
@@ -587,7 +587,7 @@ func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 	)
 
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	rowsAffected := resultUser.RowsAffected()
@@ -598,14 +598,14 @@ func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 	return nil
 }
 
-func (service LocationService) Delete(
+func (repo LocationRepository) Delete(
 	ctx context.Context,
 	location *models.Location,
 ) error {
-	tx, err := service.db.Begin(ctx)
+	tx, err := repo.db.Begin(ctx)
 	defer tx.Rollback(ctx) //nolint:errcheck //deferred
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	err = deleteLocation(ctx, tx, location.ID)
@@ -634,7 +634,7 @@ func deleteLocation(ctx context.Context, tx pgx.Tx, id string) error {
 
 	result, err := tx.Exec(ctx, query, id)
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
@@ -653,7 +653,7 @@ func deleteUser(ctx context.Context, tx pgx.Tx, id string) error {
 
 	result, err := tx.Exec(ctx, query, id)
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	rowsAffected := result.RowsAffected()

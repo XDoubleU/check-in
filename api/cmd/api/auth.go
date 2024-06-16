@@ -50,7 +50,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.services.Users.GetByUsername(r.Context(), signInDto.Username)
+	user, err := app.repositories.Users.GetByUsername(r.Context(), signInDto.Username)
 	if err != nil {
 		if errors.Is(err, http_tools.ErrRecordNotFound) {
 			http_tools.UnauthorizedResponse(w, r, "Invalid Credentials")
@@ -68,7 +68,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	secure := app.config.Env == config.ProdEnv
-	accessTokenCookie, err := app.services.Auth.CreateCookie(
+	accessTokenCookie, err := app.repositories.Auth.CreateCookie(
 		r.Context(),
 		models.AccessScope,
 		user.ID,
@@ -84,7 +84,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	if user.Role != models.AdminRole && signInDto.RememberMe {
 		var refreshTokenCookie *http.Cookie
-		refreshTokenCookie, err = app.services.Auth.CreateCookie(
+		refreshTokenCookie, err = app.repositories.Auth.CreateCookie(
 			r.Context(),
 			models.RefreshScope,
 			user.ID,
@@ -114,7 +114,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 	accessToken, _ := r.Cookie("accessToken")
 	refreshToken, _ := r.Cookie("refreshToken")
 
-	deleteAccessToken, err := app.services.Auth.DeleteCookie(
+	deleteAccessToken, err := app.repositories.Auth.DeleteCookie(
 		models.AccessScope,
 		accessToken.Value,
 	)
@@ -129,7 +129,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deleteRefreshToken, err := app.services.Auth.DeleteCookie(
+	deleteRefreshToken, err := app.repositories.Auth.DeleteCookie(
 		models.RefreshScope,
 		refreshToken.Value,
 	)
@@ -151,7 +151,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 	user := context_tools.GetContextValue[*models.User](r, userContextKey)
 	secure := app.config.Env == config.ProdEnv
 
-	accessTokenCookie, err := app.services.Auth.CreateCookie(
+	accessTokenCookie, err := app.repositories.Auth.CreateCookie(
 		r.Context(),
 		models.AccessScope,
 		user.ID,
@@ -165,7 +165,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, accessTokenCookie)
 
-	refreshTokenCookie, err := app.services.Auth.CreateCookie(
+	refreshTokenCookie, err := app.repositories.Auth.CreateCookie(
 		r.Context(),
 		models.RefreshScope,
 		user.ID,
@@ -182,7 +182,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		goroutine.SentryErrorHandler(
 			"delete expired tokens",
-			app.services.Auth.DeleteExpiredTokens,
+			app.repositories.Auth.DeleteExpiredTokens,
 		)
 	}()
 }

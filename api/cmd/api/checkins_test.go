@@ -24,7 +24,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	defaultLocation := *fixtureData.DefaultLocation
 
 	for i := 0; i < 10; i++ {
-		_, _ = testApp.services.CheckIns.Create(
+		_, _ = testApp.repositories.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
 			&models.School{ID: 1},
@@ -32,7 +32,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	}
 
 	for i := 0; i < 10; i++ {
-		_, _ = testApp.services.CheckIns.Create(
+		_, _ = testApp.repositories.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
 			fixtureData.Schools[0],
@@ -217,7 +217,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 	vt := test.CreateValidatorTester(t)
 
 	vt.AddTestCase(tReq, map[string]interface{}{
-		"schoolId": "must be greater than zero",
+		"schoolId": "must be greater than 0",
 	})
 
 	vt.Do(t)
