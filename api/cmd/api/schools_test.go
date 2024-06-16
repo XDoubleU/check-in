@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"net/http/httptest"
-	"strconv"
 	"testing"
 
 	"check-in/api/internal/dtos"
@@ -20,9 +18,6 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
 		tokens.ManagerAccessToken,
@@ -35,28 +30,25 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 		var rsData dtos.PaginatedSchoolsDto
 		rs := tReq.Do(t, &rsData)
 
-		assert.Equal(t, rs.StatusCode, http.StatusOK)
+		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		assert.EqualValues(t, rsData.Pagination.Current, 1)
+		assert.EqualValues(t, 1, rsData.Pagination.Current)
 		assert.EqualValues(
 			t,
-			rsData.Pagination.Total,
 			math.Ceil(float64(fixtureData.AmountOfLocations)/4),
+			rsData.Pagination.Total,
 		)
-		assert.Equal(t, len(rsData.Data), 4)
+		assert.Equal(t, 4, len(rsData.Data))
 
-		assert.EqualValues(t, rsData.Data[0].ID, 1)
-		assert.Equal(t, rsData.Data[0].Name, "Andere")
-		assert.Equal(t, rsData.Data[0].ReadOnly, true)
+		assert.EqualValues(t, 1, rsData.Data[0].ID)
+		assert.Equal(t, "Andere", rsData.Data[0].Name)
+		assert.Equal(t, true, rsData.Data[0].ReadOnly)
 	}
 }
 
 func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
@@ -68,27 +60,24 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	var rsData dtos.PaginatedSchoolsDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
+	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-	assert.EqualValues(t, rsData.Pagination.Current, 2)
+	assert.EqualValues(t, 2, rsData.Pagination.Current)
 	assert.EqualValues(
 		t,
-		rsData.Pagination.Total,
 		math.Ceil(float64(fixtureData.AmountOfLocations)/4),
+		rsData.Pagination.Total,
 	)
-	assert.Equal(t, len(rsData.Data), 4)
+	assert.Equal(t, 4, len(rsData.Data))
 
-	assert.Equal(t, rsData.Data[0].ID, fixtureData.Schools[11].ID)
-	assert.Equal(t, rsData.Data[0].Name, fixtureData.Schools[11].Name)
-	assert.Equal(t, rsData.Data[0].ReadOnly, fixtureData.Schools[11].ReadOnly)
+	assert.Equal(t, fixtureData.Schools[11].ID, rsData.Data[0].ID)
+	assert.Equal(t, fixtureData.Schools[11].Name, rsData.Data[0].Name)
+	assert.Equal(t, fixtureData.Schools[11].ReadOnly, rsData.Data[0].ReadOnly)
 }
 
 func TestGetPaginatedSchoolsPageZero(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
@@ -100,35 +89,26 @@ func TestGetPaginatedSchoolsPageZero(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message, "invalid query param 'page' with value '0', can't be '0'")
+	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	assert.Equal(t, "invalid query param 'page' with value '0', can't be '0'", rsData.Message)
 }
 
 func TestGetPaginatedSchoolsAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
 
-	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 
-	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
-	tReq2.AddCookie(tokens.DefaultAccessToken)
-
-	rs1 := tReq1.Do(t, nil)
-	rs2 := tReq2.Do(t, nil)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
+	mt.Do(t)
 }
 
 func TestCreateSchool(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -150,18 +130,15 @@ func TestCreateSchool(t *testing.T) {
 		var rsData models.School
 		rs := tReq.Do(t, &rsData)
 
-		assert.Equal(t, rs.StatusCode, http.StatusCreated)
-		assert.Equal(t, rsData.Name, unique)
-		assert.Equal(t, rsData.ReadOnly, false)
+		assert.Equal(t, http.StatusCreated, rs.StatusCode)
+		assert.Equal(t, unique, rsData.Name)
+		assert.Equal(t, false, rsData.ReadOnly)
 	}
 }
 
 func TestCreateSchoolNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	data := dtos.SchoolDto{
 		Name: "TestSchool0",
@@ -175,11 +152,11 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusConflict)
+	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["name"].(string),
 		fmt.Sprintf("school with name '%s' already exists", data.Name),
+		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
 
@@ -187,49 +164,37 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	tReq.SetReqData(dtos.SchoolDto{
+	data := dtos.SchoolDto{
 		Name: "",
-	})
+	}
 
-	vt := test.CreateValidatorTester(t)
-	vt.AddTestCase(tReq, map[string]interface{}{
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseErrorMessage(data, map[string]interface{}{
 		"name": "must be provided",
 	})
 
-	vt.Do(t)
+	mt.Do(t)
 }
 
 func TestCreateSchoolAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/schools")
 
-	req1, _ := http.NewRequest(http.MethodPost, ts.URL+"/schools", nil)
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 
-	req2, _ := http.NewRequest(http.MethodPost, ts.URL+"/schools", nil)
-	req2.AddCookie(tokens.DefaultAccessToken)
-
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
+	mt.Do(t)
 }
 
 func TestUpdateSchool(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -251,19 +216,16 @@ func TestUpdateSchool(t *testing.T) {
 		var rsData models.School
 		rs := tReq.Do(t, &rsData)
 
-		assert.Equal(t, rs.StatusCode, http.StatusOK)
-		assert.Equal(t, rsData.ID, fixtureData.Schools[0].ID)
-		assert.Equal(t, rsData.Name, unique)
-		assert.Equal(t, rsData.ReadOnly, false)
+		assert.Equal(t, http.StatusOK, rs.StatusCode)
+		assert.Equal(t, fixtureData.Schools[0].ID, rsData.ID)
+		assert.Equal(t, unique, rsData.Name)
+		assert.Equal(t, false, rsData.ReadOnly)
 	}
 }
 
 func TestUpdateSchoolNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	data := dtos.SchoolDto{
 		Name: "TestSchool1",
@@ -277,20 +239,17 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusConflict)
+	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["name"].(string),
 		fmt.Sprintf("school with name '%s' already exists", data.Name),
+		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
 
 func TestUpdateSchoolReadOnly(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	data := dtos.SchoolDto{
 		Name: "test",
@@ -304,20 +263,17 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["id"].(string),
 		"school with id '1' doesn't exist",
+		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
 
 func TestUpdateSchoolNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	data := dtos.SchoolDto{
 		Name: "test",
@@ -331,20 +287,17 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["id"].(string),
 		"school with id '8000' doesn't exist",
+		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
 
 func TestUpdateSchoolNotInt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	data := dtos.SchoolDto{
 		Name: "test",
@@ -358,65 +311,45 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message, "invalid URL param 'id' with value 'aaaa', should be an integer")
+	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	assert.Equal(t, "invalid URL param 'id' with value 'aaaa', should be an integer", rsData.Message)
 }
 
 func TestUpdateSchoolFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/%d", fixtureData.Schools[0].ID)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	tReq.SetReqData(dtos.SchoolDto{
+	data := dtos.SchoolDto{
 		Name: "",
-	})
+	}
 
-	vt := test.CreateValidatorTester(t)
-	vt.AddTestCase(tReq, map[string]interface{}{
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseErrorMessage(data, map[string]interface{}{
 		"name": "must be provided",
 	})
 
-	vt.Do(t)
+	mt.Do(t)
 }
 
 func TestUpdateSchoolAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/%d", fixtureData.Schools[0].ID)
 
-	req1, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
-		nil,
-	)
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 
-	req2, _ := http.NewRequest(
-		http.MethodPatch,
-		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
-		nil,
-	)
-	req2.AddCookie(tokens.DefaultAccessToken)
-
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
+	mt.Do(t)
 }
 
 func TestDeleteSchool(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
-
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
 
 	users := []*http.Cookie{
 		tokens.AdminAccessToken,
@@ -430,10 +363,10 @@ func TestDeleteSchool(t *testing.T) {
 		var rsData models.School
 		rs := tReq.Do(t, &rsData)
 
-		assert.Equal(t, rs.StatusCode, http.StatusOK)
-		assert.Equal(t, rsData.ID, fixtureData.Schools[i].ID)
-		assert.Equal(t, rsData.Name, fixtureData.Schools[i].Name)
-		assert.Equal(t, rsData.ReadOnly, false)
+		assert.Equal(t, http.StatusOK, rs.StatusCode)
+		assert.Equal(t, fixtureData.Schools[i].ID, rsData.ID)
+		assert.Equal(t, fixtureData.Schools[i].Name, rsData.Name)
+		assert.Equal(t, false, rsData.ReadOnly)
 	}
 }
 
@@ -441,20 +374,17 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/1")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["id"].(string),
 		"school with id '1' doesn't exist",
+		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
 
@@ -462,20 +392,17 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		rsData.Message.(map[string]interface{})["id"].(string),
 		"school with id '8000' doesn't exist",
+		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
 
@@ -483,42 +410,25 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
-
 	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/aaaa")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	var rsData http_tools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
-	assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
-	assert.Equal(t, rsData.Message.(string), "invalid URL param 'id' with value 'aaaa', should be an integer")
+	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	assert.Equal(t, "invalid URL param 'id' with value 'aaaa', should be an integer", rsData.Message.(string))
 }
 
 func TestDeleteSchoolAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewTLSServer(testApp.routes())
-	defer ts.Close()
+	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/%d", fixtureData.Schools[0].ID)
 
-	req1, _ := http.NewRequest(
-		http.MethodDelete,
-		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
-		nil,
-	)
+	mt := test.CreateMatrixTester(t, tReq)
+	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
+	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 
-	req2, _ := http.NewRequest(
-		http.MethodDelete,
-		ts.URL+"/schools/"+strconv.FormatInt(fixtureData.Schools[0].ID, 10),
-		nil,
-	)
-	req2.AddCookie(tokens.DefaultAccessToken)
-
-	rs1, _ := ts.Client().Do(req1)
-	rs2, _ := ts.Client().Do(req2)
-
-	assert.Equal(t, rs1.StatusCode, http.StatusUnauthorized)
-	assert.Equal(t, rs2.StatusCode, http.StatusForbidden)
+	mt.Do(t)
 }
