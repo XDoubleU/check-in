@@ -36,6 +36,7 @@ func (tx TestTx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, 
 	waitOnLock(tx.mu)
 	defer tx.mu.Unlock()
 
+	//nolint:sqlclosecheck // user is supposed to close query
 	return tx.tx.Query(ctx, sql, args...)
 }
 
