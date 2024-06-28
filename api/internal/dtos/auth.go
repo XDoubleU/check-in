@@ -1,6 +1,6 @@
 package dtos
 
-import "check-in/api/internal/validator"
+import "github.com/XDoubleU/essentia/pkg/validate"
 
 type SignInDto struct {
 	Username   string `json:"username"`
@@ -8,7 +8,11 @@ type SignInDto struct {
 	RememberMe bool   `json:"rememberMe"`
 } //	@name	SignInDto
 
-func ValidateSignInDto(v *validator.Validator, signInDto SignInDto) {
-	v.Check(signInDto.Username != "", "username", "must be provided")
-	v.Check(signInDto.Password != "", "password", "must be provided")
+func (dto SignInDto) Validate() *validate.Validator {
+	v := validate.New()
+
+	validate.Check(v, dto.Username, validate.IsNotEmpty, "username")
+	validate.Check(v, dto.Password, validate.IsNotEmpty, "password")
+
+	return v
 }

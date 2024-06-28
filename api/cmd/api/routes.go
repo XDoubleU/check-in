@@ -3,25 +3,16 @@ package main
 import (
 	"net/http"
 
-	"github.com/goddtriffin/helmet"
+	"github.com/XDoubleU/essentia/pkg/middleware"
+	"github.com/getsentry/sentry-go"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
-	"github.com/rs/cors"
+
+	"check-in/api/internal/config"
 )
 
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
-
-	helmet := helmet.Default()
-
-	cors := cors.New(cors.Options{
-		AllowedOrigins:   []string{app.config.WebURL},
-		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE"},
-		AllowedHeaders:   []string{"Baggage", "Content-Type", "Sentry-Trace"},
-	})
-
-	sentryHandler := app.getSentryHandler()
 
 	app.authRoutes(router)
 	app.checkInsRoutes(router)
@@ -30,22 +21,27 @@ func (app *application) routes() http.Handler {
 	app.usersRoutes(router)
 	app.websocketsRoutes(router)
 
-	middleware := []alice.Constructor{
-		helmet.Secure,
-		app.recoverPanic,
-		cors.Handler,
+	var sentryClientOptions *sentry.ClientOptions
+	if len(app.config.SentryDsn) > 0 {
+		sentryClientOptions = &sentry.ClientOptions{
+			Dsn:              app.config.SentryDsn,
+			Environment:      app.config.Env,
+			Release:          app.config.Release,
+			EnableTracing:    true,
+			TracesSampleRate: app.config.SampleRate,
+		}
 	}
 
-	if app.config.Throttle {
-		middleware = append(middleware, app.rateLimit)
-	}
+	isTestEnv := app.config.Env == config.TestEnv
+	allowedOrigins := []string{app.config.WebURL}
+	handlers := middleware.Default(
+		isTestEnv,
+		allowedOrigins,
+		sentryClientOptions,
+		app.config.Env == config.DevEnv || app.config.Env == config.TestEnv,
+	)
 
-	if sentryHandler != nil {
-		middleware = append(middleware, sentryHandler.Handle)
-		middleware = append(middleware, app.enrichSentryHub)
-	}
-
-	standard := alice.New(middleware...)
+	standard := alice.New(handlers...)
 
 	return standard.Then(router)
 }

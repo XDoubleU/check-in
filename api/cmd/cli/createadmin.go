@@ -5,10 +5,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
+
 	"check-in/api/internal/config"
-	"check-in/api/internal/database"
 	"check-in/api/internal/models"
-	"check-in/api/internal/services"
+	"check-in/api/internal/repositories"
 )
 
 func createAdmin(cfg config.Config, username string, password string) {
@@ -17,12 +18,12 @@ func createAdmin(cfg config.Config, username string, password string) {
 		return
 	}
 
-	db, err := database.Connect(cfg.DB.Dsn, cfg.DB.MaxConns, cfg.DB.MaxIdleTime)
+	db, err := postgres.Connect(cfg.DB.Dsn, cfg.DB.MaxConns, cfg.DB.MaxIdleTime)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	srvs := services.New(db)
+	srvs := repositories.New(db)
 
 	_, err = srvs.Users.Create(
 		context.Background(),

@@ -1,4 +1,4 @@
-package services
+package repositories
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	str2duration "github.com/xhit/go-str2duration/v2"
 
-	"check-in/api/internal/database"
 	"check-in/api/internal/models"
 )
 
-type AuthService struct {
-	db        database.DB
-	locations LocationService
+type AuthRepository struct {
+	db        postgres.DB
+	locations LocationRepository
 }
 
-func (service AuthService) GetCookieName(scope models.Scope) string {
+func (repo AuthRepository) GetCookieName(scope models.Scope) string {
 	switch {
 	case scope == models.AccessScope:
 		return "accessToken"
@@ -30,7 +30,7 @@ func (service AuthService) GetCookieName(scope models.Scope) string {
 	}
 }
 
-func (service AuthService) CreateCookie(
+func (repo AuthRepository) CreateCookie(
 	ctx context.Context,
 	scope models.Scope,
 	userID string,
@@ -38,12 +38,12 @@ func (service AuthService) CreateCookie(
 	secure bool,
 ) (*http.Cookie, error) {
 	ttl, _ := str2duration.ParseDuration(expiry)
-	token, err := service.newToken(ctx, userID, ttl, scope)
+	token, err := repo.newToken(ctx, userID, ttl, scope)
 	if err != nil {
 		return nil, err
 	}
 
-	name := service.GetCookieName(scope)
+	name := repo.GetCookieName(scope)
 
 	cookie := http.Cookie{
 		Name:     name,
@@ -58,16 +58,16 @@ func (service AuthService) CreateCookie(
 	return &cookie, nil
 }
 
-func (service AuthService) DeleteCookie(
+func (repo AuthRepository) DeleteCookie(
 	scope models.Scope,
 	value string,
 ) (*http.Cookie, error) {
-	err := service.deleteToken(context.Background(), value)
+	err := repo.deleteToken(context.Background(), value)
 	if err != nil {
 		return nil, err
 	}
 
-	name := service.GetCookieName(scope)
+	name := repo.GetCookieName(scope)
 
 	return &http.Cookie{
 		Name:     name,
@@ -79,17 +79,17 @@ func (service AuthService) DeleteCookie(
 	}, nil
 }
 
-func (service AuthService) DeleteExpiredTokens(ctx context.Context) error {
+func (repo AuthRepository) DeleteExpiredTokens(ctx context.Context) error {
 	query := `
 		DELETE FROM tokens
 		WHERE expiry < $1
 	`
 
-	_, err := service.db.Exec(ctx, query, time.Now())
+	_, err := repo.db.Exec(ctx, query, time.Now())
 	return err
 }
 
-func (service AuthService) GetToken(
+func (repo AuthRepository) GetToken(
 	ctx context.Context,
 	scope models.Scope,
 	tokenValue string,
@@ -111,18 +111,18 @@ func (service AuthService) GetToken(
 	var token models.Token
 	var user models.User
 
-	err := service.db.QueryRow(ctx, query, args...).
+	err := repo.db.QueryRow(ctx, query, args...).
 		Scan(&token.Used, &user.ID, &user.Username, &user.Role, &user.PasswordHash)
 
 	if err != nil {
-		return nil, nil, handleError(err)
+		return nil, nil, postgres.HandleError(err)
 	}
 
 	if user.Role == models.DefaultRole {
 		var location *models.Location
-		location, err = service.locations.GetByUserID(ctx, user.ID)
+		location, err = repo.locations.GetByUserID(ctx, user.ID)
 		if err != nil {
-			return nil, nil, handleError(err)
+			return nil, nil, postgres.HandleError(err)
 		}
 
 		user.Location = location
@@ -131,7 +131,7 @@ func (service AuthService) GetToken(
 	return &token, &user, nil
 }
 
-func (service AuthService) DeleteAllTokensForUser(
+func (repo AuthRepository) DeleteAllTokensForUser(
 	ctx context.Context,
 	userID string,
 ) error {
@@ -140,11 +140,11 @@ func (service AuthService) DeleteAllTokensForUser(
 		WHERE user_id = $1
 	`
 
-	_, err := service.db.Exec(ctx, query, userID)
+	_, err := repo.db.Exec(ctx, query, userID)
 	return err
 }
 
-func (service AuthService) SetTokenAsUsed(
+func (repo AuthRepository) SetTokenAsUsed(
 	ctx context.Context,
 	tokenValue string,
 ) error {
@@ -156,12 +156,12 @@ func (service AuthService) SetTokenAsUsed(
 		WHERE hash = $1
 	`
 
-	_, err := service.db.Exec(ctx, query, tokenHash[:])
+	_, err := repo.db.Exec(ctx, query, tokenHash[:])
 
 	return err
 }
 
-func (service AuthService) deleteToken(ctx context.Context, value string) error {
+func (repo AuthRepository) deleteToken(ctx context.Context, value string) error {
 	hash := sha256.Sum256([]byte(value))
 
 	query := `
@@ -169,22 +169,22 @@ func (service AuthService) deleteToken(ctx context.Context, value string) error 
 		WHERE hash = $1
 	`
 
-	_, err := service.db.Exec(ctx, query, hash[:])
+	_, err := repo.db.Exec(ctx, query, hash[:])
 	return err
 }
 
-func (service AuthService) newToken(
+func (repo AuthRepository) newToken(
 	ctx context.Context,
 	userID string,
 	ttl time.Duration,
 	scope models.Scope,
 ) (*models.Token, error) {
-	token, err := service.generateToken(userID, ttl, scope)
+	token, err := repo.generateToken(userID, ttl, scope)
 	if err != nil {
 		return nil, err
 	}
 
-	err = service.createToken(ctx, token)
+	err = repo.createToken(ctx, token)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func (service AuthService) newToken(
 	return token, nil
 }
 
-func (service AuthService) generateToken(
+func (repo AuthRepository) generateToken(
 	userID string,
 	ttl time.Duration,
 	scope models.Scope,
@@ -217,13 +217,13 @@ func (service AuthService) generateToken(
 	return token, nil
 }
 
-func (service AuthService) createToken(ctx context.Context, token *models.Token) error {
+func (repo AuthRepository) createToken(ctx context.Context, token *models.Token) error {
 	query := `
 		INSERT INTO tokens (hash, user_id, expiry, scope)
 		VALUES ($1, $2, $3, $4)
 	`
 
-	_, err := service.db.Exec(
+	_, err := repo.db.Exec(
 		ctx,
 		query,
 		token.Hash,

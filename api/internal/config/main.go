@@ -1,7 +1,10 @@
 //nolint:gomnd //no magic number
 package config
 
-import "fmt"
+import (
+	"github.com/XDoubleU/essentia/pkg/config"
+	"github.com/XDoubleU/essentia/pkg/logger"
+)
 
 type Config struct {
 	Env           string
@@ -26,45 +29,36 @@ const (
 	DevEnv  string = "development"
 )
 
-//nolint:forbidigo //returns value of config
 func New() Config {
-	var config Config
+	var cfg Config
 
-	config.Env = GetEnvStr("ENV", ProdEnv)
-	fmt.Println("config.Env: ", config.Env)
+	cfg.Env = config.GetEnvStr("ENV", ProdEnv)
+	cfg.Port = config.GetEnvInt("PORT", 8000)
+	cfg.Throttle = config.GetEnvBool("THROTTLE", true)
+	cfg.WebURL = config.GetEnvStr("WEB_URL", "http://localhost:3000")
+	cfg.SentryDsn = config.GetEnvStr("SENTRY_DSN", "")
+	cfg.SampleRate = config.GetEnvFloat("SAMPLE_RATE", 1.0)
+	cfg.AccessExpiry = config.GetEnvStr("ACCESS_EXPIRY", "1h")
+	cfg.RefreshExpiry = config.GetEnvStr("REFRESH_EXPIRY", "7d")
+	cfg.DB.Dsn = config.GetEnvStr("DB_DSN", "postgres://postgres@localhost/postgres")
+	cfg.DB.MaxConns = config.GetEnvInt("DB_MAX_CONNS", 25)
+	cfg.DB.MaxIdleTime = config.GetEnvStr("DB_MAX_IDLE_TIME", "15m")
+	cfg.Release = config.GetEnvStr("RELEASE", DevEnv)
 
-	config.Port = GetEnvInt("PORT", 8000)
-	fmt.Println("config.Port: ", config.Port)
+	return cfg
+}
 
-	config.Throttle = GetEnvBool("THROTTLE", true)
-	fmt.Println("config.Throttle: ", config.Throttle)
-
-	config.WebURL = GetEnvStr("WEB_URL", "http://localhost:3000")
-	fmt.Println("config.WebURL: ", config.WebURL)
-
-	config.SentryDsn = GetEnvStr("SENTRY_DSN", "")
-	fmt.Println("config.SentryDsn: ", config.SentryDsn)
-
-	config.SampleRate = GetEnvFloat("SAMPLE_RATE", 1.0)
-	fmt.Println("config.SampleRate: ", config.SampleRate)
-
-	config.AccessExpiry = GetEnvStr("ACCESS_EXPIRY", "1h")
-	fmt.Println("config.AccessExpiry: ", config.AccessExpiry)
-
-	config.RefreshExpiry = GetEnvStr("REFRESH_EXPIRY", "7d")
-	fmt.Println("config.RefreshExpiry: ", config.RefreshExpiry)
-
-	config.DB.Dsn = GetEnvStr("DB_DSN", "postgres://postgres@localhost/postgres")
-	fmt.Println("config.DB.Dsn: ", config.DB.Dsn)
-
-	config.DB.MaxConns = GetEnvInt("DB_MAX_CONNS", 25)
-	fmt.Println("config.DB.MaxConns: ", config.DB.MaxConns)
-
-	config.DB.MaxIdleTime = GetEnvStr("DB_MAX_IDLE_TIME", "15m")
-	fmt.Println("config.DB.MaxIdleTime: ", config.DB.MaxIdleTime)
-
-	config.Release = GetEnvStr("RELEASE", DevEnv)
-	fmt.Println("config.Release: ", config.Release)
-
-	return config
+func (cfg Config) Print() {
+	logger.GetLogger().Println("cfg.Env: ", cfg.Env)
+	logger.GetLogger().Println("cfg.Port: ", cfg.Port)
+	logger.GetLogger().Println("cfg.Throttle: ", cfg.Throttle)
+	logger.GetLogger().Println("cfg.WebURL: ", cfg.WebURL)
+	logger.GetLogger().Println("cfg.SentryDsn: ", cfg.SentryDsn)
+	logger.GetLogger().Println("cfg.SampleRate: ", cfg.SampleRate)
+	logger.GetLogger().Println("cfg.AccessExpiry: ", cfg.AccessExpiry)
+	logger.GetLogger().Println("cfg.RefreshExpiry: ", cfg.RefreshExpiry)
+	logger.GetLogger().Println("cfg.DB.Dsn: ", cfg.DB.Dsn)
+	logger.GetLogger().Println("cfg.DB.MaxConns: ", cfg.DB.MaxConns)
+	logger.GetLogger().Println("cfg.DB.MaxIdleTime: ", cfg.DB.MaxIdleTime)
+	logger.GetLogger().Println("cfg.Release: ", cfg.Release)
 }

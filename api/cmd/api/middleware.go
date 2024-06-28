@@ -2,88 +2,12 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"net"
 	"net/http"
-	"sync"
-	"time"
 
-	"github.com/getsentry/sentry-go"
-	"golang.org/x/time/rate"
+	"github.com/XDoubleU/essentia/pkg/httptools"
 
 	"check-in/api/internal/models"
-	"check-in/api/internal/services"
 )
-
-func (app *application) recoverPanic(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if err := recover(); err != nil {
-				w.Header().Set("Connection", "close")
-				app.serverErrorResponse(w, r, fmt.Errorf("%s", err))
-			}
-		}()
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (app *application) rateLimit(next http.Handler) http.Handler {
-	var rps rate.Limit = 10
-	var bucketSize = 30
-
-	type client struct {
-		limiter  *rate.Limiter
-		lastSeen time.Time
-	}
-
-	var (
-		mu      sync.Mutex
-		clients = make(map[string]*client)
-	)
-
-	go func() {
-		for {
-			time.Sleep(time.Minute)
-
-			mu.Lock()
-
-			for ip, client := range clients {
-				if time.Since(client.lastSeen) > 3*time.Minute {
-					delete(clients, ip)
-				}
-			}
-
-			mu.Unlock()
-		}
-	}()
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
-
-		mu.Lock()
-
-		if _, found := clients[ip]; !found {
-			clients[ip] = &client{limiter: rate.NewLimiter(rps, bucketSize)}
-		}
-
-		clients[ip].lastSeen = time.Now()
-
-		if !clients[ip].limiter.Allow() {
-			mu.Unlock()
-			app.rateLimitExceededResponse(w, r)
-			return
-		}
-
-		mu.Unlock()
-
-		next.ServeHTTP(w, r)
-	})
-}
 
 func (app *application) authAccess(allowedRoles []models.Role,
 	next http.HandlerFunc) http.HandlerFunc {
@@ -91,26 +15,26 @@ func (app *application) authAccess(allowedRoles []models.Role,
 		tokenCookie, err := r.Cookie("accessToken")
 
 		if err != nil {
-			app.unauthorizedResponse(w, r, "No token in cookies")
+			httptools.UnauthorizedResponse(w, r, "No token in cookies")
 			return
 		}
 
-		_, user, err := app.services.Auth.GetToken(
+		_, user, err := app.repositories.Auth.GetToken(
 			r.Context(),
 			models.AccessScope,
 			tokenCookie.Value,
 		)
 		if err != nil {
 			switch {
-			case errors.Is(err, services.ErrRecordNotFound):
-				app.unauthorizedResponse(w, r, "Invalid token")
+			case errors.Is(err, httptools.ErrRecordNotFound):
+				httptools.UnauthorizedResponse(w, r, "Invalid token")
 			default:
-				app.serverErrorResponse(w, r, err)
+				httptools.ServerErrorResponse(w, r, err)
 			}
 			return
 		}
 
-		r = app.contextSetUser(r, user)
+		r = app.contextSetUser(r, *user)
 
 		forbidden := true
 		for _, role := range allowedRoles {
@@ -121,7 +45,7 @@ func (app *application) authAccess(allowedRoles []models.Role,
 		}
 
 		if forbidden {
-			app.forbiddenResponse(w, r)
+			httptools.ForbiddenResponse(w, r)
 			return
 		}
 
@@ -134,49 +58,39 @@ func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 		tokenCookie, err := r.Cookie("refreshToken")
 
 		if err != nil {
-			app.unauthorizedResponse(w, r, "No token in cookies")
+			httptools.UnauthorizedResponse(w, r, "No token in cookies")
 			return
 		}
 
-		token, user, err := app.services.Auth.GetToken(r.Context(),
+		token, user, err := app.repositories.Auth.GetToken(r.Context(),
 			models.RefreshScope, tokenCookie.Value)
 		if err != nil {
 			switch {
-			case errors.Is(err, services.ErrRecordNotFound):
-				app.unauthorizedResponse(w, r, "Invalid token")
+			case errors.Is(err, httptools.ErrRecordNotFound):
+				httptools.UnauthorizedResponse(w, r, "Invalid token")
 			default:
-				app.serverErrorResponse(w, r, err)
+				httptools.ServerErrorResponse(w, r, err)
 			}
 			return
 		}
 
-		r = app.contextSetUser(r, user)
+		r = app.contextSetUser(r, *user)
 
 		if token.Used {
-			err = app.services.Auth.DeleteAllTokensForUser(r.Context(), user.ID)
+			err = app.repositories.Auth.DeleteAllTokensForUser(r.Context(), user.ID)
 			if err != nil {
 				panic(err)
 			}
-			app.unauthorizedResponse(w, r, "Invalid token")
+			httptools.UnauthorizedResponse(w, r, "Invalid token")
 			return
 		}
 
-		err = app.services.Auth.SetTokenAsUsed(r.Context(), tokenCookie.Value)
+		err = app.repositories.Auth.SetTokenAsUsed(r.Context(), tokenCookie.Value)
 		if err != nil {
-			app.serverErrorResponse(w, r, err)
+			httptools.ServerErrorResponse(w, r, err)
 			return
 		}
 
 		next.ServeHTTP(w, r)
-	})
-}
-
-func (app *application) enrichSentryHub(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rw := NewResponseWriter(w)
-		next.ServeHTTP(rw, r)
-
-		transaction := sentry.TransactionFromContext(r.Context())
-		transaction.Status = sentry.HTTPtoSpanStatus(rw.statusCode)
 	})
 }

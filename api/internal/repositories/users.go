@@ -1,19 +1,21 @@
-package services
+package repositories
 
 import (
 	"context"
 
-	"check-in/api/internal/database"
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/XDoubleU/essentia/pkg/httptools"
+
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
-type UserService struct {
-	db        database.DB
-	locations LocationService
+type UserRepository struct {
+	db        postgres.DB
+	locations LocationRepository
 }
 
-func (service UserService) GetTotalCount(ctx context.Context) (*int64, error) {
+func (repo UserRepository) GetTotalCount(ctx context.Context) (*int64, error) {
 	query := `
 		SELECT COUNT(*)
 		FROM users
@@ -22,15 +24,15 @@ func (service UserService) GetTotalCount(ctx context.Context) (*int64, error) {
 
 	var total *int64
 
-	err := service.db.QueryRow(ctx, query).Scan(&total)
+	err := repo.db.QueryRow(ctx, query).Scan(&total)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return total, nil
 }
 
-func (service UserService) GetAll(
+func (repo UserRepository) GetAll(
 	ctx context.Context,
 ) ([]*models.User, error) {
 	query := `
@@ -39,9 +41,9 @@ func (service UserService) GetAll(
 		WHERE role = 'manager'
 	`
 
-	rows, err := service.db.Query(ctx, query)
+	rows, err := repo.db.Query(ctx, query)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	users := []*models.User{}
@@ -57,20 +59,20 @@ func (service UserService) GetAll(
 		)
 
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		users = append(users, &user)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return users, nil
 }
 
-func (service UserService) GetAllPaginated(
+func (repo UserRepository) GetAllPaginated(
 	ctx context.Context,
 	limit int64,
 	offset int64,
@@ -83,9 +85,9 @@ func (service UserService) GetAllPaginated(
 		LIMIT $1 OFFSET $2
 	`
 
-	rows, err := service.db.Query(ctx, query, limit, offset)
+	rows, err := repo.db.Query(ctx, query, limit, offset)
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	users := []*models.User{}
@@ -101,20 +103,20 @@ func (service UserService) GetAllPaginated(
 		)
 
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		users = append(users, &user)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return users, nil
 }
 
-func (service UserService) GetByID(
+func (repo UserRepository) GetByID(
 	ctx context.Context,
 	id string,
 	role models.Role,
@@ -129,7 +131,7 @@ func (service UserService) GetByID(
 		ID:   id,
 		Role: role,
 	}
-	err := service.db.QueryRow(
+	err := repo.db.QueryRow(
 		ctx,
 		query,
 		id,
@@ -137,14 +139,14 @@ func (service UserService) GetByID(
 	).Scan(&user.Username, &user.PasswordHash)
 
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	if user.Role == models.DefaultRole {
 		var location *models.Location
-		location, err = service.locations.GetByUserID(ctx, user.ID)
+		location, err = repo.locations.GetByUserID(ctx, user.ID)
 		if err != nil {
-			return nil, handleError(err)
+			return nil, postgres.HandleError(err)
 		}
 
 		user.Location = location
@@ -153,7 +155,7 @@ func (service UserService) GetByID(
 	return &user, nil
 }
 
-func (service UserService) GetByUsername(
+func (repo UserRepository) GetByUsername(
 	ctx context.Context,
 	username string,
 ) (*models.User, error) {
@@ -166,20 +168,20 @@ func (service UserService) GetByUsername(
 	user := models.User{
 		Username: username,
 	}
-	err := service.db.QueryRow(
+	err := repo.db.QueryRow(
 		ctx,
 		query,
 		username,
 	).Scan(&user.ID, &user.PasswordHash, &user.Role)
 
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return &user, nil
 }
 
-func (service UserService) Create(
+func (repo UserRepository) Create(
 	ctx context.Context,
 	username string,
 	password string,
@@ -201,7 +203,7 @@ func (service UserService) Create(
 		return nil, err
 	}
 
-	err = service.db.QueryRow(
+	err = repo.db.QueryRow(
 		ctx,
 		query,
 		username,
@@ -210,13 +212,13 @@ func (service UserService) Create(
 	).Scan(&user.ID)
 
 	if err != nil {
-		return nil, handleError(err)
+		return nil, postgres.HandleError(err)
 	}
 
 	return &user, nil
 }
 
-func (service UserService) Update(
+func (repo UserRepository) Update(
 	ctx context.Context,
 	user *models.User,
 	updateUserDto dtos.UpdateUserDto,
@@ -237,7 +239,7 @@ func (service UserService) Update(
 		WHERE id = $1 AND role = $2
 	`
 
-	result, err := service.db.Exec(
+	result, err := repo.db.Exec(
 		ctx,
 		query,
 		user.ID,
@@ -247,18 +249,18 @@ func (service UserService) Update(
 	)
 
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil
 }
 
-func (service UserService) Delete(
+func (repo UserRepository) Delete(
 	ctx context.Context,
 	id string,
 	role models.Role,
@@ -268,14 +270,14 @@ func (service UserService) Delete(
 		WHERE id = $1 AND role = $2
 	`
 
-	result, err := service.db.Exec(ctx, query, id, role)
+	result, err := repo.db.Exec(ctx, query, id, role)
 	if err != nil {
-		return handleError(err)
+		return postgres.HandleError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil

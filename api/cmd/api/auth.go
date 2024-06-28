@@ -4,14 +4,14 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/contexttools"
+	"github.com/XDoubleU/essentia/pkg/goroutine"
+	"github.com/XDoubleU/essentia/pkg/httptools"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/helpers"
 	"check-in/api/internal/models"
-	"check-in/api/internal/services"
-	"check-in/api/internal/validator"
 )
 
 func (app *application) authRoutes(router *httprouter.Router) {
@@ -39,25 +39,23 @@ func (app *application) authRoutes(router *httprouter.Router) {
 func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 	var signInDto dtos.SignInDto
 
-	err := helpers.ReadJSON(r.Body, &signInDto)
+	err := httptools.ReadJSON(r.Body, &signInDto)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	v := validator.New()
-
-	if dtos.ValidateSignInDto(v, signInDto); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+	if v := signInDto.Validate(); !v.Valid() {
+		httptools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	user, err := app.services.Users.GetByUsername(r.Context(), signInDto.Username)
+	user, err := app.repositories.Users.GetByUsername(r.Context(), signInDto.Username)
 	if err != nil {
-		if errors.Is(err, services.ErrRecordNotFound) {
-			app.unauthorizedResponse(w, r, "Invalid Credentials")
+		if errors.Is(err, httptools.ErrRecordNotFound) {
+			httptools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		} else {
-			app.serverErrorResponse(w, r, err)
+			httptools.ServerErrorResponse(w, r, err)
 		}
 
 		return
@@ -65,12 +63,12 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	match, _ := user.CompareHashAndPassword(signInDto.Password)
 	if !match {
-		app.unauthorizedResponse(w, r, "Invalid Credentials")
+		httptools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		return
 	}
 
 	secure := app.config.Env == config.ProdEnv
-	accessTokenCookie, err := app.services.Auth.CreateCookie(
+	accessTokenCookie, err := app.repositories.Auth.CreateCookie(
 		r.Context(),
 		models.AccessScope,
 		user.ID,
@@ -78,7 +76,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -86,7 +84,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	if user.Role != models.AdminRole && signInDto.RememberMe {
 		var refreshTokenCookie *http.Cookie
-		refreshTokenCookie, err = app.services.Auth.CreateCookie(
+		refreshTokenCookie, err = app.repositories.Auth.CreateCookie(
 			r.Context(),
 			models.RefreshScope,
 			user.ID,
@@ -94,16 +92,16 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 			secure,
 		)
 		if err != nil {
-			app.serverErrorResponse(w, r, err)
+			httptools.ServerErrorResponse(w, r, err)
 			return
 		}
 
 		http.SetCookie(w, refreshTokenCookie)
 	}
 
-	err = helpers.WriteJSON(w, http.StatusOK, user, nil)
+	err = httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -116,12 +114,12 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 	accessToken, _ := r.Cookie("accessToken")
 	refreshToken, _ := r.Cookie("refreshToken")
 
-	deleteAccessToken, err := app.services.Auth.DeleteCookie(
+	deleteAccessToken, err := app.repositories.Auth.DeleteCookie(
 		models.AccessScope,
 		accessToken.Value,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -131,12 +129,12 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deleteRefreshToken, err := app.services.Auth.DeleteCookie(
+	deleteRefreshToken, err := app.repositories.Auth.DeleteCookie(
 		models.RefreshScope,
 		refreshToken.Value,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -150,10 +148,10 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure	500	{object}	ErrorDto
 // @Router		/auth/refresh [get].
 func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
-	user := app.contextGetUser(r)
+	user := contexttools.GetContextValue[models.User](r, userContextKey)
 	secure := app.config.Env == config.ProdEnv
 
-	accessTokenCookie, err := app.services.Auth.CreateCookie(
+	accessTokenCookie, err := app.repositories.Auth.CreateCookie(
 		r.Context(),
 		models.AccessScope,
 		user.ID,
@@ -161,13 +159,13 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
 	http.SetCookie(w, accessTokenCookie)
 
-	refreshTokenCookie, err := app.services.Auth.CreateCookie(
+	refreshTokenCookie, err := app.repositories.Auth.CreateCookie(
 		r.Context(),
 		models.RefreshScope,
 		user.ID,
@@ -175,16 +173,16 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
 	http.SetCookie(w, refreshTokenCookie)
 
 	go func() {
-		sentryGoRoutineErrorHandler(
+		goroutine.SentryErrorHandler(
 			"delete expired tokens",
-			app.services.Auth.DeleteExpiredTokens,
+			app.repositories.Auth.DeleteExpiredTokens,
 		)
 	}()
 }

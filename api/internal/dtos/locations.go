@@ -2,12 +2,11 @@ package dtos
 
 import (
 	"strconv"
-	"time"
 
+	"github.com/XDoubleU/essentia/pkg/validate"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/models"
-	"check-in/api/internal/validator"
 )
 
 type CapacityMap = *orderedmap.OrderedMap[string, int64]
@@ -83,53 +82,47 @@ type UpdateLocationDto struct {
 	TimeZone *string `json:"timeZone"`
 } //	@name	UpdateLocationDto
 
-func ValidateCreateLocationDto(
-	v *validator.Validator,
-	createLocationDto CreateLocationDto,
-) {
-	v.Check(createLocationDto.Name != "", "name", "must be provided")
-	v.Check(createLocationDto.Capacity > 0, "capacity", "must be greater than zero")
-	v.Check(createLocationDto.Username != "", "username", "must be provided")
-	v.Check(createLocationDto.Password != "", "password", "must be provided")
+func (dto CreateLocationDto) Validate() *validate.Validator {
+	v := validate.New()
 
-	_, err := time.LoadLocation(createLocationDto.TimeZone)
-	v.Check(
-		createLocationDto.TimeZone != "" && err == nil,
-		"timeZone",
-		"must be provided and must be a valid IANA value",
-	)
+	validate.Check(v, dto.Name, validate.IsNotEmpty, "name")
+	validate.Check(v, dto.Capacity, validate.IsGreaterThanFunc(int64(0)), "capacity")
+	validate.Check(v, dto.Username, validate.IsNotEmpty, "username")
+	validate.Check(v, dto.Password, validate.IsNotEmpty, "password")
+	validate.Check(v, dto.TimeZone, validate.IsNotEmpty, "timeZone")
+	validate.Check(v, dto.TimeZone, validate.IsValidTimeZone, "timeZone")
+
+	return v
 }
 
-func ValidateUpdateLocationDto(
-	v *validator.Validator,
-	updateLocationDto UpdateLocationDto,
-) {
-	if updateLocationDto.Name != nil {
-		v.Check(*updateLocationDto.Name != "", "name", "must be provided")
+func (dto UpdateLocationDto) Validate() *validate.Validator {
+	v := validate.New()
+
+	if dto.Name != nil {
+		validate.Check(v, *dto.Name, validate.IsNotEmpty, "name")
 	}
 
-	if updateLocationDto.Capacity != nil {
-		v.Check(
-			*updateLocationDto.Capacity > 0,
+	if dto.Capacity != nil {
+		validate.Check(
+			v,
+			*dto.Capacity,
+			validate.IsGreaterThanFunc(int64(0)),
 			"capacity",
-			"must be greater than zero",
 		)
 	}
 
-	if updateLocationDto.Username != nil {
-		v.Check(*updateLocationDto.Username != "", "username", "must be provided")
+	if dto.Username != nil {
+		validate.Check(v, *dto.Username, validate.IsNotEmpty, "username")
 	}
 
-	if updateLocationDto.Password != nil {
-		v.Check(*updateLocationDto.Password != "", "password", "must be provided")
+	if dto.Password != nil {
+		validate.Check(v, *dto.Password, validate.IsNotEmpty, "password")
 	}
 
-	if updateLocationDto.TimeZone != nil {
-		_, err := time.LoadLocation(*updateLocationDto.TimeZone)
-		v.Check(
-			err == nil,
-			"timeZone",
-			"must be provided and must be a valid IANA value",
-		)
+	if dto.TimeZone != nil {
+		validate.Check(v, *dto.TimeZone, validate.IsNotEmpty, "timeZone")
+		validate.Check(v, *dto.TimeZone, validate.IsValidTimeZone, "timeZone")
 	}
+
+	return v
 }

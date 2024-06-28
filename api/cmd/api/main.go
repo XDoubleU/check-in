@@ -1,19 +1,19 @@
 package main
 
 import (
-	"log"
-	"os"
 	_ "time/tzdata"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/XDoubleU/essentia/pkg/logger"
+
 	"check-in/api/internal/config"
-	"check-in/api/internal/database"
-	"check-in/api/internal/services"
+	"check-in/api/internal/repositories"
 )
 
 type application struct {
-	config   config.Config
-	logger   *log.Logger
-	services services.Services
+	config       config.Config
+	repositories repositories.Repositories
 }
 
 //	@title			Check-In API
@@ -23,34 +23,33 @@ type application struct {
 //	@Produce		json
 
 func main() {
-	config := config.New()
+	cfg := config.New()
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
-
-	db, err := database.Connect(
-		config.DB.Dsn,
-		config.DB.MaxConns,
-		config.DB.MaxIdleTime,
+	db, err := postgres.Connect(
+		cfg.DB.Dsn,
+		cfg.DB.MaxConns,
+		cfg.DB.MaxIdleTime,
 	)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	spandb := database.SpanDB{
+	spandb := postgres.SpanDB{
 		DB: db,
 	}
 
-	logger.Printf("connected to database")
+	logger.GetLogger().Printf("connected to database")
 
 	app := &application{
-		config:   config,
-		logger:   logger,
-		services: services.New(spandb),
+		config:       cfg,
+		repositories: repositories.New(spandb),
 	}
 
-	err = app.serve()
+	app.config.Print()
+
+	err = httptools.Serve(app.config.Port, app.routes(), app.config.Env)
 	if err != nil {
-		logger.Fatal(err)
+		logger.GetLogger().Fatal(err)
 	}
 }

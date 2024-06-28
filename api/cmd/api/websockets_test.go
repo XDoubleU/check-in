@@ -1,239 +1,141 @@
 package main
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
-	"time"
 
-	"nhooyr.io/websocket/wsjson"
+	"github.com/XDoubleU/essentia/pkg/test"
+	"github.com/stretchr/testify/assert"
 
-	"check-in/api/internal/assert"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/tests"
 )
-
-const timeout = time.Minute
-const sleep = time.Second
 
 func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewServer(testApp.routes())
-	defer ts.Close()
+	tWeb := test.CreateWebsocketTester(testApp.routes())
 
-	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
-	ws := tests.DialWebsocket(wsURL, timeout)
-
-	msg := dtos.SubscribeMessageDto{
+	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
-	}
+	})
 
-	err := wsjson.Write(context.Background(), ws, msg)
-	if err != nil {
-		panic(err)
-	}
+	tWeb.SetParallelOperation(createCheckIn)
 
-	var locationUpdateEvents []models.LocationUpdateEvent
-	err = wsjson.Read(context.Background(), ws, &locationUpdateEvents)
-	if err != nil {
-		panic(err)
-	}
+	var locationUpdateEventsInitial []models.LocationUpdateEvent
+	var locationUpdateEventsFinal []models.LocationUpdateEvent
+	tWeb.Do(t, &locationUpdateEventsInitial, &locationUpdateEventsFinal)
 
-	assert.Equal(t, len(locationUpdateEvents), 21)
-
-	go func() {
-		time.Sleep(sleep)
-
-		data := dtos.CreateCheckInDto{
-			SchoolID: fixtureData.Schools[0].ID,
-		}
-
-		body, _ := json.Marshal(data)
-		req, _ := http.NewRequest(
-			http.MethodPost,
-			ts.URL+"/checkins",
-			bytes.NewReader(body),
-		)
-		req.AddCookie(tokens.DefaultAccessToken)
-
-		rs, _ := ts.Client().Do(req)
-
-		assert.Equal(t, rs.StatusCode, http.StatusCreated)
-	}()
-
-	err = wsjson.Read(context.Background(), ws, &locationUpdateEvents)
-	if err != nil {
-		panic(err)
-	}
-
-	assert.Equal(t, len(locationUpdateEvents), 1)
+	assert.Equal(t, 21, len(locationUpdateEventsInitial))
+	assert.Equal(t, 1, len(locationUpdateEventsFinal))
 	assert.Equal(
 		t,
-		locationUpdateEvents[0].Available,
-		locationUpdateEvents[0].Capacity-6,
+		locationUpdateEventsFinal[0].Capacity-6,
+		locationUpdateEventsFinal[0].Available,
 	)
 }
 
 func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewServer(testApp.routes())
-	defer ts.Close()
-
-	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
-	ws := tests.DialWebsocket(wsURL, timeout)
-
-	msg := dtos.SubscribeMessageDto{
+	tWeb := test.CreateWebsocketTester(testApp.routes())
+	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
-	}
+	})
+	tWeb.SetParallelOperation(updateCapacity)
 
-	err := wsjson.Write(context.Background(), ws, msg)
-	if err != nil {
-		panic(err)
-	}
+	var locationUpdateEventsInitial []models.LocationUpdateEvent
+	var locationUpdateEventsFinal []models.LocationUpdateEvent
+	tWeb.Do(t, &locationUpdateEventsInitial, &locationUpdateEventsFinal)
 
-	var locationUpdateEvents []models.LocationUpdateEvent
-	err = wsjson.Read(context.Background(), ws, &locationUpdateEvents)
-	if err != nil {
-		panic(err)
-	}
-
-	assert.Equal(t, len(locationUpdateEvents), 21)
-
-	go func() {
-		time.Sleep(sleep)
-
-		var capacity int64 = 10
-		data := dtos.UpdateLocationDto{
-			Capacity: &capacity,
-		}
-
-		body, _ := json.Marshal(data)
-		req, _ := http.NewRequest(http.MethodPatch,
-			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID, bytes.NewReader(body))
-		req.AddCookie(tokens.DefaultAccessToken)
-
-		rs, _ := ts.Client().Do(req)
-
-		assert.Equal(t, rs.StatusCode, http.StatusOK)
-	}()
-
-	err = wsjson.Read(context.Background(), ws, &locationUpdateEvents)
-	if err != nil {
-		panic(err)
-	}
-
-	assert.Equal(t, len(locationUpdateEvents), 1)
-	assert.Equal(t, locationUpdateEvents[0].Capacity, 10)
+	assert.Equal(t, 21, len(locationUpdateEventsInitial))
+	assert.Equal(t, 1, len(locationUpdateEventsFinal))
+	assert.EqualValues(t, 10, locationUpdateEventsFinal[0].Capacity)
 }
 
 func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewServer(testApp.routes())
-	defer ts.Close()
+	tWeb := test.CreateWebsocketTester(testApp.routes())
 
-	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
-	ws := tests.DialWebsocket(wsURL, timeout)
-
-	msg := dtos.SubscribeMessageDto{
+	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
 		NormalizedName: fixtureData.DefaultLocation.NormalizedName,
-	}
+	})
 
-	err := wsjson.Write(context.Background(), ws, msg)
-	if err != nil {
-		panic(err)
-	}
-
-	go func() {
-		time.Sleep(sleep)
-
-		data := dtos.CreateCheckInDto{
-			SchoolID: fixtureData.Schools[0].ID,
-		}
-
-		body, _ := json.Marshal(data)
-		req, _ := http.NewRequest(http.MethodPost,
-			ts.URL+"/checkins", bytes.NewReader(body))
-		req.AddCookie(tokens.DefaultAccessToken)
-
-		rs, _ := ts.Client().Do(req)
-
-		assert.Equal(t, rs.StatusCode, http.StatusCreated)
-	}()
+	tWeb.SetParallelOperation(createCheckIn)
 
 	var locationUpdateEvent models.LocationUpdateEvent
-	err = wsjson.Read(context.Background(), ws, &locationUpdateEvent)
-	if err != nil {
-		panic(err)
-	}
+	tWeb.Do(t, nil, &locationUpdateEvent)
 
 	assert.Equal(
 		t,
 		locationUpdateEvent.NormalizedName,
 		fixtureData.DefaultLocation.NormalizedName,
 	)
-	assert.Equal(t, locationUpdateEvent.Available, locationUpdateEvent.Capacity-6)
+	assert.Equal(t, locationUpdateEvent.Capacity-6, locationUpdateEvent.Available)
 }
 
 func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer tests.TeardownSingle(testEnv)
+	defer test.TeardownSingle(testEnv)
 
-	ts := httptest.NewServer(testApp.routes())
-	defer ts.Close()
+	tWeb := test.CreateWebsocketTester(testApp.routes())
 
-	wsURL := "ws" + strings.TrimPrefix(ts.URL, "http")
-	ws := tests.DialWebsocket(wsURL, timeout)
-
-	msg := dtos.SubscribeMessageDto{
+	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
 		NormalizedName: fixtureData.DefaultLocation.NormalizedName,
-	}
+	})
 
-	err := wsjson.Write(context.Background(), ws, msg)
-	if err != nil {
-		panic(err)
-	}
-
-	go func() {
-		time.Sleep(sleep)
-
-		var capacity int64 = 10
-		data := dtos.UpdateLocationDto{
-			Capacity: &capacity,
-		}
-
-		body, _ := json.Marshal(data)
-		req, _ := http.NewRequest(http.MethodPatch,
-			ts.URL+"/locations/"+fixtureData.DefaultLocation.ID, bytes.NewReader(body))
-		req.AddCookie(tokens.DefaultAccessToken)
-
-		rs, _ := ts.Client().Do(req)
-
-		assert.Equal(t, rs.StatusCode, http.StatusOK)
-	}()
+	tWeb.SetParallelOperation(updateCapacity)
 
 	var locationUpdateEvent models.LocationUpdateEvent
-	err = wsjson.Read(context.Background(), ws, &locationUpdateEvent)
-	if err != nil {
-		panic(err)
-	}
+	tWeb.Do(t, nil, &locationUpdateEvent)
 
 	assert.Equal(
 		t,
 		locationUpdateEvent.NormalizedName,
 		fixtureData.DefaultLocation.NormalizedName,
 	)
-	assert.Equal(t, locationUpdateEvent.Capacity, 10)
+	assert.EqualValues(t, 10, locationUpdateEvent.Capacity)
+}
+
+func createCheckIn(t *testing.T, ts *httptest.Server) {
+	data := dtos.CreateCheckInDto{
+		SchoolID: fixtureData.Schools[0].ID,
+	}
+
+	tReq := test.CreateRequestTester(nil, http.MethodPost, "/checkins")
+	tReq.SetTestServer(ts)
+	tReq.SetReqData(data)
+	tReq.AddCookie(tokens.DefaultAccessToken)
+
+	rs := tReq.Do(t, nil)
+
+	assert.Equal(t, http.StatusCreated, rs.StatusCode)
+}
+
+func updateCapacity(t *testing.T, ts *httptest.Server) {
+	var capacity int64 = 10
+	data := dtos.UpdateLocationDto{
+		Capacity: &capacity,
+	}
+
+	tReq := test.CreateRequestTester(
+		nil,
+		http.MethodPatch,
+		"/locations/%s",
+		fixtureData.DefaultLocation.ID,
+	)
+	tReq.SetTestServer(ts)
+	tReq.SetReqData(data)
+	tReq.AddCookie(tokens.DefaultAccessToken)
+
+	rs := tReq.Do(t, nil)
+
+	assert.Equal(t, http.StatusOK, rs.StatusCode)
 }
