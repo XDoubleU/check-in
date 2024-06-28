@@ -2,20 +2,21 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/XDoubleU/essentia/pkg/test"
+
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
-
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/http_tools"
-	"github.com/XDoubleU/essentia/pkg/test"
 )
 
 type Tokens struct {
@@ -51,7 +52,7 @@ func clearAll(repositories repositories.Repositories) {
 		err = repositories.Users.Delete(context.Background(), user.ID, user.Role)
 	}
 
-	if err != http_tools.ErrRecordNotFound && err != nil {
+	if err != nil && !errors.Is(err, httptools.ErrRecordNotFound) {
 		panic(err)
 	}
 
@@ -195,7 +196,8 @@ func locationFixtures(repositories repositories.Repositories) {
 		panic(err)
 	}
 
-	tokens.DefaultAccessToken, err = repositories.Auth.CreateCookie(context.Background(),
+	tokens.DefaultAccessToken, err = repositories.Auth.CreateCookie(
+		context.Background(),
 		models.AccessScope,
 		fixtureData.DefaultUser.ID,
 		cfg.AccessExpiry,
@@ -205,7 +207,8 @@ func locationFixtures(repositories repositories.Repositories) {
 		panic(err)
 	}
 
-	tokens.DefaultRefreshToken, err = repositories.Auth.CreateCookie(context.Background(),
+	tokens.DefaultRefreshToken, err = repositories.Auth.CreateCookie(
+		context.Background(),
 		models.RefreshScope,
 		fixtureData.DefaultUser.ID,
 		cfg.RefreshExpiry,
@@ -341,7 +344,7 @@ func TestMain(m *testing.M) {
 func setupTest(
 	t *testing.T,
 	mainTestEnv *test.MainTestEnv,
-) (test.TestEnv, *application) {
+) (test.Env, *application) {
 	t.Parallel()
 	testEnv := test.SetupSingle(mainTestEnv)
 

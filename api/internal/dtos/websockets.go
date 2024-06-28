@@ -1,9 +1,9 @@
 package dtos
 
 import (
-	"check-in/api/internal/models"
+	"github.com/XDoubleU/essentia/pkg/validate"
 
-	"github.com/XDoubleU/essentia/pkg/validator"
+	"check-in/api/internal/models"
 )
 
 type SubscribeMessageDto struct {
@@ -15,11 +15,11 @@ func (dto SubscribeMessageDto) GetSubject() string {
 	return string(dto.Subject)
 }
 
-func (dto SubscribeMessageDto) Validate() *validator.Validator {
-	v := validator.New()
+func (dto SubscribeMessageDto) Validate() *validate.Validator {
+	v := validate.New()
 
 	if dto.Subject == models.SingleLocation {
-		validator.Check(v, dto.NormalizedName, validator.IsNotEmpty, "normalizedName")
+		validate.Check(v, dto.NormalizedName, validate.IsNotEmpty, "normalizedName")
 	}
 
 	return v

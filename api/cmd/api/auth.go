@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/context_tools"
+	"github.com/XDoubleU/essentia/pkg/contexttools"
 	"github.com/XDoubleU/essentia/pkg/goroutine"
-	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/httptools"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/config"
@@ -39,23 +39,23 @@ func (app *application) authRoutes(router *httprouter.Router) {
 func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 	var signInDto dtos.SignInDto
 
-	err := http_tools.ReadJSON(r.Body, &signInDto)
+	err := httptools.ReadJSON(r.Body, &signInDto)
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	if v := signInDto.Validate(); !v.Valid() {
-		http_tools.FailedValidationResponse(w, r, v.Errors)
+		httptools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	user, err := app.repositories.Users.GetByUsername(r.Context(), signInDto.Username)
 	if err != nil {
-		if errors.Is(err, http_tools.ErrRecordNotFound) {
-			http_tools.UnauthorizedResponse(w, r, "Invalid Credentials")
+		if errors.Is(err, httptools.ErrRecordNotFound) {
+			httptools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		} else {
-			http_tools.ServerErrorResponse(w, r, err)
+			httptools.ServerErrorResponse(w, r, err)
 		}
 
 		return
@@ -63,7 +63,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	match, _ := user.CompareHashAndPassword(signInDto.Password)
 	if !match {
-		http_tools.UnauthorizedResponse(w, r, "Invalid Credentials")
+		httptools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		return
 	}
 
@@ -76,7 +76,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -92,16 +92,16 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 			secure,
 		)
 		if err != nil {
-			http_tools.ServerErrorResponse(w, r, err)
+			httptools.ServerErrorResponse(w, r, err)
 			return
 		}
 
 		http.SetCookie(w, refreshTokenCookie)
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusOK, user, nil)
+	err = httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -119,7 +119,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 		accessToken.Value,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -134,7 +134,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 		refreshToken.Value,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -148,7 +148,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure	500	{object}	ErrorDto
 // @Router		/auth/refresh [get].
 func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
-	user := context_tools.GetContextValue[*models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r, userContextKey)
 	secure := app.config.Env == config.ProdEnv
 
 	accessTokenCookie, err := app.repositories.Auth.CreateCookie(
@@ -159,7 +159,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -173,7 +173,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 		secure,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 

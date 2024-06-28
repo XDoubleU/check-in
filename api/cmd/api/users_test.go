@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/httptools"
 	"github.com/XDoubleU/essentia/pkg/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -19,13 +19,13 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq1 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/current-user")
+	tReq1 := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/current-user")
 	tReq1.AddCookie(tokens.AdminAccessToken)
 
-	tReq2 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/current-user")
+	tReq2 := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/current-user")
 	tReq2.AddCookie(tokens.ManagerAccessToken)
 
-	tReq3 := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/current-user")
+	tReq3 := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/current-user")
 	tReq3.AddCookie(tokens.DefaultAccessToken)
 
 	var rs1Data, rs2Data, rs3Data models.User
@@ -73,9 +73,9 @@ func TestGetInfoLoggedInUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/current-user")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/current-user")
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 
 	mt.Do(t)
@@ -91,7 +91,12 @@ func TestGetUser(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%s", fixtureData.DefaultUsers[0].ID)
+		tReq := test.CreateRequestTester(
+			testApp.routes(),
+			http.MethodGet,
+			"/users/%s",
+			fixtureData.DefaultUsers[0].ID,
+		)
 		tReq.AddCookie(user)
 
 		var rsData models.User
@@ -126,10 +131,15 @@ func TestGetUserNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%s", id.String())
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodGet,
+		"/users/%s",
+		id.String(),
+	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -144,10 +154,10 @@ func TestGetUserNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/8000")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -158,9 +168,14 @@ func TestGetUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users/%d", fixtureData.Schools[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodGet,
+		"/users/%d",
+		fixtureData.Schools[0].ID,
+	)
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 
@@ -171,7 +186,7 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	var rsData dtos.PaginatedUsersDto
@@ -198,7 +213,7 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -229,19 +244,24 @@ func TestGetPaginatedManagerUsersPageFull(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	test.TestPaginatedEndpoint(t, tReq, "page", int(math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4)))
+	test.PaginatedEndpointTester(
+		t,
+		tReq,
+		"page",
+		int(math.Ceil(float64(fixtureData.AmountOfManagerUsers)/4)),
+	)
 }
 
 func TestGetPaginatedManagerUsersAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/users")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)
@@ -253,7 +273,7 @@ func TestCreateManagerUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	data := dtos.CreateUserDto{
@@ -277,7 +297,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	data := dtos.CreateUserDto{
@@ -286,7 +306,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	}
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -301,7 +321,7 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	data := dtos.CreateUserDto{
@@ -309,7 +329,7 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 		Password: "",
 	}
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseErrorMessage(data, map[string]interface{}{
 		"username": "must be provided",
 		"password": "must be provided",
@@ -322,9 +342,9 @@ func TestCreateManagerUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/users")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)
@@ -342,7 +362,12 @@ func TestUpdateManagerUser(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/users/%s",
+		fixtureData.ManagerUsers[0].ID,
+	)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	tReq.SetReqData(data)
@@ -368,12 +393,17 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/users/%s",
+		fixtureData.ManagerUsers[0].ID,
+	)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -396,12 +426,17 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 
 	id, _ := uuid.NewUUID()
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", id.String())
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/users/%s",
+		id.String(),
+	)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -422,12 +457,12 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/8000")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPatch, "/users/8000")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -444,10 +479,15 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 		Password: &password,
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/users/%s",
+		fixtureData.ManagerUsers[0].ID,
+	)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseErrorMessage(data, map[string]interface{}{
 		"username": "must be provided",
 		"password": "must be provided",
@@ -460,9 +500,14 @@ func TestUpdateManagerUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/users/%s", fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/users/%s",
+		fixtureData.ManagerUsers[0].ID,
+	)
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)
@@ -474,7 +519,12 @@ func TestDeleteManagerUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/%s", fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodDelete,
+		"/users/%s",
+		fixtureData.ManagerUsers[0].ID,
+	)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
 	var rsData models.User
@@ -493,10 +543,15 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 	defer test.TeardownSingle(testEnv)
 
 	id, _ := uuid.NewUUID()
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/%s", id.String())
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodDelete,
+		"/users/%s",
+		id.String(),
+	)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -511,10 +566,10 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/8000")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodDelete, "/users/8000")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -525,9 +580,14 @@ func TestDeleteManagerUserAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/users/%s", fixtureData.ManagerUsers[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodDelete,
+		"/users/%s",
+		fixtureData.ManagerUsers[0].ID,
+	)
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)

@@ -5,10 +5,9 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/stretchr/testify/assert"
 
 	"check-in/api/internal/models"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNormalizeName(t *testing.T) {

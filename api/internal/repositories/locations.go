@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/httptools"
 	"github.com/XDoubleU/essentia/pkg/tools"
 	"github.com/jackc/pgx/v5"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -344,7 +344,7 @@ func (repo LocationRepository) GetByName(
 		}
 	}
 
-	return nil, http_tools.ErrRecordNotFound
+	return nil, httptools.ErrRecordNotFound
 }
 
 func (repo LocationRepository) Create(
@@ -560,7 +560,7 @@ func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) e
 
 	rowsAffected := resultLocation.RowsAffected()
 	if rowsAffected == 0 {
-		return http_tools.ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	err = location.NormalizeName()
@@ -592,7 +592,7 @@ func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 
 	rowsAffected := resultUser.RowsAffected()
 	if rowsAffected == 0 {
-		return http_tools.ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil
@@ -639,7 +639,7 @@ func deleteLocation(ctx context.Context, tx pgx.Tx, id string) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return http_tools.ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil
@@ -658,7 +658,7 @@ func deleteUser(ctx context.Context, tx pgx.Tx, id string) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return http_tools.ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil

@@ -1,13 +1,14 @@
 package main
 
 import (
-	"check-in/api/internal/config"
 	"net/http"
 
 	"github.com/XDoubleU/essentia/pkg/middleware"
 	"github.com/getsentry/sentry-go"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
+
+	"check-in/api/internal/config"
 )
 
 func (app *application) routes() http.Handler {
@@ -20,7 +21,7 @@ func (app *application) routes() http.Handler {
 	app.usersRoutes(router)
 	app.websocketsRoutes(router)
 
-	var sentryClientOptions *sentry.ClientOptions = nil
+	var sentryClientOptions *sentry.ClientOptions
 	if len(app.config.SentryDsn) > 0 {
 		sentryClientOptions = &sentry.ClientOptions{
 			Dsn:              app.config.SentryDsn,
@@ -33,7 +34,12 @@ func (app *application) routes() http.Handler {
 
 	isTestEnv := app.config.Env == config.TestEnv
 	allowedOrigins := []string{app.config.WebURL}
-	handlers := middleware.Default(isTestEnv, allowedOrigins, sentryClientOptions, app.config.Env == config.DevEnv || app.config.Env == config.TestEnv)
+	handlers := middleware.Default(
+		isTestEnv,
+		allowedOrigins,
+		sentryClientOptions,
+		app.config.Env == config.DevEnv || app.config.Env == config.TestEnv,
+	)
 
 	standard := alice.New(handlers...)
 

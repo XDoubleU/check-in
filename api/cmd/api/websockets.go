@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/httptools"
 	"github.com/julienschmidt/httprouter"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
@@ -25,7 +25,7 @@ func (app *application) websocketsRoutes(router *httprouter.Router) {
 }
 
 func (app *application) getWebSocketHandler() http.HandlerFunc {
-	wsh := http_tools.CreateWebsocketHandler[dtos.SubscribeMessageDto](app.config.WebURL)
+	wsh := httptools.CreateWebsocketHandler[dtos.SubscribeMessageDto](app.config.WebURL)
 	wsh.SetOnCloseCallback(app.repositories.WebSockets.RemoveSubscriber)
 
 	wsh.AddSubjectHandler(string(models.AllLocations), app.allLocationsHandler)
@@ -46,7 +46,13 @@ func (app *application) allLocationsHandler(
 
 	err := wsjson.Write(r.Context(), conn, locationUpdateEventDtos)
 	if err != nil {
-		http_tools.WSErrorResponse(w, r, conn, app.repositories.WebSockets.RemoveSubscriber, err)
+		httptools.WSErrorResponse(
+			w,
+			r,
+			conn,
+			app.repositories.WebSockets.RemoveSubscriber,
+			err,
+		)
 		return
 	}
 
@@ -55,13 +61,18 @@ func (app *application) allLocationsHandler(
 		if len(updateEvents) > 0 {
 			err = wsjson.Write(r.Context(), conn, updateEvents)
 			if err != nil {
-				http_tools.WSErrorResponse(w, r, conn, app.repositories.WebSockets.RemoveSubscriber, err)
+				httptools.WSErrorResponse(
+					w,
+					r,
+					conn,
+					app.repositories.WebSockets.RemoveSubscriber,
+					err,
+				)
 				return
 			}
 		}
 
 		if app.config.Env != config.TestEnv {
-			// todo: use an events based system?
 			time.Sleep(30 * time.Second) //nolint:gomnd //no magic number
 		}
 	}
@@ -80,7 +91,13 @@ func (app *application) singleLocationHandler(
 		if updateEvent.NormalizedName == msg.NormalizedName {
 			err := wsjson.Write(r.Context(), conn, updateEvent)
 			if err != nil {
-				http_tools.WSErrorResponse(w, r, conn, app.repositories.WebSockets.RemoveSubscriber, err)
+				httptools.WSErrorResponse(
+					w,
+					r,
+					conn,
+					app.repositories.WebSockets.RemoveSubscriber,
+					err,
+				)
 				return
 			}
 		}

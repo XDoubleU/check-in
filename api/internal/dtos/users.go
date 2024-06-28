@@ -1,9 +1,9 @@
 package dtos
 
 import (
-	"check-in/api/internal/models"
+	"github.com/XDoubleU/essentia/pkg/validate"
 
-	"github.com/XDoubleU/essentia/pkg/validator"
+	"check-in/api/internal/models"
 )
 
 type PaginatedUsersDto struct {
@@ -20,24 +20,24 @@ type UpdateUserDto struct {
 	Password *string `json:"password"`
 } //	@name	UpdateUserDto
 
-func (dto CreateUserDto) Validate() *validator.Validator {
-	v := validator.New()
+func (dto CreateUserDto) Validate() *validate.Validator {
+	v := validate.New()
 
-	validator.Check(v, dto.Username, validator.IsNotEmpty, "username")
-	validator.Check(v, dto.Password, validator.IsNotEmpty, "password")
+	validate.Check(v, dto.Username, validate.IsNotEmpty, "username")
+	validate.Check(v, dto.Password, validate.IsNotEmpty, "password")
 
 	return v
 }
 
-func (dto UpdateUserDto) Validate() *validator.Validator {
-	v := validator.New()
+func (dto UpdateUserDto) Validate() *validate.Validator {
+	v := validate.New()
 
 	if dto.Username != nil {
-		validator.Check(v, *dto.Username, validator.IsNotEmpty, "username")
+		validate.Check(v, *dto.Username, validate.IsNotEmpty, "username")
 	}
 
 	if dto.Password != nil {
-		validator.Check(v, *dto.Password, validator.IsNotEmpty, "password")
+		validate.Check(v, *dto.Password, validate.IsNotEmpty, "password")
 	}
 
 	return v

@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"testing"
 
-	"check-in/api/internal/dtos"
-	"check-in/api/internal/models"
-
-	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/httptools"
 	"github.com/XDoubleU/essentia/pkg/test"
 	"github.com/stretchr/testify/assert"
+
+	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
 )
 
 func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
@@ -24,7 +24,7 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	}
 
 	for _, user := range users {
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
+		tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
 		tReq.AddCookie(user)
 
 		var rsData dtos.PaginatedSchoolsDto
@@ -50,7 +50,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
@@ -79,19 +79,24 @@ func TestGetPaginatedSchoolsFull(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	test.TestPaginatedEndpoint(t, tReq, "page", int(math.Ceil(float64(fixtureData.AmountOfSchools)/4)))
+	test.PaginatedEndpointTester(
+		t,
+		tReq,
+		"page",
+		int(math.Ceil(float64(fixtureData.AmountOfSchools)/4)),
+	)
 }
 
 func TestGetPaginatedSchoolsAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/schools")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 
@@ -114,7 +119,7 @@ func TestCreateSchool(t *testing.T) {
 			Name: unique,
 		}
 
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/schools")
+		tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
 		tReq.AddCookie(user)
 
 		tReq.SetReqData(data)
@@ -136,12 +141,12 @@ func TestCreateSchoolNameExists(t *testing.T) {
 		Name: "TestSchool0",
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/schools")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -156,14 +161,14 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/schools")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	data := dtos.SchoolDto{
 		Name: "",
 	}
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseErrorMessage(data, map[string]interface{}{
 		"name": "must be provided",
 	})
@@ -175,9 +180,9 @@ func TestCreateSchoolAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/schools")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 
@@ -200,7 +205,12 @@ func TestUpdateSchool(t *testing.T) {
 			Name: unique,
 		}
 
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/%d", fixtureData.Schools[0].ID)
+		tReq := test.CreateRequestTester(
+			testApp.routes(),
+			http.MethodPatch,
+			"/schools/%d",
+			fixtureData.Schools[0].ID,
+		)
 		tReq.AddCookie(user)
 
 		tReq.SetReqData(data)
@@ -223,12 +233,17 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 		Name: "TestSchool1",
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/%d", fixtureData.Schools[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/schools/%d",
+		fixtureData.Schools[0].ID,
+	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -247,12 +262,12 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 		Name: "test",
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/1")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPatch, "/schools/1")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -271,12 +286,16 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 		Name: "test",
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/8000")
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/schools/8000",
+	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -295,30 +314,43 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 		Name: "test",
 	}
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/aaaa")
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/schools/aaaa",
+	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
-	assert.Equal(t, "invalid URL param 'id' with value 'aaaa', should be an integer", rsData.Message)
+	assert.Equal(
+		t,
+		"invalid URL param 'id' with value 'aaaa', should be an integer",
+		rsData.Message,
+	)
 }
 
 func TestUpdateSchoolFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/%d", fixtureData.Schools[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/schools/%d",
+		fixtureData.Schools[0].ID,
+	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
 	data := dtos.SchoolDto{
 		Name: "",
 	}
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseErrorMessage(data, map[string]interface{}{
 		"name": "must be provided",
 	})
@@ -330,9 +362,14 @@ func TestUpdateSchoolAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPatch, "/schools/%d", fixtureData.Schools[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/schools/%d",
+		fixtureData.Schools[0].ID,
+	)
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 
@@ -349,7 +386,12 @@ func TestDeleteSchool(t *testing.T) {
 	}
 
 	for i, user := range users {
-		tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/%d", fixtureData.Schools[i].ID)
+		tReq := test.CreateRequestTester(
+			testApp.routes(),
+			http.MethodDelete,
+			"/schools/%d",
+			fixtureData.Schools[i].ID,
+		)
 		tReq.AddCookie(user)
 
 		var rsData models.School
@@ -366,10 +408,10 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/1")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodDelete, "/schools/1")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -384,10 +426,14 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/8000")
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodDelete,
+		"/schools/8000",
+	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -402,23 +448,36 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/aaaa")
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodDelete,
+		"/schools/aaaa",
+	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
-	assert.Equal(t, "invalid URL param 'id' with value 'aaaa', should be an integer", rsData.Message.(string))
+	assert.Equal(
+		t,
+		"invalid URL param 'id' with value 'aaaa', should be an integer",
+		rsData.Message.(string),
+	)
 }
 
 func TestDeleteSchoolAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodDelete, "/schools/%d", fixtureData.Schools[0].ID)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodDelete,
+		"/schools/%d",
+		fixtureData.Schools[0].ID,
+	)
 
-	mt := test.CreateMatrixTester(t, tReq)
+	mt := test.CreateMatrixTester(tReq)
 	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
 	mt.AddTestCaseCookieStatusCode(tokens.DefaultAccessToken, http.StatusForbidden)
 

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/httptools"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/dtos"
@@ -267,7 +267,7 @@ func (repo SchoolRepository) Update(
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return http_tools.ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil
@@ -286,7 +286,7 @@ func (repo SchoolRepository) Delete(ctx context.Context, id int64) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return http_tools.ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil

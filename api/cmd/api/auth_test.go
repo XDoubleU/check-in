@@ -4,20 +4,19 @@ import (
 	"net/http"
 	"testing"
 
-	"check-in/api/internal/dtos"
-	"check-in/api/internal/models"
-
+	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/XDoubleU/essentia/pkg/test"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/XDoubleU/essentia/pkg/http_tools"
-	"github.com/XDoubleU/essentia/pkg/test"
+	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
 )
 
 func TestSignInUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/auth/signin")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
 	data := dtos.SignInDto{
 		Username:   "Default",
@@ -45,7 +44,7 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/auth/signin")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
 	data := dtos.SignInDto{
 		Username:   "Default",
@@ -72,7 +71,7 @@ func TestSignInAdmin(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/auth/signin")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
 	data := dtos.SignInDto{
 		Username:   "Admin",
@@ -99,7 +98,7 @@ func TestSignInInexistentUser(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/auth/signin")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
 	data := dtos.SignInDto{
 		Username:   "inexistentuser",
@@ -108,7 +107,7 @@ func TestSignInInexistentUser(t *testing.T) {
 	}
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
@@ -119,7 +118,7 @@ func TestSignInWrongPassword(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/auth/signin")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
 	data := dtos.SignInDto{
 		Username:   "Default",
@@ -128,7 +127,7 @@ func TestSignInWrongPassword(t *testing.T) {
 	}
 	tReq.SetReqData(data)
 
-	var rsData http_tools.ErrorDto
+	var rsData httptools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
@@ -139,7 +138,7 @@ func TestSignInFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodPost, "/auth/signin")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
 	reqData := dtos.SignInDto{
 		Username:   "",
@@ -152,7 +151,7 @@ func TestSignInFailValidation(t *testing.T) {
 		"password": "must be provided",
 	}
 
-	vt := test.CreateMatrixTester(t, tReq)
+	vt := test.CreateMatrixTester(tReq)
 	vt.AddTestCaseErrorMessage(reqData, errorMessage)
 	vt.Do(t)
 }
@@ -161,7 +160,7 @@ func TestSignOut(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/auth/signout")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
 	tReq.AddCookie(tokens.DefaultAccessToken)
 	tReq.AddCookie(tokens.DefaultRefreshToken)
@@ -177,7 +176,7 @@ func TestSignOutNoRefresh(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/auth/signout")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
@@ -192,7 +191,7 @@ func TestSignOutNotLoggedIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/auth/signout")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
 	rs := tReq.Do(t, nil)
 
@@ -203,7 +202,7 @@ func TestRefresh(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/auth/refresh")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
 	tReq.AddCookie(tokens.DefaultRefreshToken)
 
@@ -218,7 +217,7 @@ func TestRefreshReusedToken(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/auth/refresh")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
 	tReq.AddCookie(tokens.DefaultRefreshToken)
 
@@ -233,7 +232,7 @@ func TestRefreshInvalidToken(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tReq := test.CreateTestRequest(testApp.routes(), http.MethodGet, "/auth/refresh")
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
