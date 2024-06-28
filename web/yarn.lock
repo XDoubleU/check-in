@@ -1335,12 +1335,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.22.5, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.21.0, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
   version: 7.24.6
   resolution: "@babel/runtime@npm:7.24.6"
   dependencies:
     regenerator-runtime: "npm:^0.14.0"
   checksum: 10c0/224ad205de33ea28979baaec89eea4c4d4e9482000dd87d15b97859365511cdd4d06517712504024f5d33a5fb9412f9b91c96f1d923974adf9359e1575cde049
+  languageName: node
+  linkType: hard
+
+"@babel/runtime@npm:^7.24.7":
+  version: 7.24.7
+  resolution: "@babel/runtime@npm:7.24.7"
+  dependencies:
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 10c0/b6fa3ec61a53402f3c1d75f4d808f48b35e0dfae0ec8e2bb5c6fc79fb95935da75766e0ca534d0f1c84871f6ae0d2ebdd950727cfadb745a2cdbef13faef5513
   languageName: node
   linkType: hard
 
@@ -2476,7 +2485,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@restart/ui@npm:^1.6.8":
+"@restart/ui@npm:^1.6.9":
   version: 1.6.9
   resolution: "@restart/ui@npm:1.6.9"
   dependencies:
@@ -11148,13 +11157,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-bootstrap@npm:2.10.2":
-  version: 2.10.2
-  resolution: "react-bootstrap@npm:2.10.2"
+"react-bootstrap@npm:2.10.3":
+  version: 2.10.3
+  resolution: "react-bootstrap@npm:2.10.3"
   dependencies:
-    "@babel/runtime": "npm:^7.22.5"
+    "@babel/runtime": "npm:^7.24.7"
     "@restart/hooks": "npm:^0.4.9"
-    "@restart/ui": "npm:^1.6.8"
+    "@restart/ui": "npm:^1.6.9"
     "@types/react-transition-group": "npm:^4.4.6"
     classnames: "npm:^2.3.2"
     dom-helpers: "npm:^5.2.1"
@@ -11171,7 +11180,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/bd50d18df9ee726b1a48e18ba3586602401503993786ebcffcc73ee38c9775ed3532b53f9251bea12c5346d1f7b065c3f920cd1ac295554533f636b0c3b0ee76
+  checksum: 10c0/d93a95d4f06844438e9e3753681a7b3b197205149170d9ff2f4d919d52b973e360ae7a47f649458fb851cb10417c5c10bb10207ba25714ea46e68dcc7576d57b
   languageName: node
   linkType: hard
 
@@ -13304,7 +13313,7 @@ __metadata:
     prettier: "npm:3.2.5"
     query-string: "npm:9.0.0"
     react: "npm:18.3.1"
-    react-bootstrap: "npm:2.10.2"
+    react-bootstrap: "npm:2.10.3"
     react-dom: "npm:18.3.1"
     react-hook-form: "npm:7.51.5"
     react-spinners: "npm:0.13.8"
