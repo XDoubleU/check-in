@@ -3,12 +3,12 @@ package main
 import (
 	_ "time/tzdata"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/XDoubleU/essentia/pkg/logger"
+
 	"check-in/api/internal/config"
 	"check-in/api/internal/repositories"
-
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/http_tools"
-	"github.com/XDoubleU/essentia/pkg/logger"
 )
 
 type application struct {
@@ -48,7 +48,7 @@ func main() {
 
 	app.config.Print()
 
-	err = http_tools.Serve(app.config.Port, app.routes(), app.config.Env)
+	err = httptools.Serve(app.config.Port, app.routes(), app.config.Env)
 	if err != nil {
 		logger.GetLogger().Fatal(err)
 	}

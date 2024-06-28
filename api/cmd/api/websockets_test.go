@@ -16,7 +16,7 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tWeb := test.CreateTestWebsocket(testApp.routes())
+	tWeb := test.CreateWebsocketTester(testApp.routes())
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
@@ -41,7 +41,7 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tWeb := test.CreateTestWebsocket(testApp.routes())
+	tWeb := test.CreateWebsocketTester(testApp.routes())
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
 	})
@@ -60,7 +60,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tWeb := test.CreateTestWebsocket(testApp.routes())
+	tWeb := test.CreateWebsocketTester(testApp.routes())
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
@@ -84,7 +84,7 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
 	defer test.TeardownSingle(testEnv)
 
-	tWeb := test.CreateTestWebsocket(testApp.routes())
+	tWeb := test.CreateWebsocketTester(testApp.routes())
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
@@ -109,7 +109,7 @@ func createCheckIn(t *testing.T, ts *httptest.Server) {
 		SchoolID: fixtureData.Schools[0].ID,
 	}
 
-	tReq := test.CreateTestRequest(nil, http.MethodPost, "/checkins")
+	tReq := test.CreateRequestTester(nil, http.MethodPost, "/checkins")
 	tReq.SetTestServer(ts)
 	tReq.SetReqData(data)
 	tReq.AddCookie(tokens.DefaultAccessToken)
@@ -125,7 +125,12 @@ func updateCapacity(t *testing.T, ts *httptest.Server) {
 		Capacity: &capacity,
 	}
 
-	tReq := test.CreateTestRequest(nil, http.MethodPatch, "/locations/%s", fixtureData.DefaultLocation.ID)
+	tReq := test.CreateRequestTester(
+		nil,
+		http.MethodPatch,
+		"/locations/%s",
+		fixtureData.DefaultLocation.ID,
+	)
 	tReq.SetTestServer(ts)
 	tReq.SetReqData(data)
 	tReq.AddCookie(tokens.DefaultAccessToken)

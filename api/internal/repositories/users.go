@@ -3,11 +3,11 @@ package repositories
 import (
 	"context"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/XDoubleU/essentia/pkg/httptools"
+
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/http_tools"
 )
 
 type UserRepository struct {
@@ -254,7 +254,7 @@ func (repo UserRepository) Update(
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return http_tools.ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil
@@ -277,7 +277,7 @@ func (repo UserRepository) Delete(
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return http_tools.ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil

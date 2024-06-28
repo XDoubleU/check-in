@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/http_tools"
-	"github.com/XDoubleU/essentia/pkg/parser"
+	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/XDoubleU/essentia/pkg/parse"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
@@ -45,9 +45,9 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
-	page, err := parser.ParseQueryParam(r, "page", 1, parser.ParseInt64Func(true, false))
+	page, err := parse.QueryParam(r, "page", 1, parse.Int64Func(true, false))
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
@@ -58,13 +58,13 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 		pageSize,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusOK, result, nil)
+	err = httptools.WriteJSON(w, http.StatusOK, result, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -80,26 +80,26 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	var schoolDto dtos.SchoolDto
 
-	err := http_tools.ReadJSON(r.Body, &schoolDto)
+	err := httptools.ReadJSON(r.Body, &schoolDto)
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	if v := schoolDto.Validate(); !v.Valid() {
-		http_tools.FailedValidationResponse(w, r, v.Errors)
+		httptools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	school, err := app.repositories.Schools.Create(r.Context(), schoolDto.Name)
 	if err != nil {
-		http_tools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
+		httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
 		return
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusCreated, school, nil)
+	err = httptools.WriteJSON(w, http.StatusCreated, school, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -116,38 +116,38 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	var schoolDto dtos.SchoolDto
 
-	id, err := parser.ParseURLParam(r, "id", parser.ParseInt64Func(true, false))
+	id, err := parse.URLParam(r, "id", parse.Int64Func(true, false))
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	err = http_tools.ReadJSON(r.Body, &schoolDto)
+	err = httptools.ReadJSON(r.Body, &schoolDto)
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	if v := schoolDto.Validate(); !v.Valid() {
-		http_tools.FailedValidationResponse(w, r, v.Errors)
+		httptools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	school, err := app.repositories.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "school", id, "id")
+		httptools.NotFoundResponse(w, r, err, "school", id, "id")
 		return
 	}
 
 	err = app.repositories.Schools.Update(r.Context(), school, schoolDto)
 	if err != nil {
-		http_tools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
+		httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
 		return
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusOK, school, nil)
+	err = httptools.WriteJSON(w, http.StatusOK, school, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -161,26 +161,26 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	500	{object}	ErrorDto
 // @Router		/schools/{id} [delete].
 func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := parser.ParseURLParam(r, "id", parser.ParseInt64Func(true, false))
+	id, err := parse.URLParam(r, "id", parse.Int64Func(true, false))
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	school, err := app.repositories.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "school", id, "id")
+		httptools.NotFoundResponse(w, r, err, "school", id, "id")
 		return
 	}
 
 	err = app.repositories.Schools.Delete(r.Context(), school.ID)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusOK, school, nil)
+	err = httptools.WriteJSON(w, http.StatusOK, school, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }

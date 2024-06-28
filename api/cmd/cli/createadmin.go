@@ -5,11 +5,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
+
 	"check-in/api/internal/config"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
-
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
 )
 
 func createAdmin(cfg config.Config, username string, password string) {

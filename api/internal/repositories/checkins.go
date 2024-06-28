@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"check-in/api/internal/models"
-
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/http_tools"
+	"github.com/XDoubleU/essentia/pkg/httptools"
 	"github.com/XDoubleU/essentia/pkg/tools"
+
+	"check-in/api/internal/models"
 )
 
 type CheckInRepository struct {
@@ -167,7 +167,7 @@ func (repo CheckInRepository) Delete(ctx context.Context, id int64) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return http_tools.ErrRecordNotFound
+		return httptools.ErrRecordNotFound
 	}
 
 	return nil

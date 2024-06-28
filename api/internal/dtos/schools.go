@@ -1,9 +1,9 @@
 package dtos
 
 import (
-	"check-in/api/internal/models"
+	"github.com/XDoubleU/essentia/pkg/validate"
 
-	"github.com/XDoubleU/essentia/pkg/validator"
+	"check-in/api/internal/models"
 )
 
 type PaginatedSchoolsDto struct {
@@ -14,10 +14,10 @@ type SchoolDto struct {
 	Name string `json:"name"`
 } //	@name	SchoolDto
 
-func (dto SchoolDto) Validate() *validator.Validator {
-	v := validator.New()
+func (dto SchoolDto) Validate() *validate.Validator {
+	v := validate.New()
 
-	validator.Check(v, dto.Name, validator.IsNotEmpty, "name")
+	validate.Check(v, dto.Name, validate.IsNotEmpty, "name")
 
 	return v
 }

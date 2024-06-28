@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/context_tools"
-	"github.com/XDoubleU/essentia/pkg/http_tools"
-	"github.com/XDoubleU/essentia/pkg/parser"
+	"github.com/XDoubleU/essentia/pkg/contexttools"
+	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/XDoubleU/essentia/pkg/parse"
 	"github.com/julienschmidt/httprouter"
 
 	"check-in/api/internal/dtos"
@@ -53,11 +53,11 @@ func (app *application) usersRoutes(router *httprouter.Router) {
 // @Router		/current-user [get].
 func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	r *http.Request) {
-	user := context_tools.GetContextValue[*models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r, userContextKey)
 
-	err := http_tools.WriteJSON(w, http.StatusOK, user, nil)
+	err := httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -71,21 +71,21 @@ func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 // @Failure	500	{object}	ErrorDto
 // @Router		/users/{id} [get].
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := parser.ParseURLParam(r, "id", parser.ParseUUID)
+	id, err := parse.URLParam(r, "id", parse.UUID)
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	user, err := app.repositories.Users.GetByID(r.Context(), id, models.DefaultRole)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "user", id, "id")
+		httptools.NotFoundResponse(w, r, err, "user", id, "id")
 		return
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusOK, user, nil)
+	err = httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -101,9 +101,9 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
-	page, err := parser.ParseQueryParam(r, "page", 1, parser.ParseInt64Func(true, false))
+	page, err := parse.QueryParam(r, "page", 1, parse.Int64Func(true, false))
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
@@ -114,13 +114,13 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 		pageSize,
 	)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusOK, result, nil)
+	err = httptools.WriteJSON(w, http.StatusOK, result, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -139,14 +139,14 @@ func (app *application) createManagerUserHandler(
 ) {
 	var createUserDto dtos.CreateUserDto
 
-	err := http_tools.ReadJSON(r.Body, &createUserDto)
+	err := httptools.ReadJSON(r.Body, &createUserDto)
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	if v := createUserDto.Validate(); !v.Valid() {
-		http_tools.FailedValidationResponse(w, r, v.Errors)
+		httptools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -157,7 +157,7 @@ func (app *application) createManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		http_tools.ConflictResponse(
+		httptools.ConflictResponse(
 			w,
 			r,
 			err,
@@ -168,9 +168,9 @@ func (app *application) createManagerUserHandler(
 		return
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusCreated, user, nil)
+	err = httptools.WriteJSON(w, http.StatusCreated, user, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -190,26 +190,26 @@ func (app *application) updateManagerUserHandler(
 ) {
 	var updateUserDto dtos.UpdateUserDto
 
-	id, err := parser.ParseURLParam(r, "id", parser.ParseUUID)
+	id, err := parse.URLParam(r, "id", parse.UUID)
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	err = http_tools.ReadJSON(r.Body, &updateUserDto)
+	err = httptools.ReadJSON(r.Body, &updateUserDto)
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	if v := updateUserDto.Validate(); !v.Valid() {
-		http_tools.FailedValidationResponse(w, r, v.Errors)
+		httptools.FailedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	user, err := app.repositories.Users.GetByID(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "user", id, "id")
+		httptools.NotFoundResponse(w, r, err, "user", id, "id")
 		return
 	}
 
@@ -220,7 +220,7 @@ func (app *application) updateManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		http_tools.ConflictResponse(
+		httptools.ConflictResponse(
 			w,
 			r,
 			err,
@@ -231,9 +231,9 @@ func (app *application) updateManagerUserHandler(
 		return
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusOK, user, nil)
+	err = httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }
 
@@ -250,26 +250,26 @@ func (app *application) deleteManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	id, err := parser.ParseURLParam(r, "id", parser.ParseUUID)
+	id, err := parse.URLParam(r, "id", parse.UUID)
 	if err != nil {
-		http_tools.BadRequestResponse(w, r, err)
+		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
 	user, err := app.repositories.Users.GetByID(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		http_tools.NotFoundResponse(w, r, err, "user", id, "id")
+		httptools.NotFoundResponse(w, r, err, "user", id, "id")
 		return
 	}
 
 	err = app.repositories.Users.Delete(r.Context(), user.ID, models.ManagerRole)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	err = http_tools.WriteJSON(w, http.StatusOK, user, nil)
+	err = httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
-		http_tools.ServerErrorResponse(w, r, err)
+		httptools.ServerErrorResponse(w, r, err)
 	}
 }

@@ -3,7 +3,7 @@ package dtos
 import (
 	"strconv"
 
-	"github.com/XDoubleU/essentia/pkg/validator"
+	"github.com/XDoubleU/essentia/pkg/validate"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/models"
@@ -82,41 +82,46 @@ type UpdateLocationDto struct {
 	TimeZone *string `json:"timeZone"`
 } //	@name	UpdateLocationDto
 
-func (dto CreateLocationDto) Validate() *validator.Validator {
-	v := validator.New()
+func (dto CreateLocationDto) Validate() *validate.Validator {
+	v := validate.New()
 
-	validator.Check(v, dto.Name, validator.IsNotEmpty, "name")
-	validator.Check(v, dto.Capacity, validator.IsGreaterThanFunc(int64(0)), "capacity")
-	validator.Check(v, dto.Username, validator.IsNotEmpty, "username")
-	validator.Check(v, dto.Password, validator.IsNotEmpty, "password")
-	validator.Check(v, dto.TimeZone, validator.IsNotEmpty, "timeZone")
-	validator.Check(v, dto.TimeZone, validator.IsValidTimeZone, "timeZone")
+	validate.Check(v, dto.Name, validate.IsNotEmpty, "name")
+	validate.Check(v, dto.Capacity, validate.IsGreaterThanFunc(int64(0)), "capacity")
+	validate.Check(v, dto.Username, validate.IsNotEmpty, "username")
+	validate.Check(v, dto.Password, validate.IsNotEmpty, "password")
+	validate.Check(v, dto.TimeZone, validate.IsNotEmpty, "timeZone")
+	validate.Check(v, dto.TimeZone, validate.IsValidTimeZone, "timeZone")
 
 	return v
 }
 
-func (dto UpdateLocationDto) Validate() *validator.Validator {
-	v := validator.New()
+func (dto UpdateLocationDto) Validate() *validate.Validator {
+	v := validate.New()
 
 	if dto.Name != nil {
-		validator.Check(v, *dto.Name, validator.IsNotEmpty, "name")
+		validate.Check(v, *dto.Name, validate.IsNotEmpty, "name")
 	}
 
 	if dto.Capacity != nil {
-		validator.Check(v, *dto.Capacity, validator.IsGreaterThanFunc(int64(0)), "capacity")
+		validate.Check(
+			v,
+			*dto.Capacity,
+			validate.IsGreaterThanFunc(int64(0)),
+			"capacity",
+		)
 	}
 
 	if dto.Username != nil {
-		validator.Check(v, *dto.Username, validator.IsNotEmpty, "username")
+		validate.Check(v, *dto.Username, validate.IsNotEmpty, "username")
 	}
 
 	if dto.Password != nil {
-		validator.Check(v, *dto.Password, validator.IsNotEmpty, "password")
+		validate.Check(v, *dto.Password, validate.IsNotEmpty, "password")
 	}
 
 	if dto.TimeZone != nil {
-		validator.Check(v, *dto.TimeZone, validator.IsNotEmpty, "timeZone")
-		validator.Check(v, *dto.TimeZone, validator.IsValidTimeZone, "timeZone")
+		validate.Check(v, *dto.TimeZone, validate.IsNotEmpty, "timeZone")
+		validate.Check(v, *dto.TimeZone, validate.IsValidTimeZone, "timeZone")
 	}
 
 	return v
