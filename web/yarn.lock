@@ -3007,7 +3007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:*, @testing-library/jest-dom@npm:6.4.5":
+"@testing-library/jest-dom@npm:6.4.5":
   version: 6.4.5
   resolution: "@testing-library/jest-dom@npm:6.4.5"
   dependencies:
@@ -3675,15 +3675,6 @@ __metadata:
   version: 2.0.3
   resolution: "@types/stack-utils@npm:2.0.3"
   checksum: 10c0/1f4658385ae936330581bcb8aa3a066df03867d90281cdf89cc356d404bd6579be0f11902304e1f775d92df22c6dd761d4451c804b0a4fba973e06211e9bd77c
-  languageName: node
-  linkType: hard
-
-"@types/testing-library__jest-dom@npm:6.0.0":
-  version: 6.0.0
-  resolution: "@types/testing-library__jest-dom@npm:6.0.0"
-  dependencies:
-    "@testing-library/jest-dom": "npm:*"
-  checksum: 10c0/824950dc82752ddb656fa7ca851bf454804332f7a7a8571231abfc3553902198c6b96de209bb3dd1f1a15ee6a269a1efa56866041f5692ee0129308772e658e0
   languageName: node
   linkType: hard
 
@@ -13281,7 +13272,6 @@ __metadata:
     "@types/jest": "npm:29.5.12"
     "@types/node": "npm:20.13.0"
     "@types/react": "npm:18.3.3"
-    "@types/testing-library__jest-dom": "npm:6.0.0"
     "@types/uuid": "npm:9.0.8"
     "@typescript-eslint/eslint-plugin": "npm:7.11.0"
     "@typescript-eslint/parser": "npm:7.11.0"
