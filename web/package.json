@@ -100,5 +100,5 @@
     "semi": false,
     "trailingComma": "none"
   },
-  "packageManager": "yarn@4.2.2"
+  "packageManager": "yarn@4.3.1"
 }
