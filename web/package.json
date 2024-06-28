@@ -33,7 +33,7 @@
     "recharts": "2.12.7",
     "sass": "1.77.6",
     "typescript": "5.4.5",
-    "uuid": "9.0.1"
+    "uuid": "10.0.0"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "14.2.4",
@@ -43,7 +43,7 @@
     "@types/jest": "29.5.12",
     "@types/node": "20.14.9",
     "@types/react": "18.3.3",
-    "@types/uuid": "9.0.8",
+    "@types/uuid": "10.0.0",
     "@typescript-eslint/eslint-plugin": "7.14.1",
     "@typescript-eslint/parser": "7.14.1",
     "cross-env": "7.0.3",
