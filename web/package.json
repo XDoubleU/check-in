@@ -29,7 +29,7 @@
     "react-bootstrap": "2.10.3",
     "react-dom": "18.3.1",
     "react-hook-form": "7.52.0",
-    "react-spinners": "0.13.8",
+    "react-spinners": "0.14.1",
     "recharts": "2.12.7",
     "sass": "1.77.6",
     "typescript": "5.4.5",
