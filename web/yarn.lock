@@ -8989,9 +8989,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knip@npm:5.23.1":
-  version: 5.23.1
-  resolution: "knip@npm:5.23.1"
+"knip@npm:5.23.2":
+  version: 5.23.2
+  resolution: "knip@npm:5.23.2"
   dependencies:
     "@ericcornelissen/bash-parser": "npm:0.5.3"
     "@nodelib/fs.walk": "npm:2.0.0"
@@ -9017,7 +9017,7 @@ __metadata:
   bin:
     knip: bin/knip.js
     knip-bun: bin/knip-bun.js
-  checksum: 10c0/c48c14328a8747d704e7bcc53a341892a09f9d2e1407c3432db197877a6cc9aafcfb724e3c247c0d9e34d43d2c4a04a19dff4826f87ec51c179d3bff5cdfdd5f
+  checksum: 10c0/92b80a646bd3f65ac3b3aa3b399d8c290e950ab63064310e689f931525ab4d947f0df5f3813510b0c5948048c0117cdfd6240924f43040ee792345913ef66938
   languageName: node
   linkType: hard
 
@@ -13458,7 +13458,7 @@ __metadata:
     jest-mock: "npm:29.7.0"
     jest-websocket-mock: "npm:2.5.0"
     jscpd: "npm:4.0.4"
-    knip: "npm:5.23.1"
+    knip: "npm:5.23.2"
     moment: "npm:2.30.1"
     moment-timezone: "npm:0.5.45"
     next: "npm:14.2.4"
