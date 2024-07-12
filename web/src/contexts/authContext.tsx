@@ -46,14 +46,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!currentUser){
+    if (!currentUser) {
       Sentry.setUser({})
       return
     }
 
     Sentry.setUser({
       id: currentUser.id,
-      username: currentUser.username,
+      username: currentUser.username
     })
   }, [currentUser])
 
