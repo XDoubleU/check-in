@@ -11,6 +11,7 @@ import React, {
   useEffect,
   useContext
 } from "react"
+import * as Sentry from "@sentry/nextjs"
 
 interface AuthContextProps {
   user: User | undefined
@@ -43,6 +44,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState<User | undefined>()
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!currentUser) {
+      Sentry.setUser({})
+      return
+    }
+
+    Sentry.setUser({
+      id: currentUser.id,
+      username: currentUser.username
+    })
+  }, [currentUser])
 
   useEffect(() => {
     void getMyUser()
