@@ -58,7 +58,7 @@ test/cov:
 	make test/cov/open
 
 test/cov/open:
-	CMD /C start chrome /new-tab %CD%/coverage.html
+	open ./coverage.html
 
 db/migrations/new: tools/db
 	goose -s -dir=./migrations create ${name} sql
