@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	_ "time/tzdata"
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
@@ -9,11 +10,31 @@ import (
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/repositories"
+	"check-in/api/internal/services"
 )
 
 type application struct {
-	config       config.Config
-	repositories repositories.Repositories
+	logger   *slog.Logger
+	config   config.Config
+	services services.Services
+}
+
+func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *application {
+	slog.Info(cfg.String())
+
+	spandb := postgres.SpanDB{
+		DB: db,
+	}
+
+	logger.Info("connected to database")
+
+	repos := repositories.New(spandb)
+
+	return &application{
+		logger:   logger,
+		config:   config.New(),
+		services: services.New(repos),
+	}
 }
 
 //	@title			Check-In API
@@ -35,18 +56,7 @@ func main() {
 	}
 	defer db.Close()
 
-	spandb := postgres.SpanDB{
-		DB: db,
-	}
-
-	logger.GetLogger().Printf("connected to database")
-
-	app := &application{
-		config:       cfg,
-		repositories: repositories.New(spandb),
-	}
-
-	app.config.Print()
+	app := NewApp(slog.Default(), cfg, db)
 
 	err = httptools.Serve(app.config.Port, app.routes(), app.config.Env)
 	if err != nil {

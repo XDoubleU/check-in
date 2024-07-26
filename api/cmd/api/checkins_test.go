@@ -23,7 +23,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	defaultLocation := *fixtureData.DefaultLocation
 
 	for i := 0; i < 10; i++ {
-		_, _ = testApp.repositories.CheckIns.Create(
+		_, _ = testApp.services.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
 			&models.School{ID: 1}, // Should always stay at the bottom
@@ -31,7 +31,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	}
 
 	for i := 0; i < 10; i++ {
-		_, _ = testApp.repositories.CheckIns.Create(
+		_, _ = testApp.services.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
 			fixtureData.Schools[0],

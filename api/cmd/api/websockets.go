@@ -26,7 +26,7 @@ func (app *application) websocketsRoutes(router *httprouter.Router) {
 
 func (app *application) getWebSocketHandler() http.HandlerFunc {
 	wsh := httptools.CreateWebsocketHandler[dtos.SubscribeMessageDto](app.config.WebURL)
-	wsh.SetOnCloseCallback(app.repositories.WebSockets.RemoveSubscriber)
+	wsh.SetOnCloseCallback(app.services.WebSockets.RemoveSubscriber)
 
 	wsh.AddSubjectHandler(string(models.AllLocations), app.allLocationsHandler)
 	wsh.AddSubjectHandler(string(models.SingleLocation), app.singleLocationHandler)
@@ -40,7 +40,7 @@ func (app *application) allLocationsHandler(
 	conn *websocket.Conn,
 	msg dtos.SubscribeMessageDto,
 ) {
-	app.repositories.WebSockets.AddSubscriber(conn, msg.Subject, msg.NormalizedName)
+	app.services.WebSockets.AddSubscriber(conn, msg.Subject, msg.NormalizedName)
 
 	locationUpdateEventDtos, _ := app.getAllCurrentLocationStates(r.Context())
 
@@ -50,14 +50,14 @@ func (app *application) allLocationsHandler(
 			w,
 			r,
 			conn,
-			app.repositories.WebSockets.RemoveSubscriber,
+			app.services.WebSockets.RemoveSubscriber,
 			err,
 		)
 		return
 	}
 
 	for {
-		updateEvents := app.repositories.WebSockets.GetAllUpdateEvents(conn)
+		updateEvents := app.services.WebSockets.GetAllUpdateEvents(conn)
 		if len(updateEvents) > 0 {
 			err = wsjson.Write(r.Context(), conn, updateEvents)
 			if err != nil {
@@ -65,7 +65,7 @@ func (app *application) allLocationsHandler(
 					w,
 					r,
 					conn,
-					app.repositories.WebSockets.RemoveSubscriber,
+					app.services.WebSockets.RemoveSubscriber,
 					err,
 				)
 				return
@@ -84,10 +84,10 @@ func (app *application) singleLocationHandler(
 	conn *websocket.Conn,
 	msg dtos.SubscribeMessageDto,
 ) {
-	app.repositories.WebSockets.AddSubscriber(conn, msg.Subject, msg.NormalizedName)
+	app.services.WebSockets.AddSubscriber(conn, msg.Subject, msg.NormalizedName)
 
 	for {
-		updateEvent := app.repositories.WebSockets.GetByNormalizedName(conn)
+		updateEvent := app.services.WebSockets.GetByNormalizedName(conn)
 		if updateEvent.NormalizedName == msg.NormalizedName {
 			err := wsjson.Write(r.Context(), conn, updateEvent)
 			if err != nil {
@@ -95,7 +95,7 @@ func (app *application) singleLocationHandler(
 					w,
 					r,
 					conn,
-					app.repositories.WebSockets.RemoveSubscriber,
+					app.services.WebSockets.RemoveSubscriber,
 					err,
 				)
 				return
@@ -111,7 +111,7 @@ func (app *application) singleLocationHandler(
 func (app *application) getAllCurrentLocationStates(
 	ctx context.Context,
 ) ([]models.LocationUpdateEvent, error) {
-	locations, err := app.repositories.Locations.GetAll(ctx)
+	locations, err := app.services.Locations.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}

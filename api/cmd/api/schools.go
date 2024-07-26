@@ -53,7 +53,7 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 
 	result, err := getAllPaginated(
 		r.Context(),
-		app.repositories.Schools,
+		app.services.Schools,
 		page,
 		pageSize,
 	)
@@ -91,7 +91,7 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	school, err := app.repositories.Schools.Create(r.Context(), schoolDto.Name)
+	school, err := app.services.Schools.Create(r.Context(), schoolDto.Name)
 	if err != nil {
 		httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
 		return
@@ -133,13 +133,13 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	school, err := app.repositories.Schools.GetByIDWithoutReadOnly(r.Context(), id)
+	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
 		httptools.NotFoundResponse(w, r, err, "school", id, "id")
 		return
 	}
 
-	err = app.repositories.Schools.Update(r.Context(), school, schoolDto)
+	err = app.services.Schools.Update(r.Context(), school, schoolDto)
 	if err != nil {
 		httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
 		return
@@ -167,13 +167,13 @@ func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	school, err := app.repositories.Schools.GetByIDWithoutReadOnly(r.Context(), id)
+	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
 	if err != nil {
 		httptools.NotFoundResponse(w, r, err, "school", id, "id")
 		return
 	}
 
-	err = app.repositories.Schools.Delete(r.Context(), school.ID)
+	err = app.services.Schools.Delete(r.Context(), school.ID)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
 		return

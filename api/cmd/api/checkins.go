@@ -37,13 +37,13 @@ func (app *application) getSortedSchoolsHandler(
 	r *http.Request,
 ) {
 	user := contexttools.GetContextValue[models.User](r, userContextKey)
-	location, err := app.repositories.Locations.GetByUserID(r.Context(), user.ID)
+	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	schools, err := app.repositories.Schools.GetAllSortedByLocation(
+	schools, err := app.services.Schools.GetAllSortedByLocation(
 		r.Context(),
 		location.ID,
 	)
@@ -82,13 +82,13 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	user := contexttools.GetContextValue[models.User](r, userContextKey)
-	location, err := app.repositories.Locations.GetByUserID(r.Context(), user.ID)
+	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
 
-	school, err := app.repositories.Schools.GetByID(
+	school, err := app.services.Schools.GetByID(
 		r.Context(),
 		createCheckInDto.SchoolID,
 	)
@@ -113,7 +113,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	checkIn, err := app.repositories.CheckIns.Create(
+	checkIn, err := app.services.CheckIns.Create(
 		r.Context(),
 		location,
 		school,
@@ -123,7 +123,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	app.repositories.WebSockets.AddUpdateEvent(*location)
+	app.services.WebSockets.AddUpdateEvent(*location)
 
 	checkInDto := dtos.CheckInDto{
 		ID:         checkIn.ID,

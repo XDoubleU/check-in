@@ -5,7 +5,6 @@ import (
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/httptools"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -29,19 +28,6 @@ func (repo SchoolRepository) GetTotalCount(ctx context.Context) (*int64, error) 
 	}
 
 	return total, nil
-}
-
-func (repo SchoolRepository) GetSchoolMaps(
-	schools []*models.School,
-) (map[int64]string, *orderedmap.OrderedMap[string, int]) {
-	schoolsIDNameMap := make(map[int64]string)
-	schoolsMap := orderedmap.New[string, int]()
-	for _, school := range schools {
-		schoolsIDNameMap[school.ID] = school.Name
-		schoolsMap.Set(school.Name, 0)
-	}
-
-	return schoolsIDNameMap, schoolsMap
 }
 
 func (repo SchoolRepository) GetAll(ctx context.Context) ([]*models.School, error) {

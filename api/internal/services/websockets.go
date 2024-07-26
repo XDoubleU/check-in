@@ -1,56 +1,55 @@
-package repositories
+package services
 
 import (
+	"check-in/api/internal/models"
 	"sync"
 
 	"nhooyr.io/websocket"
-
-	"check-in/api/internal/models"
 )
 
-type WebSocketRepository struct {
+type WebSocketService struct {
 	subscribers map[*websocket.Conn]models.Subscriber
 }
 
-func (repo WebSocketRepository) GetAllUpdateEvents(
+func (service WebSocketService) GetAllUpdateEvents(
 	conn *websocket.Conn,
 ) []models.LocationUpdateEvent {
 	for {
-		if repo.subscribers[conn].BufferMu.TryLock() {
+		if service.subscribers[conn].BufferMu.TryLock() {
 			break
 		}
 	}
-	defer repo.subscribers[conn].BufferMu.Unlock()
+	defer service.subscribers[conn].BufferMu.Unlock()
 
 	var result []models.LocationUpdateEvent
 
-	for key, event := range repo.subscribers[conn].Buffer {
+	for key, event := range service.subscribers[conn].Buffer {
 		result = append(result, event)
-		delete(repo.subscribers[conn].Buffer, key)
+		delete(service.subscribers[conn].Buffer, key)
 	}
 
 	return result
 }
 
-func (repo WebSocketRepository) GetByNormalizedName(
+func (service WebSocketService) GetByNormalizedName(
 	conn *websocket.Conn,
 ) models.LocationUpdateEvent {
 	for {
-		if repo.subscribers[conn].BufferMu.TryLock() {
+		if service.subscribers[conn].BufferMu.TryLock() {
 			break
 		}
 	}
-	defer repo.subscribers[conn].BufferMu.Unlock()
+	defer service.subscribers[conn].BufferMu.Unlock()
 
-	name := repo.subscribers[conn].NormalizedName
+	name := service.subscribers[conn].NormalizedName
 
-	result := repo.subscribers[conn].Buffer[name]
-	delete(repo.subscribers[conn].Buffer, name)
+	result := service.subscribers[conn].Buffer[name]
+	delete(service.subscribers[conn].Buffer, name)
 
 	return result
 }
 
-func (repo WebSocketRepository) AddUpdateEvent(location models.Location) {
+func (service WebSocketService) AddUpdateEvent(location models.Location) {
 	locationUpdateEvent := models.LocationUpdateEvent{
 		NormalizedName:     location.NormalizedName,
 		Available:          location.Available,
@@ -60,7 +59,7 @@ func (repo WebSocketRepository) AddUpdateEvent(location models.Location) {
 		CapacityYesterday:  location.CapacityYesterday,
 	}
 
-	for _, subscriber := range repo.subscribers {
+	for _, subscriber := range service.subscribers {
 		if !(subscriber.Subject == "all-locations" ||
 			(subscriber.Subject == "single-location" &&
 				subscriber.NormalizedName == locationUpdateEvent.NormalizedName)) {
@@ -78,14 +77,14 @@ func (repo WebSocketRepository) AddUpdateEvent(location models.Location) {
 	}
 }
 
-func (repo WebSocketRepository) AddSubscriber(
+func (service WebSocketService) AddSubscriber(
 	conn *websocket.Conn,
 	subject models.WebSocketSubject,
 	normalizedName string,
 ) {
 	var mu sync.Mutex
 
-	repo.subscribers[conn] = models.Subscriber{
+	service.subscribers[conn] = models.Subscriber{
 		Subject:        subject,
 		NormalizedName: normalizedName,
 		Buffer:         make(map[string]models.LocationUpdateEvent),
@@ -93,6 +92,6 @@ func (repo WebSocketRepository) AddSubscriber(
 	}
 }
 
-func (repo WebSocketRepository) RemoveSubscriber(conn *websocket.Conn) {
-	delete(repo.subscribers, conn)
+func (service WebSocketService) RemoveSubscriber(conn *websocket.Conn) {
+	delete(service.subscribers, conn)
 }

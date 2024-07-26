@@ -6,26 +6,12 @@ import (
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/tools"
 
 	"check-in/api/internal/models"
 )
 
 type CheckInRepository struct {
 	db postgres.DB
-}
-
-func (repo CheckInRepository) GetAllOfDay(
-	ctx context.Context,
-	locationID string,
-	date time.Time,
-) ([]*models.CheckIn, error) {
-	return repo.GetAllInRange(
-		ctx,
-		[]string{locationID},
-		tools.StartOfDay(date),
-		tools.EndOfDay(date),
-	)
 }
 
 func (repo CheckInRepository) GetAllInRange(
@@ -148,8 +134,6 @@ func (repo CheckInRepository) Create(
 	if err != nil {
 		return nil, postgres.HandleError(err)
 	}
-
-	location.Available--
 
 	return &checkIn, nil
 }

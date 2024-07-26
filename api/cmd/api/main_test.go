@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"testing"
@@ -17,6 +18,7 @@ import (
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
+	"check-in/api/internal/services"
 )
 
 type Tokens struct {
@@ -46,23 +48,23 @@ var tokens Tokens                 //nolint:gochecknoglobals //global var for tes
 var cfg config.Config             //nolint:gochecknoglobals //global var for tests
 var fixtureData FixtureData       //nolint:gochecknoglobals //global var for tests
 
-func clearAll(repositories repositories.Repositories) {
-	user, err := repositories.Users.GetByUsername(context.Background(), "Admin")
+func clearAll(services services.Services) {
+	user, err := services.Users.GetByUsername(context.Background(), "Admin")
 	if user != nil {
-		err = repositories.Users.Delete(context.Background(), user.ID, user.Role)
+		err = services.Users.Delete(context.Background(), user.ID, user.Role)
 	}
 
 	if err != nil && !errors.Is(err, httptools.ErrRecordNotFound) {
 		panic(err)
 	}
 
-	users, err := repositories.Users.GetAll(context.Background())
+	users, err := services.Users.GetAll(context.Background())
 	if err != nil {
 		panic(err)
 	}
 
 	for _, user := range users {
-		err = repositories.Users.Delete(context.Background(), user.ID, user.Role)
+		err = services.Users.Delete(context.Background(), user.ID, user.Role)
 		if err != nil {
 			panic(err)
 		}
@@ -70,13 +72,13 @@ func clearAll(repositories repositories.Repositories) {
 
 	fixtureData.AmountOfManagerUsers = 0
 
-	locations, err := repositories.Locations.GetAll(context.Background())
+	locations, err := services.Locations.GetAll(context.Background())
 	if err != nil {
 		panic(err)
 	}
 
 	for _, location := range locations {
-		err = repositories.Locations.Delete(context.Background(), location)
+		err = services.Locations.Delete(context.Background(), location)
 		if err != nil {
 			panic(err)
 		}
@@ -84,7 +86,7 @@ func clearAll(repositories repositories.Repositories) {
 
 	fixtureData.AmountOfLocations = 0
 
-	schools, err := repositories.Schools.GetAll(context.Background())
+	schools, err := services.Schools.GetAll(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -94,7 +96,7 @@ func clearAll(repositories repositories.Repositories) {
 			continue
 		}
 
-		err = repositories.Schools.Delete(context.Background(), school.ID)
+		err = services.Schools.Delete(context.Background(), school.ID)
 		if err != nil {
 			panic(err)
 		}
@@ -103,10 +105,10 @@ func clearAll(repositories repositories.Repositories) {
 	fixtureData.AmountOfSchools = 1
 }
 
-func userFixtures(repositories repositories.Repositories) {
+func userFixtures(services services.Services) {
 	password := "testpassword"
 
-	adminUser, err := repositories.Users.Create(context.Background(),
+	adminUser, err := services.Users.Create(context.Background(),
 		"Admin",
 		password,
 		models.AdminRole,
@@ -115,7 +117,7 @@ func userFixtures(repositories repositories.Repositories) {
 		panic(err)
 	}
 
-	managerUser, err := repositories.Users.Create(context.Background(),
+	managerUser, err := services.Users.Create(context.Background(),
 		"Manager",
 		password,
 		models.ManagerRole,
@@ -130,7 +132,7 @@ func userFixtures(repositories repositories.Repositories) {
 
 	for i := 0; i < 10; i++ {
 		var newUser *models.User
-		newUser, err = repositories.Users.Create(context.Background(),
+		newUser, err = services.Users.Create(context.Background(),
 			fmt.Sprintf("TestManagerUser%d", i),
 			password,
 			models.ManagerRole,
@@ -144,7 +146,7 @@ func userFixtures(repositories repositories.Repositories) {
 		fixtureData.ManagerUsers = append(fixtureData.ManagerUsers, newUser)
 	}
 
-	adminAccessToken, err := repositories.Auth.CreateCookie(context.Background(),
+	adminAccessToken, err := services.Auth.CreateCookie(context.Background(),
 		models.AccessScope,
 		adminUser.ID,
 		cfg.AccessExpiry,
@@ -154,7 +156,7 @@ func userFixtures(repositories repositories.Repositories) {
 		panic(err)
 	}
 
-	managerAccessToken, err := repositories.Auth.CreateCookie(context.Background(),
+	managerAccessToken, err := services.Auth.CreateCookie(context.Background(),
 		models.AccessScope,
 		managerUser.ID,
 		cfg.AccessExpiry,
@@ -168,13 +170,13 @@ func userFixtures(repositories repositories.Repositories) {
 	tokens.ManagerAccessToken = managerAccessToken
 }
 
-func locationFixtures(repositories repositories.Repositories) {
+func locationFixtures(services services.Services) {
 	timezone, err := time.LoadLocation("Europe/Brussels")
 	if err != nil {
 		panic(err)
 	}
 
-	fixtureData.DefaultLocation, err = repositories.Locations.Create(
+	fixtureData.DefaultLocation, err = services.Locations.Create(
 		context.Background(),
 		"TestLocation",
 		20,
@@ -187,7 +189,7 @@ func locationFixtures(repositories repositories.Repositories) {
 	}
 	fixtureData.AmountOfLocations++
 
-	fixtureData.DefaultUser, err = repositories.Users.GetByID(
+	fixtureData.DefaultUser, err = services.Users.GetByID(
 		context.Background(),
 		fixtureData.DefaultLocation.UserID,
 		models.DefaultRole,
@@ -196,7 +198,7 @@ func locationFixtures(repositories repositories.Repositories) {
 		panic(err)
 	}
 
-	tokens.DefaultAccessToken, err = repositories.Auth.CreateCookie(
+	tokens.DefaultAccessToken, err = services.Auth.CreateCookie(
 		context.Background(),
 		models.AccessScope,
 		fixtureData.DefaultUser.ID,
@@ -207,7 +209,7 @@ func locationFixtures(repositories repositories.Repositories) {
 		panic(err)
 	}
 
-	tokens.DefaultRefreshToken, err = repositories.Auth.CreateCookie(
+	tokens.DefaultRefreshToken, err = services.Auth.CreateCookie(
 		context.Background(),
 		models.RefreshScope,
 		fixtureData.DefaultUser.ID,
@@ -220,7 +222,7 @@ func locationFixtures(repositories repositories.Repositories) {
 
 	for i := 0; i < 5; i++ {
 		newCap := fixtureData.DefaultLocation.Capacity + 1
-		err = repositories.Locations.Update(
+		err = services.Locations.Update(
 			context.Background(),
 			fixtureData.DefaultLocation,
 			fixtureData.AdminUser,
@@ -233,7 +235,7 @@ func locationFixtures(repositories repositories.Repositories) {
 		}
 
 		var checkIn *models.CheckIn
-		checkIn, err = repositories.CheckIns.Create(
+		checkIn, err = services.CheckIns.Create(
 			context.Background(),
 			fixtureData.DefaultLocation,
 			&models.School{ID: 1},
@@ -247,7 +249,7 @@ func locationFixtures(repositories repositories.Repositories) {
 
 	for i := 0; i < 20; i++ {
 		var location *models.Location
-		location, err = repositories.Locations.Create(
+		location, err = services.Locations.Create(
 			context.Background(),
 			fmt.Sprintf("TestLocation%d", i),
 			20,
@@ -261,7 +263,7 @@ func locationFixtures(repositories repositories.Repositories) {
 		fixtureData.AmountOfLocations++
 
 		var user *models.User
-		user, err = repositories.Users.GetByID(
+		user, err = services.Users.GetByID(
 			context.Background(),
 			location.UserID,
 			models.DefaultRole,
@@ -272,7 +274,7 @@ func locationFixtures(repositories repositories.Repositories) {
 		fixtureData.DefaultUsers = append(fixtureData.DefaultUsers, user)
 
 		for j := 0; j < 5; j++ {
-			_, err = repositories.CheckIns.Create(
+			_, err = services.CheckIns.Create(
 				context.Background(),
 				location,
 				&models.School{ID: 1},
@@ -286,9 +288,9 @@ func locationFixtures(repositories repositories.Repositories) {
 	}
 }
 
-func schoolFixtures(repositories repositories.Repositories) {
+func schoolFixtures(services services.Services) {
 	for i := 0; i < 20; i++ {
-		school, err := repositories.Schools.Create(context.Background(),
+		school, err := services.Schools.Create(context.Background(),
 			fmt.Sprintf("TestSchool%d", i))
 		if err != nil {
 			panic(err)
@@ -299,18 +301,18 @@ func schoolFixtures(repositories repositories.Repositories) {
 }
 
 func fixtures(db postgres.DB) {
-	repositories := repositories.New(db)
+	services := services.New(repositories.New(db))
 
-	clearAll(repositories)
-	userFixtures(repositories)
-	locationFixtures(repositories)
-	schoolFixtures(repositories)
+	clearAll(services)
+	userFixtures(services)
+	locationFixtures(services)
+	schoolFixtures(services)
 }
 
 func removeFixtures(db postgres.DB) {
-	repositories := repositories.New(db)
+	services := services.New(repositories.New(db))
 
-	clearAll(repositories)
+	clearAll(services)
 }
 
 func TestMain(m *testing.M) {
@@ -348,10 +350,7 @@ func setupTest(
 	t.Parallel()
 	testEnv := test.SetupSingle(mainTestEnv)
 
-	testApp := &application{
-		config:       cfg,
-		repositories: repositories.New(testEnv.TestTx),
-	}
+	testApp := NewApp(slog.Default(), cfg, testEnv.TestTx)
 
 	return testEnv, testApp
 }

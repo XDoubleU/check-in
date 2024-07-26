@@ -2,8 +2,9 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/XDoubleU/essentia/pkg/config"
-	"github.com/XDoubleU/essentia/pkg/logger"
 )
 
 type Config struct {
@@ -48,17 +49,31 @@ func New() Config {
 	return cfg
 }
 
-func (cfg Config) Print() {
-	logger.GetLogger().Println("cfg.Env: ", cfg.Env)
-	logger.GetLogger().Println("cfg.Port: ", cfg.Port)
-	logger.GetLogger().Println("cfg.Throttle: ", cfg.Throttle)
-	logger.GetLogger().Println("cfg.WebURL: ", cfg.WebURL)
-	logger.GetLogger().Println("cfg.SentryDsn: ", cfg.SentryDsn)
-	logger.GetLogger().Println("cfg.SampleRate: ", cfg.SampleRate)
-	logger.GetLogger().Println("cfg.AccessExpiry: ", cfg.AccessExpiry)
-	logger.GetLogger().Println("cfg.RefreshExpiry: ", cfg.RefreshExpiry)
-	logger.GetLogger().Println("cfg.DB.Dsn: ", cfg.DB.Dsn)
-	logger.GetLogger().Println("cfg.DB.MaxConns: ", cfg.DB.MaxConns)
-	logger.GetLogger().Println("cfg.DB.MaxIdleTime: ", cfg.DB.MaxIdleTime)
-	logger.GetLogger().Println("cfg.Release: ", cfg.Release)
+func (cfg Config) String() string {
+	return fmt.Sprintf(`config:
+	cfg.Env: %s
+	cfg.Port: %d
+	cfg.Throttle: %t
+	cfg.WebURL: %s
+	cfg.SentryDsn: %s
+	cfg.SampleRate: %f
+	cfg.AccessExpiry: %s
+	cfg.RefreshExpiry: %s
+	cfg.DB.Dsn: %s
+	cfg.DB.MaxConns: %d
+	cfg.DB.MaxIdleTime: %s
+	cfg.Release: %s`,
+		cfg.Env,
+		cfg.Port,
+		cfg.Throttle,
+		cfg.WebURL,
+		cfg.SentryDsn,
+		cfg.SampleRate,
+		cfg.AccessExpiry,
+		cfg.RefreshExpiry,
+		cfg.DB.Dsn,
+		cfg.DB.MaxConns,
+		cfg.DB.MaxIdleTime,
+		cfg.Release,
+	)
 }

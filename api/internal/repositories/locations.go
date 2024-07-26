@@ -2,115 +2,18 @@ package repositories
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/tools"
 	"github.com/jackc/pgx/v5"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
 type LocationRepository struct {
-	db       postgres.DB
-	schools  SchoolRepository
-	checkins CheckInRepository
-}
-
-func (repo LocationRepository) GetCheckInsEntriesDay(
-	checkIns []*models.CheckIn,
-	schools []*models.School,
-) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
-	schoolsIDNameMap, _ := repo.schools.GetSchoolMaps(schools)
-
-	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
-
-	_, lastEntrySchoolsMap := repo.schools.GetSchoolMaps(schools)
-	capacities := orderedmap.New[string, int64]()
-	for _, checkIn := range checkIns {
-		schoolName := schoolsIDNameMap[checkIn.SchoolID]
-
-		// Used to deep copy schoolsMap
-		var schoolsMap dtos.SchoolsMap
-		data, _ := json.Marshal(lastEntrySchoolsMap)
-		_ = json.Unmarshal(data, &schoolsMap)
-
-		capacities.Set(checkIn.LocationID, checkIn.Capacity)
-
-		// Used to deep copy capacities
-		var capacitiesCopy *orderedmap.OrderedMap[string, int64]
-		data, _ = json.Marshal(capacities)
-		_ = json.Unmarshal(data, &capacitiesCopy)
-
-		checkInEntry := &dtos.CheckInsLocationEntryRaw{
-			Capacities: capacitiesCopy,
-			Schools:    schoolsMap,
-		}
-
-		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
-		schoolValue++
-		checkInEntry.Schools.Set(schoolName, schoolValue)
-
-		checkInEntries.Set(
-			checkIn.CreatedAt.Time.Format(time.RFC3339),
-			checkInEntry,
-		)
-		lastEntrySchoolsMap = checkInEntry.Schools
-	}
-
-	return checkInEntries
-}
-
-func (repo LocationRepository) GetCheckInsEntriesRange(
-	startDate time.Time,
-	endDate time.Time,
-	checkIns []*models.CheckIn,
-	schools []*models.School,
-) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
-	schoolsIDNameMap, _ := repo.schools.GetSchoolMaps(schools)
-
-	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
-	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
-		dVal := tools.StartOfDay(d)
-
-		_, schoolsMap := repo.schools.GetSchoolMaps(schools)
-
-		checkInEntry := &dtos.CheckInsLocationEntryRaw{
-			Capacities: orderedmap.New[string, int64](),
-			Schools:    schoolsMap,
-		}
-
-		checkInEntries.Set(dVal.Format(time.RFC3339), checkInEntry)
-	}
-
-	for i := range checkIns {
-		datetime := tools.StartOfDay(checkIns[i].CreatedAt.Time)
-		schoolName := schoolsIDNameMap[checkIns[i].SchoolID]
-
-		checkInEntry, _ := checkInEntries.Get(datetime.Format(time.RFC3339))
-
-		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
-		schoolValue++
-		checkInEntry.Schools.Set(schoolName, schoolValue)
-
-		capacity, present := checkInEntry.Capacities.Get(checkIns[i].LocationID)
-		if !present {
-			capacity = 0
-		}
-
-		if checkIns[i].Capacity > capacity {
-			capacity = checkIns[i].Capacity
-		}
-
-		checkInEntry.Capacities.Set(checkIns[i].LocationID, capacity)
-	}
-
-	return checkInEntries
+	db postgres.DB
 }
 
 func (repo LocationRepository) GetTotalCount(ctx context.Context) (*int64, error) {
@@ -156,25 +59,11 @@ func (repo LocationRepository) GetAll(ctx context.Context) ([]*models.Location, 
 			return nil, postgres.HandleError(err)
 		}
 
-		err = location.NormalizeName()
-		if err != nil {
-			return nil, postgres.HandleError(err)
-		}
-
 		locations = append(locations, &location)
 	}
 
 	if err = rows.Err(); err != nil {
 		return nil, postgres.HandleError(err)
-	}
-
-	for i, location := range locations {
-		err = repo.prepareLocation(ctx, location)
-		if err != nil {
-			return nil, postgres.HandleError(err)
-		}
-
-		locations[i] = location
 	}
 
 	return locations, nil
@@ -212,11 +101,6 @@ func (repo LocationRepository) GetAllPaginated(
 			return nil, postgres.HandleError(err)
 		}
 
-		err = location.NormalizeName()
-		if err != nil {
-			return nil, postgres.HandleError(err)
-		}
-
 		locations = append(locations, &location)
 	}
 
@@ -224,33 +108,11 @@ func (repo LocationRepository) GetAllPaginated(
 		return nil, postgres.HandleError(err)
 	}
 
-	for i, location := range locations {
-		err = repo.prepareLocation(ctx, location)
-		if err != nil {
-			return nil, postgres.HandleError(err)
-		}
-
-		locations[i] = location
-	}
-
 	return locations, nil
 }
 
-func (repo LocationRepository) GetByID(
-	ctx context.Context,
-	id string,
-) (*models.Location, error) {
-	return repo.getBy(ctx, "WHERE locations.id = $1", id)
-}
-
-func (repo LocationRepository) GetByUserID(
-	ctx context.Context,
-	id string,
-) (*models.Location, error) {
-	return repo.getBy(ctx, "WHERE user_id = $1", id)
-}
-
-func (repo LocationRepository) getBy(
+// todo: refactor
+func (repo LocationRepository) GetBy(
 	ctx context.Context,
 	whereQuery string,
 	value string,
@@ -279,74 +141,10 @@ func (repo LocationRepository) getBy(
 		return nil, postgres.HandleError(err)
 	}
 
-	err = repo.prepareLocation(ctx, &location)
-	if err != nil {
-		return nil, postgres.HandleError(err)
-	}
-
 	return &location, nil
 }
 
-func (repo LocationRepository) prepareLocation(
-	ctx context.Context,
-	location *models.Location,
-) error {
-	var checkInsToday []*models.CheckIn
-	var checkInsYesterday []*models.CheckIn
-	var err error
-
-	loc, _ := time.LoadLocation(location.TimeZone)
-	today := time.Now().In(loc)
-	yesterday := today.AddDate(0, 0, -1)
-
-	checkInsToday, err = repo.checkins.GetAllOfDay(ctx, location.ID, today)
-	if err != nil {
-		return err
-	}
-
-	checkInsYesterday, err = repo.checkins.GetAllOfDay(ctx, location.ID, yesterday)
-	if err != nil {
-		return err
-	}
-
-	location.SetCheckInRelatedFields(
-		checkInsToday,
-		checkInsYesterday,
-	)
-
-	err = location.NormalizeName()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (repo LocationRepository) GetByName(
-	ctx context.Context,
-	name string,
-) (*models.Location, error) {
-	locations, err := repo.GetAll(ctx)
-	if err != nil {
-		return nil, postgres.HandleError(err)
-	}
-
-	for _, location := range locations {
-		var output bool
-
-		output, err = location.CompareNormalizedName(name)
-		if err != nil {
-			return nil, postgres.HandleError(err)
-		}
-
-		if output {
-			return location, nil
-		}
-	}
-
-	return nil, httptools.ErrRecordNotFound
-}
-
+// todo: refactor, need tx but don't want code duplication
 func (repo LocationRepository) Create(
 	ctx context.Context,
 	name string,
@@ -463,6 +261,7 @@ func createLocation(
 	return &location, nil
 }
 
+// todo: refactor, need tx but don't want code duplication
 func (repo LocationRepository) Update(
 	ctx context.Context,
 	location *models.Location,
@@ -598,6 +397,7 @@ func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 	return nil
 }
 
+// todo: refactor, need tx but don't want code duplication
 func (repo LocationRepository) Delete(
 	ctx context.Context,
 	location *models.Location,

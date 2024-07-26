@@ -11,8 +11,7 @@ import (
 )
 
 type UserRepository struct {
-	db        postgres.DB
-	locations LocationRepository
+	db postgres.DB
 }
 
 func (repo UserRepository) GetTotalCount(ctx context.Context) (*int64, error) {
@@ -140,16 +139,6 @@ func (repo UserRepository) GetByID(
 
 	if err != nil {
 		return nil, postgres.HandleError(err)
-	}
-
-	if user.Role == models.DefaultRole {
-		var location *models.Location
-		location, err = repo.locations.GetByUserID(ctx, user.ID)
-		if err != nil {
-			return nil, postgres.HandleError(err)
-		}
-
-		user.Location = location
 	}
 
 	return &user, nil

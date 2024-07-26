@@ -2,81 +2,44 @@ package repositories
 
 import (
 	"context"
-	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
-	"net/http"
 	"time"
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	str2duration "github.com/xhit/go-str2duration/v2"
 
 	"check-in/api/internal/models"
 )
 
 type AuthRepository struct {
-	db        postgres.DB
-	locations LocationRepository
+	db postgres.DB
 }
 
-func (repo AuthRepository) GetCookieName(scope models.Scope) string {
-	switch {
-	case scope == models.AccessScope:
-		return "accessToken"
-	case scope == models.RefreshScope:
-		return "refreshToken"
-	default:
-		panic("invalid scope")
-	}
+func (repo AuthRepository) CreateToken(ctx context.Context, token *models.Token) error {
+	query := `
+		INSERT INTO tokens (hash, user_id, expiry, scope)
+		VALUES ($1, $2, $3, $4)
+	`
+
+	_, err := repo.db.Exec(
+		ctx,
+		query,
+		token.Hash,
+		token.UserID,
+		token.Expiry,
+		token.Scope,
+	)
+
+	return err
 }
 
-func (repo AuthRepository) CreateCookie(
-	ctx context.Context,
-	scope models.Scope,
-	userID string,
-	expiry string,
-	secure bool,
-) (*http.Cookie, error) {
-	ttl, _ := str2duration.ParseDuration(expiry)
-	token, err := repo.newToken(ctx, userID, ttl, scope)
-	if err != nil {
-		return nil, err
-	}
+func (repo AuthRepository) DeleteToken(ctx context.Context, tokenHash [32]byte) error {
+	query := `
+		DELETE FROM tokens
+		WHERE hash = $1
+	`
 
-	name := repo.GetCookieName(scope)
-
-	cookie := http.Cookie{
-		Name:     name,
-		Value:    token.Plaintext,
-		Expires:  token.Expiry,
-		SameSite: http.SameSiteStrictMode,
-		HttpOnly: true,
-		Secure:   secure,
-		Path:     "/",
-	}
-
-	return &cookie, nil
-}
-
-func (repo AuthRepository) DeleteCookie(
-	scope models.Scope,
-	value string,
-) (*http.Cookie, error) {
-	err := repo.deleteToken(context.Background(), value)
-	if err != nil {
-		return nil, err
-	}
-
-	name := repo.GetCookieName(scope)
-
-	return &http.Cookie{
-		Name:     name,
-		Value:    "",
-		MaxAge:   -1,
-		SameSite: http.SameSiteStrictMode,
-		HttpOnly: true,
-		Path:     "/",
-	}, nil
+	_, err := repo.db.Exec(ctx, query, tokenHash[:])
+	return err
 }
 
 func (repo AuthRepository) DeleteExpiredTokens(ctx context.Context) error {
@@ -92,12 +55,10 @@ func (repo AuthRepository) DeleteExpiredTokens(ctx context.Context) error {
 func (repo AuthRepository) GetToken(
 	ctx context.Context,
 	scope models.Scope,
-	tokenValue string,
-) (*models.Token, *models.User, error) {
-	tokenHash := sha256.Sum256([]byte(tokenValue))
-
+	tokenHash [32]byte,
+) (*models.Token, *string, *models.Role, error) {
 	query := `
-		SELECT tokens.used, users.id, users.username, users.role, users.password_hash
+		SELECT tokens.used, users.id, users.role
 		FROM users
 		INNER JOIN tokens
 		ON tokens.user_id = users.id
@@ -109,26 +70,17 @@ func (repo AuthRepository) GetToken(
 	args := []any{tokenHash[:], scope, time.Now()}
 
 	var token models.Token
-	var user models.User
+	var userId string
+	var userRole models.Role
 
 	err := repo.db.QueryRow(ctx, query, args...).
-		Scan(&token.Used, &user.ID, &user.Username, &user.Role, &user.PasswordHash)
+		Scan(&token.Used, &userId, &userRole)
 
 	if err != nil {
-		return nil, nil, postgres.HandleError(err)
+		return nil, nil, nil, postgres.HandleError(err)
 	}
 
-	if user.Role == models.DefaultRole {
-		var location *models.Location
-		location, err = repo.locations.GetByUserID(ctx, user.ID)
-		if err != nil {
-			return nil, nil, postgres.HandleError(err)
-		}
-
-		user.Location = location
-	}
-
-	return &token, &user, nil
+	return &token, &userId, &userRole, nil
 }
 
 func (repo AuthRepository) DeleteAllTokensForUser(
@@ -157,80 +109,6 @@ func (repo AuthRepository) SetTokenAsUsed(
 	`
 
 	_, err := repo.db.Exec(ctx, query, tokenHash[:])
-
-	return err
-}
-
-func (repo AuthRepository) deleteToken(ctx context.Context, value string) error {
-	hash := sha256.Sum256([]byte(value))
-
-	query := `
-		DELETE FROM tokens
-		WHERE hash = $1
-	`
-
-	_, err := repo.db.Exec(ctx, query, hash[:])
-	return err
-}
-
-func (repo AuthRepository) newToken(
-	ctx context.Context,
-	userID string,
-	ttl time.Duration,
-	scope models.Scope,
-) (*models.Token, error) {
-	token, err := repo.generateToken(userID, ttl, scope)
-	if err != nil {
-		return nil, err
-	}
-
-	err = repo.createToken(ctx, token)
-	if err != nil {
-		return nil, err
-	}
-
-	return token, nil
-}
-
-func (repo AuthRepository) generateToken(
-	userID string,
-	ttl time.Duration,
-	scope models.Scope,
-) (*models.Token, error) {
-	token := &models.Token{
-		UserID: userID,
-		Expiry: time.Now().Add(ttl),
-		Scope:  scope,
-	}
-
-	randomBytes := make([]byte, 16) //nolint:gomnd //no magic number
-
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	token.Plaintext = base64.StdEncoding.EncodeToString(randomBytes)
-	hash := sha256.Sum256([]byte(token.Plaintext))
-	token.Hash = hash[:]
-
-	return token, nil
-}
-
-func (repo AuthRepository) createToken(ctx context.Context, token *models.Token) error {
-	query := `
-		INSERT INTO tokens (hash, user_id, expiry, scope)
-		VALUES ($1, $2, $3, $4)
-	`
-
-	_, err := repo.db.Exec(
-		ctx,
-		query,
-		token.Hash,
-		token.UserID,
-		token.Expiry,
-		token.Scope,
-	)
 
 	return err
 }
