@@ -1,18 +1,11 @@
 package main
 
 import (
-	"context"
 	"net/http"
-	"time"
 
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/julienschmidt/httprouter"
-	"nhooyr.io/websocket"
-	"nhooyr.io/websocket/wsjson"
+	"github.com/xdoubleu/essentia/pkg/wstools"
 
-	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/models"
 )
 
 // @Summary	WebSocket for receiving update events
@@ -20,20 +13,20 @@ import (
 // @Param		subscribeMessageDto	body		SubscribeMessageDto	true	"SubscribeMessageDto"
 // @Success	200					{object}	LocationUpdateEvent
 // @Router		/ws [get].
-func (app *application) websocketsRoutes(router *httprouter.Router) {
-	router.HandlerFunc(http.MethodGet, "/", app.getWebSocketHandler())
+func (app *application) websocketsRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /", app.getWebSocketHandler())
 }
 
 func (app *application) getWebSocketHandler() http.HandlerFunc {
-	wsh := httptools.CreateWebsocketHandler[dtos.SubscribeMessageDto](app.config.WebURL)
-	wsh.SetOnCloseCallback(app.services.WebSockets.RemoveSubscriber)
+	wsh := wstools.CreateWebSocketHandler[dtos.SubscribeMessageDto](1, 100, []string{app.config.WebURL})
 
-	wsh.AddSubjectHandler(string(models.AllLocations), app.allLocationsHandler)
-	wsh.AddSubjectHandler(string(models.SingleLocation), app.singleLocationHandler)
+	// todo figure out topics + where to make them accessible (probably WS Service)
+	wsh.AddTopic()
 
-	return wsh.GetHandler()
+	return wsh.Handler()
 }
 
+/* todo remove
 func (app *application) allLocationsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -46,7 +39,7 @@ func (app *application) allLocationsHandler(
 
 	err := wsjson.Write(r.Context(), conn, locationUpdateEventDtos)
 	if err != nil {
-		httptools.WSErrorResponse(
+		wstools.WSErrorResponse(
 			w,
 			r,
 			conn,
@@ -136,3 +129,4 @@ func (app *application) getAllCurrentLocationStates(
 
 	return locationUpdateEvents, nil
 }
+*/

@@ -1,24 +1,15 @@
 package models
 
 import (
-	"sync"
-
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type WebSocketSubject string //	@name	WebSocketSubject
+type WebSocketTopic string //	@name	WebSocketSubject
 
 const (
-	AllLocations   WebSocketSubject = "all-locations"
-	SingleLocation WebSocketSubject = "single-location"
+	AllLocations   WebSocketTopic = "all-locations"
+	SingleLocation WebSocketTopic = "single-location"
 )
-
-type Subscriber struct {
-	Subject        WebSocketSubject
-	NormalizedName string
-	Buffer         map[string]LocationUpdateEvent
-	BufferMu       *sync.Mutex
-}
 
 type LocationUpdateEvent struct {
 	NormalizedName     string             `json:"normalizedName"`

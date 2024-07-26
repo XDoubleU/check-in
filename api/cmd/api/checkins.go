@@ -4,23 +4,20 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/contexttools"
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/julienschmidt/httprouter"
+	"github.com/xdoubleu/essentia/pkg/contexttools"
+	"github.com/xdoubleu/essentia/pkg/httptools"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
-func (app *application) checkInsRoutes(router *httprouter.Router) {
-	router.HandlerFunc(
-		http.MethodGet,
-		"/checkins/schools",
+func (app *application) checkInsRoutes(mux *http.ServeMux) {
+	mux.HandleFunc(
+		"GET /checkins/schools",
 		app.authAccess(defaultRole, app.getSortedSchoolsHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPost,
-		"/checkins",
+	mux.HandleFunc(
+		"POST /checkins",
 		app.authAccess(defaultRole, app.createCheckInHandler),
 	)
 }
@@ -36,7 +33,7 @@ func (app *application) getSortedSchoolsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
@@ -81,7 +78,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)

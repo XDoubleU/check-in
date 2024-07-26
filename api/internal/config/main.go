@@ -4,7 +4,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/XDoubleU/essentia/pkg/config"
+	"github.com/xdoubleu/essentia/pkg/config"
 )
 
 type Config struct {
@@ -16,35 +16,23 @@ type Config struct {
 	SampleRate    float64
 	AccessExpiry  string
 	RefreshExpiry string
-	DB            struct {
-		Dsn         string
-		MaxConns    int
-		MaxIdleTime string
-	}
-	Release string
+	DBDsn         string
+	Release       string
 }
-
-const (
-	ProdEnv string = "production"
-	TestEnv string = "test"
-	DevEnv  string = "development"
-)
 
 func New() Config {
 	var cfg Config
 
-	cfg.Env = config.GetEnvStr("ENV", ProdEnv)
-	cfg.Port = config.GetEnvInt("PORT", 8000)
-	cfg.Throttle = config.GetEnvBool("THROTTLE", true)
-	cfg.WebURL = config.GetEnvStr("WEB_URL", "http://localhost:3000")
-	cfg.SentryDsn = config.GetEnvStr("SENTRY_DSN", "")
-	cfg.SampleRate = config.GetEnvFloat("SAMPLE_RATE", 1.0)
-	cfg.AccessExpiry = config.GetEnvStr("ACCESS_EXPIRY", "1h")
-	cfg.RefreshExpiry = config.GetEnvStr("REFRESH_EXPIRY", "7d")
-	cfg.DB.Dsn = config.GetEnvStr("DB_DSN", "postgres://postgres@localhost/postgres")
-	cfg.DB.MaxConns = config.GetEnvInt("DB_MAX_CONNS", 25)
-	cfg.DB.MaxIdleTime = config.GetEnvStr("DB_MAX_IDLE_TIME", "15m")
-	cfg.Release = config.GetEnvStr("RELEASE", DevEnv)
+	cfg.Env = config.EnvStr("ENV", config.ProdEnv)
+	cfg.Port = config.EnvInt("PORT", 8000)
+	cfg.Throttle = config.EnvBool("THROTTLE", true)
+	cfg.WebURL = config.EnvStr("WEB_URL", "http://localhost:3000")
+	cfg.SentryDsn = config.EnvStr("SENTRY_DSN", "")
+	cfg.SampleRate = config.EnvFloat("SAMPLE_RATE", 1.0)
+	cfg.AccessExpiry = config.EnvStr("ACCESS_EXPIRY", "1h")
+	cfg.RefreshExpiry = config.EnvStr("REFRESH_EXPIRY", "7d")
+	cfg.DBDsn = config.EnvStr("DB_DSN", "postgres://postgres@localhost/postgres")
+	cfg.Release = config.EnvStr("RELEASE", config.DevEnv)
 
 	return cfg
 }
@@ -59,9 +47,7 @@ func (cfg Config) String() string {
 	cfg.SampleRate: %f
 	cfg.AccessExpiry: %s
 	cfg.RefreshExpiry: %s
-	cfg.DB.Dsn: %s
-	cfg.DB.MaxConns: %d
-	cfg.DB.MaxIdleTime: %s
+	cfg.DBDsn: %s
 	cfg.Release: %s`,
 		cfg.Env,
 		cfg.Port,
@@ -71,9 +57,7 @@ func (cfg Config) String() string {
 		cfg.SampleRate,
 		cfg.AccessExpiry,
 		cfg.RefreshExpiry,
-		cfg.DB.Dsn,
-		cfg.DB.MaxConns,
-		cfg.DB.MaxIdleTime,
+		cfg.DBDsn,
 		cfg.Release,
 	)
 }

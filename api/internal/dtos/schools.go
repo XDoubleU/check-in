@@ -1,7 +1,7 @@
 package dtos
 
 import (
-	"github.com/XDoubleU/essentia/pkg/validate"
+	"github.com/xdoubleu/essentia/pkg/validate"
 
 	"check-in/api/internal/models"
 )

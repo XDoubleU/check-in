@@ -10,9 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/test"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/xdoubleu/essentia/pkg/database"
+	"github.com/xdoubleu/essentia/pkg/database/postgres"
+	"github.com/xdoubleu/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/logging"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
@@ -43,10 +45,10 @@ type FixtureData struct {
 	AmountOfManagerUsers int
 }
 
-var mainTestEnv *test.MainTestEnv //nolint:gochecknoglobals //global var for tests
-var tokens Tokens                 //nolint:gochecknoglobals //global var for tests
-var cfg config.Config             //nolint:gochecknoglobals //global var for tests
-var fixtureData FixtureData       //nolint:gochecknoglobals //global var for tests
+var mainTestEnv database.MainTestEnv[*pgxpool.Pool, postgres.PgxSyncTx] //nolint:gochecknoglobals //global var for tests
+var tokens Tokens                                                       //nolint:gochecknoglobals //global var for tests
+var cfg config.Config                                                   //nolint:gochecknoglobals //global var for tests
+var fixtureData FixtureData                                             //nolint:gochecknoglobals //global var for tests
 
 func clearAll(services services.Services) {
 	user, err := services.Users.GetByUsername(context.Background(), "Admin")
@@ -54,7 +56,7 @@ func clearAll(services services.Services) {
 		err = services.Users.Delete(context.Background(), user.ID, user.Role)
 	}
 
-	if err != nil && !errors.Is(err, httptools.ErrRecordNotFound) {
+	if err != nil && !errors.Is(err, httptools.ErrResourceNotFound) {
 		panic(err)
 	}
 
@@ -322,35 +324,36 @@ func TestMain(m *testing.M) {
 	cfg.Env = config.TestEnv
 	cfg.Throttle = false
 
-	mainTestEnv, err = test.SetupGlobal(
+	db, err := postgres.Connect(
+		logging.NewNopLogger(),
 		cfg.DB.Dsn,
 		cfg.DB.MaxConns,
 		cfg.DB.MaxIdleTime,
+		"5",
+		15*time.Second,
+		30*time.Second,
 	)
 	if err != nil {
 		panic(err)
 	}
 
+	mainTestEnv := database.CreateMainTestEnv(db, postgres.CreatePgxSyncTx)
+
 	fixtures(mainTestEnv.TestDB)
 	exitCode := m.Run()
 	removeFixtures(mainTestEnv.TestDB)
-
-	err = test.TeardownGlobal(mainTestEnv)
-	if err != nil {
-		panic(err)
-	}
 
 	os.Exit(exitCode)
 }
 
 func setupTest(
 	t *testing.T,
-	mainTestEnv *test.MainTestEnv,
-) (test.Env, *application) {
+	mainTestEnv *database.MainTestEnv[*pgxpool.Pool, postgres.PgxSyncTx],
+) (database.TestEnv[postgres.PgxSyncTx], *application) {
 	t.Parallel()
-	testEnv := test.SetupSingle(mainTestEnv)
+	testEnv := mainTestEnv.SetupSingle()
 
-	testApp := NewApp(slog.Default(), cfg, testEnv.TestTx)
+	testApp := NewApp(slog.Default(), cfg, testEnv.Tx)
 
 	return testEnv, testApp
 }

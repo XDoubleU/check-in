@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/XDoubleU/essentia/pkg/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/xdoubleu/essentia/pkg/test"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"

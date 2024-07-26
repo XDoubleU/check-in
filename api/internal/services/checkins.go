@@ -6,7 +6,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/XDoubleU/essentia/pkg/tools"
+	"github.com/xdoubleu/essentia/pkg/tools"
 )
 
 type CheckInService struct {

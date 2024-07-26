@@ -1,8 +1,8 @@
 package dtos
 
 import (
-	"github.com/XDoubleU/essentia/pkg/validate"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/xdoubleu/essentia/pkg/validate"
 )
 
 type CreateCheckInDto struct {

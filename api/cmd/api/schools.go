@@ -3,32 +3,27 @@ package main
 import (
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/parse"
-	"github.com/julienschmidt/httprouter"
+	"github.com/xdoubleu/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/parse"
 
 	"check-in/api/internal/dtos"
 )
 
-func (app *application) schoolsRoutes(router *httprouter.Router) {
-	router.HandlerFunc(
-		http.MethodGet,
-		"/schools",
+func (app *application) schoolsRoutes(mux *http.ServeMux) {
+	mux.HandleFunc(
+		"GET /schools",
 		app.authAccess(managerAndAdminRole, app.getPaginatedSchoolsHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPost,
-		"/schools",
+	mux.HandleFunc(
+		"POST /schools",
 		app.authAccess(managerAndAdminRole, app.createSchoolHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPatch,
-		"/schools/:id",
+	mux.HandleFunc(
+		"PATCH /schools/:id",
 		app.authAccess(managerAndAdminRole, app.updateSchoolHandler),
 	)
-	router.HandlerFunc(
-		http.MethodDelete,
-		"/schools/:id",
+	mux.HandleFunc(
+		"DELETE /schools/:id",
 		app.authAccess(managerAndAdminRole, app.deleteSchoolHandler),
 	)
 }

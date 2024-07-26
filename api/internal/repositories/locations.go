@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/httptools"
 	"github.com/jackc/pgx/v5"
+	"github.com/xdoubleu/essentia/pkg/database/postgres"
+	"github.com/xdoubleu/essentia/pkg/httptools"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -26,7 +26,7 @@ func (repo LocationRepository) GetTotalCount(ctx context.Context) (*int64, error
 
 	err := repo.db.QueryRow(ctx, query).Scan(&total)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return total, nil
@@ -41,7 +41,7 @@ func (repo LocationRepository) GetAll(ctx context.Context) ([]*models.Location, 
 
 	rows, err := repo.db.Query(ctx, query)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	locations := []*models.Location{}
@@ -56,14 +56,14 @@ func (repo LocationRepository) GetAll(ctx context.Context) ([]*models.Location, 
 			&location.UserID,
 		)
 		if err != nil {
-			return nil, postgres.HandleError(err)
+			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
 		locations = append(locations, &location)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return locations, nil
@@ -83,7 +83,7 @@ func (repo LocationRepository) GetAllPaginated(
 
 	rows, err := repo.db.Query(ctx, query, limit, offset)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	locations := []*models.Location{}
@@ -98,14 +98,14 @@ func (repo LocationRepository) GetAllPaginated(
 			&location.UserID,
 		)
 		if err != nil {
-			return nil, postgres.HandleError(err)
+			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
 		locations = append(locations, &location)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return locations, nil
@@ -138,7 +138,7 @@ func (repo LocationRepository) GetBy(
 		&location.UserID,
 	)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &location, nil
@@ -156,7 +156,7 @@ func (repo LocationRepository) Create(
 	tx, err := repo.db.Begin(ctx)
 	defer tx.Rollback(ctx) //nolint:errcheck //deferred
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	var user *models.User
@@ -210,7 +210,7 @@ func createUser(
 	).Scan(&user.ID)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &user, nil
@@ -248,15 +248,8 @@ func createLocation(
 	).Scan(&location.ID)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
-
-	err = location.NormalizeName()
-	if err != nil {
-		return nil, err
-	}
-
-	location.SetCheckInRelatedFields([]*models.CheckIn{}, []*models.CheckIn{})
 
 	return &location, nil
 }
@@ -312,7 +305,7 @@ func (repo LocationRepository) Update(
 	tx, err := repo.db.Begin(ctx)
 	defer tx.Rollback(ctx) //nolint:errcheck //deferred
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	if locationChanged {
@@ -354,17 +347,12 @@ func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) e
 	)
 
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := resultLocation.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
-	}
-
-	err = location.NormalizeName()
-	if err != nil {
-		return err
+		return httptools.ErrResourceNotFound
 	}
 
 	return nil
@@ -386,12 +374,12 @@ func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 	)
 
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := resultUser.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
+		return httptools.ErrResourceNotFound
 	}
 
 	return nil
@@ -405,7 +393,7 @@ func (repo LocationRepository) Delete(
 	tx, err := repo.db.Begin(ctx)
 	defer tx.Rollback(ctx) //nolint:errcheck //deferred
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	err = deleteLocation(ctx, tx, location.ID)
@@ -434,12 +422,12 @@ func deleteLocation(ctx context.Context, tx pgx.Tx, id string) error {
 
 	result, err := tx.Exec(ctx, query, id)
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
+		return httptools.ErrResourceNotFound
 	}
 
 	return nil
@@ -453,12 +441,12 @@ func deleteUser(ctx context.Context, tx pgx.Tx, id string) error {
 
 	result, err := tx.Exec(ctx, query, id)
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
+		return httptools.ErrResourceNotFound
 	}
 
 	return nil

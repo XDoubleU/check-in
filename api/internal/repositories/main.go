@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/xdoubleu/essentia/pkg/database/postgres"
 )
 
 type Repositories struct {

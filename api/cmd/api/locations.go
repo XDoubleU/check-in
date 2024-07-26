@@ -5,66 +5,55 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/XDoubleU/essentia/pkg/contexttools"
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/parse"
-	"github.com/XDoubleU/essentia/pkg/tools"
-	"github.com/julienschmidt/httprouter"
+	"github.com/xdoubleu/essentia/pkg/contexttools"
+	"github.com/xdoubleu/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/parse"
+	"github.com/xdoubleu/essentia/pkg/tools"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
-func (app *application) locationsRoutes(router *httprouter.Router) {
-	router.HandlerFunc(
-		http.MethodGet,
-		"/all-locations/checkins/range",
+func (app *application) locationsRoutes(mux *http.ServeMux) {
+	mux.HandleFunc(
+		"GET /all-locations/checkins/range",
 		app.authAccess(allRoles, app.getLocationCheckInsRangeHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/all-locations/checkins/day",
+	mux.HandleFunc(
+		"GET /all-locations/checkins/day",
 		app.authAccess(allRoles, app.getLocationCheckInsDayHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/locations/:locationId/checkins",
+	mux.HandleFunc(
+		"GET /locations/:locationId/checkins",
 		app.authAccess(allRoles, app.getAllCheckInsTodayHandler),
 	)
-	router.HandlerFunc(
-		http.MethodDelete,
-		"/locations/:locationId/checkins/:checkInId",
+	mux.HandleFunc(
+		"DELETE /locations/:locationId/checkins/:checkInId",
 		app.authAccess(managerAndAdminRole, app.deleteLocationCheckInHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/locations/:locationId",
+	mux.HandleFunc(
+		"GET /locations/:locationId",
 		app.authAccess(allRoles, app.getLocationHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/all-locations",
+	mux.HandleFunc(
+		"GET /all-locations",
 		app.authAccess(managerAndAdminRole, app.getAllLocationsHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/locations",
+	mux.HandleFunc(
+		"GET /locations",
 		app.authAccess(managerAndAdminRole, app.getPaginatedLocationsHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPost,
-		"/locations",
+	mux.HandleFunc(
+		"POST /locations",
 		app.authAccess(managerAndAdminRole, app.createLocationHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPatch,
-		"/locations/:locationId",
+	mux.HandleFunc(
+		"PATCH /locations/:locationId",
 		app.authAccess(allRoles, app.updateLocationHandler),
 	)
-	router.HandlerFunc(
-		http.MethodDelete,
-		"/locations/:locationId",
+	mux.HandleFunc(
+		"DELETE /locations/:locationId",
 		app.authAccess(managerAndAdminRole, app.deleteLocationHandler),
 	)
 }
@@ -113,7 +102,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	startDate := tools.StartOfDay(date)
 	endDate := tools.EndOfDay(date)
 
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 
 	for _, id := range ids {
 		var location *models.Location
@@ -217,7 +206,7 @@ func (app *application) getLocationCheckInsRangeHandler(
 		return
 	}
 
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 
 	for _, id := range ids {
 		var location *models.Location
@@ -281,7 +270,7 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		return
 	}
 
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
@@ -426,7 +415,7 @@ func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
@@ -523,7 +512,7 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		r.Context(),
 		createLocationDto.Name,
 	)
-	if existingLocation != nil || !errors.Is(err, httptools.ErrRecordNotFound) {
+	if existingLocation != nil || !errors.Is(err, httptools.ErrResourceNotFound) {
 		httptools.ConflictResponse(
 			w,
 			r,
@@ -539,7 +528,7 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		r.Context(),
 		createLocationDto.Username,
 	)
-	if existingUser != nil || !errors.Is(err, httptools.ErrRecordNotFound) {
+	if existingUser != nil || !errors.Is(err, httptools.ErrResourceNotFound) {
 		httptools.ConflictResponse(
 			w,
 			r,
@@ -606,7 +595,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 		return
 	}
 
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
@@ -654,7 +643,7 @@ func (app *application) checkForConflictsOnUpdate(
 			*updateLocationDto.Name,
 		)
 
-		if existingLocation != nil || !errors.Is(err, httptools.ErrRecordNotFound) {
+		if existingLocation != nil || !errors.Is(err, httptools.ErrResourceNotFound) {
 			httptools.ConflictResponse(
 				w,
 				r,
@@ -673,7 +662,7 @@ func (app *application) checkForConflictsOnUpdate(
 			*updateLocationDto.Username,
 		)
 
-		if existingUser != nil || !errors.Is(err, httptools.ErrRecordNotFound) {
+		if existingUser != nil || !errors.Is(err, httptools.ErrResourceNotFound) {
 			httptools.ConflictResponse(
 				w,
 				r,

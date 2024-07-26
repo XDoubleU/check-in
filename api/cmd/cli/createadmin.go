@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/xdoubleu/essentia/pkg/database/postgres"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/models"

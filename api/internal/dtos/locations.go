@@ -3,8 +3,8 @@ package dtos
 import (
 	"strconv"
 
-	"github.com/XDoubleU/essentia/pkg/validate"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
+	"github.com/xdoubleu/essentia/pkg/validate"
 
 	"check-in/api/internal/models"
 )

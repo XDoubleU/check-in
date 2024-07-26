@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/xdoubleu/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/test"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"

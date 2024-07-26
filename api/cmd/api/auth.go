@@ -4,26 +4,23 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/contexttools"
-	"github.com/XDoubleU/essentia/pkg/goroutine"
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/julienschmidt/httprouter"
+	"github.com/xdoubleu/essentia/pkg/config"
+	"github.com/xdoubleu/essentia/pkg/contexttools"
+	"github.com/xdoubleu/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/sentrytools"
 
-	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
-func (app *application) authRoutes(router *httprouter.Router) {
-	router.HandlerFunc(http.MethodPost, "/auth/signin", app.signInHandler)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/auth/signout",
+func (app *application) authRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("POST /auth/signin", app.signInHandler)
+	mux.HandleFunc(
+		"GET /auth/signout",
 		app.authAccess(allRoles, app.signOutHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/auth/refresh",
+	mux.HandleFunc(
+		"GET /auth/refresh",
 		app.authRefresh(app.refreshHandler),
 	)
 }
@@ -52,7 +49,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.services.Users.GetByUsername(r.Context(), signInDto.Username)
 	if err != nil {
-		if errors.Is(err, httptools.ErrRecordNotFound) {
+		if errors.Is(err, httptools.ErrResourceNotFound) {
 			httptools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		} else {
 			httptools.ServerErrorResponse(w, r, err)
@@ -148,7 +145,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure	500	{object}	ErrorDto
 // @Router		/auth/refresh [get].
 func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 	secure := app.config.Env == config.ProdEnv
 
 	accessTokenCookie, err := app.services.Auth.CreateCookie(
@@ -180,7 +177,7 @@ func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, refreshTokenCookie)
 
 	go func() {
-		goroutine.SentryErrorHandler(
+		sentrytools.GoRoutineErrorHandler(
 			"delete expired tokens",
 			app.services.Auth.DeleteExpiredTokens,
 		)

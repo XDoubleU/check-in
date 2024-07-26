@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/database/postgres"
+	"github.com/xdoubleu/essentia/pkg/httptools"
 
 	"check-in/api/internal/models"
 )
@@ -40,7 +40,7 @@ func (repo CheckInRepository) GetAllInRange(
 		endDate,
 	)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	checkIns := []*models.CheckIn{}
@@ -57,14 +57,14 @@ func (repo CheckInRepository) GetAllInRange(
 		)
 
 		if err != nil {
-			return nil, postgres.HandleError(err)
+			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
 		checkIns = append(checkIns, &checkIn)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return checkIns, nil
@@ -99,7 +99,7 @@ func (repo CheckInRepository) GetByID(
 	)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &checkIn, nil
@@ -132,7 +132,7 @@ func (repo CheckInRepository) Create(
 	).Scan(&checkIn.ID, &checkIn.CreatedAt)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &checkIn, nil
@@ -146,12 +146,12 @@ func (repo CheckInRepository) Delete(ctx context.Context, id int64) error {
 
 	result, err := repo.db.Exec(ctx, query, id)
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
+		return httptools.ErrResourceNotFound
 	}
 
 	return nil

@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/database/postgres"
+	"github.com/xdoubleu/essentia/pkg/httptools"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -25,7 +25,7 @@ func (repo UserRepository) GetTotalCount(ctx context.Context) (*int64, error) {
 
 	err := repo.db.QueryRow(ctx, query).Scan(&total)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return total, nil
@@ -42,7 +42,7 @@ func (repo UserRepository) GetAll(
 
 	rows, err := repo.db.Query(ctx, query)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	users := []*models.User{}
@@ -58,14 +58,14 @@ func (repo UserRepository) GetAll(
 		)
 
 		if err != nil {
-			return nil, postgres.HandleError(err)
+			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
 		users = append(users, &user)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return users, nil
@@ -86,7 +86,7 @@ func (repo UserRepository) GetAllPaginated(
 
 	rows, err := repo.db.Query(ctx, query, limit, offset)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	users := []*models.User{}
@@ -102,14 +102,14 @@ func (repo UserRepository) GetAllPaginated(
 		)
 
 		if err != nil {
-			return nil, postgres.HandleError(err)
+			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
 		users = append(users, &user)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return users, nil
@@ -138,7 +138,7 @@ func (repo UserRepository) GetByID(
 	).Scan(&user.Username, &user.PasswordHash)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &user, nil
@@ -164,7 +164,7 @@ func (repo UserRepository) GetByUsername(
 	).Scan(&user.ID, &user.PasswordHash, &user.Role)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &user, nil
@@ -201,7 +201,7 @@ func (repo UserRepository) Create(
 	).Scan(&user.ID)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &user, nil
@@ -238,12 +238,12 @@ func (repo UserRepository) Update(
 	)
 
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
+		return httptools.ErrResourceNotFound
 	}
 
 	return nil
@@ -261,12 +261,12 @@ func (repo UserRepository) Delete(
 
 	result, err := repo.db.Exec(ctx, query, id, role)
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
+		return httptools.ErrResourceNotFound
 	}
 
 	return nil

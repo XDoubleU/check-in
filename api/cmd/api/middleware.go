@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/httptools"
 
 	"check-in/api/internal/models"
 )
@@ -26,7 +26,7 @@ func (app *application) authAccess(allowedRoles []models.Role,
 		)
 		if err != nil {
 			switch {
-			case errors.Is(err, httptools.ErrRecordNotFound):
+			case errors.Is(err, httptools.ErrResourceNotFound):
 				httptools.UnauthorizedResponse(w, r, "Invalid token")
 			default:
 				httptools.ServerErrorResponse(w, r, err)
@@ -34,7 +34,7 @@ func (app *application) authAccess(allowedRoles []models.Role,
 			return
 		}
 
-		r = app.contextSetUser(r, *user)
+		r = r.WithContext(app.contextSetUser(r.Context(), *user))
 
 		forbidden := true
 		for _, role := range allowedRoles {
@@ -66,7 +66,7 @@ func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 			models.RefreshScope, tokenCookie.Value)
 		if err != nil {
 			switch {
-			case errors.Is(err, httptools.ErrRecordNotFound):
+			case errors.Is(err, httptools.ErrResourceNotFound):
 				httptools.UnauthorizedResponse(w, r, "Invalid token")
 			default:
 				httptools.ServerErrorResponse(w, r, err)
@@ -74,7 +74,7 @@ func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		r = app.contextSetUser(r, *user)
+		r = r.WithContext(app.contextSetUser(r.Context(), *user))
 
 		if token.Used {
 			err = app.services.Auth.DeleteAllTokensForUser(r.Context(), user.ID)

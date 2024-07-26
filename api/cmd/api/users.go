@@ -3,44 +3,37 @@ package main
 import (
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/contexttools"
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/parse"
-	"github.com/julienschmidt/httprouter"
+	"github.com/xdoubleu/essentia/pkg/contexttools"
+	"github.com/xdoubleu/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/parse"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
-func (app *application) usersRoutes(router *httprouter.Router) {
-	router.HandlerFunc(
-		http.MethodGet,
-		"/current-user",
+func (app *application) usersRoutes(mux *http.ServeMux) {
+	mux.HandleFunc(
+		"GET /current-user",
 		app.authAccess(allRoles, app.getInfoLoggedInUserHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/users",
+	mux.HandleFunc(
+		"GET /users",
 		app.authAccess(adminRole, app.getPaginatedManagerUsersHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/users/:id",
+	mux.HandleFunc(
+		"GET /users/:id",
 		app.authAccess(managerAndAdminRole, app.getUserHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPost,
-		"/users",
+	mux.HandleFunc(
+		"POST /users",
 		app.authAccess(adminRole, app.createManagerUserHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPatch,
-		"/users/:id",
+	mux.HandleFunc(
+		"PATCH /users/:id",
 		app.authAccess(adminRole, app.updateManagerUserHandler),
 	)
-	router.HandlerFunc(
-		http.MethodDelete,
-		"/users/:id",
+	mux.HandleFunc(
+		"DELETE /users/:id",
 		app.authAccess(adminRole, app.deleteManagerUserHandler),
 	)
 }
@@ -53,7 +46,7 @@ func (app *application) usersRoutes(router *httprouter.Router) {
 // @Router		/current-user [get].
 func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	r *http.Request) {
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 
 	err := httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {

@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/database/postgres"
+	"github.com/xdoubleu/essentia/pkg/httptools"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -24,7 +24,7 @@ func (repo SchoolRepository) GetTotalCount(ctx context.Context) (*int64, error) 
 
 	err := repo.db.QueryRow(ctx, query).Scan(&total)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return total, nil
@@ -39,7 +39,7 @@ func (repo SchoolRepository) GetAll(ctx context.Context) ([]*models.School, erro
 
 	rows, err := repo.db.Query(ctx, query)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	schools := []*models.School{}
@@ -53,14 +53,14 @@ func (repo SchoolRepository) GetAll(ctx context.Context) ([]*models.School, erro
 		)
 
 		if err != nil {
-			return nil, postgres.HandleError(err)
+			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
 		schools = append(schools, &school)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return schools, nil
@@ -88,7 +88,7 @@ func (repo SchoolRepository) GetAllSortedByLocation(
 
 	rows, err := repo.db.Query(ctx, query, locationID)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	schools := []*models.School{}
@@ -102,14 +102,14 @@ func (repo SchoolRepository) GetAllSortedByLocation(
 		)
 
 		if err != nil {
-			return nil, postgres.HandleError(err)
+			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
 		schools = append(schools, &school)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return schools, nil
@@ -129,7 +129,7 @@ func (repo SchoolRepository) GetAllPaginated(
 
 	rows, err := repo.db.Query(ctx, query, limit, offset)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	schools := []*models.School{}
@@ -144,14 +144,14 @@ func (repo SchoolRepository) GetAllPaginated(
 		)
 
 		if err != nil {
-			return nil, postgres.HandleError(err)
+			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
 		schools = append(schools, &school)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return schools, nil
@@ -177,7 +177,7 @@ func (repo SchoolRepository) GetByID(
 		id).Scan(&school.Name, &school.ReadOnly)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &school, nil
@@ -204,7 +204,7 @@ func (repo SchoolRepository) GetByIDWithoutReadOnly(
 		id).Scan(&school.Name)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &school, nil
@@ -227,7 +227,7 @@ func (repo SchoolRepository) Create(
 	err := repo.db.QueryRow(ctx, query, name).Scan(&school.ID)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &school, nil
@@ -248,12 +248,12 @@ func (repo SchoolRepository) Update(
 
 	result, err := repo.db.Exec(ctx, query, school.ID, school.Name)
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
+		return httptools.ErrResourceNotFound
 	}
 
 	return nil
@@ -267,12 +267,12 @@ func (repo SchoolRepository) Delete(ctx context.Context, id int64) error {
 
 	result, err := repo.db.Exec(ctx, query, id)
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
+		return httptools.ErrResourceNotFound
 	}
 
 	return nil

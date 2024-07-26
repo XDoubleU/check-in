@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"time"
 
-	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/xdoubleu/essentia/pkg/database/postgres"
 
 	"check-in/api/internal/models"
 )
@@ -77,7 +77,7 @@ func (repo AuthRepository) GetToken(
 		Scan(&token.Used, &userId, &userRole)
 
 	if err != nil {
-		return nil, nil, nil, postgres.HandleError(err)
+		return nil, nil, nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return &token, &userId, &userRole, nil

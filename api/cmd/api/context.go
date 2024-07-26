@@ -1,10 +1,10 @@
 package main
 
 import (
-	"net/http"
+	"context"
 
-	"github.com/XDoubleU/essentia/pkg/contexttools"
 	"github.com/getsentry/sentry-go"
+	"github.com/xdoubleu/essentia/pkg/contexttools"
 
 	"check-in/api/internal/models"
 )
@@ -12,15 +12,15 @@ import (
 const userContextKey = contexttools.ContextKey("user")
 
 func (app *application) contextSetUser(
-	r *http.Request,
+	ctx context.Context,
 	user models.User,
-) *http.Request {
-	if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+) context.Context {
+	if hub := sentry.GetHubFromContext(ctx); hub != nil {
 		hub.Scope().SetUser(sentry.User{
 			ID:       user.ID,
 			Username: user.Username,
 		})
 	}
 
-	return contexttools.SetContextValue(r, userContextKey, user)
+	return context.WithValue(ctx, userContextKey, user)
 }

@@ -3,27 +3,24 @@ package main
 import (
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/middleware"
 	"github.com/getsentry/sentry-go"
-	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
-
-	"check-in/api/internal/config"
+	"github.com/xdoubleu/essentia/pkg/middleware"
 )
 
-func (app *application) routes() http.Handler {
-	router := httprouter.New()
+func (app *application) routes() (*http.Handler, error) {
+	mux := http.NewServeMux()
 
-	app.authRoutes(router)
-	app.checkInsRoutes(router)
-	app.locationsRoutes(router)
-	app.schoolsRoutes(router)
-	app.usersRoutes(router)
-	app.websocketsRoutes(router)
+	app.authRoutes(mux)
+	app.checkInsRoutes(mux)
+	app.locationsRoutes(mux)
+	app.schoolsRoutes(mux)
+	app.usersRoutes(mux)
+	app.websocketsRoutes(mux)
 
-	var sentryClientOptions *sentry.ClientOptions
+	var sentryClientOptions sentry.ClientOptions
 	if len(app.config.SentryDsn) > 0 {
-		sentryClientOptions = &sentry.ClientOptions{
+		sentryClientOptions = sentry.ClientOptions{
 			Dsn:              app.config.SentryDsn,
 			Environment:      app.config.Env,
 			Release:          app.config.Release,
@@ -32,16 +29,20 @@ func (app *application) routes() http.Handler {
 		}
 	}
 
-	isTestEnv := app.config.Env == config.TestEnv
 	allowedOrigins := []string{app.config.WebURL}
-	handlers := middleware.Default(
-		isTestEnv,
+	handlers, err := middleware.DefaultWithSentry(
+		app.logger,
 		allowedOrigins,
+		app.config.Env,
 		sentryClientOptions,
-		app.config.Env == config.DevEnv || app.config.Env == config.TestEnv,
 	)
 
-	standard := alice.New(handlers...)
+	if err != nil {
+		return nil, err
+	}
 
-	return standard.Then(router)
+	standard := alice.New(handlers...)
+	handler := standard.Then(mux)
+
+	return &handler, nil
 }

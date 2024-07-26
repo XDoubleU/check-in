@@ -8,9 +8,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/tools"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
+	"github.com/xdoubleu/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/tools"
 )
 
 type LocationService struct {
@@ -244,7 +244,7 @@ func (service LocationService) GetByName(
 		}
 	}
 
-	return nil, httptools.ErrRecordNotFound
+	return nil, httptools.ErrResourceNotFound
 }
 
 func (service LocationService) Create(
