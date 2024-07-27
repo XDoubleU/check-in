@@ -17,10 +17,10 @@ import (
 )
 
 func TestGetSortedSchoolsOK(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
-	defaultLocation := *fixtureData.DefaultLocation
+	defaultLocation := *testEnv.Fixtures.DefaultLocation
 
 	for i := 0; i < 10; i++ {
 		_, _ = testApp.services.CheckIns.Create(
@@ -35,7 +35,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 		_, _ = testApp.services.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
-			fixtureData.Schools[0],
+			testEnv.Fixtures.Schools[0],
 		)
 	}
 
@@ -44,19 +44,19 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 		http.MethodGet,
 		"/checkins/schools",
 	)
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 
 	var rsData []models.School
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
-	assert.Equal(t, fixtureData.Schools[0].ID, rsData[0].ID)
+	assert.Equal(t, testEnv.Fixtures.Schools[0].ID, rsData[0].ID)
 	assert.EqualValues(t, 1, rsData[len(rsData)-1].ID)
 }
 
 func TestGetSortedSchoolsAccess(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
@@ -69,25 +69,25 @@ func TestGetSortedSchoolsAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(tokens.ManagerAccessToken)
+	tReq2.AddCookie(testEnv.Tokens.ManagerAccessToken)
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
 
 	tReq3 := tReqBase.Copy()
-	tReq3.AddCookie(tokens.AdminAccessToken)
+	tReq3.AddCookie(testEnv.Tokens.AdminAccessToken)
 	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
 
 	mt.Do(t)
 }
 
 func TestCreateCheckIn(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 	tReq.SetReqData(dtos.CreateCheckInDto{
-		SchoolID: fixtureData.Schools[0].ID,
+		SchoolID: testEnv.Fixtures.Schools[0].ID,
 	})
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
 	rs := tReq.Do(t, &rsData)
@@ -95,9 +95,9 @@ func TestCreateCheckIn(t *testing.T) {
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
 	assert.Equal(t, http.StatusCreated, rs.StatusCode)
-	assert.Equal(t, fixtureData.Schools[0].Name, rsData.SchoolName)
-	assert.Equal(t, fixtureData.DefaultLocation.ID, rsData.LocationID)
-	assert.Equal(t, fixtureData.DefaultLocation.Capacity, rsData.Capacity)
+	assert.Equal(t, testEnv.Fixtures.Schools[0].Name, rsData.SchoolName)
+	assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rsData.LocationID)
+	assert.Equal(t, testEnv.Fixtures.DefaultLocation.Capacity, rsData.Capacity)
 	assert.Equal(
 		t,
 		time.Now().In(loc).Format(constants.DateFormat),
@@ -106,8 +106,8 @@ func TestCreateCheckIn(t *testing.T) {
 }
 
 func TestCreateCheckInAndere(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
@@ -117,7 +117,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
 	rs := tReq.Do(t, &rsData)
@@ -126,8 +126,8 @@ func TestCreateCheckInAndere(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 	assert.Equal(t, "Andere", rsData.SchoolName)
-	assert.Equal(t, fixtureData.DefaultLocation.ID, rsData.LocationID)
-	assert.Equal(t, fixtureData.DefaultLocation.Capacity, rsData.Capacity)
+	assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rsData.LocationID)
+	assert.Equal(t, testEnv.Fixtures.DefaultLocation.Capacity, rsData.Capacity)
 	assert.Equal(
 		t,
 		time.Now().In(loc).Format(constants.DateFormat),
@@ -136,8 +136,8 @@ func TestCreateCheckInAndere(t *testing.T) {
 }
 
 func TestCreateCheckInAboveCap(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
@@ -147,12 +147,12 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 
 	var rs *http.Response
 	var rsData errortools.ErrorDto
 
-	for i := 0; i < int(fixtureData.DefaultLocation.Capacity)+1; i++ {
+	for i := 0; i < int(testEnv.Fixtures.DefaultLocation.Capacity)+1; i++ {
 		rs = tReq.Do(t, &rsData)
 	}
 
@@ -161,8 +161,8 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 }
 
 func TestCreateCheckInSchoolNotFound(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
@@ -172,7 +172,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -186,11 +186,11 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 }
 
 func TestCreateCheckInFailValidation(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 	tReq.SetReqData(dtos.CreateCheckInDto{
 		SchoolID: 0,
 	})
@@ -210,8 +210,8 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 }
 
 func TestCreateCheckInAccess(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReqBase := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
@@ -220,11 +220,11 @@ func TestCreateCheckInAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(tokens.ManagerAccessToken)
+	tReq2.AddCookie(testEnv.Tokens.ManagerAccessToken)
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
 
 	tReq3 := tReqBase.Copy()
-	tReq3.AddCookie(tokens.AdminAccessToken)
+	tReq3.AddCookie(testEnv.Tokens.AdminAccessToken)
 	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
 
 	mt.Do(t)

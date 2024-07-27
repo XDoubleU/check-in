@@ -12,8 +12,8 @@ import (
 )
 
 func TestAllLocationsWebSocketCheckIn(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tWeb := test.CreateWebSocketTester(testApp.routes())
 
@@ -22,7 +22,7 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 		Subject: "all-locations",
 	})
 
-	tWeb.SetParallelOperation(createCheckIn)
+	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) { createCheckIn(t, ts, testEnv) })
 
 	var locationStatesInitial []dtos.LocationStateDto
 	var locationStatesFinal dtos.LocationStateDto
@@ -38,15 +38,15 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 }
 
 func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tWeb := test.CreateWebSocketTester(testApp.routes())
 	//nolint:exhaustruct // other fields are optional
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
 	})
-	tWeb.SetParallelOperation(updateCapacity)
+	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) { updateCapacity(t, ts, testEnv) })
 
 	var locationStatesInitial []dtos.LocationStateDto
 	var locationStatesFinal dtos.LocationStateDto
@@ -58,17 +58,17 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 }
 
 func TestSingleLocationWebSocketCheckIn(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tWeb := test.CreateWebSocketTester(testApp.routes())
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
-		NormalizedName: fixtureData.DefaultLocation.NormalizedName,
+		NormalizedName: testEnv.Fixtures.DefaultLocation.NormalizedName,
 	})
 
-	tWeb.SetParallelOperation(createCheckIn)
+	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) { createCheckIn(t, ts, testEnv) })
 
 	var locationState dtos.LocationStateDto
 	err := tWeb.Do(t, nil, &locationState)
@@ -77,23 +77,23 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	assert.Equal(
 		t,
 		locationState.NormalizedName,
-		fixtureData.DefaultLocation.NormalizedName,
+		testEnv.Fixtures.DefaultLocation.NormalizedName,
 	)
 	assert.Equal(t, locationState.Capacity-6, locationState.Available)
 }
 
 func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tWeb := test.CreateWebSocketTester(testApp.routes())
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
-		NormalizedName: fixtureData.DefaultLocation.NormalizedName,
+		NormalizedName: testEnv.Fixtures.DefaultLocation.NormalizedName,
 	})
 
-	tWeb.SetParallelOperation(updateCapacity)
+	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) { updateCapacity(t, ts, testEnv) })
 
 	var locationState dtos.LocationStateDto
 	err := tWeb.Do(t, nil, &locationState)
@@ -102,27 +102,27 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 	assert.Equal(
 		t,
 		locationState.NormalizedName,
-		fixtureData.DefaultLocation.NormalizedName,
+		testEnv.Fixtures.DefaultLocation.NormalizedName,
 	)
 	assert.EqualValues(t, 10, locationState.Capacity)
 }
 
-func createCheckIn(t *testing.T, ts *httptest.Server) {
+func createCheckIn(t *testing.T, ts *httptest.Server, testEnv TestEnv) {
 	data := dtos.CreateCheckInDto{
-		SchoolID: fixtureData.Schools[0].ID,
+		SchoolID: testEnv.Fixtures.Schools[0].ID,
 	}
 
 	tReq := test.CreateRequestTester(nil, http.MethodPost, "/checkins")
 	tReq.SetTestServer(ts)
 	tReq.SetReqData(data)
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t, nil)
 
 	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 }
 
-func updateCapacity(t *testing.T, ts *httptest.Server) {
+func updateCapacity(t *testing.T, ts *httptest.Server, testEnv TestEnv) {
 	var capacity int64 = 10
 	//nolint:exhaustruct // other fields are optional
 	data := dtos.UpdateLocationDto{
@@ -133,11 +133,11 @@ func updateCapacity(t *testing.T, ts *httptest.Server) {
 		nil,
 		http.MethodPatch,
 		"/locations/%s",
-		fixtureData.DefaultLocation.ID,
+		testEnv.Fixtures.DefaultLocation.ID,
 	)
 	tReq.SetTestServer(ts)
 	tReq.SetReqData(data)
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t, nil)
 

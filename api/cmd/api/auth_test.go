@@ -13,8 +13,8 @@ import (
 )
 
 func TestSignInUser(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
@@ -34,15 +34,15 @@ func TestSignInUser(t *testing.T) {
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 	assert.Contains(t, rs.Header.Values("set-cookie")[1], "refreshToken")
 
-	assert.Equal(t, fixtureData.DefaultUser.ID, rsData.ID)
-	assert.Equal(t, fixtureData.DefaultUser.Username, rsData.Username)
-	assert.Equal(t, fixtureData.DefaultUser.Role, rsData.Role)
+	assert.Equal(t, testEnv.Fixtures.DefaultUser.ID, rsData.ID)
+	assert.Equal(t, testEnv.Fixtures.DefaultUser.Username, rsData.Username)
+	assert.Equal(t, testEnv.Fixtures.DefaultUser.Role, rsData.Role)
 	assert.Equal(t, 0, len(rsData.PasswordHash))
 }
 
 func TestSignInUserNoRefresh(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
@@ -61,15 +61,15 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	assert.Equal(t, 1, len(rs.Header.Values("set-cookie")))
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 
-	assert.Equal(t, fixtureData.DefaultUser.ID, rsData.ID)
-	assert.Equal(t, fixtureData.DefaultUser.Username, rsData.Username)
-	assert.Equal(t, fixtureData.DefaultUser.Role, rsData.Role)
+	assert.Equal(t, testEnv.Fixtures.DefaultUser.ID, rsData.ID)
+	assert.Equal(t, testEnv.Fixtures.DefaultUser.Username, rsData.Username)
+	assert.Equal(t, testEnv.Fixtures.DefaultUser.Role, rsData.Role)
 	assert.Equal(t, 0, len(rsData.PasswordHash))
 }
 
 func TestSignInAdmin(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
@@ -88,15 +88,15 @@ func TestSignInAdmin(t *testing.T) {
 	assert.Equal(t, 1, len(rs.Header.Values("set-cookie")))
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 
-	assert.Equal(t, fixtureData.AdminUser.ID, rsData.ID)
-	assert.Equal(t, fixtureData.AdminUser.Username, rsData.Username)
-	assert.Equal(t, fixtureData.AdminUser.Role, rsData.Role)
+	assert.Equal(t, testEnv.Fixtures.AdminUser.ID, rsData.ID)
+	assert.Equal(t, testEnv.Fixtures.AdminUser.Username, rsData.Username)
+	assert.Equal(t, testEnv.Fixtures.AdminUser.Role, rsData.Role)
 	assert.Equal(t, 0, len(rsData.PasswordHash))
 }
 
 func TestSignInInexistentUser(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
@@ -115,8 +115,8 @@ func TestSignInInexistentUser(t *testing.T) {
 }
 
 func TestSignInWrongPassword(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 
@@ -135,8 +135,8 @@ func TestSignInWrongPassword(t *testing.T) {
 }
 
 func TestSignInFailValidation(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
 	tReq.SetReqData(dtos.SignInDto{
@@ -159,13 +159,13 @@ func TestSignInFailValidation(t *testing.T) {
 }
 
 func TestSignOut(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
-	tReq.AddCookie(tokens.DefaultAccessToken)
-	tReq.AddCookie(tokens.DefaultRefreshToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultRefreshToken)
 
 	rs := tReq.Do(t, nil)
 
@@ -175,12 +175,12 @@ func TestSignOut(t *testing.T) {
 }
 
 func TestSignOutNoRefresh(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t, nil)
 
@@ -190,8 +190,8 @@ func TestSignOutNoRefresh(t *testing.T) {
 }
 
 func TestSignOutNotLoggedIn(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
@@ -201,12 +201,12 @@ func TestSignOutNotLoggedIn(t *testing.T) {
 }
 
 func TestRefresh(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
-	tReq.AddCookie(tokens.DefaultRefreshToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultRefreshToken)
 
 	rs := tReq.Do(t, nil)
 
@@ -216,12 +216,12 @@ func TestRefresh(t *testing.T) {
 }
 
 func TestRefreshReusedToken(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
-	tReq.AddCookie(tokens.DefaultRefreshToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultRefreshToken)
 
 	rs1 := tReq.Do(t, nil)
 	rs2 := tReq.Do(t, nil)
@@ -231,12 +231,12 @@ func TestRefreshReusedToken(t *testing.T) {
 }
 
 func TestRefreshInvalidToken(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer testEnv.TeardownSingle()
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t, nil)
 
