@@ -6,7 +6,7 @@ import (
 	"time"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/tools"
 
 	"check-in/api/internal/dtos"
@@ -245,7 +245,7 @@ func (service LocationService) GetByName(
 		}
 	}
 
-	return nil, httptools.ErrResourceNotFound
+	return nil, errortools.ErrResourceNotFound
 }
 
 func (service LocationService) Create(

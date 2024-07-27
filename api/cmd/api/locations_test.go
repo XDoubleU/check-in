@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 	"github.com/xdoubleu/essentia/pkg/tools"
 
@@ -292,7 +292,7 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 		"returnType": "raw",
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -324,7 +324,7 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 		"returnType": "raw",
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -354,7 +354,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 		"returnType": "raw",
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -380,7 +380,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 		"returnType": "raw",
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -407,7 +407,7 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 		"endDate":   endDate,
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -435,7 +435,7 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 		"returnType": "raw",
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -631,7 +631,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 		"returnType": "raw",
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -661,7 +661,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 		"returnType": "raw",
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -688,7 +688,7 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 		"returnType": "raw",
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -713,7 +713,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 		"date": date,
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -739,7 +739,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 		"returnType": "raw",
 	})
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -812,7 +812,7 @@ func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -835,7 +835,7 @@ func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -857,7 +857,7 @@ func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -935,7 +935,7 @@ func TestDeleteCheckInLocationNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -958,7 +958,7 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -1006,7 +1006,7 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -1028,7 +1028,7 @@ func TestDeleteCheckInNotUUID(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -1319,7 +1319,7 @@ func TestGetLocationNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -1342,7 +1342,7 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -1364,7 +1364,7 @@ func TestGetLocationNotUUID(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -1451,7 +1451,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -1479,7 +1479,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -1507,7 +1507,7 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -1538,7 +1538,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 
 	tRes1 := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes1.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"capacity": "must be greater than 0",
 		}),
 	)
@@ -1556,7 +1556,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 
 	tRes2 := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes2.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"timeZone": "must be a valid IANA value",
 		}),
 	)
@@ -1669,7 +1669,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -1705,7 +1705,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -1741,7 +1741,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -1780,7 +1780,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 
 	tRes1 := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes1.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"capacity": "must be greater than 0",
 		}),
 	)
@@ -1801,7 +1801,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 
 	tRes2 := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes2.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"timeZone": "must be a valid IANA value",
 		}),
 	)
@@ -1837,7 +1837,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -1872,7 +1872,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -1906,7 +1906,7 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -1991,7 +1991,7 @@ func TestDeleteLocationNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -2013,7 +2013,7 @@ func TestDeleteLocationNotUUID(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)

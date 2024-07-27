@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/contexttools"
-	"github.com/xdoubleu/essentia/pkg/httptools"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
 	"check-in/api/internal/dtos"
@@ -107,7 +107,7 @@ func TestSignInInexistentUser(t *testing.T) {
 	}
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
@@ -127,7 +127,7 @@ func TestSignInWrongPassword(t *testing.T) {
 	}
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
@@ -147,7 +147,7 @@ func TestSignInFailValidation(t *testing.T) {
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"username": "must be provided",
 			"password": "must be provided",
 		}),

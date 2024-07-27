@@ -7,10 +7,10 @@ import (
 	"time"
 	_ "time/tzdata"
 
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
-	"github.com/xdoubleu/essentia/pkg/httptools"
 	"github.com/xdoubleu/essentia/pkg/logging"
-	"github.com/xdoubleu/essentia/pkg/sentrytools"
+	sentrytools "github.com/xdoubleu/essentia/pkg/sentry"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/repositories"
@@ -46,7 +46,7 @@ func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application
 func main() {
 	cfg := config.New()
 
-	logger := slog.New(sentrytools.NewSentryLogHandler())
+	logger := slog.New(sentrytools.NewLogHandler())
 	db, err := postgres.Connect(
 		logger,
 		cfg.DBDsn,

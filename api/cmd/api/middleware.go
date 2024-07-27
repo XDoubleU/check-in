@@ -4,7 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/models"
 )
@@ -26,7 +27,7 @@ func (app *Application) authAccess(allowedRoles []models.Role,
 		)
 		if err != nil {
 			switch {
-			case errors.Is(err, httptools.ErrResourceNotFound):
+			case errors.Is(err, errortools.ErrResourceNotFound):
 				httptools.UnauthorizedResponse(w, r, "Invalid token")
 			default:
 				httptools.ServerErrorResponse(w, r, err)
@@ -66,7 +67,7 @@ func (app *Application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 			models.RefreshScope, tokenCookie.Value)
 		if err != nil {
 			switch {
-			case errors.Is(err, httptools.ErrResourceNotFound):
+			case errors.Is(err, errortools.ErrResourceNotFound):
 				httptools.UnauthorizedResponse(w, r, "Invalid token")
 			default:
 				httptools.ServerErrorResponse(w, r, err)

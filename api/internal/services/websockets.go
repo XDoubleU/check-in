@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/xdoubleu/essentia/pkg/httptools"
-	"github.com/xdoubleu/essentia/pkg/wstools"
+	wstools "github.com/xdoubleu/essentia/pkg/communication/ws"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -82,7 +82,7 @@ func (service WebSocketService) UpdateLocation(location *models.Location) error 
 func (service WebSocketService) DeleteLocation(location *models.Location) error {
 	topic, ok := service.topics[location.ID]
 	if !ok {
-		return httptools.ErrResourceNotFound
+		return errortools.ErrResourceNotFound
 	}
 
 	err := service.handler.RemoveTopic(topic)

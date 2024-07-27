@@ -4,10 +4,11 @@ import (
 	"errors"
 	"net/http"
 
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/config"
 	"github.com/xdoubleu/essentia/pkg/contexttools"
-	"github.com/xdoubleu/essentia/pkg/httptools"
-	"github.com/xdoubleu/essentia/pkg/sentrytools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
+	sentrytools "github.com/xdoubleu/essentia/pkg/sentry"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -49,7 +50,7 @@ func (app *Application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.services.Users.GetByUsername(r.Context(), signInDto.Username)
 	if err != nil {
-		if errors.Is(err, httptools.ErrResourceNotFound) {
+		if errors.Is(err, errortools.ErrResourceNotFound) {
 			httptools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		} else {
 			httptools.ServerErrorResponse(w, r, err)

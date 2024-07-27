@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
 	"check-in/api/internal/constants"
@@ -150,7 +150,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rs *http.Response
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 
 	for i := 0; i < int(fixtureData.DefaultLocation.Capacity)+1; i++ {
 		rs = tReq.Do(t, &rsData)
@@ -174,7 +174,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -199,7 +199,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"schoolId": "must be greater than 0",
 		}),
 	)

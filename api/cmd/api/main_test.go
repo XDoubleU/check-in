@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	essentiaconfig "github.com/xdoubleu/essentia/pkg/config"
+	configtools "github.com/xdoubleu/essentia/pkg/config"
 	"github.com/xdoubleu/essentia/pkg/database"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/logging"
 
 	"check-in/api/internal/config"
@@ -57,7 +57,7 @@ func clearAll(services services.Services) {
 		err = services.Users.Delete(context.Background(), user.ID, user.Role)
 	}
 
-	if err != nil && !errors.Is(err, httptools.ErrResourceNotFound) {
+	if err != nil && !errors.Is(err, errortools.ErrResourceNotFound) {
 		panic(err)
 	}
 
@@ -325,7 +325,7 @@ func TestMain(m *testing.M) {
 	var err error
 
 	cfg = config.New()
-	cfg.Env = essentiaconfig.TestEnv
+	cfg.Env = configtools.TestEnv
 	cfg.Throttle = false
 
 	db, err := postgres.Connect(

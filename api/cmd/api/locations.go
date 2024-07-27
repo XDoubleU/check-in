@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/contexttools"
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/parse"
 	"github.com/xdoubleu/essentia/pkg/tools"
 
@@ -512,7 +513,7 @@ func (app *Application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		r.Context(),
 		createLocationDto.Name,
 	)
-	if existingLocation != nil || !errors.Is(err, httptools.ErrResourceNotFound) {
+	if existingLocation != nil || !errors.Is(err, errortools.ErrResourceNotFound) {
 		httptools.ConflictResponse(
 			w,
 			r,
@@ -528,7 +529,7 @@ func (app *Application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		r.Context(),
 		createLocationDto.Username,
 	)
-	if existingUser != nil || !errors.Is(err, httptools.ErrResourceNotFound) {
+	if existingUser != nil || !errors.Is(err, errortools.ErrResourceNotFound) {
 		httptools.ConflictResponse(
 			w,
 			r,
@@ -643,7 +644,7 @@ func (app *Application) checkForConflictsOnUpdate(
 			*updateLocationDto.Name,
 		)
 
-		if existingLocation != nil || !errors.Is(err, httptools.ErrResourceNotFound) {
+		if existingLocation != nil || !errors.Is(err, errortools.ErrResourceNotFound) {
 			httptools.ConflictResponse(
 				w,
 				r,
@@ -662,7 +663,7 @@ func (app *Application) checkForConflictsOnUpdate(
 			*updateLocationDto.Username,
 		)
 
-		if existingUser != nil || !errors.Is(err, httptools.ErrResourceNotFound) {
+		if existingUser != nil || !errors.Is(err, errortools.ErrResourceNotFound) {
 			httptools.ConflictResponse(
 				w,
 				r,

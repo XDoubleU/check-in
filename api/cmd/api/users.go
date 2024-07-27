@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/contexttools"
-	"github.com/xdoubleu/essentia/pkg/httptools"
 	"github.com/xdoubleu/essentia/pkg/parse"
 
 	"check-in/api/internal/dtos"

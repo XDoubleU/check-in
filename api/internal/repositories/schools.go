@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -256,7 +256,7 @@ func (repo SchoolRepository) Update(
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrResourceNotFound
+		return errortools.ErrResourceNotFound
 	}
 
 	return nil
@@ -275,7 +275,7 @@ func (repo SchoolRepository) Delete(ctx context.Context, id int64) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrResourceNotFound
+		return errortools.ErrResourceNotFound
 	}
 
 	return nil

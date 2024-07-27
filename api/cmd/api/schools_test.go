@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
 	"check-in/api/internal/dtos"
@@ -151,7 +151,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -176,7 +176,7 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"name": "must be provided",
 		}),
 	)
@@ -258,7 +258,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -282,7 +282,7 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -310,7 +310,7 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -338,7 +338,7 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -368,7 +368,7 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"name": "must be provided",
 		}),
 	)
@@ -436,7 +436,7 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodDelete, "/schools/1")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -458,7 +458,7 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -480,7 +480,7 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)

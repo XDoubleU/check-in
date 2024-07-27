@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/xdoubleu/essentia/pkg/httptools"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
 	"check-in/api/internal/dtos"
@@ -139,7 +139,7 @@ func TestGetUserNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -157,7 +157,7 @@ func TestGetUserNotUUID(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users/8000")
 	tReq.AddCookie(tokens.ManagerAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -320,7 +320,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	}
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -346,7 +346,7 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"username": "must be provided",
 			"password": "must be provided",
 		}),
@@ -431,7 +431,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
@@ -464,7 +464,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -490,7 +490,7 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 
 	tReq.SetReqData(data)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -519,7 +519,7 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
 	tRes.SetExpectedBody(
-		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"username": "must be provided",
 			"password": "must be provided",
 		}),
@@ -594,7 +594,7 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
@@ -612,7 +612,7 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodDelete, "/users/8000")
 	tReq.AddCookie(tokens.AdminAccessToken)
 
-	var rsData httptools.ErrorDto
+	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
