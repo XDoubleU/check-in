@@ -20,6 +20,7 @@ type Location struct {
 	UserID             string             `json:"userId"`
 } //	@name	Location
 
+// todo refactor
 func (location *Location) SetCheckInRelatedFields(
 	checkInsToday []*CheckIn,
 	checkInsYesterday []*CheckIn,
@@ -28,6 +29,7 @@ func (location *Location) SetCheckInRelatedFields(
 
 	location.Available = location.Capacity - int64(len(checkInsToday))
 	location.CapacityYesterday = 0
+	//nolint:exhaustruct //other fields are optional
 	location.YesterdayFullAt = pgtype.Timestamptz{}
 
 	switch {

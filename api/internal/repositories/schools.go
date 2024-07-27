@@ -167,6 +167,7 @@ func (repo SchoolRepository) GetByID(
 		WHERE id = $1
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	school := models.School{
 		ID: id,
 	}
@@ -193,6 +194,7 @@ func (repo SchoolRepository) GetByIDWithoutReadOnly(
 		WHERE id = $1 AND read_only = false
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	school := models.School{
 		ID:       id,
 		ReadOnly: false,
@@ -220,6 +222,7 @@ func (repo SchoolRepository) Create(
 		RETURNING id
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	school := models.School{
 		Name: name,
 	}

@@ -125,6 +125,7 @@ func (repo LocationRepository) GetBy(
 
 	query = fmt.Sprintf(query, whereQuery)
 
+	//nolint:exhaustruct //other fields are optional
 	location := models.Location{}
 
 	err := repo.db.QueryRow(
@@ -144,7 +145,8 @@ func (repo LocationRepository) GetBy(
 	return &location, nil
 }
 
-// todo: refactor, need tx but don't want code duplication
+// todo: refactor, need tx but don't want
+// code duplication across repositories
 func (repo LocationRepository) Create(
 	ctx context.Context,
 	name string,
@@ -192,6 +194,7 @@ func createUser(
 		RETURNING id
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	user := models.User{
 		Username: username,
 		Role:     models.DefaultRole,
@@ -230,6 +233,7 @@ func createLocation(
 		RETURNING id
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	location := models.Location{
 		Name:      name,
 		Capacity:  capacity,

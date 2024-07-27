@@ -18,7 +18,7 @@ import (
 
 func TestGetSortedSchoolsOK(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
 	defaultLocation := *fixtureData.DefaultLocation
 
@@ -26,6 +26,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 		_, _ = testApp.services.CheckIns.Create(
 			context.Background(),
 			&defaultLocation,
+			//nolint:exhaustruct //other fields are optional
 			&models.School{ID: 1}, // Should always stay at the bottom
 		)
 	}
@@ -55,34 +56,37 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 
 func TestGetSortedSchoolsAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
-	tReq := test.CreateRequestTester(
+	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
 		http.MethodGet,
 		"/checkins/schools",
 	)
 
-	mt := test.CreateMatrixTester(tReq)
-	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
-	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)
-	mt.AddTestCaseCookieStatusCode(tokens.AdminAccessToken, http.StatusForbidden)
+	mt := test.CreateMatrixTester()
+
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+
+	tReq2 := tReqBase.Copy()
+	tReq2.AddCookie(tokens.ManagerAccessToken)
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+
+	tReq3 := tReqBase.Copy()
+	tReq3.AddCookie(tokens.AdminAccessToken)
+	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
 
 	mt.Do(t)
 }
 
 func TestCreateCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
-
-	data := dtos.CreateCheckInDto{
+	tReq.SetReqData(dtos.CreateCheckInDto{
 		SchoolID: fixtureData.Schools[0].ID,
-	}
-
-	tReq.SetReqData(data)
-
+	})
 	tReq.AddCookie(tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
@@ -103,7 +107,7 @@ func TestCreateCheckIn(t *testing.T) {
 
 func TestCreateCheckInAndere(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
@@ -133,7 +137,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 
 func TestCreateCheckInAboveCap(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
@@ -158,7 +162,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 
 func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
@@ -183,34 +187,45 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 
 func TestCreateCheckInFailValidation(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 	tReq.AddCookie(tokens.DefaultAccessToken)
-
-	mt := test.CreateMatrixTester(tReq)
-
-	reqData := dtos.CreateCheckInDto{
+	tReq.SetReqData(dtos.CreateCheckInDto{
 		SchoolID: 0,
-	}
-
-	mt.AddTestCaseErrorMessage(reqData, map[string]interface{}{
-		"schoolId": "must be greater than 0",
 	})
+
+	mt := test.CreateMatrixTester()
+
+	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
+	tRes.SetExpectedBody(
+		httptools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
+			"schoolId": "must be greater than 0",
+		}),
+	)
+
+	mt.AddTestCase(tReq, tRes)
 
 	mt.Do(t)
 }
 
 func TestCreateCheckInAccess(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
+	tReqBase := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
-	mt := test.CreateMatrixTester(tReq)
-	mt.AddTestCaseCookieStatusCode(nil, http.StatusUnauthorized)
-	mt.AddTestCaseCookieStatusCode(tokens.ManagerAccessToken, http.StatusForbidden)
-	mt.AddTestCaseCookieStatusCode(tokens.AdminAccessToken, http.StatusForbidden)
+	mt := test.CreateMatrixTester()
+
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+
+	tReq2 := tReqBase.Copy()
+	tReq2.AddCookie(tokens.ManagerAccessToken)
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+
+	tReq3 := tReqBase.Copy()
+	tReq3.AddCookie(tokens.AdminAccessToken)
+	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
 
 	mt.Do(t)
 }

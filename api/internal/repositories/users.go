@@ -48,6 +48,7 @@ func (repo UserRepository) GetAll(
 	users := []*models.User{}
 
 	for rows.Next() {
+		//nolint:exhaustruct //other fields are optional
 		user := models.User{
 			Role: models.ManagerRole,
 		}
@@ -92,6 +93,7 @@ func (repo UserRepository) GetAllPaginated(
 	users := []*models.User{}
 
 	for rows.Next() {
+		//nolint:exhaustruct //other fields are optional
 		user := models.User{
 			Role: models.ManagerRole,
 		}
@@ -126,6 +128,7 @@ func (repo UserRepository) GetByID(
 		WHERE users.id = $1 AND users.role = $2
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	user := models.User{
 		ID:   id,
 		Role: role,
@@ -154,6 +157,7 @@ func (repo UserRepository) GetByUsername(
 		WHERE username = $1
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	user := models.User{
 		Username: username,
 	}
@@ -181,7 +185,7 @@ func (repo UserRepository) Create(
 		VALUES ($1, $2, $3)
 		RETURNING id
 	`
-
+	//nolint:exhaustruct //other fields are optional
 	user := models.User{
 		Username: username,
 		Role:     role,

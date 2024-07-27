@@ -17,25 +17,23 @@ import (
 	"check-in/api/internal/services"
 )
 
-type application struct {
+type Application struct {
 	logger   *slog.Logger
 	config   config.Config
 	services services.Services
 }
 
-func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *application {
+func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application {
 	logger.Info(cfg.String())
 
 	spandb := postgres.NewSpanDB(db)
 
-	logger.Info("connected to database")
-
 	repos := repositories.New(spandb)
 
-	return &application{
+	return &Application{
 		logger:   logger,
-		config:   config.New(),
-		services: services.New(repos),
+		config:   cfg,
+		services: services.New(cfg, repos),
 	}
 }
 
@@ -52,11 +50,11 @@ func main() {
 	db, err := postgres.Connect(
 		logger,
 		cfg.DBDsn,
-		25,
+		25, //nolint:mnd //no magic number
 		"15m",
-		30,
-		30*time.Second,
-		5*time.Minute,
+		30,             //nolint:mnd //no magic number
+		30*time.Second, //nolint:mnd //no magic number
+		5*time.Minute,  //nolint:mnd //no magic number
 	)
 	if err != nil {
 		panic(err)
@@ -65,18 +63,12 @@ func main() {
 
 	app := NewApp(logger, cfg, db)
 
-	routes, err := app.routes()
-	if err != nil {
-		logger.Error("failed to setup routes", logging.ErrAttr(err))
-		return
-	}
-
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", app.config.Port),
-		Handler:      *routes,
+		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,  //nolint:gomnd //no magic number
-		WriteTimeout: 10 * time.Second, //nolint:gomnd //no magic number
+		ReadTimeout:  5 * time.Second,  //nolint:mnd //no magic number
+		WriteTimeout: 10 * time.Second, //nolint:mnd //no magic number
 	}
 	err = httptools.Serve(logger, srv, app.config.Env)
 	if err != nil {

@@ -11,14 +11,17 @@ import (
 )
 
 func TestNormalizeName(t *testing.T) {
+	//nolint:exhaustruct // other fields are optional
 	location1 := models.Location{
 		Name: "Test name $14",
 	}
 
+	//nolint:exhaustruct // other fields are optional
 	location2 := models.Location{
 		Name: " Test name $14",
 	}
 
+	//nolint:exhaustruct // other fields are optional
 	location3 := models.Location{
 		Name: "Test name $14 ",
 	}
@@ -50,6 +53,7 @@ func TestSetCheckInRelatedFields(t *testing.T) {
 	tenCheckIns := generateCheckIns(10, 10, createdAt)
 
 	// Case 1: check-ins yesterday
+	//nolint:exhaustruct // other fields are optional
 	location1 := models.Location{
 		Capacity: 15,
 	}
@@ -58,9 +62,11 @@ func TestSetCheckInRelatedFields(t *testing.T) {
 	assert.EqualValues(t, location1.Capacity, 15)
 	assert.EqualValues(t, location1.AvailableYesterday, 5)
 	assert.EqualValues(t, location1.CapacityYesterday, 10)
+	//nolint:exhaustruct // other fields are optional
 	assert.Equal(t, location1.YesterdayFullAt, pgtype.Timestamptz{})
 
 	// Case 2: yesterday full
+	//nolint:exhaustruct // other fields are optional
 	location2 := models.Location{
 		Capacity: 15,
 	}
@@ -72,6 +78,7 @@ func TestSetCheckInRelatedFields(t *testing.T) {
 	assert.Equal(t, location2.YesterdayFullAt.Time, createdAt)
 
 	// Case 3: yesterday no check-ins, today check-ins
+	//nolint:exhaustruct // other fields are optional
 	location3 := models.Location{
 		Capacity: 15,
 	}
@@ -80,9 +87,11 @@ func TestSetCheckInRelatedFields(t *testing.T) {
 	assert.EqualValues(t, location3.Capacity, 15)
 	assert.EqualValues(t, location3.AvailableYesterday, 10)
 	assert.EqualValues(t, location3.CapacityYesterday, 10)
+	//nolint:exhaustruct // other fields are optional
 	assert.Equal(t, location3.YesterdayFullAt, pgtype.Timestamptz{})
 
 	// Case 4: yesterday no check-ins, today no check-ins (yet?)
+	//nolint:exhaustruct // other fields are optional
 	location4 := models.Location{
 		Capacity: 15,
 	}
@@ -91,6 +100,7 @@ func TestSetCheckInRelatedFields(t *testing.T) {
 	assert.EqualValues(t, location4.Capacity, 15)
 	assert.EqualValues(t, location4.AvailableYesterday, 15)
 	assert.EqualValues(t, location4.CapacityYesterday, 15)
+	//nolint:exhaustruct // other fields are optional
 	assert.Equal(t, location4.YesterdayFullAt, pgtype.Timestamptz{})
 }
 
@@ -98,8 +108,10 @@ func generateCheckIns(amount int, capacity int, createdAt time.Time) []*models.C
 	checkIns := []*models.CheckIn{}
 
 	for i := 0; i < amount; i++ {
+		//nolint:exhaustruct // other fields are optional
 		checkIn := models.CheckIn{
 			Capacity: int64(capacity),
+			//nolint:exhaustruct // other fields are optional
 			CreatedAt: pgtype.Timestamptz{
 				Time: createdAt,
 			},

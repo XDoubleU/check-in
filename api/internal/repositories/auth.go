@@ -70,17 +70,17 @@ func (repo AuthRepository) GetToken(
 	args := []any{tokenHash[:], scope, time.Now()}
 
 	var token models.Token
-	var userId string
+	var userID string
 	var userRole models.Role
 
 	err := repo.db.QueryRow(ctx, query, args...).
-		Scan(&token.Used, &userId, &userRole)
+		Scan(&token.Used, &userID, &userRole)
 
 	if err != nil {
 		return nil, nil, nil, postgres.PgxErrorToHTTPError(err)
 	}
 
-	return &token, &userId, &userRole, nil
+	return &token, &userID, &userRole, nil
 }
 
 func (repo AuthRepository) DeleteAllTokensForUser(

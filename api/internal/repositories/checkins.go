@@ -81,6 +81,7 @@ func (repo CheckInRepository) GetByID(
 		WHERE id = $1 AND location_id = $2
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	checkIn := models.CheckIn{
 		ID:         id,
 		LocationID: location.ID,
@@ -116,6 +117,7 @@ func (repo CheckInRepository) Create(
 		RETURNING id, (created_at AT TIME ZONE $4)
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	checkIn := models.CheckIn{
 		LocationID: location.ID,
 		SchoolID:   school.ID,

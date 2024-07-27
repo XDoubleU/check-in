@@ -1,24 +1,56 @@
 package dtos
 
 import (
-	"github.com/xdoubleu/essentia/pkg/validate"
-
 	"check-in/api/internal/models"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/xdoubleu/essentia/pkg/validate"
 )
 
+type WebSocketSubject string //	@name	WebSocketSubject
+
+const (
+	AllLocations   WebSocketSubject = "all-locations"
+	SingleLocation WebSocketSubject = "single-location"
+)
+
+type LocationStateDto struct {
+	NormalizedName     string             `json:"normalizedName"`
+	Available          int64              `json:"available"`
+	Capacity           int64              `json:"capacity"`
+	AvailableYesterday int64              `json:"availableYesterday"`
+	CapacityYesterday  int64              `json:"capacityYesterday"`
+	YesterdayFullAt    pgtype.Timestamptz `json:"yesterdayFullAt"    swaggertype:"string"`
+} //	@name	LocationUpdateEvent
+
+func NewLocationStateDto(location models.Location) LocationStateDto {
+	return LocationStateDto{
+		NormalizedName:     location.NormalizedName,
+		Available:          location.Available,
+		Capacity:           location.Capacity,
+		YesterdayFullAt:    location.YesterdayFullAt,
+		AvailableYesterday: location.AvailableYesterday,
+		CapacityYesterday:  location.CapacityYesterday,
+	}
+}
+
 type SubscribeMessageDto struct {
-	TopicName      models.WebSocketTopic `json:"topic"`
-	NormalizedName string                `json:"normalizedName"`
+	Subject        WebSocketSubject `json:"subject"`
+	NormalizedName string           `json:"normalizedName"`
 } //	@name	SubscribeMessageDto
 
 func (dto SubscribeMessageDto) Topic() string {
-	return string(dto.TopicName)
+	if dto.Subject == AllLocations {
+		return "*"
+	}
+
+	return dto.NormalizedName
 }
 
 func (dto SubscribeMessageDto) Validate() *validate.Validator {
 	v := validate.New()
 
-	if dto.TopicName == models.SingleLocation {
+	if dto.Subject == SingleLocation {
 		validate.Check(v, dto.NormalizedName, validate.IsNotEmpty, "normalizedName")
 	}
 

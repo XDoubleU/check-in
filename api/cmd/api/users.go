@@ -11,7 +11,7 @@ import (
 	"check-in/api/internal/models"
 )
 
-func (app *application) usersRoutes(mux *http.ServeMux) {
+func (app *Application) usersRoutes(mux *http.ServeMux) {
 	mux.HandleFunc(
 		"GET /current-user",
 		app.authAccess(allRoles, app.getInfoLoggedInUserHandler),
@@ -21,7 +21,7 @@ func (app *application) usersRoutes(mux *http.ServeMux) {
 		app.authAccess(adminRole, app.getPaginatedManagerUsersHandler),
 	)
 	mux.HandleFunc(
-		"GET /users/:id",
+		"GET /users/{id}",
 		app.authAccess(managerAndAdminRole, app.getUserHandler),
 	)
 	mux.HandleFunc(
@@ -29,11 +29,11 @@ func (app *application) usersRoutes(mux *http.ServeMux) {
 		app.authAccess(adminRole, app.createManagerUserHandler),
 	)
 	mux.HandleFunc(
-		"PATCH /users/:id",
+		"PATCH /users/{id}",
 		app.authAccess(adminRole, app.updateManagerUserHandler),
 	)
 	mux.HandleFunc(
-		"DELETE /users/:id",
+		"DELETE /users/{id}",
 		app.authAccess(adminRole, app.deleteManagerUserHandler),
 	)
 }
@@ -44,7 +44,7 @@ func (app *application) usersRoutes(mux *http.ServeMux) {
 // @Failure	401	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/current-user [get].
-func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
+func (app *Application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	r *http.Request) {
 	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 
@@ -63,7 +63,7 @@ func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 // @Failure	404	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/users/{id} [get].
-func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := parse.URLParam(r, "id", parse.UUID)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
@@ -90,7 +90,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure	401		{object}	ErrorDto
 // @Failure	500		{object}	ErrorDto
 // @Router		/users [get].
-func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
+func (app *Application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
@@ -126,7 +126,7 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 // @Failure	409				{object}	ErrorDto
 // @Failure	500				{object}	ErrorDto
 // @Router		/users [post].
-func (app *application) createManagerUserHandler(
+func (app *Application) createManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -177,7 +177,7 @@ func (app *application) createManagerUserHandler(
 // @Failure	409				{object}	ErrorDto
 // @Failure	500				{object}	ErrorDto
 // @Router		/users/{id} [patch].
-func (app *application) updateManagerUserHandler(
+func (app *Application) updateManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -239,7 +239,7 @@ func (app *application) updateManagerUserHandler(
 // @Failure	404	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/users/{id} [delete].
-func (app *application) deleteManagerUserHandler(
+func (app *Application) deleteManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {

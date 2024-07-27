@@ -17,6 +17,7 @@ type CheckInsLocationEntryRaw struct {
 	Schools    SchoolsMap  `json:"schools"    swaggertype:"object,number"`
 } //	@name	CheckInsLocationEntryRaw
 
+// todo refactor
 func ConvertCheckInsLocationEntryRawMapToCSV(
 	entries *orderedmap.OrderedMap[string, *CheckInsLocationEntryRaw],
 ) [][]string {

@@ -9,7 +9,7 @@ import (
 	"check-in/api/internal/dtos"
 )
 
-func (app *application) schoolsRoutes(mux *http.ServeMux) {
+func (app *Application) schoolsRoutes(mux *http.ServeMux) {
 	mux.HandleFunc(
 		"GET /schools",
 		app.authAccess(managerAndAdminRole, app.getPaginatedSchoolsHandler),
@@ -19,11 +19,11 @@ func (app *application) schoolsRoutes(mux *http.ServeMux) {
 		app.authAccess(managerAndAdminRole, app.createSchoolHandler),
 	)
 	mux.HandleFunc(
-		"PATCH /schools/:id",
+		"PATCH /schools/{id}",
 		app.authAccess(managerAndAdminRole, app.updateSchoolHandler),
 	)
 	mux.HandleFunc(
-		"DELETE /schools/:id",
+		"DELETE /schools/{id}",
 		app.authAccess(managerAndAdminRole, app.deleteSchoolHandler),
 	)
 }
@@ -36,7 +36,7 @@ func (app *application) schoolsRoutes(mux *http.ServeMux) {
 // @Failure	401		{object}	ErrorDto
 // @Failure	500		{object}	ErrorDto
 // @Router		/schools [get].
-func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
+func (app *Application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
@@ -72,7 +72,7 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 // @Failure	409			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
 // @Router		/schools [post].
-func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	var schoolDto dtos.SchoolDto
 
 	err := httptools.ReadJSON(r.Body, &schoolDto)
@@ -108,7 +108,7 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	409			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
 // @Router		/schools/{id} [patch].
-func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	var schoolDto dtos.SchoolDto
 
 	id, err := parse.URLParam(r, "id", parse.Int64Func(true, false))
@@ -155,7 +155,7 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	404	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/schools/{id} [delete].
-func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := parse.URLParam(r, "id", parse.Int64Func(true, false))
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)

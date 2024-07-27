@@ -2,10 +2,6 @@ package main
 
 import (
 	"net/http"
-
-	"github.com/xdoubleu/essentia/pkg/wstools"
-
-	"check-in/api/internal/dtos"
 )
 
 // @Summary	WebSocket for receiving update events
@@ -13,21 +9,12 @@ import (
 // @Param		subscribeMessageDto	body		SubscribeMessageDto	true	"SubscribeMessageDto"
 // @Success	200					{object}	LocationUpdateEvent
 // @Router		/ws [get].
-func (app *application) websocketsRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /", app.getWebSocketHandler())
-}
-
-func (app *application) getWebSocketHandler() http.HandlerFunc {
-	wsh := wstools.CreateWebSocketHandler[dtos.SubscribeMessageDto](1, 100, []string{app.config.WebURL})
-
-	// todo figure out topics + where to make them accessible (probably WS Service)
-	wsh.AddTopic()
-
-	return wsh.Handler()
+func (app *Application) websocketsRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /", app.services.WebSocket.Handler())
 }
 
 /* todo remove
-func (app *application) allLocationsHandler(
+func (app *Application) allLocationsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 	conn *websocket.Conn,
@@ -71,7 +58,7 @@ func (app *application) allLocationsHandler(
 	}
 }
 
-func (app *application) singleLocationHandler(
+func (app *Application) singleLocationHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 	conn *websocket.Conn,
@@ -101,7 +88,7 @@ func (app *application) singleLocationHandler(
 	}
 }
 
-func (app *application) getAllCurrentLocationStates(
+func (app *Application) getAllCurrentLocationStates(
 	ctx context.Context,
 ) ([]models.LocationUpdateEvent, error) {
 	locations, err := app.services.Locations.GetAll(ctx)

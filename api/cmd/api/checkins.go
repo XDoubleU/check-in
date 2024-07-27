@@ -11,7 +11,7 @@ import (
 	"check-in/api/internal/models"
 )
 
-func (app *application) checkInsRoutes(mux *http.ServeMux) {
+func (app *Application) checkInsRoutes(mux *http.ServeMux) {
 	mux.HandleFunc(
 		"GET /checkins/schools",
 		app.authAccess(defaultRole, app.getSortedSchoolsHandler),
@@ -29,7 +29,7 @@ func (app *application) checkInsRoutes(mux *http.ServeMux) {
 //	@Failure	500	{object}	ErrorDto
 //	@Router		/checkins/schools [get]
 
-func (app *application) getSortedSchoolsHandler(
+func (app *Application) getSortedSchoolsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -64,7 +64,7 @@ func (app *application) getSortedSchoolsHandler(
 // @Failure	404					{object}	ErrorDto
 // @Failure	500					{object}	ErrorDto
 // @Router		/checkins [post].
-func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
 	var createCheckInDto dtos.CreateCheckInDto
 
 	err := httptools.ReadJSON(r.Body, &createCheckInDto)
@@ -120,7 +120,7 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	app.services.WebSockets.AddUpdateEvent(*location)
+	app.services.WebSocket.NewLocationState(*location)
 
 	checkInDto := dtos.CheckInDto{
 		ID:         checkIn.ID,

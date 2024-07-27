@@ -1,9 +1,6 @@
 package services
 
 import (
-	"check-in/api/internal/dtos"
-	"check-in/api/internal/models"
-	"check-in/api/internal/repositories"
 	"context"
 	"encoding/json"
 	"time"
@@ -11,6 +8,10 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"github.com/xdoubleu/essentia/pkg/httptools"
 	"github.com/xdoubleu/essentia/pkg/tools"
+
+	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
+	"check-in/api/internal/repositories"
 )
 
 type LocationService struct {
@@ -255,7 +256,17 @@ func (service LocationService) Create(
 	username string,
 	password string,
 ) (*models.Location, error) {
-	return service.locations.Create(ctx, name, capacity, timeZone, username, password)
+	location, err := service.locations.Create(ctx, name, capacity, timeZone, username, password)
+	if err != nil {
+		return nil, err
+	}
+
+	err = service.prepareLocation(ctx, location)
+	if err != nil {
+		return nil, err
+	}
+
+	return location, nil
 }
 
 func (service LocationService) Update(
@@ -264,7 +275,12 @@ func (service LocationService) Update(
 	user *models.User,
 	updateLocationDto dtos.UpdateLocationDto,
 ) error {
-	return service.locations.Update(ctx, location, user, updateLocationDto)
+	err := service.locations.Update(ctx, location, user, updateLocationDto)
+	if err != nil {
+		return err
+	}
+
+	return service.prepareLocation(ctx, location)
 }
 
 func (service LocationService) Delete(

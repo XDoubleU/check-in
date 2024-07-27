@@ -4,6 +4,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"time"
 
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
 
@@ -18,7 +20,15 @@ func createAdmin(cfg config.Config, username string, password string) {
 		return
 	}
 
-	db, err := postgres.Connect(cfg.DB.Dsn, cfg.DB.MaxConns, cfg.DB.MaxIdleTime)
+	db, err := postgres.Connect(
+		slog.Default(),
+		cfg.DBDsn,
+		25, //nolint:mnd //no magic number
+		"15m",
+		10,             //nolint:mnd //no magic number
+		10*time.Second, //nolint:mnd //no magic number
+		30*time.Second, //nolint:mnd //no magic number
+	)
 	if err != nil {
 		fmt.Println(err.Error())
 		return

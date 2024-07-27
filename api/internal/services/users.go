@@ -1,10 +1,11 @@
 package services
 
 import (
+	"context"
+
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
-	"context"
 )
 
 type UserService struct {

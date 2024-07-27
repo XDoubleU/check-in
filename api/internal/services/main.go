@@ -1,22 +1,20 @@
 package services
 
 import (
-	"check-in/api/internal/models"
+	"check-in/api/internal/config"
 	"check-in/api/internal/repositories"
-
-	"nhooyr.io/websocket"
 )
 
 type Services struct {
-	Auth       AuthService
-	CheckIns   CheckInService
-	Locations  LocationService
-	Schools    SchoolService
-	Users      UserService
-	WebSockets WebSocketService
+	Auth      AuthService
+	CheckIns  CheckInService
+	Locations LocationService
+	Schools   SchoolService
+	Users     UserService
+	WebSocket WebSocketService
 }
 
-func New(repositories repositories.Repositories) Services {
+func New(config config.Config, repositories repositories.Repositories) Services {
 	checkIns := CheckInService{
 		checkins: repositories.CheckIns,
 	}
@@ -37,16 +35,17 @@ func New(repositories repositories.Repositories) Services {
 		users: users,
 	}
 
-	websockets := WebSocketService{
-		subscribers: make(map[*websocket.Conn]models.Subscriber),
+	websocket, err := NewWebSocketService(config.WebURL, locations)
+	if err != nil {
+		panic(err)
 	}
 
 	return Services{
-		Auth:       auth,
-		CheckIns:   checkIns,
-		Locations:  locations,
-		Schools:    schools,
-		Users:      users,
-		WebSockets: websockets,
+		Auth:      auth,
+		CheckIns:  checkIns,
+		Locations: locations,
+		Schools:   schools,
+		Users:     users,
+		WebSocket: *websocket,
 	}
 }

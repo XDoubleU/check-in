@@ -1,12 +1,13 @@
 package services
 
 import (
-	"check-in/api/internal/dtos"
-	"check-in/api/internal/models"
-	"check-in/api/internal/repositories"
 	"context"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
+
+	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
+	"check-in/api/internal/repositories"
 )
 
 type SchoolService struct {

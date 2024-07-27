@@ -1,97 +1,117 @@
 package services
 
 import (
-	"check-in/api/internal/models"
-	"sync"
+	"context"
+	"net/http"
 
-	"nhooyr.io/websocket"
+	"github.com/xdoubleu/essentia/pkg/httptools"
+	"github.com/xdoubleu/essentia/pkg/wstools"
+
+	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
 )
 
 type WebSocketService struct {
-	subscribers map[*websocket.Conn]models.Subscriber
+	handler   *wstools.WebSocketHandler[dtos.SubscribeMessageDto]
+	allTopic  *wstools.Topic
+	topics    map[string]*wstools.Topic
+	locations LocationService
 }
 
-func (service WebSocketService) GetAllUpdateEvents(
-	conn *websocket.Conn,
-) []models.LocationUpdateEvent {
-	for {
-		if service.subscribers[conn].BufferMu.TryLock() {
-			break
+func NewWebSocketService(
+	allowedOrigin string,
+	locationService LocationService,
+) (*WebSocketService, error) {
+	service := &WebSocketService{
+		handler:   nil,
+		allTopic:  nil,
+		topics:    make(map[string]*wstools.Topic),
+		locations: locationService,
+	}
+
+	handler := wstools.CreateWebSocketHandler[dtos.SubscribeMessageDto](
+		1,   //nolint:mnd //no magic number
+		100, //nolint:mnd //no magic number
+		[]string{allowedOrigin},
+	)
+	service.handler = &handler
+
+	locations, err := service.locations.GetAll(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	service.allTopic, err = service.handler.AddTopic("*", func(topic *wstools.Topic) any { return service.getAllLocationStates() })
+	if err != nil {
+		return nil, err
+	}
+
+	for _, location := range locations {
+		err = service.AddLocation(location)
+		if err != nil {
+			return nil, err
 		}
 	}
-	defer service.subscribers[conn].BufferMu.Unlock()
 
-	var result []models.LocationUpdateEvent
+	return service, nil
+}
 
-	for key, event := range service.subscribers[conn].Buffer {
-		result = append(result, event)
-		delete(service.subscribers[conn].Buffer, key)
+func (service WebSocketService) Handler() http.HandlerFunc {
+	return service.handler.Handler()
+}
+
+func (service WebSocketService) AddLocation(location *models.Location) error {
+	topic, err := service.handler.AddTopic(location.NormalizedName, nil)
+	if err != nil {
+		return err
+	}
+
+	service.topics[location.ID] = topic
+	return nil
+}
+
+func (service WebSocketService) UpdateLocation(location *models.Location) error {
+	err := service.DeleteLocation(location)
+	if err != nil {
+		return err
+	}
+
+	return service.AddLocation(location)
+}
+
+func (service WebSocketService) DeleteLocation(location *models.Location) error {
+	topic, ok := service.topics[location.ID]
+	if !ok {
+		return httptools.ErrResourceNotFound
+	}
+
+	err := service.handler.RemoveTopic(topic)
+	if err != nil {
+		return err
+	}
+
+	delete(service.topics, topic.Name)
+	return nil
+}
+
+func (service WebSocketService) NewLocationState(location models.Location) {
+	locationState := dtos.NewLocationStateDto(location)
+
+	service.allTopic.EnqueueEvent(locationState)
+	service.topics[location.ID].EnqueueEvent(locationState)
+}
+
+func (service WebSocketService) getAllLocationStates() []dtos.LocationStateDto {
+	locations, err := service.locations.GetAll(context.Background())
+	if err != nil {
+		//todo no panic pls
+		panic(err)
+	}
+
+	var result []dtos.LocationStateDto
+	for _, location := range locations {
+		result = append(result, dtos.NewLocationStateDto(*location))
 	}
 
 	return result
-}
-
-func (service WebSocketService) GetByNormalizedName(
-	conn *websocket.Conn,
-) models.LocationUpdateEvent {
-	for {
-		if service.subscribers[conn].BufferMu.TryLock() {
-			break
-		}
-	}
-	defer service.subscribers[conn].BufferMu.Unlock()
-
-	name := service.subscribers[conn].NormalizedName
-
-	result := service.subscribers[conn].Buffer[name]
-	delete(service.subscribers[conn].Buffer, name)
-
-	return result
-}
-
-func (service WebSocketService) AddUpdateEvent(location models.Location) {
-	locationUpdateEvent := models.LocationUpdateEvent{
-		NormalizedName:     location.NormalizedName,
-		Available:          location.Available,
-		Capacity:           location.Capacity,
-		YesterdayFullAt:    location.YesterdayFullAt,
-		AvailableYesterday: location.AvailableYesterday,
-		CapacityYesterday:  location.CapacityYesterday,
-	}
-
-	for _, subscriber := range service.subscribers {
-		if !(subscriber.Subject == "all-locations" ||
-			(subscriber.Subject == "single-location" &&
-				subscriber.NormalizedName == locationUpdateEvent.NormalizedName)) {
-			continue
-		}
-
-		for {
-			if subscriber.BufferMu.TryLock() {
-				break
-			}
-		}
-		defer subscriber.BufferMu.Unlock()
-
-		subscriber.Buffer[locationUpdateEvent.NormalizedName] = locationUpdateEvent
-	}
-}
-
-func (service WebSocketService) AddSubscriber(
-	conn *websocket.Conn,
-	subject models.WebSocketSubject,
-	normalizedName string,
-) {
-	var mu sync.Mutex
-
-	service.subscribers[conn] = models.Subscriber{
-		Subject:        subject,
-		NormalizedName: normalizedName,
-		Buffer:         make(map[string]models.LocationUpdateEvent),
-		BufferMu:       &mu,
-	}
-}
-
-func (service WebSocketService) RemoveSubscriber(conn *websocket.Conn) {
-	delete(service.subscribers, conn)
 }

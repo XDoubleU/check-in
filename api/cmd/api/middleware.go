@@ -9,7 +9,7 @@ import (
 	"check-in/api/internal/models"
 )
 
-func (app *application) authAccess(allowedRoles []models.Role,
+func (app *Application) authAccess(allowedRoles []models.Role,
 	next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenCookie, err := r.Cookie("accessToken")
@@ -53,7 +53,7 @@ func (app *application) authAccess(allowedRoles []models.Role,
 	})
 }
 
-func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
+func (app *Application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenCookie, err := r.Cookie("refreshToken")
 

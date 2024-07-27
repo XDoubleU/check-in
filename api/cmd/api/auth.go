@@ -13,7 +13,7 @@ import (
 	"check-in/api/internal/models"
 )
 
-func (app *application) authRoutes(mux *http.ServeMux) {
+func (app *Application) authRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /auth/signin", app.signInHandler)
 	mux.HandleFunc(
 		"GET /auth/signout",
@@ -33,7 +33,7 @@ func (app *application) authRoutes(mux *http.ServeMux) {
 // @Failure	401			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
 // @Router		/auth/signin [post].
-func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) signInHandler(w http.ResponseWriter, r *http.Request) {
 	var signInDto dtos.SignInDto
 
 	err := httptools.ReadJSON(r.Body, &signInDto)
@@ -107,7 +107,7 @@ func (app *application) signInHandler(w http.ResponseWriter, r *http.Request) {
 // @Success	200	{object}	nil
 // @Failure	401	{object}	ErrorDto
 // @Router		/auth/signout [get].
-func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 	accessToken, _ := r.Cookie("accessToken")
 	refreshToken, _ := r.Cookie("refreshToken")
 
@@ -144,7 +144,7 @@ func (app *application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure	401	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/auth/refresh [get].
-func (app *application) refreshHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 	user := contexttools.GetContextValue[models.User](r.Context(), userContextKey)
 	secure := app.config.Env == config.ProdEnv
 

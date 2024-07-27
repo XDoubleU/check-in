@@ -47,7 +47,10 @@ test:
 	go test ./cmd/api
 
 test/v:
-	go test -v ./cmd/api
+	go test ./cmd/api -v
+	
+test/race:
+	go test ./cmd/api -race
 
 test/cov/report:
 	go test ./cmd/api -coverpkg=./cmd/api,./internal/... -covermode=atomic -coverprofile=coverage.out  -race

@@ -1,12 +1,13 @@
 package services
 
 import (
-	"check-in/api/internal/models"
-	"check-in/api/internal/repositories"
 	"context"
 	"time"
 
 	"github.com/xdoubleu/essentia/pkg/tools"
+
+	"check-in/api/internal/models"
+	"check-in/api/internal/repositories"
 )
 
 type CheckInService struct {

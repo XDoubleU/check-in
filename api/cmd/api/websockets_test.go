@@ -9,58 +9,59 @@ import (
 	"github.com/xdoubleu/essentia/pkg/test"
 
 	"check-in/api/internal/dtos"
-	"check-in/api/internal/models"
 )
 
 func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
-	tWeb := test.CreateWebsocketTester(testApp.routes())
+	tWeb := test.CreateWebSocketTester(testApp.routes())
 
+	//nolint:exhaustruct // other fields are optional
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
 	})
 
 	tWeb.SetParallelOperation(createCheckIn)
 
-	var locationUpdateEventsInitial []models.LocationUpdateEvent
-	var locationUpdateEventsFinal []models.LocationUpdateEvent
-	tWeb.Do(t, &locationUpdateEventsInitial, &locationUpdateEventsFinal)
+	var locationStatesInitial []dtos.LocationStateDto
+	var locationStatesFinal dtos.LocationStateDto
+	err := tWeb.Do(t, &locationStatesInitial, &locationStatesFinal)
 
-	assert.Equal(t, 21, len(locationUpdateEventsInitial))
-	assert.Equal(t, 1, len(locationUpdateEventsFinal))
+	assert.Nil(t, err)
+	assert.Equal(t, 21, len(locationStatesInitial))
 	assert.Equal(
 		t,
-		locationUpdateEventsFinal[0].Capacity-6,
-		locationUpdateEventsFinal[0].Available,
+		locationStatesFinal.Capacity-6,
+		locationStatesFinal.Available,
 	)
 }
 
 func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
-	tWeb := test.CreateWebsocketTester(testApp.routes())
+	tWeb := test.CreateWebSocketTester(testApp.routes())
+	//nolint:exhaustruct // other fields are optional
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
 	})
 	tWeb.SetParallelOperation(updateCapacity)
 
-	var locationUpdateEventsInitial []models.LocationUpdateEvent
-	var locationUpdateEventsFinal []models.LocationUpdateEvent
-	tWeb.Do(t, &locationUpdateEventsInitial, &locationUpdateEventsFinal)
+	var locationStatesInitial []dtos.LocationStateDto
+	var locationStatesFinal dtos.LocationStateDto
+	err := tWeb.Do(t, &locationStatesInitial, &locationStatesFinal)
 
-	assert.Equal(t, 21, len(locationUpdateEventsInitial))
-	assert.Equal(t, 1, len(locationUpdateEventsFinal))
-	assert.EqualValues(t, 10, locationUpdateEventsFinal[0].Capacity)
+	assert.Nil(t, err)
+	assert.Equal(t, 21, len(locationStatesInitial))
+	assert.EqualValues(t, 10, locationStatesFinal.Capacity)
 }
 
 func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
-	tWeb := test.CreateWebsocketTester(testApp.routes())
+	tWeb := test.CreateWebSocketTester(testApp.routes())
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
@@ -69,22 +70,23 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 
 	tWeb.SetParallelOperation(createCheckIn)
 
-	var locationUpdateEvent models.LocationUpdateEvent
-	tWeb.Do(t, nil, &locationUpdateEvent)
+	var locationState dtos.LocationStateDto
+	err := tWeb.Do(t, nil, &locationState)
 
+	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		locationUpdateEvent.NormalizedName,
+		locationState.NormalizedName,
 		fixtureData.DefaultLocation.NormalizedName,
 	)
-	assert.Equal(t, locationUpdateEvent.Capacity-6, locationUpdateEvent.Available)
+	assert.Equal(t, locationState.Capacity-6, locationState.Available)
 }
 
 func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	defer testEnv.TeardownSingle()
 
-	tWeb := test.CreateWebsocketTester(testApp.routes())
+	tWeb := test.CreateWebSocketTester(testApp.routes())
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
@@ -93,15 +95,16 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 
 	tWeb.SetParallelOperation(updateCapacity)
 
-	var locationUpdateEvent models.LocationUpdateEvent
-	tWeb.Do(t, nil, &locationUpdateEvent)
+	var locationState dtos.LocationStateDto
+	err := tWeb.Do(t, nil, &locationState)
 
+	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		locationUpdateEvent.NormalizedName,
+		locationState.NormalizedName,
 		fixtureData.DefaultLocation.NormalizedName,
 	)
-	assert.EqualValues(t, 10, locationUpdateEvent.Capacity)
+	assert.EqualValues(t, 10, locationState.Capacity)
 }
 
 func createCheckIn(t *testing.T, ts *httptest.Server) {
@@ -121,6 +124,7 @@ func createCheckIn(t *testing.T, ts *httptest.Server) {
 
 func updateCapacity(t *testing.T, ts *httptest.Server) {
 	var capacity int64 = 10
+	//nolint:exhaustruct // other fields are optional
 	data := dtos.UpdateLocationDto{
 		Capacity: &capacity,
 	}

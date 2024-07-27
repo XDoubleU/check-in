@@ -8,7 +8,7 @@ import (
 	"github.com/xdoubleu/essentia/pkg/middleware"
 )
 
-func (app *application) routes() (*http.Handler, error) {
+func (app *Application) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	app.authRoutes(mux)
@@ -20,6 +20,7 @@ func (app *application) routes() (*http.Handler, error) {
 
 	var sentryClientOptions sentry.ClientOptions
 	if len(app.config.SentryDsn) > 0 {
+		//nolint:exhaustruct //other fields are optional
 		sentryClientOptions = sentry.ClientOptions{
 			Dsn:              app.config.SentryDsn,
 			Environment:      app.config.Env,
@@ -38,11 +39,9 @@ func (app *application) routes() (*http.Handler, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	standard := alice.New(handlers...)
-	handler := standard.Then(mux)
-
-	return &handler, nil
+	return standard.Then(mux)
 }

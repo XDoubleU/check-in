@@ -15,7 +15,7 @@ import (
 	"check-in/api/internal/models"
 )
 
-func (app *application) locationsRoutes(mux *http.ServeMux) {
+func (app *Application) locationsRoutes(mux *http.ServeMux) {
 	mux.HandleFunc(
 		"GET /all-locations/checkins/range",
 		app.authAccess(allRoles, app.getLocationCheckInsRangeHandler),
@@ -25,15 +25,15 @@ func (app *application) locationsRoutes(mux *http.ServeMux) {
 		app.authAccess(allRoles, app.getLocationCheckInsDayHandler),
 	)
 	mux.HandleFunc(
-		"GET /locations/:locationId/checkins",
+		"GET /locations/{locationId}/checkins",
 		app.authAccess(allRoles, app.getAllCheckInsTodayHandler),
 	)
 	mux.HandleFunc(
-		"DELETE /locations/:locationId/checkins/:checkInId",
+		"DELETE /locations/{locationId}/checkins/{checkInId}",
 		app.authAccess(managerAndAdminRole, app.deleteLocationCheckInHandler),
 	)
 	mux.HandleFunc(
-		"GET /locations/:locationId",
+		"GET /locations/{locationId}",
 		app.authAccess(allRoles, app.getLocationHandler),
 	)
 	mux.HandleFunc(
@@ -49,11 +49,11 @@ func (app *application) locationsRoutes(mux *http.ServeMux) {
 		app.authAccess(managerAndAdminRole, app.createLocationHandler),
 	)
 	mux.HandleFunc(
-		"PATCH /locations/:locationId",
+		"PATCH /locations/{locationId}",
 		app.authAccess(allRoles, app.updateLocationHandler),
 	)
 	mux.HandleFunc(
-		"DELETE /locations/:locationId",
+		"DELETE /locations/{locationId}",
 		app.authAccess(managerAndAdminRole, app.deleteLocationHandler),
 	)
 }
@@ -69,7 +69,7 @@ func (app *application) locationsRoutes(mux *http.ServeMux) {
 // @Failure	404			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
 // @Router		/all-locations/checkins/day [get].
-func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
+func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	r *http.Request) {
 	ids, err := parse.RequiredArrayQueryParam(r, "ids", parse.UUID)
 	if err != nil {
@@ -161,7 +161,7 @@ func (app *application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 // @Failure	404			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
 // @Router		/all-locations/checkins/range [get].
-func (app *application) getLocationCheckInsRangeHandler(
+func (app *Application) getLocationCheckInsRangeHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -262,7 +262,7 @@ func (app *application) getLocationCheckInsRangeHandler(
 // @Failure	401	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/locations/{id}/checkins [get].
-func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
+func (app *Application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 	r *http.Request) {
 	id, err := parse.URLParam(r, "locationId", parse.UUID)
 	if err != nil {
@@ -330,7 +330,7 @@ func (app *application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 // @Failure	404			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
 // @Router		/locations/{locationId}/checkins/{checkInId} [delete].
-func (app *application) deleteLocationCheckInHandler(
+func (app *Application) deleteLocationCheckInHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -408,7 +408,7 @@ func (app *application) deleteLocationCheckInHandler(
 // @Failure	404	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/locations/{id} [get].
-func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getLocationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := parse.URLParam(r, "locationId", parse.UUID)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
@@ -437,7 +437,7 @@ func (app *application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 // @Failure	401		{object}	ErrorDto
 // @Failure	500		{object}	ErrorDto
 // @Router		/locations [get].
-func (app *application) getPaginatedLocationsHandler(w http.ResponseWriter,
+func (app *Application) getPaginatedLocationsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 3
 
@@ -471,7 +471,7 @@ func (app *application) getPaginatedLocationsHandler(w http.ResponseWriter,
 // @Failure	401	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/all-locations [get].
-func (app *application) getAllLocationsHandler(w http.ResponseWriter,
+func (app *Application) getAllLocationsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	locations, err := app.services.Locations.GetAll(r.Context())
 	if err != nil {
@@ -494,7 +494,7 @@ func (app *application) getAllLocationsHandler(w http.ResponseWriter,
 // @Failure	409					{object}	ErrorDto
 // @Failure	500					{object}	ErrorDto
 // @Router		/locations [post].
-func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) createLocationHandler(w http.ResponseWriter, r *http.Request) {
 	var createLocationDto dtos.CreateLocationDto
 
 	err := httptools.ReadJSON(r.Body, &createLocationDto)
@@ -569,7 +569,7 @@ func (app *application) createLocationHandler(w http.ResponseWriter, r *http.Req
 // @Failure	409					{object}	ErrorDto
 // @Failure	500					{object}	ErrorDto
 // @Router		/locations/{id} [patch].
-func (app *application) updateLocationHandler(w http.ResponseWriter,
+func (app *Application) updateLocationHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var updateLocationDto dtos.UpdateLocationDto
 
@@ -624,7 +624,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 		return
 	}
 
-	app.services.WebSockets.AddUpdateEvent(*location)
+	app.services.WebSocket.NewLocationState(*location)
 
 	err = httptools.WriteJSON(w, http.StatusOK, location, nil)
 	if err != nil {
@@ -632,7 +632,7 @@ func (app *application) updateLocationHandler(w http.ResponseWriter,
 	}
 }
 
-func (app *application) checkForConflictsOnUpdate(
+func (app *Application) checkForConflictsOnUpdate(
 	w http.ResponseWriter,
 	r *http.Request,
 	updateLocationDto dtos.UpdateLocationDto,
@@ -687,7 +687,7 @@ func (app *application) checkForConflictsOnUpdate(
 // @Failure	404	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/locations/{id} [delete].
-func (app *application) deleteLocationHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) deleteLocationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := parse.URLParam(r, "locationId", parse.UUID)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)

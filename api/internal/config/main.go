@@ -1,4 +1,4 @@
-//nolint:gomnd //no magic number
+//nolint:mnd //no magic number
 package config
 
 import (

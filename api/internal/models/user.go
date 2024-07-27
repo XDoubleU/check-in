@@ -25,7 +25,7 @@ type User struct {
 func HashPassword(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword(
 		[]byte(password),
-		12, //nolint:gomnd //no magic number
+		12, //nolint:mnd //no magic number
 	)
 }
 

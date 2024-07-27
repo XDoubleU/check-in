@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	essentiaconfig "github.com/xdoubleu/essentia/pkg/config"
 	"github.com/xdoubleu/essentia/pkg/database"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
 	"github.com/xdoubleu/essentia/pkg/httptools"
@@ -45,10 +45,11 @@ type FixtureData struct {
 	AmountOfManagerUsers int
 }
 
-var mainTestEnv database.MainTestEnv[*pgxpool.Pool, postgres.PgxSyncTx] //nolint:gochecknoglobals //global var for tests
-var tokens Tokens                                                       //nolint:gochecknoglobals //global var for tests
-var cfg config.Config                                                   //nolint:gochecknoglobals //global var for tests
-var fixtureData FixtureData                                             //nolint:gochecknoglobals //global var for tests
+// todo get rid of these
+var mainTestEnv *database.MainTestEnv[*pgxpool.Pool, postgres.PgxSyncTx] //nolint:gochecknoglobals //global var for tests
+var tokens Tokens                                                        //nolint:gochecknoglobals //global var for tests
+var cfg config.Config                                                    //nolint:gochecknoglobals //global var for tests
+var fixtureData FixtureData                                              //nolint:gochecknoglobals //global var for tests
 
 func clearAll(services services.Services) {
 	user, err := services.Users.GetByUsername(context.Background(), "Admin")
@@ -228,6 +229,7 @@ func locationFixtures(services services.Services) {
 			context.Background(),
 			fixtureData.DefaultLocation,
 			fixtureData.AdminUser,
+			//nolint:exhaustruct // other fields are optional
 			dtos.UpdateLocationDto{
 				Capacity: &newCap,
 			},
@@ -240,6 +242,7 @@ func locationFixtures(services services.Services) {
 		checkIn, err = services.CheckIns.Create(
 			context.Background(),
 			fixtureData.DefaultLocation,
+			//nolint:exhaustruct // other fields are optional
 			&models.School{ID: 1},
 		)
 		if err != nil {
@@ -279,6 +282,7 @@ func locationFixtures(services services.Services) {
 			_, err = services.CheckIns.Create(
 				context.Background(),
 				location,
+				//nolint:exhaustruct // other fields are optional
 				&models.School{ID: 1},
 			)
 			if err != nil {
@@ -303,7 +307,7 @@ func schoolFixtures(services services.Services) {
 }
 
 func fixtures(db postgres.DB) {
-	services := services.New(repositories.New(db))
+	services := services.New(cfg, repositories.New(db))
 
 	clearAll(services)
 	userFixtures(services)
@@ -312,7 +316,7 @@ func fixtures(db postgres.DB) {
 }
 
 func removeFixtures(db postgres.DB) {
-	services := services.New(repositories.New(db))
+	services := services.New(cfg, repositories.New(db))
 
 	clearAll(services)
 }
@@ -321,15 +325,15 @@ func TestMain(m *testing.M) {
 	var err error
 
 	cfg = config.New()
-	cfg.Env = config.TestEnv
+	cfg.Env = essentiaconfig.TestEnv
 	cfg.Throttle = false
 
 	db, err := postgres.Connect(
 		logging.NewNopLogger(),
-		cfg.DB.Dsn,
-		cfg.DB.MaxConns,
-		cfg.DB.MaxIdleTime,
-		"5",
+		cfg.DBDsn,
+		25,
+		"15m",
+		5,
 		15*time.Second,
 		30*time.Second,
 	)
@@ -337,7 +341,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	mainTestEnv := database.CreateMainTestEnv(db, postgres.CreatePgxSyncTx)
+	mainTestEnv = database.CreateMainTestEnv(db, postgres.CreatePgxSyncTx)
 
 	fixtures(mainTestEnv.TestDB)
 	exitCode := m.Run()
@@ -349,11 +353,11 @@ func TestMain(m *testing.M) {
 func setupTest(
 	t *testing.T,
 	mainTestEnv *database.MainTestEnv[*pgxpool.Pool, postgres.PgxSyncTx],
-) (database.TestEnv[postgres.PgxSyncTx], *application) {
+) (database.TestEnv[postgres.PgxSyncTx], *Application) {
 	t.Parallel()
 	testEnv := mainTestEnv.SetupSingle()
 
-	testApp := NewApp(slog.Default(), cfg, testEnv.Tx)
+	testApp := NewApp(logging.NewNopLogger(), cfg, testEnv.Tx)
 
 	return testEnv, testApp
 }

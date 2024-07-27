@@ -11,11 +11,12 @@ import (
 
 const userContextKey = contexttools.ContextKey("user")
 
-func (app *application) contextSetUser(
+func (app *Application) contextSetUser(
 	ctx context.Context,
 	user models.User,
 ) context.Context {
 	if hub := sentry.GetHubFromContext(ctx); hub != nil {
+		//nolint:exhaustruct //other fields are optional
 		hub.Scope().SetUser(sentry.User{
 			ID:       user.ID,
 			Username: user.Username,

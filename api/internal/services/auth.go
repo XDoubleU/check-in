@@ -1,8 +1,6 @@
 package services
 
 import (
-	"check-in/api/internal/models"
-	"check-in/api/internal/repositories"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -11,6 +9,9 @@ import (
 	"time"
 
 	"github.com/xhit/go-str2duration/v2"
+
+	"check-in/api/internal/models"
+	"check-in/api/internal/repositories"
 )
 
 type AuthService struct {
@@ -70,7 +71,10 @@ func (service AuthService) DeleteCookie(
 	scope models.Scope,
 	tokenValue string,
 ) (*http.Cookie, error) {
-	err := service.auth.DeleteToken(context.Background(), service.hashTokenValue(tokenValue))
+	err := service.auth.DeleteToken(
+		context.Background(),
+		service.hashTokenValue(tokenValue),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -96,12 +100,16 @@ func (service AuthService) GetToken(
 	scope models.Scope,
 	tokenValue string,
 ) (*models.Token, *models.User, error) {
-	token, userId, userRole, err := service.auth.GetToken(ctx, scope, service.hashTokenValue(tokenValue))
+	token, userID, userRole, err := service.auth.GetToken(
+		ctx,
+		scope,
+		service.hashTokenValue(tokenValue),
+	)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	user, err := service.users.GetByID(ctx, *userId, *userRole)
+	user, err := service.users.GetByID(ctx, *userID, *userRole)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -128,6 +136,7 @@ func (service AuthService) generateToken(
 	ttl time.Duration,
 	scope models.Scope,
 ) (*models.Token, error) {
+	//nolint:exhaustruct //other fields are optional
 	token := &models.Token{
 		UserID: userID,
 		Expiry: time.Now().Add(ttl),
