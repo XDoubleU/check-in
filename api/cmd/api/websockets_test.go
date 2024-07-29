@@ -1,11 +1,12 @@
 package main
 
 import (
-	"net/http"
+	"context"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/xdoubleu/essentia/pkg/test"
 
 	"check-in/api/internal/dtos"
@@ -22,17 +23,23 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 		Subject: "all-locations",
 	})
 
-	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) { createCheckIn(t, ts, testEnv) })
+	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) {
+		school, err := testEnv.services.Schools.GetByID(context.Background(), int64(1))
+		require.Nil(t, err)
+
+		_, err = testEnv.services.CheckIns.Create(context.Background(), testEnv.Fixtures.DefaultLocation, school)
+		require.Nil(t, err)
+	})
 
 	var locationStatesInitial []dtos.LocationStateDto
 	var locationStatesFinal dtos.LocationStateDto
 	err := tWeb.Do(t, &locationStatesInitial, &locationStatesFinal)
 
 	assert.Nil(t, err)
-	assert.Equal(t, 21, len(locationStatesInitial))
+	assert.Equal(t, 1, len(locationStatesInitial))
 	assert.Equal(
 		t,
-		locationStatesFinal.Capacity-6,
+		locationStatesFinal.Capacity-1,
 		locationStatesFinal.Available,
 	)
 }
@@ -46,14 +53,24 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
 	})
-	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) { updateCapacity(t, ts, testEnv) })
+	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) {
+		newCap := int64(10)
+		err := testEnv.services.Locations.Update(
+			context.Background(),
+			testEnv.Fixtures.DefaultLocation,
+			testEnv.Fixtures.DefaultUser, dtos.UpdateLocationDto{
+				Capacity: &newCap,
+			},
+		)
+		require.Nil(t, err)
+	})
 
 	var locationStatesInitial []dtos.LocationStateDto
 	var locationStatesFinal dtos.LocationStateDto
 	err := tWeb.Do(t, &locationStatesInitial, &locationStatesFinal)
 
 	assert.Nil(t, err)
-	assert.Equal(t, 21, len(locationStatesInitial))
+	assert.Equal(t, 1, len(locationStatesInitial))
 	assert.EqualValues(t, 10, locationStatesFinal.Capacity)
 }
 
@@ -68,7 +85,13 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 		NormalizedName: testEnv.Fixtures.DefaultLocation.NormalizedName,
 	})
 
-	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) { createCheckIn(t, ts, testEnv) })
+	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) {
+		school, err := testEnv.services.Schools.GetByID(context.Background(), int64(1))
+		require.Nil(t, err)
+
+		_, err = testEnv.services.CheckIns.Create(context.Background(), testEnv.Fixtures.DefaultLocation, school)
+		require.Nil(t, err)
+	})
 
 	var locationState dtos.LocationStateDto
 	err := tWeb.Do(t, nil, &locationState)
@@ -79,7 +102,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 		locationState.NormalizedName,
 		testEnv.Fixtures.DefaultLocation.NormalizedName,
 	)
-	assert.Equal(t, locationState.Capacity-6, locationState.Available)
+	assert.Equal(t, locationState.Capacity-1, locationState.Available)
 }
 
 func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
@@ -93,7 +116,17 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 		NormalizedName: testEnv.Fixtures.DefaultLocation.NormalizedName,
 	})
 
-	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) { updateCapacity(t, ts, testEnv) })
+	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) {
+		newCap := int64(10)
+		err := testEnv.services.Locations.Update(
+			context.Background(),
+			testEnv.Fixtures.DefaultLocation,
+			testEnv.Fixtures.DefaultUser, dtos.UpdateLocationDto{
+				Capacity: &newCap,
+			},
+		)
+		require.Nil(t, err)
+	})
 
 	var locationState dtos.LocationStateDto
 	err := tWeb.Do(t, nil, &locationState)
@@ -105,41 +138,4 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 		testEnv.Fixtures.DefaultLocation.NormalizedName,
 	)
 	assert.EqualValues(t, 10, locationState.Capacity)
-}
-
-func createCheckIn(t *testing.T, ts *httptest.Server, testEnv TestEnv) {
-	data := dtos.CreateCheckInDto{
-		SchoolID: testEnv.Fixtures.Schools[0].ID,
-	}
-
-	tReq := test.CreateRequestTester(nil, http.MethodPost, "/checkins")
-	tReq.SetTestServer(ts)
-	tReq.SetReqData(data)
-	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
-
-	rs := tReq.Do(t, nil)
-
-	assert.Equal(t, http.StatusCreated, rs.StatusCode)
-}
-
-func updateCapacity(t *testing.T, ts *httptest.Server, testEnv TestEnv) {
-	var capacity int64 = 10
-	//nolint:exhaustruct // other fields are optional
-	data := dtos.UpdateLocationDto{
-		Capacity: &capacity,
-	}
-
-	tReq := test.CreateRequestTester(
-		nil,
-		http.MethodPatch,
-		"/locations/%s",
-		testEnv.Fixtures.DefaultLocation.ID,
-	)
-	tReq.SetTestServer(ts)
-	tReq.SetReqData(data)
-	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
-
-	rs := tReq.Do(t, nil)
-
-	assert.Equal(t, http.StatusOK, rs.StatusCode)
 }

@@ -625,8 +625,6 @@ func (app *Application) updateLocationHandler(w http.ResponseWriter,
 		return
 	}
 
-	app.services.WebSocket.NewLocationState(*location)
-
 	err = httptools.WriteJSON(w, http.StatusOK, location, nil)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)

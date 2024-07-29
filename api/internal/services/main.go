@@ -15,8 +15,11 @@ type Services struct {
 }
 
 func New(config config.Config, repositories repositories.Repositories) Services {
+	websocket := NewWebSocketService(config.WebURL)
+
 	checkIns := CheckInService{
-		checkins: repositories.CheckIns,
+		checkins:  repositories.CheckIns,
+		websocket: websocket,
 	}
 	schools := SchoolService{
 		schools: repositories.Schools,
@@ -25,6 +28,7 @@ func New(config config.Config, repositories repositories.Repositories) Services 
 		locations: repositories.Locations,
 		schools:   schools,
 		checkins:  checkIns,
+		websocket: websocket,
 	}
 	users := UserService{
 		users:     repositories.Users,
@@ -35,7 +39,8 @@ func New(config config.Config, repositories repositories.Repositories) Services 
 		users: users,
 	}
 
-	websocket, err := NewWebSocketService(config.WebURL, locations)
+	// todo find better way
+	err := websocket.Initialize(locations.GetAll)
 	if err != nil {
 		panic(err)
 	}

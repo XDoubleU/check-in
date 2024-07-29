@@ -18,6 +18,7 @@ type LocationService struct {
 	locations repositories.LocationRepository
 	schools   SchoolService
 	checkins  CheckInService
+	websocket *WebSocketService
 }
 
 // todo: refactor
@@ -266,6 +267,11 @@ func (service LocationService) Create(
 		return nil, err
 	}
 
+	err = service.websocket.AddLocation(location)
+	if err != nil {
+		return nil, err
+	}
+
 	return location, nil
 }
 
@@ -280,12 +286,36 @@ func (service LocationService) Update(
 		return err
 	}
 
-	return service.prepareLocation(ctx, location)
+	err = service.prepareLocation(ctx, location)
+	if err != nil {
+		return err
+	}
+
+	//todo this check sucks, all subs lose their subscription
+	if updateLocationDto.Name != nil {
+		err = service.websocket.DeleteLocation(location)
+		if err != nil {
+			return err
+		}
+		err = service.websocket.AddLocation(location)
+		if err != nil {
+			return err
+		}
+	}
+
+	service.websocket.NewLocationState(*location)
+
+	return nil
 }
 
 func (service LocationService) Delete(
 	ctx context.Context,
 	location *models.Location,
 ) error {
-	return service.locations.Delete(ctx, location)
+	err := service.locations.Delete(ctx, location)
+	if err != nil {
+		return err
+	}
+
+	return service.websocket.DeleteLocation(location)
 }

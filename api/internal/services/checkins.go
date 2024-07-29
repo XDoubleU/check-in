@@ -11,7 +11,8 @@ import (
 )
 
 type CheckInService struct {
-	checkins repositories.CheckInRepository
+	checkins  repositories.CheckInRepository
+	websocket *WebSocketService
 }
 
 func (service CheckInService) GetAllOfDay(
@@ -60,6 +61,8 @@ func (service CheckInService) Create(
 	}
 
 	location.Available--
+
+	service.websocket.NewLocationState(*location)
 
 	return checkIn, nil
 }

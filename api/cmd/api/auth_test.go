@@ -164,8 +164,8 @@ func TestSignOut(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
-	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
-	tReq.AddCookie(testEnv.Tokens.DefaultRefreshToken)
+	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultRefreshToken)
 
 	rs := tReq.Do(t, nil)
 
@@ -180,7 +180,7 @@ func TestSignOutNoRefresh(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
-	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t, nil)
 
@@ -206,7 +206,7 @@ func TestRefresh(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
-	tReq.AddCookie(testEnv.Tokens.DefaultRefreshToken)
+	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultRefreshToken)
 
 	rs := tReq.Do(t, nil)
 
@@ -221,7 +221,7 @@ func TestRefreshReusedToken(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
-	tReq.AddCookie(testEnv.Tokens.DefaultRefreshToken)
+	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultRefreshToken)
 
 	rs1 := tReq.Do(t, nil)
 	rs2 := tReq.Do(t, nil)
@@ -236,7 +236,7 @@ func TestRefreshInvalidToken(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
-	tReq.AddCookie(testEnv.Tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t, nil)
 

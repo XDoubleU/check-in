@@ -120,8 +120,6 @@ func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	app.services.WebSocket.NewLocationState(*location)
-
 	checkInDto := dtos.CheckInDto{
 		ID:         checkIn.ID,
 		LocationID: checkIn.LocationID,
