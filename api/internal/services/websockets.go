@@ -24,13 +24,14 @@ func NewWebSocketService(
 	allowedOrigin string,
 ) *WebSocketService {
 	service := &WebSocketService{
-		handler:  nil,
-		allTopic: nil,
-		topics:   make(map[string]*wstools.Topic),
+		handler:         nil,
+		allTopic:        nil,
+		topics:          make(map[string]*wstools.Topic),
+		getAllLocations: nil, //initialized later
 	}
 
 	handler := wstools.CreateWebSocketHandler[dtos.SubscribeMessageDto](
-		1,   //nolint:mnd //no magic number
+		1,
 		100, //nolint:mnd //no magic number
 		[]string{allowedOrigin},
 	)
@@ -47,7 +48,10 @@ func (service *WebSocketService) Initialize(getAllLocations GetAllLocationsFunc)
 		return err
 	}
 
-	service.allTopic, err = service.handler.AddTopic("*", func(topic *wstools.Topic) any { return service.getAllLocationStates() })
+	service.allTopic, err = service.handler.AddTopic(
+		"*",
+		func(_ *wstools.Topic) any { return service.getAllLocationStates() },
+	)
 	if err != nil {
 		return err
 	}
@@ -110,7 +114,7 @@ func (service WebSocketService) NewLocationState(location models.Location) {
 func (service WebSocketService) getAllLocationStates() []dtos.LocationStateDto {
 	locations, err := service.getAllLocations(context.Background())
 	if err != nil {
-		//todo no panic pls
+		// todo no panic pls
 		panic(err)
 	}
 

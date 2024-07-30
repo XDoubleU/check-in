@@ -23,11 +23,15 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 		Subject: "all-locations",
 	})
 
-	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) {
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
 		school, err := testEnv.services.Schools.GetByID(context.Background(), int64(1))
 		require.Nil(t, err)
 
-		_, err = testEnv.services.CheckIns.Create(context.Background(), testEnv.Fixtures.DefaultLocation, school)
+		_, err = testEnv.services.CheckIns.Create(
+			context.Background(),
+			testEnv.Fixtures.DefaultLocation,
+			school,
+		)
 		require.Nil(t, err)
 	})
 
@@ -53,12 +57,14 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
 	})
-	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) {
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
 		newCap := int64(10)
 		err := testEnv.services.Locations.Update(
 			context.Background(),
 			testEnv.Fixtures.DefaultLocation,
-			testEnv.Fixtures.DefaultUser, dtos.UpdateLocationDto{
+			testEnv.Fixtures.DefaultUser,
+			//nolint:exhaustruct //other fields are optional
+			dtos.UpdateLocationDto{
 				Capacity: &newCap,
 			},
 		)
@@ -85,11 +91,15 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 		NormalizedName: testEnv.Fixtures.DefaultLocation.NormalizedName,
 	})
 
-	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) {
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
 		school, err := testEnv.services.Schools.GetByID(context.Background(), int64(1))
 		require.Nil(t, err)
 
-		_, err = testEnv.services.CheckIns.Create(context.Background(), testEnv.Fixtures.DefaultLocation, school)
+		_, err = testEnv.services.CheckIns.Create(
+			context.Background(),
+			testEnv.Fixtures.DefaultLocation,
+			school,
+		)
 		require.Nil(t, err)
 	})
 
@@ -116,12 +126,14 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 		NormalizedName: testEnv.Fixtures.DefaultLocation.NormalizedName,
 	})
 
-	tWeb.SetParallelOperation(func(t *testing.T, ts *httptest.Server) {
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
 		newCap := int64(10)
 		err := testEnv.services.Locations.Update(
 			context.Background(),
 			testEnv.Fixtures.DefaultLocation,
-			testEnv.Fixtures.DefaultUser, dtos.UpdateLocationDto{
+			testEnv.Fixtures.DefaultUser,
+			//nolint:exhaustruct //other fields are optional
+			dtos.UpdateLocationDto{
 				Capacity: &newCap,
 			},
 		)

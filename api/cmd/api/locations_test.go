@@ -1131,8 +1131,16 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 			testEnv.Fixtures.DefaultLocation.NormalizedName,
 			rsData.Data[0].NormalizedName,
 		)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.Available, rsData.Data[0].Available)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.Capacity, rsData.Data[0].Capacity)
+		assert.Equal(
+			t,
+			testEnv.Fixtures.DefaultLocation.Available,
+			rsData.Data[0].Available,
+		)
+		assert.Equal(
+			t,
+			testEnv.Fixtures.DefaultLocation.Capacity,
+			rsData.Data[0].Capacity,
+		)
 		assert.NotEqual(
 			t,
 			0,
@@ -1148,7 +1156,11 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 			testEnv.Fixtures.DefaultLocation.YesterdayFullAt,
 			rsData.Data[0].YesterdayFullAt,
 		)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.TimeZone, rsData.Data[0].TimeZone)
+		assert.Equal(
+			t,
+			testEnv.Fixtures.DefaultLocation.TimeZone,
+			rsData.Data[0].TimeZone,
+		)
 		assert.Equal(t, testEnv.Fixtures.DefaultLocation.UserID, rsData.Data[0].UserID)
 	}
 }
@@ -1683,7 +1695,7 @@ func TestUpdateLocation(t *testing.T) {
 		assert.Equal(t, location.ID, rsData.ID)
 		assert.Equal(t, *data.Name, rsData.Name)
 		assert.Equal(t, *data.Name, rsData.NormalizedName)
-		//todo kaput assert.EqualValues(t, 0, rsData.Available)
+		// todo kaput assert.EqualValues(t, 0, rsData.Available)
 		assert.Equal(t, *data.Capacity, rsData.Capacity)
 		/*todo assert.Equal(
 			t,
@@ -1745,7 +1757,10 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	name, username, password, timeZone := fmt.Sprintf("$%s$", testEnv.Fixtures.DefaultLocation.Name), "test",
+	name, username, password, timeZone := fmt.Sprintf(
+		"$%s$",
+		testEnv.Fixtures.DefaultLocation.Name,
+	), "test",
 		"testpassword", "Europe/Brussels"
 	var capacity int64 = 10
 	data := dtos.UpdateLocationDto{

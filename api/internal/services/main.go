@@ -39,7 +39,6 @@ func New(config config.Config, repositories repositories.Repositories) Services 
 		users: users,
 	}
 
-	// todo find better way
 	err := websocket.Initialize(locations.GetAll)
 	if err != nil {
 		panic(err)

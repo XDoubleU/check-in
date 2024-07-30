@@ -1,10 +1,10 @@
 package dtos
 
 import (
-	"check-in/api/internal/models"
-
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/xdoubleu/essentia/pkg/validate"
+
+	"check-in/api/internal/models"
 )
 
 type WebSocketSubject string //	@name	WebSocketSubject

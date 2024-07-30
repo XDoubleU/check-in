@@ -39,8 +39,8 @@ type Fixtures struct {
 	DefaultLocation *models.Location
 }
 
-var db postgres.DB
-var cfg config.Config
+var db postgres.DB    //nolint:gochecknoglobals //needed for tests
+var cfg config.Config //nolint:gochecknoglobals //needed for tests
 
 func (env *TestEnv) defaultFixtures() {
 	var err error
@@ -64,7 +64,8 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.AdminAccessToken, err = env.services.Auth.CreateCookie(context.Background(),
+	env.Fixtures.Tokens.AdminAccessToken, err = env.services.Auth.CreateCookie(
+		context.Background(),
 		models.AccessScope,
 		env.Fixtures.AdminUser.ID,
 		env.cfg.AccessExpiry,
@@ -74,7 +75,8 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.ManagerAccessToken, err = env.services.Auth.CreateCookie(context.Background(),
+	env.Fixtures.Tokens.ManagerAccessToken, err = env.services.Auth.CreateCookie(
+		context.Background(),
 		models.AccessScope,
 		env.Fixtures.ManagerUser.ID,
 		env.cfg.AccessExpiry,
@@ -184,7 +186,11 @@ func (env *TestEnv) createLocations(amount int) []*models.Location {
 	return locations
 }
 
-func (env *TestEnv) createCheckIns(location *models.Location, schoolID int64, amount int) []*models.CheckIn {
+func (env *TestEnv) createCheckIns(
+	location *models.Location,
+	schoolID int64,
+	amount int,
+) []*models.CheckIn {
 	var err error
 
 	checkIns := []*models.CheckIn{}
@@ -227,7 +233,7 @@ func TestMain(m *testing.M) {
 	cfg.Env = configtools.TestEnv
 	cfg.Throttle = false
 
-	postgresDb, err := postgres.Connect(
+	postgresDB, err := postgres.Connect(
 		logging.NewNopLogger(),
 		cfg.DBDsn,
 		25,
@@ -240,9 +246,9 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	ApplyMigrations(postgresDb)
+	ApplyMigrations(postgresDB)
 
-	db = postgresDb
+	db = postgresDB
 
 	os.Exit(m.Run())
 }
@@ -258,6 +264,7 @@ func setup(t *testing.T) (TestEnv, *Application) {
 		tx:       tx,
 		cfg:      cfg,
 		services: testApp.services,
+		//nolint:exhaustruct //fields are optional
 		Fixtures: Fixtures{},
 	}
 

@@ -257,7 +257,14 @@ func (service LocationService) Create(
 	username string,
 	password string,
 ) (*models.Location, error) {
-	location, err := service.locations.Create(ctx, name, capacity, timeZone, username, password)
+	location, err := service.locations.Create(
+		ctx,
+		name,
+		capacity,
+		timeZone,
+		username,
+		password,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +298,7 @@ func (service LocationService) Update(
 		return err
 	}
 
-	//todo this check sucks, all subs lose their subscription
+	// todo this check sucks, all subs lose their subscription
 	if updateLocationDto.Name != nil {
 		err = service.websocket.DeleteLocation(location)
 		if err != nil {

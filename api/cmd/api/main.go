@@ -30,34 +30,6 @@ type Application struct {
 	services services.Services
 }
 
-func ApplyMigrations(db *pgxpool.Pool) {
-	migrationsDb := stdlib.OpenDBFromPool(db)
-
-	goose.SetBaseFS(embedMigrations)
-
-	if err := goose.SetDialect("postgres"); err != nil {
-		panic(err)
-	}
-
-	if err := goose.Up(migrationsDb, "migrations"); err != nil {
-		panic(err)
-	}
-}
-
-func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application {
-	logger.Info(cfg.String())
-
-	spandb := postgres.NewSpanDB(db)
-
-	repos := repositories.New(spandb)
-
-	return &Application{
-		logger:   logger,
-		config:   cfg,
-		services: services.New(cfg, repos),
-	}
-}
-
 //	@title			Check-In API
 //	@version		1.0
 //	@license.name	GPL-3.0
@@ -96,5 +68,33 @@ func main() {
 	err = httptools.Serve(logger, srv, app.config.Env)
 	if err != nil {
 		logger.Error("failed to serve server", logging.ErrAttr(err))
+	}
+}
+
+func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application {
+	logger.Info(cfg.String())
+
+	spandb := postgres.NewSpanDB(db)
+
+	repos := repositories.New(spandb)
+
+	return &Application{
+		logger:   logger,
+		config:   cfg,
+		services: services.New(cfg, repos),
+	}
+}
+
+func ApplyMigrations(db *pgxpool.Pool) {
+	migrationsDB := stdlib.OpenDBFromPool(db)
+
+	goose.SetBaseFS(embedMigrations)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		panic(err)
+	}
+
+	if err := goose.Up(migrationsDB, "migrations"); err != nil {
+		panic(err)
 	}
 }

@@ -61,8 +61,16 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 		testEnv.Fixtures.DefaultLocation.NormalizedName,
 		rs3Data.Location.NormalizedName,
 	)
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.Available, rs3Data.Location.Available)
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.Capacity, rs3Data.Location.Capacity)
+	assert.Equal(
+		t,
+		testEnv.Fixtures.DefaultLocation.Available,
+		rs3Data.Location.Available,
+	)
+	assert.Equal(
+		t,
+		testEnv.Fixtures.DefaultLocation.Capacity,
+		rs3Data.Location.Capacity,
+	)
 	assert.Equal(
 		t,
 		testEnv.Fixtures.DefaultLocation.YesterdayFullAt,
@@ -88,7 +96,11 @@ func TestGetUser(t *testing.T) {
 	defer testEnv.teardown()
 
 	userID := testEnv.createLocations(1)[0].UserID
-	defaultUser, _ := testEnv.services.Users.GetByID(context.Background(), userID, models.DefaultRole)
+	defaultUser, _ := testEnv.services.Users.GetByID(
+		context.Background(),
+		userID,
+		models.DefaultRole,
+	)
 
 	users := []*http.Cookie{
 		testEnv.Fixtures.Tokens.AdminAccessToken,

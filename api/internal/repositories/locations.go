@@ -146,7 +146,7 @@ func (repo LocationRepository) GetBy(
 }
 
 // todo: refactor, need tx but don't want
-// code duplication across repositories
+// code duplication across repositories.
 func (repo LocationRepository) Create(
 	ctx context.Context,
 	name string,

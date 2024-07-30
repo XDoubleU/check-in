@@ -143,7 +143,7 @@ func (service AuthService) generateToken(
 		Scope:  scope,
 	}
 
-	randomBytes := make([]byte, 16) //nolint:gomnd //no magic number
+	randomBytes := make([]byte, 16) //nolint:mnd //no magic number
 
 	_, err := rand.Read(randomBytes)
 	if err != nil {
