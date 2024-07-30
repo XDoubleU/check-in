@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
-	"github.com/xdoubleu/essentia/pkg/tools"
+	timetools "github.com/xdoubleu/essentia/pkg/time"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
@@ -81,10 +81,10 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	now := time.Now().In(loc)
 
 	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = tools.StartOfDay(startDate)
+	startDate = timetools.StartOfDay(startDate)
 
 	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = tools.StartOfDay(endDate)
+	endDate = timetools.StartOfDay(endDate)
 
 	users := []*http.Cookie{
 		testEnv.Fixtures.Tokens.AdminAccessToken,
@@ -161,10 +161,10 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	now := time.Now().In(loc)
 
 	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = tools.StartOfDay(startDate)
+	startDate = timetools.StartOfDay(startDate)
 
 	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = tools.StartOfDay(endDate)
+	endDate = timetools.StartOfDay(endDate)
 
 	users := []*http.Cookie{
 		testEnv.Fixtures.Tokens.AdminAccessToken,
@@ -478,7 +478,8 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, int64(1), 10)
+	amount := 10
+	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, int64(1), amount)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 	utc, _ := time.LoadLocation("UTC")
@@ -523,9 +524,9 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 		)
 		assert.Equal(t, capacity, int64(20))
 
-		// value, present := rsData[checkInDate].Schools.Get("Andere")
-		// assert.Equal(t, 5, value)
-		// assert.Equal(t, true, present)
+		value, present := rsData[checkInDate].Schools.Get("Andere")
+		assert.Equal(t, amount, value)
+		assert.Equal(t, true, present)
 	}
 }
 
@@ -535,8 +536,9 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, int64(1), 10)
-	testEnv.createCheckIns(location, int64(1), 10)
+	amount := 10
+	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, int64(1), amount)
+	testEnv.createCheckIns(location, int64(1), amount)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 	utc, _ := time.LoadLocation("UTC")
@@ -592,7 +594,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 		)
 
 		value, present := rsData[checkInDate].Schools.Get("Andere")
-		assert.Equal(t, 10, value)
+		assert.Equal(t, 2*amount, value)
 		assert.Equal(t, true, present)
 	}
 }
@@ -1481,7 +1483,7 @@ func TestCreateLocation(t *testing.T) {
 		)
 		tReq.AddCookie(user)
 
-		tReq.SetReqData(data)
+		tReq.SetBody(data)
 
 		var rsData models.Location
 		rs := tReq.Do(t, &rsData)
@@ -1515,7 +1517,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/locations")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -1543,7 +1545,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/locations")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -1571,7 +1573,7 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/locations")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -1594,7 +1596,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 	mt := test.CreateMatrixTester()
 
 	tReq1 := tReq.Copy()
-	tReq1.SetReqData(dtos.CreateLocationDto{
+	tReq1.SetBody(dtos.CreateLocationDto{
 		Name:     "test",
 		Capacity: -1,
 		Username: "test",
@@ -1603,7 +1605,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 	})
 
 	tRes1 := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes1.SetExpectedBody(
+	tRes1.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"capacity": "must be greater than 0",
 		}),
@@ -1612,7 +1614,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 	mt.AddTestCase(tReq1, tRes1)
 
 	tReq2 := tReq.Copy()
-	tReq2.SetReqData(dtos.CreateLocationDto{
+	tReq2.SetBody(dtos.CreateLocationDto{
 		Name:     "test",
 		Capacity: 10,
 		Username: "test",
@@ -1621,7 +1623,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 	})
 
 	tRes2 := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes2.SetExpectedBody(
+	tRes2.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"timeZone": "must be a valid IANA value",
 		}),
@@ -1685,7 +1687,7 @@ func TestUpdateLocation(t *testing.T) {
 		)
 		tReq.AddCookie(user)
 
-		tReq.SetReqData(data)
+		tReq.SetBody(data)
 
 		var rsData models.Location
 		rs := tReq.Do(t, &rsData)
@@ -1694,16 +1696,16 @@ func TestUpdateLocation(t *testing.T) {
 		assert.Equal(t, location.ID, rsData.ID)
 		assert.Equal(t, *data.Name, rsData.Name)
 		assert.Equal(t, *data.Name, rsData.NormalizedName)
-		assert.EqualValues(t, 0, rsData.Available)
+		assert.EqualValues(t, *data.Capacity, rsData.Available)
 		assert.Equal(t, *data.Capacity, rsData.Capacity)
 		assert.Equal(
 			t,
-			location.AvailableYesterday,
+			*data.Capacity,
 			rsData.AvailableYesterday,
 		)
 		assert.Equal(
 			t,
-			location.CapacityYesterday,
+			*data.Capacity,
 			rsData.CapacityYesterday,
 		)
 		assert.Equal(t, false, rsData.YesterdayFullAt.Valid)
@@ -1737,7 +1739,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -1778,7 +1780,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -1816,7 +1818,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -1849,7 +1851,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 
 	name, username, password, timeZone1 := "test", "test", "testpassword", "Europe/Brussels"
 	var capacity1 int64 = -1
-	tReq1.SetReqData(dtos.UpdateLocationDto{
+	tReq1.SetBody(dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity1,
 		Username: &username,
@@ -1858,7 +1860,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 	})
 
 	tRes1 := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes1.SetExpectedBody(
+	tRes1.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"capacity": "must be greater than 0",
 		}),
@@ -1870,7 +1872,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 
 	timeZone2 := "wrong"
 	var capacity2 int64 = 10
-	tReq2.SetReqData(dtos.UpdateLocationDto{
+	tReq2.SetBody(dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity2,
 		Username: &username,
@@ -1879,7 +1881,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 	})
 
 	tRes2 := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes2.SetExpectedBody(
+	tRes2.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"timeZone": "must be a valid IANA value",
 		}),
@@ -1914,7 +1916,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -1951,7 +1953,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -1985,7 +1987,7 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/xdoubleu/essentia/pkg/tools"
+	timetools "github.com/xdoubleu/essentia/pkg/time"
 
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
@@ -23,8 +23,8 @@ func (service CheckInService) GetAllOfDay(
 	return service.checkins.GetAllInRange(
 		ctx,
 		[]string{locationID},
-		tools.StartOfDay(date),
-		tools.EndOfDay(date),
+		timetools.StartOfDay(date),
+		timetools.EndOfDay(date),
 	)
 }
 

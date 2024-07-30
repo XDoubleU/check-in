@@ -328,7 +328,7 @@ func TestCreateManagerUser(t *testing.T) {
 		Username: "test",
 		Password: "testpassword",
 	}
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData models.User
 	rs := tReq.Do(t, &rsData)
@@ -352,7 +352,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 		Username: testEnv.Fixtures.ManagerUser.Username,
 		Password: "testpassword",
 	}
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -371,7 +371,7 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
-	tReq.SetReqData(dtos.CreateUserDto{
+	tReq.SetBody(dtos.CreateUserDto{
 		Username: "",
 		Password: "",
 	})
@@ -379,7 +379,7 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 	mt := test.CreateMatrixTester()
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetExpectedBody(
+	tRes.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"username": "must be provided",
 			"password": "must be provided",
@@ -434,7 +434,7 @@ func TestUpdateManagerUser(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData models.User
 	rs := tReq.Do(t, &rsData)
@@ -467,7 +467,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -500,7 +500,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -526,7 +526,7 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPatch, "/users/8000")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -550,7 +550,7 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 		user.ID,
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
-	tReq.SetReqData(dtos.UpdateUserDto{
+	tReq.SetBody(dtos.UpdateUserDto{
 		Username: &username,
 		Password: &password,
 	})
@@ -558,7 +558,7 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 	mt := test.CreateMatrixTester()
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetExpectedBody(
+	tRes.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"username": "must be provided",
 			"password": "must be provided",

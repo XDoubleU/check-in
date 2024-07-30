@@ -140,7 +140,7 @@ func TestCreateSchool(t *testing.T) {
 		tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
 		tReq.AddCookie(user)
 
-		tReq.SetReqData(data)
+		tReq.SetBody(data)
 
 		var rsData models.School
 		rs := tReq.Do(t, &rsData)
@@ -162,7 +162,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -181,14 +181,14 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
-	tReq.SetReqData(dtos.SchoolDto{
+	tReq.SetBody(dtos.SchoolDto{
 		Name: "",
 	})
 
 	mt := test.CreateMatrixTester()
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetExpectedBody(
+	tRes.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"name": "must be provided",
 		}),
@@ -243,7 +243,7 @@ func TestUpdateSchool(t *testing.T) {
 		)
 		tReq.AddCookie(user)
 
-		tReq.SetReqData(data)
+		tReq.SetBody(data)
 
 		var rsData models.School
 		rs := tReq.Do(t, &rsData)
@@ -273,7 +273,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -297,7 +297,7 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPatch, "/schools/1")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -325,7 +325,7 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -353,7 +353,7 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -379,14 +379,14 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 		school.ID,
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
-	tReq.SetReqData(dtos.SchoolDto{
+	tReq.SetBody(dtos.SchoolDto{
 		Name: "",
 	})
 
 	mt := test.CreateMatrixTester()
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetExpectedBody(
+	tRes.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"name": "must be provided",
 		}),

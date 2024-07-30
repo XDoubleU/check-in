@@ -46,7 +46,7 @@ func (app *Application) usersRoutes(mux *http.ServeMux) {
 // @Router		/current-user [get].
 func (app *Application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	r *http.Request) {
-	user := context.GetContextValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), userContextKey)
 
 	err := httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {

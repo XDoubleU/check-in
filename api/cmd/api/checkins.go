@@ -33,7 +33,7 @@ func (app *Application) getSortedSchoolsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	user := context.GetContextValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), userContextKey)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
@@ -78,7 +78,7 @@ func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	user := context.GetContextValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), userContextKey)
 	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)

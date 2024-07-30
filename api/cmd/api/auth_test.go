@@ -23,7 +23,7 @@ func TestSignInUser(t *testing.T) {
 		Password:   "testpassword",
 		RememberMe: true,
 	}
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData models.User
 	rs := tReq.Do(t, &rsData)
@@ -51,7 +51,7 @@ func TestSignInUserNoRefresh(t *testing.T) {
 		Password:   "testpassword",
 		RememberMe: false,
 	}
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData models.User
 	rs := tReq.Do(t, &rsData)
@@ -78,7 +78,7 @@ func TestSignInAdmin(t *testing.T) {
 		Password:   "testpassword",
 		RememberMe: true,
 	}
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData models.User
 	rs := tReq.Do(t, &rsData)
@@ -105,7 +105,7 @@ func TestSignInInexistentUser(t *testing.T) {
 		Password:   "testpassword",
 		RememberMe: true,
 	}
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -125,7 +125,7 @@ func TestSignInWrongPassword(t *testing.T) {
 		Password:   "wrongpassword",
 		RememberMe: true,
 	}
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
 	rs := tReq.Do(t, &rsData)
@@ -139,14 +139,14 @@ func TestSignInFailValidation(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-	tReq.SetReqData(dtos.SignInDto{
+	tReq.SetBody(dtos.SignInDto{
 		Username:   "",
 		Password:   "",
 		RememberMe: true,
 	})
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetExpectedBody(
+	tRes.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"username": "must be provided",
 			"password": "must be provided",

@@ -72,7 +72,7 @@ func TestCreateCheckIn(t *testing.T) {
 	school := testEnv.createSchools(1)[0]
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
-	tReq.SetReqData(dtos.CreateCheckInDto{
+	tReq.SetBody(dtos.CreateCheckInDto{
 		SchoolID: school.ID,
 	})
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
@@ -103,7 +103,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 		SchoolID: 1,
 	}
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
@@ -133,7 +133,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 		SchoolID: 1,
 	}
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
@@ -158,7 +158,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 		SchoolID: 8000,
 	}
 
-	tReq.SetReqData(data)
+	tReq.SetBody(data)
 
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
@@ -179,14 +179,14 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
-	tReq.SetReqData(dtos.CreateCheckInDto{
+	tReq.SetBody(dtos.CreateCheckInDto{
 		SchoolID: 0,
 	})
 
 	mt := test.CreateMatrixTester()
 
 	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetExpectedBody(
+	tRes.SetBody(
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"schoolId": "must be greater than 0",
 		}),

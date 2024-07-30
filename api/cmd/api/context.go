@@ -9,7 +9,7 @@ import (
 	"check-in/api/internal/models"
 )
 
-const userContextKey = contexttools.ContextKey("user")
+const userContextKey = contexttools.Key("user")
 
 func (app *Application) contextSetUser(
 	ctx context.Context,

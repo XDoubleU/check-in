@@ -9,7 +9,7 @@ import (
 	"github.com/xdoubleu/essentia/pkg/context"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/parse"
-	"github.com/xdoubleu/essentia/pkg/tools"
+	timetools "github.com/xdoubleu/essentia/pkg/time"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
@@ -100,10 +100,10 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		return
 	}
 
-	startDate := tools.StartOfDay(date)
-	endDate := tools.EndOfDay(date)
+	startDate := timetools.StartOfDay(date)
+	endDate := timetools.EndOfDay(date)
 
-	user := context.GetContextValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), userContextKey)
 
 	for _, id := range ids {
 		var location *models.Location
@@ -198,8 +198,8 @@ func (app *Application) getLocationCheckInsRangeHandler(
 		return
 	}
 
-	startDate = tools.StartOfDay(startDate)
-	endDate = tools.EndOfDay(endDate)
+	startDate = timetools.StartOfDay(startDate)
+	endDate = timetools.EndOfDay(endDate)
 
 	schools, err := app.services.Schools.GetAll(r.Context())
 	if err != nil {
@@ -207,7 +207,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 		return
 	}
 
-	user := context.GetContextValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), userContextKey)
 
 	for _, id := range ids {
 		var location *models.Location
@@ -271,7 +271,7 @@ func (app *Application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		return
 	}
 
-	user := context.GetContextValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), userContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
@@ -281,8 +281,8 @@ func (app *Application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 
 	loc, _ := time.LoadLocation(location.TimeZone)
 	today := time.Now().In(loc)
-	startOfToday := tools.StartOfDay(today)
-	endOfToday := tools.EndOfDay(today)
+	startOfToday := timetools.StartOfDay(today)
+	endOfToday := timetools.EndOfDay(today)
 
 	checkIns, err := app.services.CheckIns.GetAllInRange(
 		r.Context(),
@@ -359,9 +359,9 @@ func (app *Application) deleteLocationCheckInHandler(
 		return
 	}
 
-	today := tools.TimeZoneIndependentTimeNow(location.TimeZone)
-	startOfToday := tools.StartOfDay(today)
-	endOfToday := tools.EndOfDay(today)
+	today := timetools.NowTimeZoneIndependent(location.TimeZone)
+	startOfToday := timetools.StartOfDay(today)
+	endOfToday := timetools.EndOfDay(today)
 
 	if !(checkIn.CreatedAt.Time.After(startOfToday) &&
 		checkIn.CreatedAt.Time.Before(endOfToday)) {
@@ -416,7 +416,7 @@ func (app *Application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user := context.GetContextValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), userContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
@@ -596,7 +596,7 @@ func (app *Application) updateLocationHandler(w http.ResponseWriter,
 		return
 	}
 
-	user := context.GetContextValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), userContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
