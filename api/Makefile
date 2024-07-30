@@ -65,11 +65,5 @@ test/cov/open:
 db/migrations/new: tools/db
 	goose -s -dir=./migrations create ${name} sql
 
-db/migrations/up: tools/db
-	goose -dir=./migrations postgres ${db} up
-
-db/migrations/down: tools/db
-	goose -dir=./migrations postgres ${db} down
-
 swag: tools/swagger
 	swag init --ot json --parseDependency -g cmd/api/main.go 

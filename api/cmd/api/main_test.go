@@ -40,6 +40,7 @@ type Fixtures struct {
 }
 
 var db postgres.DB
+var cfg config.Config
 
 func (env *TestEnv) defaultFixtures() {
 	var err error
@@ -222,9 +223,11 @@ func (env *TestEnv) createSchools(amount int) []*models.School {
 func TestMain(m *testing.M) {
 	var err error
 
-	// only to acquire db dsn
-	cfg := config.New()
-	db, err = postgres.Connect(
+	cfg = config.New()
+	cfg.Env = configtools.TestEnv
+	cfg.Throttle = false
+
+	postgresDb, err := postgres.Connect(
 		logging.NewNopLogger(),
 		cfg.DBDsn,
 		25,
@@ -237,15 +240,15 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
+	ApplyMigrations(postgresDb)
+
+	db = postgresDb
+
 	os.Exit(m.Run())
 }
 
 func setup(t *testing.T) (TestEnv, *Application) {
 	t.Parallel()
-
-	cfg := config.New()
-	cfg.Env = configtools.TestEnv
-	cfg.Throttle = false
 
 	tx := postgres.CreatePgxSyncTx(context.Background(), db)
 

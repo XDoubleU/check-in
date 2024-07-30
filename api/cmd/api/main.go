@@ -1,12 +1,16 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
 	_ "time/tzdata"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
 	"github.com/xdoubleu/essentia/pkg/logging"
@@ -17,10 +21,27 @@ import (
 	"check-in/api/internal/services"
 )
 
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
+
 type Application struct {
 	logger   *slog.Logger
 	config   config.Config
 	services services.Services
+}
+
+func ApplyMigrations(db *pgxpool.Pool) {
+	migrationsDb := stdlib.OpenDBFromPool(db)
+
+	goose.SetBaseFS(embedMigrations)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		panic(err)
+	}
+
+	if err := goose.Up(migrationsDb, "migrations"); err != nil {
+		panic(err)
+	}
 }
 
 func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application {
@@ -60,6 +81,8 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	ApplyMigrations(db)
 
 	app := NewApp(logger, cfg, db)
 

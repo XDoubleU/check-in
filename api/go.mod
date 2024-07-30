@@ -25,7 +25,11 @@ require (
 	github.com/goddtriffin/helmet v1.0.2 // indirect
 	github.com/jackc/pgerrcode v0.0.0-20240316143900-6e2875d9b438 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/pressly/goose/v3 v3.21.1 // indirect
+	github.com/sethvargo/go-retry v0.2.4 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
