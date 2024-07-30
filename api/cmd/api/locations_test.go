@@ -583,18 +583,17 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 		capacity0, _ := rsData[checkInDate].Capacities.Get(
 			testEnv.Fixtures.DefaultLocation.ID,
 		)
-		// capacity1, _ := rsData[checkInDate].Capacities.Get(testEnv.Fixtures.Locations[0].ID)
-		assert.Equal(t, capacity0, int64(20))
+		capacity1, _ := rsData[checkInDate].Capacities.Get(location.ID)
+		assert.Equal(t, int64(20), capacity0)
+		assert.Equal(
+			t,
+			location.Capacity,
+			capacity1,
+		)
 
-		// assert.Equal(
-		//	t,
-		//	capacity1,
-		//	testEnv.Fixtures.Locations[0].Capacity,
-		//)
-
-		// value, present := rsData[checkInDate].Schools.Get("Andere")
-		// todoassert.Equal(t, 10, value)
-		// assert.Equal(t, true, present)
+		value, present := rsData[checkInDate].Schools.Get("Andere")
+		assert.Equal(t, 10, value)
+		assert.Equal(t, true, present)
 	}
 }
 
@@ -1695,9 +1694,9 @@ func TestUpdateLocation(t *testing.T) {
 		assert.Equal(t, location.ID, rsData.ID)
 		assert.Equal(t, *data.Name, rsData.Name)
 		assert.Equal(t, *data.Name, rsData.NormalizedName)
-		// todo kaput assert.EqualValues(t, 0, rsData.Available)
+		assert.EqualValues(t, 0, rsData.Available)
 		assert.Equal(t, *data.Capacity, rsData.Capacity)
-		/*todo assert.Equal(
+		assert.Equal(
 			t,
 			location.AvailableYesterday,
 			rsData.AvailableYesterday,
@@ -1706,7 +1705,7 @@ func TestUpdateLocation(t *testing.T) {
 			t,
 			location.CapacityYesterday,
 			rsData.CapacityYesterday,
-		)*/
+		)
 		assert.Equal(t, false, rsData.YesterdayFullAt.Valid)
 		assert.Equal(t, *data.TimeZone, rsData.TimeZone)
 		assert.Equal(t, location.UserID, rsData.UserID)

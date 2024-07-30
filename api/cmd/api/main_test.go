@@ -246,7 +246,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	ApplyMigrations(postgresDB)
+	ApplyMigrations(logging.NewNopLogger(), postgresDB)
 
 	db = postgresDB
 

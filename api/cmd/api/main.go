@@ -54,7 +54,7 @@ func main() {
 	}
 	defer db.Close()
 
-	ApplyMigrations(db)
+	ApplyMigrations(logger, db)
 
 	app := NewApp(logger, cfg, db)
 
@@ -85,12 +85,14 @@ func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application
 	}
 }
 
-func ApplyMigrations(db *pgxpool.Pool) {
+func ApplyMigrations(logger *slog.Logger, db *pgxpool.Pool) {
 	migrationsDB := stdlib.OpenDBFromPool(db)
+
+	goose.SetLogger(slog.NewLogLogger(logger.Handler(), slog.LevelInfo))
 
 	goose.SetBaseFS(embedMigrations)
 
-	if err := goose.SetDialect("postgres"); err != nil {
+	if err := goose.SetDialect(string(goose.DialectPostgres)); err != nil {
 		panic(err)
 	}
 

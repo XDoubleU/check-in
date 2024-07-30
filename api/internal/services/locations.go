@@ -298,13 +298,8 @@ func (service LocationService) Update(
 		return err
 	}
 
-	// todo this check sucks, all subs lose their subscription
 	if updateLocationDto.Name != nil {
-		err = service.websocket.DeleteLocation(location)
-		if err != nil {
-			return err
-		}
-		err = service.websocket.AddLocation(location)
+		err = service.websocket.UpdateLocation(location)
 		if err != nil {
 			return err
 		}

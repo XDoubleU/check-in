@@ -81,12 +81,19 @@ func (service WebSocketService) AddLocation(location *models.Location) error {
 }
 
 func (service WebSocketService) UpdateLocation(location *models.Location) error {
-	err := service.DeleteLocation(location)
+	topic, ok := service.topics[location.ID]
+	if !ok {
+		return errortools.ErrResourceNotFound
+	}
+
+	newTopic, err := service.handler.UpdateTopicName(topic, location.NormalizedName)
 	if err != nil {
 		return err
 	}
 
-	return service.AddLocation(location)
+	delete(service.topics, location.ID)
+	service.topics[location.ID] = newTopic
+	return nil
 }
 
 func (service WebSocketService) DeleteLocation(location *models.Location) error {
