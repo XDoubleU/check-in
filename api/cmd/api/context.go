@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/getsentry/sentry-go"
-	"github.com/xdoubleu/essentia/pkg/contexttools"
+	contexttools "github.com/xdoubleu/essentia/pkg/context"
 
 	"check-in/api/internal/models"
 )
