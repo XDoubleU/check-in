@@ -126,7 +126,7 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		return
 	}
 
-	checkInEntries := app.services.Locations.GetCheckInsEntriesDay(
+	checkInEntries := app.services.CheckIns.GetCheckInsEntriesDay(
 		checkIns,
 		schools,
 	)
@@ -230,7 +230,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 		return
 	}
 
-	checkInEntries := app.services.Locations.GetCheckInsEntriesRange(
+	checkInEntries := app.services.CheckIns.GetCheckInsEntriesRange(
 		startDate,
 		endDate,
 		checkIns,
@@ -373,7 +373,7 @@ func (app *Application) deleteLocationCheckInHandler(
 		return
 	}
 
-	err = app.services.CheckIns.Delete(r.Context(), checkIn.ID)
+	err = app.services.CheckInsWriter.Delete(r.Context(), checkIn.ID)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
 		return

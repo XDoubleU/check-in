@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"net/http"
 
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
@@ -35,7 +34,7 @@ func (app *Application) authRoutes(mux *http.ServeMux) {
 // @Failure	500			{object}	ErrorDto
 // @Router		/auth/signin [post].
 func (app *Application) signInHandler(w http.ResponseWriter, r *http.Request) {
-	var signInDto dtos.SignInDto
+	var signInDto *dtos.SignInDto
 
 	err := httptools.ReadJSON(r.Body, &signInDto)
 	if err != nil {
@@ -43,25 +42,16 @@ func (app *Application) signInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if v := signInDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	user, err := app.services.Users.GetByUsername(r.Context(), signInDto.Username)
+	user, err := app.services.Auth.SignInUser(r.Context(), signInDto)
 	if err != nil {
-		if errors.Is(err, errortools.ErrResourceNotFound) {
+		switch err {
+		case errortools.ErrFailedValidation:
+			httptools.FailedValidationResponse(w, r, signInDto.ValidationErrors)
+		case errortools.ErrUnauthorized:
 			httptools.UnauthorizedResponse(w, r, "Invalid Credentials")
-		} else {
+		default:
 			httptools.ServerErrorResponse(w, r, err)
 		}
-
-		return
-	}
-
-	match, _ := user.CompareHashAndPassword(signInDto.Password)
-	if !match {
-		httptools.UnauthorizedResponse(w, r, "Invalid Credentials")
 		return
 	}
 

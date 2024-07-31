@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"time"
 
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xhit/go-str2duration/v2"
 
+	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
 )
@@ -17,6 +19,29 @@ import (
 type AuthService struct {
 	auth  repositories.AuthRepository
 	users UserService
+}
+
+func (service AuthService) SignInUser(ctx context.Context, signInDto *dtos.SignInDto) (*models.User, error) {
+	if v := signInDto.Validate(); !v.Valid() {
+		return nil, errortools.ErrFailedValidation
+	}
+
+	user, err := service.users.GetByUsername(ctx, signInDto.Username)
+	if err != nil {
+		switch err {
+		case errortools.ErrResourceNotFound:
+			return nil, errortools.ErrUnauthorized
+		default:
+			return nil, err
+		}
+	}
+
+	match, _ := user.CompareHashAndPassword(signInDto.Password)
+	if !match {
+		return nil, errortools.ErrUnauthorized
+	}
+
+	return user, nil
 }
 
 func (service AuthService) GetCookieName(scope models.Scope) string {

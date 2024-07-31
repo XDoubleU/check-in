@@ -4,6 +4,7 @@ import (
 	"context"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
+	"github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -67,19 +68,47 @@ func (service SchoolService) GetByIDWithoutReadOnly(
 
 func (service SchoolService) Create(
 	ctx context.Context,
-	name string,
+	schoolDto *dtos.SchoolDto,
 ) (*models.School, error) {
-	return service.schools.Create(ctx, name)
+	if v := schoolDto.Validate(); !v.Valid() {
+		return nil, errors.ErrFailedValidation
+	}
+
+	return service.schools.Create(ctx, schoolDto.Name)
 }
 
 func (service SchoolService) Update(
 	ctx context.Context,
-	school *models.School,
-	schoolDto dtos.SchoolDto,
-) error {
-	return service.schools.Update(ctx, school, schoolDto)
+	id int64,
+	schoolDto *dtos.SchoolDto,
+) (*models.School, error) {
+	if v := schoolDto.Validate(); !v.Valid() {
+		return nil, errors.ErrFailedValidation
+	}
+
+	school, err := service.GetByIDWithoutReadOnly(ctx, id)
+	if err != nil {
+		return nil, errors.ErrResourceNotFound
+	}
+
+	err = service.schools.Update(ctx, school, schoolDto)
+	if err != nil {
+		return nil, err
+	}
+
+	return school, nil
 }
 
-func (service SchoolService) Delete(ctx context.Context, id int64) error {
-	return service.schools.Delete(ctx, id)
+func (service SchoolService) Delete(ctx context.Context, id int64) (*models.School, error) {
+	school, err := service.GetByIDWithoutReadOnly(ctx, id)
+	if err != nil {
+		return nil, errors.ErrResourceNotFound
+	}
+
+	err = service.schools.Delete(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return school, nil
 }

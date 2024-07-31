@@ -27,10 +27,12 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 		school, err := testEnv.services.Schools.GetByID(context.Background(), int64(1))
 		require.Nil(t, err)
 
-		_, err = testEnv.services.CheckIns.Create(
+		_, err = testEnv.services.CheckInsWriter.Create(
 			context.Background(),
-			testEnv.Fixtures.DefaultLocation,
-			school,
+			&dtos.CreateCheckInDto{
+				SchoolID: school.ID,
+			},
+			testEnv.Fixtures.DefaultUser,
 		)
 		require.Nil(t, err)
 	})
@@ -95,10 +97,12 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 		school, err := testEnv.services.Schools.GetByID(context.Background(), int64(1))
 		require.Nil(t, err)
 
-		_, err = testEnv.services.CheckIns.Create(
+		_, err = testEnv.services.CheckInsWriter.Create(
 			context.Background(),
-			testEnv.Fixtures.DefaultLocation,
-			school,
+			&dtos.CreateCheckInDto{
+				SchoolID: school.ID,
+			},
+			testEnv.Fixtures.DefaultUser,
 		)
 		require.Nil(t, err)
 	})

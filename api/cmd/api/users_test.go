@@ -96,10 +96,9 @@ func TestGetUser(t *testing.T) {
 	defer testEnv.teardown()
 
 	userID := testEnv.createLocations(1)[0].UserID
-	defaultUser, _ := testEnv.services.Users.GetByID(
+	defaultUser, _ := testEnv.services.Locations.GetDefaultUserByUserID(
 		context.Background(),
 		userID,
-		models.DefaultRole,
 	)
 
 	users := []*http.Cookie{

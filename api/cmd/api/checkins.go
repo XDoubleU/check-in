@@ -6,6 +6,7 @@ import (
 
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/context"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -34,15 +35,10 @@ func (app *Application) getSortedSchoolsHandler(
 	r *http.Request,
 ) {
 	user := context.GetValue[models.User](r.Context(), userContextKey)
-	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
-	}
 
-	schools, err := app.services.Schools.GetAllSortedByLocation(
+	schools, err := app.services.CheckInsWriter.GetAllSchoolsSortedByLocation(
 		r.Context(),
-		location.ID,
+		user.ID,
 	)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
@@ -65,7 +61,7 @@ func (app *Application) getSortedSchoolsHandler(
 // @Failure	500					{object}	ErrorDto
 // @Router		/checkins [post].
 func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
-	var createCheckInDto dtos.CreateCheckInDto
+	var createCheckInDto *dtos.CreateCheckInDto
 
 	err := httptools.ReadJSON(r.Body, &createCheckInDto)
 	if err != nil {
@@ -73,59 +69,35 @@ func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if v := createCheckInDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
 	user := context.GetValue[models.User](r.Context(), userContextKey)
-	location, err := app.services.Locations.GetByUserID(r.Context(), user.ID)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	school, err := app.services.Schools.GetByID(
+	checkInDto, err := app.services.CheckInsWriter.Create(
 		r.Context(),
-		createCheckInDto.SchoolID,
+		createCheckInDto,
+		user,
 	)
 	if err != nil {
-		httptools.NotFoundResponse(
-			w,
-			r,
-			err,
-			"school",
-			createCheckInDto.SchoolID,
-			"schoolId",
-		)
+		switch err {
+		case errortools.ErrFailedValidation:
+			httptools.FailedValidationResponse(w, r, createCheckInDto.ValidationErrors)
+		case errortools.ErrResourceNotFound:
+			httptools.NotFoundResponse(
+				w,
+				r,
+				err,
+				"school",
+				createCheckInDto.SchoolID,
+				"schoolId",
+			)
+		case errortools.ErrBadRequest:
+			httptools.BadRequestResponse(
+				w,
+				r,
+				errors.New("location has no available spots"),
+			)
+		default:
+			httptools.ServerErrorResponse(w, r, err)
+		}
 		return
-	}
-
-	if location.Available <= 0 {
-		httptools.BadRequestResponse(
-			w,
-			r,
-			errors.New("location has no available spots"),
-		)
-		return
-	}
-
-	checkIn, err := app.services.CheckIns.Create(
-		r.Context(),
-		location,
-		school,
-	)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	checkInDto := dtos.CheckInDto{
-		ID:         checkIn.ID,
-		LocationID: checkIn.LocationID,
-		SchoolName: school.Name,
-		Capacity:   checkIn.Capacity,
-		CreatedAt:  checkIn.CreatedAt,
 	}
 
 	err = httptools.WriteJSON(w, http.StatusCreated, checkInDto, nil)

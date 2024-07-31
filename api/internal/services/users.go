@@ -6,11 +6,12 @@ import (
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
+
+	"github.com/xdoubleu/essentia/pkg/errors"
 )
 
 type UserService struct {
-	users     repositories.UserRepository
-	locations LocationService
+	users repositories.UserRepository
 }
 
 func (service UserService) GetTotalCount(ctx context.Context) (*int64, error) {
@@ -41,18 +42,6 @@ func (service UserService) GetByID(
 		return nil, err
 	}
 
-	if user.Role != models.DefaultRole {
-		return user, nil
-	}
-
-	var location *models.Location
-	location, err = service.locations.GetByUserID(ctx, user.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	user.Location = location
-
 	return user, nil
 }
 
@@ -65,26 +54,53 @@ func (service UserService) GetByUsername(
 
 func (service UserService) Create(
 	ctx context.Context,
-	username string,
-	password string,
+	createUserDto *dtos.CreateUserDto,
 	role models.Role,
 ) (*models.User, error) {
-	return service.users.Create(ctx, username, password, role)
+	if v := createUserDto.Validate(); !v.Valid() {
+		return nil, errors.ErrFailedValidation
+	}
+
+	return service.users.Create(ctx, createUserDto.Username, createUserDto.Password, role)
 }
 
 func (service UserService) Update(
 	ctx context.Context,
-	user *models.User,
-	updateUserDto dtos.UpdateUserDto,
+	id string,
+	updateUserDto *dtos.UpdateUserDto,
 	role models.Role,
-) error {
-	return service.users.Update(ctx, user, updateUserDto, role)
+) (*models.User, error) {
+	if v := updateUserDto.Validate(); !v.Valid() {
+		return nil, errors.ErrFailedValidation
+	}
+
+	user, err := service.GetByID(ctx, id, role)
+	if err != nil {
+		return nil, errors.ErrResourceNotFound
+	}
+
+	err = service.users.Update(ctx, user, updateUserDto, role)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (service UserService) Delete(
 	ctx context.Context,
 	id string,
 	role models.Role,
-) error {
-	return service.users.Delete(ctx, id, role)
+) (*models.User, error) {
+	user, err := service.GetByID(ctx, id, role)
+	if err != nil {
+		return nil, errors.ErrResourceNotFound
+	}
+
+	err = service.users.Delete(ctx, id, role)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

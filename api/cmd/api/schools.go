@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
+	"github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/parse"
 
 	"check-in/api/internal/dtos"
@@ -73,7 +74,7 @@ func (app *Application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 // @Failure	500			{object}	ErrorDto
 // @Router		/schools [post].
 func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	var schoolDto dtos.SchoolDto
+	var schoolDto *dtos.SchoolDto
 
 	err := httptools.ReadJSON(r.Body, &schoolDto)
 	if err != nil {
@@ -81,14 +82,16 @@ func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if v := schoolDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	school, err := app.services.Schools.Create(r.Context(), schoolDto.Name)
+	school, err := app.services.Schools.Create(r.Context(), schoolDto)
 	if err != nil {
-		httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
+		switch err {
+		case errors.ErrFailedValidation:
+			httptools.FailedValidationResponse(w, r, schoolDto.ValidationErrors)
+		case errors.ErrResourceConflict:
+			httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
+		default:
+			httptools.ServerErrorResponse(w, r, err)
+		}
 		return
 	}
 
@@ -109,7 +112,7 @@ func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	500			{object}	ErrorDto
 // @Router		/schools/{id} [patch].
 func (app *Application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	var schoolDto dtos.SchoolDto
+	var schoolDto *dtos.SchoolDto
 
 	id, err := parse.URLParam(r, "id", parse.Int64Func(true, false))
 	if err != nil {
@@ -123,20 +126,18 @@ func (app *Application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if v := schoolDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
+	school, err := app.services.Schools.Update(r.Context(), id, schoolDto)
 	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "school", id, "id")
-		return
-	}
-
-	err = app.services.Schools.Update(r.Context(), school, schoolDto)
-	if err != nil {
-		httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
+		switch err {
+		case errors.ErrFailedValidation:
+			httptools.FailedValidationResponse(w, r, schoolDto.ValidationErrors)
+		case errors.ErrResourceNotFound:
+			httptools.NotFoundResponse(w, r, err, "school", id, "id")
+		case errors.ErrResourceConflict:
+			httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
+		default:
+			httptools.ServerErrorResponse(w, r, err)
+		}
 		return
 	}
 
@@ -162,16 +163,16 @@ func (app *Application) deleteSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	school, err := app.services.Schools.GetByIDWithoutReadOnly(r.Context(), id)
+	school, err := app.services.Schools.Delete(r.Context(), id)
 	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "school", id, "id")
-		return
-	}
-
-	err = app.services.Schools.Delete(r.Context(), school.ID)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
+		switch err {
+		case errors.ErrResourceNotFound:
+			httptools.NotFoundResponse(w, r, err, "school", id, "id")
+			return
+		default:
+			httptools.ServerErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	err = httptools.WriteJSON(w, http.StatusOK, school, nil)

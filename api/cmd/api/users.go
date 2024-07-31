@@ -5,6 +5,7 @@ import (
 
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/context"
+	"github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/parse"
 
 	"check-in/api/internal/dtos"
@@ -70,7 +71,7 @@ func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.services.Users.GetByID(r.Context(), id, models.DefaultRole)
+	user, err := app.services.Locations.GetDefaultUserByUserID(r.Context(), id)
 	if err != nil {
 		httptools.NotFoundResponse(w, r, err, "user", id, "id")
 		return
@@ -100,7 +101,7 @@ func (app *Application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 		return
 	}
 
-	result, err := getAllPaginated[models.User](
+	result, err := getAllPaginated(
 		r.Context(),
 		app.services.Users,
 		page,
@@ -130,7 +131,7 @@ func (app *Application) createManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	var createUserDto dtos.CreateUserDto
+	var createUserDto *dtos.CreateUserDto
 
 	err := httptools.ReadJSON(r.Body, &createUserDto)
 	if err != nil {
@@ -138,26 +139,20 @@ func (app *Application) createManagerUserHandler(
 		return
 	}
 
-	if v := createUserDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
 	user, err := app.services.Users.Create(
 		r.Context(),
-		createUserDto.Username,
-		createUserDto.Password,
+		createUserDto,
 		models.ManagerRole,
 	)
 	if err != nil {
-		httptools.ConflictResponse(
-			w,
-			r,
-			err,
-			"user",
-			createUserDto.Username,
-			"username",
-		)
+		switch err {
+		case errors.ErrFailedValidation:
+			httptools.FailedValidationResponse(w, r, createUserDto.ValidationErrors)
+		case errors.ErrResourceConflict:
+			httptools.ConflictResponse(w, r, err, "user", createUserDto.Username, "username")
+		default:
+			httptools.ServerErrorResponse(w, r, err)
+		}
 		return
 	}
 
@@ -181,7 +176,7 @@ func (app *Application) updateManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	var updateUserDto dtos.UpdateUserDto
+	var updateUserDto *dtos.UpdateUserDto
 
 	id, err := parse.URLParam(r, "id", parse.UUID)
 	if err != nil {
@@ -195,32 +190,23 @@ func (app *Application) updateManagerUserHandler(
 		return
 	}
 
-	if v := updateUserDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	user, err := app.services.Users.GetByID(r.Context(), id, models.ManagerRole)
-	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "user", id, "id")
-		return
-	}
-
-	err = app.services.Users.Update(
+	user, err := app.services.Users.Update(
 		r.Context(),
-		user,
+		id,
 		updateUserDto,
 		models.ManagerRole,
 	)
 	if err != nil {
-		httptools.ConflictResponse(
-			w,
-			r,
-			err,
-			"user",
-			*updateUserDto.Username,
-			"username",
-		)
+		switch err {
+		case errors.ErrFailedValidation:
+			httptools.FailedValidationResponse(w, r, updateUserDto.ValidationErrors)
+		case errors.ErrResourceNotFound:
+			httptools.NotFoundResponse(w, r, err, "user", id, "id")
+		case errors.ErrResourceConflict:
+			httptools.ConflictResponse(w, r, err, "user", *updateUserDto.Username, "username")
+		default:
+			httptools.ServerErrorResponse(w, r, err)
+		}
 		return
 	}
 
@@ -249,16 +235,16 @@ func (app *Application) deleteManagerUserHandler(
 		return
 	}
 
-	user, err := app.services.Users.GetByID(r.Context(), id, models.ManagerRole)
+	user, err := app.services.Users.Delete(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "user", id, "id")
-		return
-	}
-
-	err = app.services.Users.Delete(r.Context(), user.ID, models.ManagerRole)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
+		switch err {
+		case errors.ErrResourceNotFound:
+			httptools.NotFoundResponse(w, r, err, "user", id, "id")
+			return
+		default:
+			httptools.ServerErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	err = httptools.WriteJSON(w, http.StatusOK, user, nil)

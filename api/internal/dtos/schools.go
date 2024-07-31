@@ -11,13 +11,16 @@ type PaginatedSchoolsDto struct {
 } //	@name	PaginatedSchoolsDto
 
 type SchoolDto struct {
-	Name string `json:"name"`
+	Name             string            `json:"name"`
+	ValidationErrors map[string]string `json:"-"`
 } //	@name	SchoolDto
 
-func (dto SchoolDto) Validate() *validate.Validator {
+func (dto *SchoolDto) Validate() *validate.Validator {
 	v := validate.New()
 
 	validate.Check(v, dto.Name, validate.IsNotEmpty, "name")
+
+	dto.ValidationErrors = v.Errors
 
 	return v
 }

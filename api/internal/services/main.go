@@ -6,50 +6,54 @@ import (
 )
 
 type Services struct {
-	Auth      AuthService
-	CheckIns  CheckInService
-	Locations LocationService
-	Schools   SchoolService
-	Users     UserService
-	WebSocket WebSocketService
+	Auth           AuthService
+	CheckInsWriter CheckInWriterService
+	CheckIns       CheckInService
+	Locations      LocationService
+	Schools        SchoolService
+	Users          UserService
 }
 
 func New(config config.Config, repositories repositories.Repositories) Services {
 	websocket := NewWebSocketService(config.WebURL)
 
-	checkIns := CheckInService{
-		checkins:  repositories.CheckIns,
-		websocket: websocket,
-	}
-	schools := SchoolService{
-		schools: repositories.Schools,
-	}
-	locations := LocationService{
-		locations: repositories.Locations,
-		schools:   schools,
-		checkins:  checkIns,
-		websocket: websocket,
-	}
 	users := UserService{
-		users:     repositories.Users,
-		locations: locations,
+		users: repositories.Users,
 	}
 	auth := AuthService{
 		auth:  repositories.Auth,
 		users: users,
 	}
+	schools := SchoolService{
+		schools: repositories.Schools,
+	}
+	checkIns := CheckInService{
+		checkins: repositories.CheckIns,
+		schools:  schools,
+	}
+	locations := LocationService{
+		locations: repositories.Locations,
+		checkins:  checkIns,
+		users:     users,
+		websocket: websocket,
+	}
+	checkInsWriter := CheckInWriterService{
+		checkins:  repositories.CheckIns,
+		schools:   schools,
+		locations: locations,
+	}
 
-	err := websocket.Initialize(locations.GetAll)
+	err := locations.InitializeWS()
 	if err != nil {
 		panic(err)
 	}
 
 	return Services{
-		Auth:      auth,
-		CheckIns:  checkIns,
-		Locations: locations,
-		Schools:   schools,
-		Users:     users,
-		WebSocket: *websocket,
+		Auth:           auth,
+		CheckInsWriter: checkInsWriter,
+		CheckIns:       checkIns,
+		Locations:      locations,
+		Schools:        schools,
+		Users:          users,
 	}
 }

@@ -14,20 +14,18 @@ import (
 type GetAllLocationsFunc = func(ctx context.Context) ([]*models.Location, error)
 
 type WebSocketService struct {
-	handler         *wstools.WebSocketHandler[dtos.SubscribeMessageDto]
-	allTopic        *wstools.Topic
-	topics          map[string]*wstools.Topic
-	getAllLocations GetAllLocationsFunc
+	handler  *wstools.WebSocketHandler[dtos.SubscribeMessageDto]
+	allTopic *wstools.Topic
+	topics   map[string]*wstools.Topic
 }
 
 func NewWebSocketService(
 	allowedOrigin string,
 ) *WebSocketService {
 	service := &WebSocketService{
-		handler:         nil,
-		allTopic:        nil,
-		topics:          make(map[string]*wstools.Topic),
-		getAllLocations: nil, //initialized later
+		handler:  nil,
+		allTopic: nil,
+		topics:   make(map[string]*wstools.Topic),
 	}
 
 	handler := wstools.CreateWebSocketHandler[dtos.SubscribeMessageDto](
@@ -38,32 +36,6 @@ func NewWebSocketService(
 	service.handler = &handler
 
 	return service
-}
-
-func (service *WebSocketService) Initialize(getAllLocations GetAllLocationsFunc) error {
-	service.getAllLocations = getAllLocations
-
-	locations, err := service.getAllLocations(context.Background())
-	if err != nil {
-		return err
-	}
-
-	service.allTopic, err = service.handler.AddTopic(
-		"*",
-		func(_ *wstools.Topic) any { return service.getAllLocationStates() },
-	)
-	if err != nil {
-		return err
-	}
-
-	for _, location := range locations {
-		err = service.AddLocation(location)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func (service WebSocketService) Handler() http.HandlerFunc {
@@ -116,19 +88,4 @@ func (service WebSocketService) NewLocationState(location models.Location) {
 
 	service.allTopic.EnqueueEvent(locationState)
 	service.topics[location.ID].EnqueueEvent(locationState)
-}
-
-func (service WebSocketService) getAllLocationStates() []dtos.LocationStateDto {
-	locations, err := service.getAllLocations(context.Background())
-	if err != nil {
-		// todo no panic pls
-		panic(err)
-	}
-
-	var result []dtos.LocationStateDto
-	for _, location := range locations {
-		result = append(result, dtos.NewLocationStateDto(*location))
-	}
-
-	return result
 }

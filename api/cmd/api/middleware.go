@@ -35,6 +35,13 @@ func (app *Application) authAccess(allowedRoles []models.Role,
 			return
 		}
 
+		if user.Role == models.DefaultRole {
+			user, err = app.services.Locations.GetDefaultUserByUserID(r.Context(), user.ID)
+			if err != nil {
+				httptools.ServerErrorResponse(w, r, err)
+			}
+		}
+
 		r = r.WithContext(app.contextSetUser(r.Context(), *user))
 
 		forbidden := true

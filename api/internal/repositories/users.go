@@ -214,7 +214,7 @@ func (repo UserRepository) Create(
 func (repo UserRepository) Update(
 	ctx context.Context,
 	user *models.User,
-	updateUserDto dtos.UpdateUserDto,
+	updateUserDto *dtos.UpdateUserDto,
 	role models.Role,
 ) error {
 	if updateUserDto.Username != nil {

@@ -68,22 +68,24 @@ type PaginatedLocationsDto struct {
 } //	@name	PaginatedLocationsDto
 
 type CreateLocationDto struct {
-	Name     string `json:"name"`
-	Capacity int64  `json:"capacity"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	TimeZone string `json:"timeZone"`
+	Name             string            `json:"name"`
+	Capacity         int64             `json:"capacity"`
+	Username         string            `json:"username"`
+	Password         string            `json:"password"`
+	TimeZone         string            `json:"timeZone"`
+	ValidationErrors map[string]string `json:"-"`
 } //	@name	CreateLocationDto
 
 type UpdateLocationDto struct {
-	Name     *string `json:"name"`
-	Capacity *int64  `json:"capacity"`
-	Username *string `json:"username"`
-	Password *string `json:"password"`
-	TimeZone *string `json:"timeZone"`
+	Name             *string           `json:"name"`
+	Capacity         *int64            `json:"capacity"`
+	Username         *string           `json:"username"`
+	Password         *string           `json:"password"`
+	TimeZone         *string           `json:"timeZone"`
+	ValidationErrors map[string]string `json:"-"`
 } //	@name	UpdateLocationDto
 
-func (dto CreateLocationDto) Validate() *validate.Validator {
+func (dto *CreateLocationDto) Validate() *validate.Validator {
 	v := validate.New()
 
 	validate.Check(v, dto.Name, validate.IsNotEmpty, "name")
@@ -93,10 +95,12 @@ func (dto CreateLocationDto) Validate() *validate.Validator {
 	validate.Check(v, dto.TimeZone, validate.IsNotEmpty, "timeZone")
 	validate.Check(v, dto.TimeZone, validate.IsValidTimeZone, "timeZone")
 
+	dto.ValidationErrors = v.Errors
+
 	return v
 }
 
-func (dto UpdateLocationDto) Validate() *validate.Validator {
+func (dto *UpdateLocationDto) Validate() *validate.Validator {
 	v := validate.New()
 
 	if dto.Name != nil {
@@ -124,6 +128,8 @@ func (dto UpdateLocationDto) Validate() *validate.Validator {
 		validate.Check(v, *dto.TimeZone, validate.IsNotEmpty, "timeZone")
 		validate.Check(v, *dto.TimeZone, validate.IsValidTimeZone, "timeZone")
 	}
+
+	dto.ValidationErrors = v.Errors
 
 	return v
 }

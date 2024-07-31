@@ -13,6 +13,7 @@ import (
 	"github.com/xdoubleu/essentia/pkg/logging"
 
 	"check-in/api/internal/config"
+	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/services"
 )
@@ -47,8 +48,10 @@ func (env *TestEnv) defaultFixtures() {
 
 	password := "testpassword"
 	env.Fixtures.AdminUser, err = env.services.Users.Create(context.Background(),
-		"Admin",
-		password,
+		&dtos.CreateUserDto{
+			Username: "Admin",
+			Password: password,
+		},
 		models.AdminRole,
 	)
 	if err != nil {
@@ -56,8 +59,10 @@ func (env *TestEnv) defaultFixtures() {
 	}
 
 	env.Fixtures.ManagerUser, err = env.services.Users.Create(context.Background(),
-		"Manager",
-		password,
+		&dtos.CreateUserDto{
+			Username: "Manager",
+			Password: password,
+		},
 		models.ManagerRole,
 	)
 	if err != nil {
@@ -103,10 +108,9 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.Fixtures.DefaultUser, err = env.services.Users.GetByID(
+	env.Fixtures.DefaultUser, err = env.services.Locations.GetDefaultUserByUserID(
 		context.Background(),
 		env.Fixtures.DefaultLocation.UserID,
-		models.DefaultRole,
 	)
 	if err != nil {
 		panic(err)
@@ -143,8 +147,10 @@ func (env *TestEnv) createManagerUsers(amount int) []*models.User {
 	for i := 0; i < amount; i++ {
 		var newUser *models.User
 		newUser, err = env.services.Users.Create(context.Background(),
-			fmt.Sprintf("TestManagerUser%d", i),
-			password,
+			&dtos.CreateUserDto{
+				Username: fmt.Sprintf("TestManagerUser%d", i),
+				Password: password,
+			},
 			models.ManagerRole,
 		)
 		if err != nil {
@@ -190,17 +196,23 @@ func (env *TestEnv) createCheckIns(
 	location *models.Location,
 	schoolID int64,
 	amount int,
-) []*models.CheckIn {
+) []*dtos.CheckInDto {
 	var err error
 
-	checkIns := []*models.CheckIn{}
+	defaultUser, err := env.services.Locations.GetDefaultUserByUserID(context.Background(), location.UserID)
+	if err != nil {
+		panic(err)
+	}
+
+	checkIns := []*dtos.CheckInDto{}
 	for i := 0; i < amount; i++ {
-		var checkIn *models.CheckIn
-		checkIn, err = env.services.CheckIns.Create(
+		var checkIn *dtos.CheckInDto
+		checkIn, err = env.services.CheckInsWriter.Create(
 			context.Background(),
-			location,
-			//nolint:exhaustruct // other fields are optional
-			&models.School{ID: schoolID},
+			&dtos.CreateCheckInDto{
+				SchoolID: schoolID,
+			},
+			defaultUser,
 		)
 		if err != nil {
 			panic(err)
@@ -216,7 +228,9 @@ func (env *TestEnv) createSchools(amount int) []*models.School {
 	schools := []*models.School{}
 	for i := 0; i < amount; i++ {
 		school, err := env.services.Schools.Create(context.Background(),
-			fmt.Sprintf("TestSchool%d", i))
+			&dtos.SchoolDto{
+				Name: fmt.Sprintf("TestSchool%d", i),
+			})
 		if err != nil {
 			panic(err)
 		}

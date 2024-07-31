@@ -2,12 +2,11 @@ package services
 
 import (
 	"context"
-	"encoding/json"
+	"net/http"
 	"time"
 
-	orderedmap "github.com/wk8/go-ordered-map/v2"
+	wstools "github.com/xdoubleu/essentia/pkg/communication/ws"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
-	timetools "github.com/xdoubleu/essentia/pkg/time"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -16,102 +15,43 @@ import (
 
 type LocationService struct {
 	locations repositories.LocationRepository
-	schools   SchoolService
 	checkins  CheckInService
+	users     UserService
+	// WebSocketService is an internal service
 	websocket *WebSocketService
 }
 
-// todo: refactor
-func (service LocationService) GetCheckInsEntriesDay(
-	checkIns []*models.CheckIn,
-	schools []*models.School,
-) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
-	schoolsIDNameMap, _ := service.schools.GetSchoolMaps(schools)
-
-	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
-
-	_, lastEntrySchoolsMap := service.schools.GetSchoolMaps(schools)
-	capacities := orderedmap.New[string, int64]()
-	for _, checkIn := range checkIns {
-		schoolName := schoolsIDNameMap[checkIn.SchoolID]
-
-		// Used to deep copy schoolsMap
-		var schoolsMap dtos.SchoolsMap
-		data, _ := json.Marshal(lastEntrySchoolsMap)
-		_ = json.Unmarshal(data, &schoolsMap)
-
-		capacities.Set(checkIn.LocationID, checkIn.Capacity)
-
-		// Used to deep copy capacities
-		var capacitiesCopy *orderedmap.OrderedMap[string, int64]
-		data, _ = json.Marshal(capacities)
-		_ = json.Unmarshal(data, &capacitiesCopy)
-
-		checkInEntry := &dtos.CheckInsLocationEntryRaw{
-			Capacities: capacitiesCopy,
-			Schools:    schoolsMap,
-		}
-
-		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
-		schoolValue++
-		checkInEntry.Schools.Set(schoolName, schoolValue)
-
-		checkInEntries.Set(
-			checkIn.CreatedAt.Time.Format(time.RFC3339),
-			checkInEntry,
-		)
-		lastEntrySchoolsMap = checkInEntry.Schools
+func (service *LocationService) InitializeWS() error {
+	locations, err := service.GetAll(context.Background())
+	if err != nil {
+		return err
 	}
 
-	return checkInEntries
+	service.websocket.allTopic, err = service.websocket.handler.AddTopic(
+		"*",
+		func(_ *wstools.Topic) (any, error) { return service.GetAllStates(context.Background()) },
+	)
+	if err != nil {
+		return err
+	}
+
+	for _, location := range locations {
+		err = service.websocket.AddLocation(location)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-// todo: refactor
-func (service LocationService) GetCheckInsEntriesRange(
-	startDate time.Time,
-	endDate time.Time,
-	checkIns []*models.CheckIn,
-	schools []*models.School,
-) *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw] {
-	schoolsIDNameMap, _ := service.schools.GetSchoolMaps(schools)
+func (service LocationService) GetWSHandler() http.HandlerFunc {
+	return service.websocket.Handler()
+}
 
-	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
-	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
-		dVal := timetools.StartOfDay(d)
-
-		_, schoolsMap := service.schools.GetSchoolMaps(schools)
-
-		checkInEntry := &dtos.CheckInsLocationEntryRaw{
-			Capacities: orderedmap.New[string, int64](),
-			Schools:    schoolsMap,
-		}
-
-		checkInEntries.Set(dVal.Format(time.RFC3339), checkInEntry)
-	}
-
-	for i := range checkIns {
-		datetime := timetools.StartOfDay(checkIns[i].CreatedAt.Time)
-		schoolName := schoolsIDNameMap[checkIns[i].SchoolID]
-
-		checkInEntry, _ := checkInEntries.Get(datetime.Format(time.RFC3339))
-
-		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
-		schoolValue++
-		checkInEntry.Schools.Set(schoolName, schoolValue)
-
-		capacity, present := checkInEntry.Capacities.Get(checkIns[i].LocationID)
-		if !present {
-			capacity = 0
-		}
-
-		if checkIns[i].Capacity > capacity {
-			capacity = checkIns[i].Capacity
-		}
-
-		checkInEntry.Capacities.Set(checkIns[i].LocationID, capacity)
-	}
-
-	return checkInEntries
+func (service LocationService) NewCheckIn(location models.Location) {
+	location.Available--
+	service.websocket.NewLocationState(location)
 }
 
 func (service LocationService) GetTotalCount(ctx context.Context) (*int64, error) {
@@ -132,6 +72,20 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 	}
 
 	return locations, nil
+}
+
+func (service LocationService) GetAllStates(ctx context.Context) ([]dtos.LocationStateDto, error) {
+	locations, err := service.GetAll(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	var result []dtos.LocationStateDto
+	for _, location := range locations {
+		result = append(result, dtos.NewLocationStateDto(*location))
+	}
+
+	return result, nil
 }
 
 func (service LocationService) GetAllPaginated(
@@ -186,6 +140,23 @@ func (service LocationService) GetByUserID(
 	}
 
 	return location, nil
+}
+
+func (service LocationService) GetDefaultUserByUserID(ctx context.Context, id string) (*models.User, error) {
+	user, err := service.users.GetByID(ctx, id, models.DefaultRole)
+	if err != nil {
+		return nil, err
+	}
+
+	var location *models.Location
+	location, err = service.GetByUserID(ctx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Location = location
+
+	return user, nil
 }
 
 // todo: refactor

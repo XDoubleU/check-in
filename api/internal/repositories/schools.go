@@ -239,7 +239,7 @@ func (repo SchoolRepository) Create(
 func (repo SchoolRepository) Update(
 	ctx context.Context,
 	school *models.School,
-	schoolDto dtos.SchoolDto,
+	schoolDto *dtos.SchoolDto,
 ) error {
 	school.Name = schoolDto.Name
 

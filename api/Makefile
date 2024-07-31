@@ -50,10 +50,10 @@ test/v:
 	go test ./cmd/api -v
 	
 test/race:
-	go test ./cmd/api -race
+	go test ./cmd/api -race -v
 
 test/cov/report:
-	go test ./cmd/api -coverpkg=./cmd/api,./internal/... -covermode=atomic -coverprofile=coverage.out  -race
+	go test ./cmd/api -coverpkg=./cmd/api,./internal/... -covermode=atomic -coverprofile=coverage.out
 
 test/cov: test/cov/report
 	go tool cover -html=coverage.out -o=coverage.html
