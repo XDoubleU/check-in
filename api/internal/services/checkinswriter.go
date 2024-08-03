@@ -11,7 +11,7 @@ import (
 )
 
 type CheckInWriterService struct {
-	checkins  repositories.CheckInRepository
+	checkins  repositories.CheckInWriteRepository
 	locations LocationService
 	schools   SchoolService
 }

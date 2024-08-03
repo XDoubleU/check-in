@@ -8,6 +8,7 @@ import (
 	"github.com/xdoubleu/essentia/pkg/context"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
@@ -34,7 +35,7 @@ func (app *Application) getSortedSchoolsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	user := context.GetValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 
 	schools, err := app.services.CheckInsWriter.GetAllSchoolsSortedByLocation(
 		r.Context(),
@@ -69,7 +70,7 @@ func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	user := context.GetValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 	checkInDto, err := app.services.CheckInsWriter.Create(
 		r.Context(),
 		createCheckInDto,

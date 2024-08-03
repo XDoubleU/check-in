@@ -4,12 +4,10 @@ import (
 	"context"
 
 	"github.com/getsentry/sentry-go"
-	contexttools "github.com/xdoubleu/essentia/pkg/context"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/models"
 )
-
-const userContextKey = contexttools.Key("user")
 
 func (app *Application) contextSetUser(
 	ctx context.Context,
@@ -23,5 +21,5 @@ func (app *Application) contextSetUser(
 		})
 	}
 
-	return context.WithValue(ctx, userContextKey, user)
+	return context.WithValue(ctx, constants.UserContextKey, user)
 }

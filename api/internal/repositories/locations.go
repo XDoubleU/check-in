@@ -111,27 +111,63 @@ func (repo LocationRepository) GetAllPaginated(
 	return locations, nil
 }
 
-// todo: refactor
-func (repo LocationRepository) GetBy(
-	ctx context.Context,
-	whereQuery string,
-	value string,
-) (*models.Location, error) {
+func (repo LocationRepository) GetByIDs(ctx context.Context, ids []string) ([]*models.Location, error) {
 	query := `
 		SELECT id, name, capacity, time_zone, user_id
 		FROM locations
-		%s
+		WHERE locations.id IN $1
 	`
 
-	query = fmt.Sprintf(query, whereQuery)
+	var idsQuery string
+	for _, id := range ids {
+		idsQuery += fmt.Sprintf("%s,", id)
+	}
+	// remove last ,
+	idsQuery = idsQuery[:len(idsQuery)-1]
+
+	rows, err := repo.db.Query(ctx, query, idsQuery)
+	if err != nil {
+		return nil, postgres.PgxErrorToHTTPError(err)
+	}
+
+	locations := []*models.Location{}
+	for rows.Next() {
+		var location models.Location
+
+		err = rows.Scan(
+			&location.ID,
+			&location.Name,
+			&location.Capacity,
+			&location.TimeZone,
+			&location.UserID,
+		)
+		if err != nil {
+			return nil, postgres.PgxErrorToHTTPError(err)
+		}
+
+		locations = append(locations, &location)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, postgres.PgxErrorToHTTPError(err)
+	}
+
+	return locations, nil
+}
+
+func (repo LocationRepository) GetByID(ctx context.Context, id string) (*models.Location, error) {
+	query := `
+		SELECT id, name, capacity, time_zone, user_id
+		FROM locations
+		WHERE locations.id = $1
+	`
 
 	//nolint:exhaustruct //other fields are optional
 	location := models.Location{}
-
 	err := repo.db.QueryRow(
 		ctx,
 		query,
-		value).Scan(
+		id).Scan(
 		&location.ID,
 		&location.Name,
 		&location.Capacity,
@@ -145,83 +181,34 @@ func (repo LocationRepository) GetBy(
 	return &location, nil
 }
 
-// todo: refactor, need tx but don't want
-// code duplication across repositories.
-func (repo LocationRepository) Create(
-	ctx context.Context,
-	name string,
-	capacity int64,
-	timeZone string,
-	username string,
-	password string,
-) (*models.Location, error) {
-	tx, err := repo.db.Begin(ctx)
-	defer tx.Rollback(ctx) //nolint:errcheck //deferred
-	if err != nil {
-		return nil, postgres.PgxErrorToHTTPError(err)
-	}
-
-	var user *models.User
-	var location *models.Location
-
-	user, err = createUser(ctx, tx, username, password)
-	if err != nil {
-		return nil, err
-	}
-
-	location, err = createLocation(ctx, tx, name, capacity, timeZone, user.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = tx.Commit(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return location, nil
-}
-
-func createUser(
-	ctx context.Context,
-	tx pgx.Tx,
-	username string,
-	password string,
-) (*models.User, error) {
+func (repo LocationRepository) GetByUserID(ctx context.Context, id string) (*models.Location, error) {
 	query := `
-		INSERT INTO users (username, password_hash, role)
-		VALUES ($1, $2, 'default')
-		RETURNING id
+		SELECT id, name, capacity, time_zone, user_id
+		FROM locations
+		WHERE user_id = $1
 	`
 
 	//nolint:exhaustruct //other fields are optional
-	user := models.User{
-		Username: username,
-		Role:     models.DefaultRole,
-	}
-
-	passwordHash, err := models.HashPassword(password)
-	if err != nil {
-		return nil, err
-	}
-
-	err = tx.QueryRow(
+	location := models.Location{}
+	err := repo.db.QueryRow(
 		ctx,
 		query,
-		username,
-		passwordHash,
-	).Scan(&user.ID)
-
+		id).Scan(
+		&location.ID,
+		&location.Name,
+		&location.Capacity,
+		&location.TimeZone,
+		&location.UserID,
+	)
 	if err != nil {
 		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
-	return &user, nil
+	return &location, nil
 }
 
-func createLocation(
+func (repo LocationRepository) Create(
 	ctx context.Context,
-	tx pgx.Tx,
 	name string,
 	capacity int64,
 	timeZone string,
@@ -242,7 +229,7 @@ func createLocation(
 		UserID:    userID,
 	}
 
-	err := tx.QueryRow(
+	err := repo.db.QueryRow(
 		ctx,
 		query,
 		name,
@@ -389,61 +376,16 @@ func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
 	return nil
 }
 
-// todo: refactor, need tx but don't want code duplication
 func (repo LocationRepository) Delete(
 	ctx context.Context,
 	location *models.Location,
 ) error {
-	tx, err := repo.db.Begin(ctx)
-	defer tx.Rollback(ctx) //nolint:errcheck //deferred
-	if err != nil {
-		return postgres.PgxErrorToHTTPError(err)
-	}
-
-	err = deleteLocation(ctx, tx, location.ID)
-	if err != nil {
-		return err
-	}
-
-	err = deleteUser(ctx, tx, location.UserID)
-	if err != nil {
-		return err
-	}
-
-	err = tx.Commit(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func deleteLocation(ctx context.Context, tx pgx.Tx, id string) error {
 	query := `
 		DELETE FROM locations
 		WHERE id = $1
 	`
 
-	result, err := tx.Exec(ctx, query, id)
-	if err != nil {
-		return postgres.PgxErrorToHTTPError(err)
-	}
-
-	rowsAffected := result.RowsAffected()
-	if rowsAffected == 0 {
-		return errortools.ErrResourceNotFound
-	}
-
-	return nil
-}
-
-func deleteUser(ctx context.Context, tx pgx.Tx, id string) error {
-	query := `
-		DELETE FROM users
-		WHERE id = $1 AND role = 'default'
-	`
-
-	result, err := tx.Exec(ctx, query, id)
+	result, err := repo.db.Exec(ctx, query, location.ID)
 	if err != nil {
 		return postgres.PgxErrorToHTTPError(err)
 	}

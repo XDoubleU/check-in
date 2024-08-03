@@ -8,7 +8,6 @@ import (
 type Services struct {
 	Auth           AuthService
 	CheckInsWriter CheckInWriterService
-	CheckIns       CheckInService
 	Locations      LocationService
 	Schools        SchoolService
 	Users          UserService
@@ -27,20 +26,17 @@ func New(config config.Config, repositories repositories.Repositories) Services 
 	schools := SchoolService{
 		schools: repositories.Schools,
 	}
-	checkIns := CheckInService{
-		checkins: repositories.CheckIns,
-		schools:  schools,
-	}
 	locations := LocationService{
 		locations: repositories.Locations,
-		checkins:  checkIns,
+		checkins:  repositories.CheckIns,
+		schools:   schools,
 		users:     users,
 		websocket: websocket,
 	}
 	checkInsWriter := CheckInWriterService{
-		checkins:  repositories.CheckIns,
-		schools:   schools,
+		checkins:  repositories.CheckInsWriter,
 		locations: locations,
+		schools:   schools,
 	}
 
 	err := locations.InitializeWS()
@@ -51,7 +47,6 @@ func New(config config.Config, repositories repositories.Repositories) Services 
 	return Services{
 		Auth:           auth,
 		CheckInsWriter: checkInsWriter,
-		CheckIns:       checkIns,
 		Locations:      locations,
 		Schools:        schools,
 		Users:          users,

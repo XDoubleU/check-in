@@ -10,8 +10,10 @@ import (
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
 
 	"check-in/api/internal/config"
+	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
+	"check-in/api/internal/services"
 )
 
 func createAdmin(cfg config.Config, username string, password string) {
@@ -33,12 +35,14 @@ func createAdmin(cfg config.Config, username string, password string) {
 		fmt.Println(err.Error())
 		return
 	}
-	srvs := repositories.New(db)
+	services := services.New(cfg, repositories.New(db))
 
-	_, err = srvs.Users.Create(
+	_, err = services.Users.Create(
 		context.Background(),
-		username,
-		password,
+		&dtos.CreateUserDto{
+			Username: username,
+			Password: password,
+		},
 		models.AdminRole,
 	)
 	if err != nil {

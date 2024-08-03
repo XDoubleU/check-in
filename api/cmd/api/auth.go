@@ -9,6 +9,7 @@ import (
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	sentrytools "github.com/xdoubleu/essentia/pkg/sentry"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
@@ -136,7 +137,7 @@ func (app *Application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure	500	{object}	ErrorDto
 // @Router		/auth/refresh [get].
 func (app *Application) refreshHandler(w http.ResponseWriter, r *http.Request) {
-	user := context.GetValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 	secure := app.config.Env == config.ProdEnv
 
 	accessTokenCookie, err := app.services.Auth.CreateCookie(

@@ -177,7 +177,7 @@ func (repo UserRepository) GetByUsername(
 func (repo UserRepository) Create(
 	ctx context.Context,
 	username string,
-	password string,
+	passwordHash []byte,
 	role models.Role,
 ) (*models.User, error) {
 	query := `
@@ -191,12 +191,7 @@ func (repo UserRepository) Create(
 		Role:     role,
 	}
 
-	passwordHash, err := models.HashPassword(password)
-	if err != nil {
-		return nil, err
-	}
-
-	err = repo.db.QueryRow(
+	err := repo.db.QueryRow(
 		ctx,
 		query,
 		username,

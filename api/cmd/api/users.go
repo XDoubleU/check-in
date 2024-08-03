@@ -8,6 +8,7 @@ import (
 	"github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/parse"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
@@ -47,7 +48,7 @@ func (app *Application) usersRoutes(mux *http.ServeMux) {
 // @Router		/current-user [get].
 func (app *Application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	r *http.Request) {
-	user := context.GetValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 
 	err := httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {

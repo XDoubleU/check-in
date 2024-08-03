@@ -1,8 +1,6 @@
 package dtos
 
 import (
-	"strconv"
-
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"github.com/xdoubleu/essentia/pkg/validate"
 
@@ -16,52 +14,6 @@ type CheckInsLocationEntryRaw struct {
 	Capacities CapacityMap `json:"capacities" swaggertype:"object,number"`
 	Schools    SchoolsMap  `json:"schools"    swaggertype:"object,number"`
 } //	@name	CheckInsLocationEntryRaw
-
-// todo refactor
-func ConvertCheckInsLocationEntryRawMapToCSV(
-	entries *orderedmap.OrderedMap[string, *CheckInsLocationEntryRaw],
-) [][]string {
-	var output [][]string
-
-	var headers []string
-	headers = append(headers, "datetime")
-	headers = append(headers, "capacity")
-
-	if entries.Len() == 0 {
-		output = append(output, headers)
-		return output
-	}
-
-	singleEntry := entries.Oldest().Value
-	for school := singleEntry.Schools.Oldest(); school != nil; school = school.Next() {
-		headers = append(headers, school.Key)
-	}
-	output = append(output, headers)
-
-	for pair := entries.Oldest(); pair != nil; pair = pair.Next() {
-		var entry []string
-
-		var totalCapacity int64
-		capacities := pair.Value.Capacities
-		for capacity := capacities.Oldest(); capacity != nil; capacity = capacity.Next() {
-			totalCapacity += capacity.Value
-		}
-
-		entry = append(
-			entry,
-			pair.Key,
-		)
-		entry = append(entry, strconv.FormatInt(totalCapacity, 10))
-
-		for school := pair.Value.Schools.Oldest(); school != nil; school = school.Next() {
-			entry = append(entry, strconv.Itoa(school.Value))
-		}
-
-		output = append(output, entry)
-	}
-
-	return output
-}
 
 type PaginatedLocationsDto struct {
 	PaginatedResultDto[models.Location]

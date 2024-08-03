@@ -3,8 +3,10 @@ package main
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/context"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
@@ -94,53 +96,23 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		return
 	}
 
-	schools, err := app.services.Schools.GetAll(r.Context())
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	startDate := timetools.StartOfDay(date)
-	endDate := timetools.EndOfDay(date)
-
-	user := context.GetValue[models.User](r.Context(), userContextKey)
-
-	for _, id := range ids {
-		var location *models.Location
-		location, err = app.services.Locations.GetByID(r.Context(), id)
-		if err != nil ||
-			(user.Role == models.DefaultRole && location.UserID != user.ID) {
-			httptools.NotFoundResponse(w, r, err, "location", id, "id")
-			return
-		}
-	}
-
-	checkIns, err := app.services.CheckIns.GetAllInRange(
+	checkInEntries, err := app.services.Locations.GetCheckInsEntriesDay(
 		r.Context(),
 		ids,
-		startDate,
-		endDate,
+		date,
 	)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
 		return
 	}
-
-	checkInEntries := app.services.CheckIns.GetCheckInsEntriesDay(
-		checkIns,
-		schools,
-	)
 
 	if returnType == "csv" {
 		filename := time.Now().
-			In(startDate.Location()).
+			In(date.Location()).
 			Format(constants.CSVFileNameFormat)
 		filename = "Day-" + filename
 
-		data := dtos.ConvertCheckInsLocationEntryRawMapToCSV(
-			checkInEntries,
-		)
-		err = httptools.WriteCSV(w, filename, data)
+		err = httptools.WriteCSV(w, filename, getCSVHeaders(checkInEntries.Oldest().Value), getCSVData(checkInEntries))
 	} else {
 		err = httptools.WriteJSON(w, http.StatusOK, checkInEntries, nil)
 	}
@@ -198,28 +170,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 		return
 	}
 
-	startDate = timetools.StartOfDay(startDate)
-	endDate = timetools.EndOfDay(endDate)
-
-	schools, err := app.services.Schools.GetAll(r.Context())
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	user := context.GetValue[models.User](r.Context(), userContextKey)
-
-	for _, id := range ids {
-		var location *models.Location
-		location, err = app.services.Locations.GetByID(r.Context(), id)
-		if err != nil ||
-			(user.Role == models.DefaultRole && location.UserID != user.ID) {
-			httptools.NotFoundResponse(w, r, err, "location", id, "id")
-			return
-		}
-	}
-
-	checkIns, err := app.services.CheckIns.GetAllInRange(
+	checkInEntries, err := app.services.Locations.GetCheckInsEntriesRange(
 		r.Context(),
 		ids,
 		startDate,
@@ -230,23 +181,13 @@ func (app *Application) getLocationCheckInsRangeHandler(
 		return
 	}
 
-	checkInEntries := app.services.CheckIns.GetCheckInsEntriesRange(
-		startDate,
-		endDate,
-		checkIns,
-		schools,
-	)
-
 	if returnType == "csv" {
 		filename := time.Now().
 			In(startDate.Location()).
 			Format(constants.CSVFileNameFormat)
 		filename = "Range-" + filename
 
-		data := dtos.ConvertCheckInsLocationEntryRawMapToCSV(
-			checkInEntries,
-		)
-		err = httptools.WriteCSV(w, filename, data)
+		err = httptools.WriteCSV(w, filename, getCSVHeaders(checkInEntries.Oldest().Value), getCSVData(checkInEntries))
 	} else {
 		err = httptools.WriteJSON(w, http.StatusOK, checkInEntries, nil)
 	}
@@ -256,6 +197,50 @@ func (app *Application) getLocationCheckInsRangeHandler(
 	}
 }
 
+func getCSVHeaders(singleEntry *dtos.CheckInsLocationEntryRaw) []string {
+	headers := []string{
+		"datetime",
+		"capacity",
+	}
+
+	for school := singleEntry.Schools.Oldest(); school != nil; school = school.Next() {
+		headers = append(headers, school.Key)
+	}
+
+	return headers
+}
+
+func getCSVData(
+	entries *orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw],
+) [][]string {
+	var output [][]string
+
+	for pair := entries.Oldest(); pair != nil; pair = pair.Next() {
+		var entry []string
+
+		var totalCapacity int64
+		capacities := pair.Value.Capacities
+		for capacity := capacities.Oldest(); capacity != nil; capacity = capacity.Next() {
+			totalCapacity += capacity.Value
+		}
+
+		entry = append(
+			entry,
+			pair.Key,
+		)
+		entry = append(entry, strconv.FormatInt(totalCapacity, 10))
+
+		for school := pair.Value.Schools.Oldest(); school != nil; school = school.Next() {
+			entry = append(entry, strconv.Itoa(school.Value))
+		}
+
+		output = append(output, entry)
+	}
+
+	return output
+}
+
+// todo refactor
 // @Summary	Get all checkins today
 // @Tags		locations
 // @Success	200	{object}	[]dtos.CheckInDto
@@ -271,25 +256,7 @@ func (app *Application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		return
 	}
 
-	user := context.GetValue[models.User](r.Context(), userContextKey)
-
-	location, err := app.services.Locations.GetByID(r.Context(), id)
-	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		httptools.NotFoundResponse(w, r, err, "location", id, "id")
-		return
-	}
-
-	loc, _ := time.LoadLocation(location.TimeZone)
-	today := time.Now().In(loc)
-	startOfToday := timetools.StartOfDay(today)
-	endOfToday := timetools.EndOfDay(today)
-
-	checkIns, err := app.services.CheckIns.GetAllInRange(
-		r.Context(),
-		[]string{location.ID},
-		startOfToday,
-		endOfToday,
-	)
+	checkIns, err := app.services.Locations.GetAllCheckInsOfDay(r.Context(), []string{id}, time.Now())
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
 		return
@@ -321,6 +288,7 @@ func (app *Application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 	}
 }
 
+// todo refactor
 // @Summary	Delete check-in that occured today
 // @Tags		locations
 // @Param		locationId	path		string	true	"Location ID"
@@ -353,7 +321,7 @@ func (app *Application) deleteLocationCheckInHandler(
 		return
 	}
 
-	checkIn, err := app.services.CheckIns.GetByID(r.Context(), location, checkInID)
+	checkIn, err := app.services.Locations.GetCheckInByID(r.Context(), location, checkInID)
 	if err != nil {
 		httptools.NotFoundResponse(w, r, err, "checkIn", checkInID, "id")
 		return
@@ -373,7 +341,7 @@ func (app *Application) deleteLocationCheckInHandler(
 		return
 	}
 
-	err = app.services.CheckInsWriter.Delete(r.Context(), checkIn.ID)
+	err = app.services.Locations.DeleteCheckIn(r.Context(), checkIn.ID)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
 		return
@@ -416,13 +384,7 @@ func (app *Application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user := context.GetValue[models.User](r.Context(), userContextKey)
-
 	location, err := app.services.Locations.GetByID(r.Context(), id)
-	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
-		httptools.NotFoundResponse(w, r, err, "location", id, "id")
-		return
-	}
 
 	err = httptools.WriteJSON(w, http.StatusOK, location, nil)
 	if err != nil {
@@ -486,6 +448,7 @@ func (app *Application) getAllLocationsHandler(w http.ResponseWriter,
 	}
 }
 
+// todo move logic into service
 // @Summary	Create location
 // @Tags		locations
 // @Param		createLocationDto	body		CreateLocationDto	true	"CreateLocationDto"
@@ -560,6 +523,7 @@ func (app *Application) createLocationHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
+// todo move logic into service
 // @Summary	Update location
 // @Tags		locations
 // @Param		id					path		string				true	"Location ID"
@@ -596,7 +560,7 @@ func (app *Application) updateLocationHandler(w http.ResponseWriter,
 		return
 	}
 
-	user := context.GetValue[models.User](r.Context(), userContextKey)
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 
 	location, err := app.services.Locations.GetByID(r.Context(), id)
 	if err != nil || (user.Role == models.DefaultRole && location.UserID != user.ID) {
@@ -631,6 +595,7 @@ func (app *Application) updateLocationHandler(w http.ResponseWriter,
 	}
 }
 
+// todo refactor
 func (app *Application) checkForConflictsOnUpdate(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -693,13 +658,7 @@ func (app *Application) deleteLocationHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	location, err := app.services.Locations.GetByID(r.Context(), id)
-	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "location", id, "id")
-		return
-	}
-
-	err = app.services.Locations.Delete(r.Context(), location)
+	location, err := app.services.Locations.Delete(r.Context(), id)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
 		return

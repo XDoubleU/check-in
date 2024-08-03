@@ -61,7 +61,16 @@ func (service UserService) Create(
 		return nil, errors.ErrFailedValidation
 	}
 
-	return service.users.Create(ctx, createUserDto.Username, createUserDto.Password, role)
+	passwordHash, err := models.HashPassword(createUserDto.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return service.users.Create(ctx, createUserDto.Username, passwordHash, role)
+}
+
+func (service UserService) Recreate(ctx context.Context, user *models.User) (*models.User, error) {
+	return service.users.Create(ctx, user.Username, user.PasswordHash, user.Role)
 }
 
 func (service UserService) Update(

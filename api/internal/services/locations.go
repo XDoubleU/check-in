@@ -2,12 +2,17 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 	wstools "github.com/xdoubleu/essentia/pkg/communication/ws"
+	contexttools "github.com/xdoubleu/essentia/pkg/context"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
+	timetools "github.com/xdoubleu/essentia/pkg/time"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
@@ -15,10 +20,184 @@ import (
 
 type LocationService struct {
 	locations repositories.LocationRepository
-	checkins  CheckInService
+	checkins  repositories.CheckInRepository
+	schools   SchoolService
 	users     UserService
 	// WebSocketService is an internal service
 	websocket *WebSocketService
+}
+
+// todo: refactor
+func (service LocationService) GetCheckInsEntriesDay(ctx context.Context, locationIDs []string, date time.Time) (*orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw], error) {
+	checkIns, err := service.GetAllCheckInsOfDay(
+		ctx,
+		locationIDs,
+		date,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	schools, err := service.schools.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	schoolsIDNameMap, _ := service.schools.GetSchoolMaps(schools)
+
+	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
+
+	_, lastEntrySchoolsMap := service.schools.GetSchoolMaps(schools)
+	capacities := orderedmap.New[string, int64]()
+	for _, checkIn := range checkIns {
+		schoolName := schoolsIDNameMap[checkIn.SchoolID]
+
+		// Used to deep copy schoolsMap
+		var schoolsMap dtos.SchoolsMap
+		data, _ := json.Marshal(lastEntrySchoolsMap)
+		_ = json.Unmarshal(data, &schoolsMap)
+
+		capacities.Set(checkIn.LocationID, checkIn.Capacity)
+
+		// Used to deep copy capacities
+		var capacitiesCopy *orderedmap.OrderedMap[string, int64]
+		data, _ = json.Marshal(capacities)
+		_ = json.Unmarshal(data, &capacitiesCopy)
+
+		checkInEntry := &dtos.CheckInsLocationEntryRaw{
+			Capacities: capacitiesCopy,
+			Schools:    schoolsMap,
+		}
+
+		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
+		schoolValue++
+		checkInEntry.Schools.Set(schoolName, schoolValue)
+
+		checkInEntries.Set(
+			checkIn.CreatedAt.Time.Format(time.RFC3339),
+			checkInEntry,
+		)
+		lastEntrySchoolsMap = checkInEntry.Schools
+	}
+
+	return checkInEntries, nil
+}
+
+// todo: refactor
+func (service LocationService) GetCheckInsEntriesRange(
+	ctx context.Context,
+	locationIDs []string,
+	startDate time.Time,
+	endDate time.Time,
+) (*orderedmap.OrderedMap[string, *dtos.CheckInsLocationEntryRaw], error) {
+	startDate = timetools.StartOfDay(startDate)
+	endDate = timetools.EndOfDay(endDate)
+
+	checkIns, err := service.GetAllCheckInsInRange(
+		ctx,
+		locationIDs,
+		startDate,
+		endDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	schools, err := service.schools.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	schoolsIDNameMap, _ := service.schools.GetSchoolMaps(schools)
+
+	checkInEntries := orderedmap.New[string, *dtos.CheckInsLocationEntryRaw]()
+	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
+		dVal := timetools.StartOfDay(d)
+
+		_, schoolsMap := service.schools.GetSchoolMaps(schools)
+
+		checkInEntry := &dtos.CheckInsLocationEntryRaw{
+			Capacities: orderedmap.New[string, int64](),
+			Schools:    schoolsMap,
+		}
+
+		checkInEntries.Set(dVal.Format(time.RFC3339), checkInEntry)
+	}
+
+	for i := range checkIns {
+		datetime := timetools.StartOfDay(checkIns[i].CreatedAt.Time)
+		schoolName := schoolsIDNameMap[checkIns[i].SchoolID]
+
+		checkInEntry, _ := checkInEntries.Get(datetime.Format(time.RFC3339))
+
+		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
+		schoolValue++
+		checkInEntry.Schools.Set(schoolName, schoolValue)
+
+		capacity, present := checkInEntry.Capacities.Get(checkIns[i].LocationID)
+		if !present {
+			capacity = 0
+		}
+
+		if checkIns[i].Capacity > capacity {
+			capacity = checkIns[i].Capacity
+		}
+
+		checkInEntry.Capacities.Set(checkIns[i].LocationID, capacity)
+	}
+
+	return checkInEntries, nil
+}
+
+func (service LocationService) GetAllCheckInsOfDay(
+	ctx context.Context,
+	locationIDs []string,
+	date time.Time,
+) ([]*models.CheckIn, error) {
+	return service.GetAllCheckInsInRange(
+		ctx,
+		locationIDs,
+		timetools.StartOfDay(date),
+		timetools.EndOfDay(date),
+	)
+}
+
+func (service LocationService) GetAllCheckInsInRange(
+	ctx context.Context,
+	locationIDs []string,
+	startDate time.Time,
+	endDate time.Time,
+) ([]*models.CheckIn, error) {
+	user := contexttools.GetValue[models.User](ctx, constants.UserContextKey)
+
+	locations, err := service.GetByIDs(ctx, locationIDs)
+	if err != nil {
+		return nil, err
+	}
+	for _, location := range locations {
+		if user.Role == models.DefaultRole && location.UserID != user.ID {
+			return nil, errortools.ErrResourceNotFound
+		}
+	}
+
+	return service.checkins.GetAllInRange(
+		ctx,
+		locationIDs,
+		startDate,
+		endDate,
+	)
+}
+
+func (service LocationService) GetCheckInByID(
+	ctx context.Context,
+	location *models.Location,
+	id int64,
+) (*models.CheckIn, error) {
+	return service.checkins.GetByID(ctx, location, id)
+}
+
+func (service LocationService) DeleteCheckIn(ctx context.Context, id int64) error {
+	return service.checkins.Delete(ctx, id)
 }
 
 func (service *LocationService) InitializeWS() error {
@@ -64,8 +243,23 @@ func (service LocationService) GetAll(ctx context.Context) ([]*models.Location, 
 		return nil, err
 	}
 
+	locationIDs := []string{}
+	for _, location := range locations {
+		locationIDs = append(locationIDs, location.ID)
+	}
+
+	checkInsToday, err := service.GetAllCheckInsOfDay(ctx, locationIDs, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	checkInsYesterday, err := service.GetAllCheckInsOfDay(ctx, locationIDs, time.Now().Add(-24*time.Hour))
+	if err != nil {
+		return nil, err
+	}
+
 	for i := range locations {
-		err = service.prepareLocation(ctx, locations[i])
+		err = locations[i].SetFields(checkInsToday, checkInsYesterday)
 		if err != nil {
 			return nil, err
 		}
@@ -98,8 +292,49 @@ func (service LocationService) GetAllPaginated(
 		return nil, err
 	}
 
+	locationIDs := []string{}
+	for _, location := range locations {
+		locationIDs = append(locationIDs, location.ID)
+	}
+
+	checkInsToday, err := service.GetAllCheckInsOfDay(ctx, locationIDs, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	checkInsYesterday, err := service.GetAllCheckInsOfDay(ctx, locationIDs, time.Now().Add(-24*time.Hour))
+	if err != nil {
+		return nil, err
+	}
+
 	for i := range locations {
-		err = service.prepareLocation(ctx, locations[i])
+		err = locations[i].SetFields(checkInsToday, checkInsYesterday)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return locations, nil
+}
+
+func (service LocationService) GetByIDs(ctx context.Context, ids []string) ([]*models.Location, error) {
+	locations, err := service.locations.GetByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	checkInsToday, err := service.GetAllCheckInsOfDay(ctx, ids, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	checkInsYesterday, err := service.GetAllCheckInsOfDay(ctx, ids, time.Now().Add(-24*time.Hour))
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range locations {
+		err = locations[i].SetFields(checkInsToday, checkInsYesterday)
 		if err != nil {
 			return nil, err
 		}
@@ -112,12 +347,27 @@ func (service LocationService) GetByID(
 	ctx context.Context,
 	id string,
 ) (*models.Location, error) {
-	location, err := service.locations.GetBy(ctx, "WHERE locations.id = $1", id)
+	location, err := service.locations.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	err = service.prepareLocation(ctx, location)
+	user := contexttools.GetValue[models.User](ctx, constants.UserContextKey)
+	if user.Role == models.DefaultRole && location.UserID != user.ID {
+		return nil, errortools.ErrResourceNotFound
+	}
+
+	checkInsToday, err := service.GetAllCheckInsOfDay(ctx, []string{location.ID}, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	checkInsYesterday, err := service.GetAllCheckInsOfDay(ctx, []string{location.ID}, time.Now().Add(-24*time.Hour))
+	if err != nil {
+		return nil, err
+	}
+
+	err = location.SetFields(checkInsToday, checkInsYesterday)
 	if err != nil {
 		return nil, err
 	}
@@ -129,12 +379,22 @@ func (service LocationService) GetByUserID(
 	ctx context.Context,
 	id string,
 ) (*models.Location, error) {
-	location, err := service.locations.GetBy(ctx, "WHERE user_id = $1", id)
+	location, err := service.locations.GetByUserID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	err = service.prepareLocation(ctx, location)
+	checkInsToday, err := service.GetAllCheckInsOfDay(ctx, []string{location.ID}, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	checkInsYesterday, err := service.GetAllCheckInsOfDay(ctx, []string{location.ID}, time.Now().Add(-24*time.Hour))
+	if err != nil {
+		return nil, err
+	}
+
+	err = location.SetFields(checkInsToday, checkInsYesterday)
 	if err != nil {
 		return nil, err
 	}
@@ -157,42 +417,6 @@ func (service LocationService) GetDefaultUserByUserID(ctx context.Context, id st
 	user.Location = location
 
 	return user, nil
-}
-
-// todo: refactor
-func (service LocationService) prepareLocation(
-	ctx context.Context,
-	location *models.Location,
-) error {
-	var checkInsToday []*models.CheckIn
-	var checkInsYesterday []*models.CheckIn
-	var err error
-
-	loc, _ := time.LoadLocation(location.TimeZone)
-	today := time.Now().In(loc)
-	yesterday := today.AddDate(0, 0, -1)
-
-	checkInsToday, err = service.checkins.GetAllOfDay(ctx, location.ID, today)
-	if err != nil {
-		return err
-	}
-
-	checkInsYesterday, err = service.checkins.GetAllOfDay(ctx, location.ID, yesterday)
-	if err != nil {
-		return err
-	}
-
-	location.SetCheckInRelatedFields(
-		checkInsToday,
-		checkInsYesterday,
-	)
-
-	err = location.NormalizeName()
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (service LocationService) GetByName(
@@ -228,19 +452,37 @@ func (service LocationService) Create(
 	username string,
 	password string,
 ) (*models.Location, error) {
+	user, err := service.users.Create(ctx, &dtos.CreateUserDto{
+		Username: username,
+		Password: password,
+	}, models.DefaultRole)
+	if err != nil {
+		return nil, err
+	}
+
 	location, err := service.locations.Create(
 		ctx,
 		name,
 		capacity,
 		timeZone,
-		username,
-		password,
+		user.ID,
 	)
+	if err != nil {
+		service.users.Delete(ctx, user.ID, models.DefaultRole)
+		return nil, err
+	}
+
+	checkInsToday, err := service.GetAllCheckInsOfDay(ctx, []string{location.ID}, time.Now())
 	if err != nil {
 		return nil, err
 	}
 
-	err = service.prepareLocation(ctx, location)
+	checkInsYesterday, err := service.GetAllCheckInsOfDay(ctx, []string{location.ID}, time.Now().Add(-24*time.Hour))
+	if err != nil {
+		return nil, err
+	}
+
+	err = location.SetFields(checkInsToday, checkInsYesterday)
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +506,17 @@ func (service LocationService) Update(
 		return err
 	}
 
-	err = service.prepareLocation(ctx, location)
+	checkInsToday, err := service.GetAllCheckInsOfDay(ctx, []string{location.ID}, time.Now())
+	if err != nil {
+		return err
+	}
+
+	checkInsYesterday, err := service.GetAllCheckInsOfDay(ctx, []string{location.ID}, time.Now().Add(-24*time.Hour))
+	if err != nil {
+		return err
+	}
+
+	err = location.SetFields(checkInsToday, checkInsYesterday)
 	if err != nil {
 		return err
 	}
@@ -283,12 +535,23 @@ func (service LocationService) Update(
 
 func (service LocationService) Delete(
 	ctx context.Context,
-	location *models.Location,
-) error {
-	err := service.locations.Delete(ctx, location)
+	id string,
+) (*models.Location, error) {
+	location, err := service.GetByID(ctx, id)
 	if err != nil {
-		return err
+		return nil, errortools.ErrResourceNotFound
 	}
 
-	return service.websocket.DeleteLocation(location)
+	user, err := service.users.Delete(ctx, location.UserID, models.DefaultRole)
+	if err != nil {
+		return nil, err
+	}
+
+	err = service.locations.Delete(ctx, location)
+	if err != nil {
+		service.users.Recreate(ctx, user)
+		return nil, err
+	}
+
+	return location, service.websocket.DeleteLocation(location)
 }

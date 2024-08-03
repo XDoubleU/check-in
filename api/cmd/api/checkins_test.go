@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
@@ -33,7 +34,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	var rsData []models.School
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, school.ID, rsData[0].ID)
@@ -78,7 +79,7 @@ func TestCreateCheckIn(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -108,7 +109,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -141,7 +142,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	var rsData errortools.ErrorDto
 
 	for i := 0; i < int(testEnv.Fixtures.DefaultLocation.Capacity)+1; i++ {
-		rs = tReq.Do(t, &rsData)
+		rs = tReq.Do(t, &rsData, httptools.ReadJSON)
 	}
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -163,7 +164,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(

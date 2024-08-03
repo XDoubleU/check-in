@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
@@ -26,7 +27,7 @@ func TestSignInUser(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData models.User
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -54,7 +55,7 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData models.User
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -81,7 +82,7 @@ func TestSignInAdmin(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData models.User
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -108,7 +109,7 @@ func TestSignInInexistentUser(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
 	assert.Equal(t, "Invalid Credentials", rsData.Message)
@@ -128,7 +129,7 @@ func TestSignInWrongPassword(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
 	assert.Equal(t, "Invalid Credentials", rsData.Message)
@@ -167,7 +168,7 @@ func TestSignOut(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultRefreshToken)
 
-	rs := tReq.Do(t, nil)
+	rs := tReq.Do(t, nil, nil)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken=;")
@@ -182,7 +183,7 @@ func TestSignOutNoRefresh(t *testing.T) {
 
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	rs := tReq.Do(t, nil)
+	rs := tReq.Do(t, nil, nil)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, 1, len(rs.Header.Values("set-cookie")))
@@ -195,7 +196,7 @@ func TestSignOutNotLoggedIn(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
-	rs := tReq.Do(t, nil)
+	rs := tReq.Do(t, nil, nil)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
 }
@@ -208,7 +209,7 @@ func TestRefresh(t *testing.T) {
 
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultRefreshToken)
 
-	rs := tReq.Do(t, nil)
+	rs := tReq.Do(t, nil, nil)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
@@ -223,8 +224,8 @@ func TestRefreshReusedToken(t *testing.T) {
 
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultRefreshToken)
 
-	rs1 := tReq.Do(t, nil)
-	rs2 := tReq.Do(t, nil)
+	rs1 := tReq.Do(t, nil, nil)
+	rs2 := tReq.Do(t, nil, nil)
 
 	assert.Equal(t, http.StatusOK, rs1.StatusCode)
 	assert.Equal(t, http.StatusUnauthorized, rs2.StatusCode)
@@ -238,7 +239,7 @@ func TestRefreshInvalidToken(t *testing.T) {
 
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	rs := tReq.Do(t, nil)
+	rs := tReq.Do(t, nil, nil)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
 }

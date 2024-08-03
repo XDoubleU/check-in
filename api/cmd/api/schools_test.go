@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
@@ -34,7 +35,7 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 		tReq.AddCookie(user)
 
 		var rsData dtos.PaginatedSchoolsDto
-		rs := tReq.Do(t, &rsData)
+		rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -68,7 +69,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	})
 
 	var rsData dtos.PaginatedSchoolsDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -143,7 +144,7 @@ func TestCreateSchool(t *testing.T) {
 		tReq.SetBody(data)
 
 		var rsData models.School
-		rs := tReq.Do(t, &rsData)
+		rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 		assert.Equal(t, http.StatusCreated, rs.StatusCode)
 		assert.Equal(t, unique, rsData.Name)
@@ -165,7 +166,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -246,7 +247,7 @@ func TestUpdateSchool(t *testing.T) {
 		tReq.SetBody(data)
 
 		var rsData models.School
-		rs := tReq.Do(t, &rsData)
+		rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, school.ID, rsData.ID)
@@ -276,7 +277,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -300,7 +301,7 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -328,7 +329,7 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -356,7 +357,7 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(
@@ -443,7 +444,7 @@ func TestDeleteSchool(t *testing.T) {
 		tReq.AddCookie(user)
 
 		var rsData models.School
-		rs := tReq.Do(t, &rsData)
+		rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, school.ID, rsData.ID)
@@ -460,7 +461,7 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -482,7 +483,7 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -504,7 +505,7 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(
