@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
@@ -34,7 +33,7 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	var rsData []models.School
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, school.ID, rsData[0].ID)
@@ -53,15 +52,15 @@ func TestGetSortedSchoolsAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
 	tReq3.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
-	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }
@@ -79,7 +78,7 @@ func TestCreateCheckIn(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -109,7 +108,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	var rsData dtos.CheckInDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -142,7 +141,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	var rsData errortools.ErrorDto
 
 	for i := 0; i < int(testEnv.Fixtures.DefaultLocation.Capacity)+1; i++ {
-		rs = tReq.Do(t, &rsData, httptools.ReadJSON)
+		rs = tReq.Do(t, &rsData)
 	}
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
@@ -164,7 +163,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -186,12 +185,10 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetBody(
+	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity, nil,
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"schoolId": "must be greater than 0",
-		}),
-	)
+		}))
 
 	mt.AddTestCase(tReq, tRes)
 
@@ -206,15 +203,15 @@ func TestCreateCheckInAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
 	tReq3.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
-	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }

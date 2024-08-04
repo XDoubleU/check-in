@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
@@ -32,9 +31,9 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	tReq3.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
 	var rs1Data, rs2Data, rs3Data models.User
-	rs1 := tReq1.Do(t, &rs1Data, httptools.ReadJSON)
-	rs2 := tReq2.Do(t, &rs2Data, httptools.ReadJSON)
-	rs3 := tReq3.Do(t, &rs3Data, httptools.ReadJSON)
+	rs1 := tReq1.Do(t, &rs1Data)
+	rs2 := tReq2.Do(t, &rs2Data)
+	rs3 := tReq3.Do(t, &rs3Data)
 
 	assert.Equal(t, http.StatusOK, rs1.StatusCode)
 	assert.Equal(t, testEnv.Fixtures.AdminUser.ID, rs1Data.ID)
@@ -87,7 +86,7 @@ func TestGetInfoLoggedInUserAccess(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/current-user")
 
 	mt := test.CreateMatrixTester()
-	mt.AddTestCase(tReq, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReq, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	mt.Do(t)
 }
@@ -117,7 +116,7 @@ func TestGetUser(t *testing.T) {
 		tReq.AddCookie(user)
 
 		var rsData models.User
-		rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, defaultUser.ID, rsData.ID)
@@ -157,7 +156,7 @@ func TestGetUserNotFound(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -175,7 +174,7 @@ func TestGetUserNotUUID(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -196,12 +195,12 @@ func TestGetUserAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }
@@ -219,7 +218,7 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
 
 	var rsData dtos.PaginatedUsersDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -255,7 +254,7 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	})
 
 	var rsData dtos.PaginatedUsersDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -302,17 +301,17 @@ func TestGetPaginatedManagerUsersAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
 	tReq3.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }
@@ -331,7 +330,7 @@ func TestCreateManagerUser(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData models.User
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 	assert.Nil(t, uuid.Validate(rsData.ID))
@@ -355,7 +354,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -378,13 +377,11 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetBody(
+	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity, nil,
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"username": "must be provided",
 			"password": "must be provided",
-		}),
-	)
+		}))
 
 	mt.AddTestCase(tReq, tRes)
 
@@ -399,17 +396,17 @@ func TestCreateManagerUserAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
 	tReq3.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }
@@ -437,7 +434,7 @@ func TestUpdateManagerUser(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData models.User
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, user.ID, rsData.ID)
@@ -470,7 +467,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -503,7 +500,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -529,7 +526,7 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -557,13 +554,11 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetBody(
+	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity, nil,
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"username": "must be provided",
 			"password": "must be provided",
-		}),
-	)
+		}))
 
 	mt.AddTestCase(tReq, tRes)
 
@@ -585,17 +580,17 @@ func TestUpdateManagerUserAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
 	tReq3.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }
@@ -615,7 +610,7 @@ func TestDeleteManagerUser(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
 
 	var rsData models.User
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, user.ID, rsData.ID)
@@ -639,7 +634,7 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -657,7 +652,7 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -678,17 +673,17 @@ func TestDeleteManagerUserAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
 	tReq3.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
-	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }

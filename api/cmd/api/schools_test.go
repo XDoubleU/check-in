@@ -9,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
@@ -35,7 +34,7 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 		tReq.AddCookie(user)
 
 		var rsData dtos.PaginatedSchoolsDto
-		rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -69,7 +68,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	})
 
 	var rsData dtos.PaginatedSchoolsDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -112,12 +111,12 @@ func TestGetPaginatedSchoolsAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }
@@ -144,7 +143,7 @@ func TestCreateSchool(t *testing.T) {
 		tReq.SetBody(data)
 
 		var rsData models.School
-		rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, http.StatusCreated, rs.StatusCode)
 		assert.Equal(t, unique, rsData.Name)
@@ -166,7 +165,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -188,12 +187,10 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetBody(
+	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity, nil,
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"name": "must be provided",
-		}),
-	)
+		}))
 
 	mt.AddTestCase(tReq, tRes)
 
@@ -208,12 +205,12 @@ func TestCreateSchoolAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }
@@ -247,7 +244,7 @@ func TestUpdateSchool(t *testing.T) {
 		tReq.SetBody(data)
 
 		var rsData models.School
-		rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, school.ID, rsData.ID)
@@ -277,7 +274,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -301,7 +298,7 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -329,7 +326,7 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -357,7 +354,7 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 	tReq.SetBody(data)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(
@@ -386,12 +383,10 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity)
-	tRes.SetBody(
+	tRes := test.NewCaseResponse(http.StatusUnprocessableEntity, nil,
 		errortools.NewErrorDto(http.StatusUnprocessableEntity, map[string]interface{}{
 			"name": "must be provided",
-		}),
-	)
+		}))
 
 	mt.AddTestCase(tReq, tRes)
 
@@ -413,12 +408,12 @@ func TestUpdateSchoolAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }
@@ -444,7 +439,7 @@ func TestDeleteSchool(t *testing.T) {
 		tReq.AddCookie(user)
 
 		var rsData models.School
-		rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+		rs := tReq.Do(t, &rsData)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, school.ID, rsData.ID)
@@ -461,7 +456,7 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -483,7 +478,7 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -505,7 +500,7 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
+	rs := tReq.Do(t, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(
@@ -530,12 +525,12 @@ func TestDeleteSchoolAccess(t *testing.T) {
 
 	mt := test.CreateMatrixTester()
 
-	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized))
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
 	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
 
-	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden))
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
 }
