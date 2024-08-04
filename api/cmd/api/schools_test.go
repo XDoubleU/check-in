@@ -22,7 +22,7 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	defer testEnv.teardown()
 
 	testEnv.createSchools(20)
-	amount, err := testEnv.services.Schools.GetTotalCount(context.Background())
+	amount, err := testApp.services.Schools.GetTotalCount(context.Background())
 	require.Nil(t, err)
 
 	users := []*http.Cookie{
@@ -58,7 +58,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	defer testEnv.teardown()
 
 	schools := testEnv.createSchools(20)
-	amount, err := testEnv.services.Schools.GetTotalCount(context.Background())
+	amount, err := testApp.services.Schools.GetTotalCount(context.Background())
 	require.Nil(t, err)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")

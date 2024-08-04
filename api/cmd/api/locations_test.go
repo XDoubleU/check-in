@@ -309,8 +309,8 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
-		rsData.Message.(map[string]interface{})["id"].(string),
+		fmt.Sprintf("locations with ids '%s' doesn't exist", id.String()),
+		rsData.Message.(map[string]interface{})["ids"].(string),
 	)
 }
 
@@ -664,8 +664,8 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
-		rsData.Message.(map[string]interface{})["id"].(string),
+		fmt.Sprintf("locations with ids '%s' doesn't exist", id.String()),
+		rsData.Message.(map[string]interface{})["ids"].(string),
 	)
 }
 
@@ -854,8 +854,8 @@ func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
 		t,
-		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
-		rsData.Message.(map[string]interface{})["id"].(string),
+		fmt.Sprintf("locations with ids '%s' doesn't exist", id.String()),
+		rsData.Message.(map[string]interface{})["ids"].(string),
 	)
 }
 
@@ -1266,7 +1266,7 @@ func TestGetAllLocations(t *testing.T) {
 	defer testEnv.teardown()
 
 	testEnv.createLocations(20)
-	amount, err := testEnv.services.Locations.GetTotalCount(context.Background())
+	amount, err := testApp.services.Locations.GetTotalCount(context.Background())
 	require.Nil(t, err)
 
 	users := []*http.Cookie{

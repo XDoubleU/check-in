@@ -24,7 +24,8 @@ func New(config config.Config, repositories repositories.Repositories) Services 
 		users: users,
 	}
 	schools := SchoolService{
-		schools: repositories.Schools,
+		schools:         repositories.Schools,
+		schoolIDNameMap: make(map[int64]string),
 	}
 	locations := LocationService{
 		locations: repositories.Locations,

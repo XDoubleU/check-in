@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/xdoubleu/essentia/pkg/database"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/models"
 )
@@ -119,7 +119,7 @@ func (repo CheckInRepository) Delete(ctx context.Context, id int64) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return errortools.ErrResourceNotFound
+		return database.ErrResourceNotFound
 	}
 
 	return nil

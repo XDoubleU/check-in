@@ -2,12 +2,14 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
 
-	"github.com/xdoubleu/essentia/pkg/errors"
+	"github.com/xdoubleu/essentia/pkg/database"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 )
 
 type CheckInWriterService struct {
@@ -18,11 +20,16 @@ type CheckInWriterService struct {
 
 func (service CheckInWriterService) GetAllSchoolsSortedByLocation(
 	ctx context.Context,
-	userID string,
+	user *models.User,
 ) ([]*models.School, error) {
-	location, err := service.locations.GetByUserID(ctx, userID)
+	location, err := service.locations.GetByUser(ctx, user)
 	if err != nil {
-		return nil, errors.ErrResourceNotFound
+		switch err {
+		case database.ErrResourceNotFound:
+			return nil, errortools.NewNotFoundError("location", user.Location.ID, "id")
+		default:
+			return nil, err
+		}
 	}
 
 	return service.schools.GetAllSortedByLocation(ctx, location.ID)
@@ -34,10 +41,10 @@ func (service CheckInWriterService) Create(
 	user *models.User,
 ) (*dtos.CheckInDto, error) {
 	if v := createCheckInDto.Validate(); !v.Valid() {
-		return nil, errors.ErrFailedValidation
+		return nil, errortools.ErrFailedValidation
 	}
 
-	location, err := service.locations.GetByUserID(ctx, user.ID)
+	location, err := service.locations.GetByUser(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -47,11 +54,16 @@ func (service CheckInWriterService) Create(
 		createCheckInDto.SchoolID,
 	)
 	if err != nil {
-		return nil, errors.ErrResourceNotFound
+		switch err {
+		case database.ErrResourceNotFound:
+			return nil, errortools.NewNotFoundError("school", createCheckInDto.SchoolID, "schoolId")
+		default:
+			return nil, err
+		}
 	}
 
 	if location.Available <= 0 {
-		return nil, errors.ErrBadRequest
+		return nil, errortools.NewBadRequestError(errors.New("location has no available spots"))
 	}
 
 	checkIn, err := service.checkins.Create(ctx, location, school)

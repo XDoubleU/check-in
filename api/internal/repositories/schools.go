@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 
+	"github.com/xdoubleu/essentia/pkg/database"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -238,9 +238,9 @@ func (repo SchoolRepository) Create(
 
 func (repo SchoolRepository) Update(
 	ctx context.Context,
-	school *models.School,
+	school models.School,
 	schoolDto *dtos.SchoolDto,
-) error {
+) (*models.School, error) {
 	school.Name = schoolDto.Name
 
 	query := `
@@ -251,15 +251,15 @@ func (repo SchoolRepository) Update(
 
 	result, err := repo.db.Exec(ctx, query, school.ID, school.Name)
 	if err != nil {
-		return postgres.PgxErrorToHTTPError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return errortools.ErrResourceNotFound
+		return nil, database.ErrResourceNotFound
 	}
 
-	return nil
+	return &school, nil
 }
 
 func (repo SchoolRepository) Delete(ctx context.Context, id int64) error {
@@ -275,7 +275,7 @@ func (repo SchoolRepository) Delete(ctx context.Context, id int64) error {
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return errortools.ErrResourceNotFound
+		return database.ErrResourceNotFound
 	}
 
 	return nil

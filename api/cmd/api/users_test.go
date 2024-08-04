@@ -97,7 +97,7 @@ func TestGetUser(t *testing.T) {
 	defer testEnv.teardown()
 
 	userID := testEnv.createLocations(1)[0].UserID
-	defaultUser, _ := testEnv.services.Locations.GetDefaultUserByUserID(
+	defaultUser, _ := testApp.services.Locations.GetDefaultUserByUserID(
 		context.Background(),
 		userID,
 	)
@@ -212,7 +212,7 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 
 	testEnv.createManagerUsers(20)
 
-	amount, err := testEnv.services.Users.GetTotalCount(context.Background())
+	amount, err := testApp.services.Users.GetTotalCount(context.Background())
 	require.Nil(t, err)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")
@@ -244,7 +244,7 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 
 	users := testEnv.createManagerUsers(20)
 
-	amount, err := testEnv.services.Users.GetTotalCount(context.Background())
+	amount, err := testApp.services.Users.GetTotalCount(context.Background())
 	require.Nil(t, err)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")
@@ -280,7 +280,7 @@ func TestGetPaginatedManagerUsersPageFull(t *testing.T) {
 
 	testEnv.createManagerUsers(20)
 
-	amount, err := testEnv.services.Users.GetTotalCount(context.Background())
+	amount, err := testApp.services.Users.GetTotalCount(context.Background())
 	require.Nil(t, err)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")

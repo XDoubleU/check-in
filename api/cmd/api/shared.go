@@ -5,20 +5,22 @@ import (
 	"math"
 
 	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
 )
 
 type Service[T any] interface {
-	GetAllPaginated(ctx context.Context, limit int64, offset int64) ([]*T, error)
+	GetAllPaginated(ctx context.Context, user *models.User, limit int64, offset int64) ([]*T, error)
 	GetTotalCount(ctx context.Context) (*int64, error)
 }
 
 func getAllPaginated[T any](
 	ctx context.Context,
 	service Service[T],
+	user *models.User,
 	page int64,
 	pageSize int64,
 ) (*dtos.PaginatedResultDto[T], error) {
-	data, err := service.GetAllPaginated(ctx, pageSize, (page-1)*pageSize)
+	data, err := service.GetAllPaginated(ctx, user, pageSize, (page-1)*pageSize)
 	if err != nil {
 		return nil, err
 	}

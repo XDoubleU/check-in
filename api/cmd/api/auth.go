@@ -6,7 +6,6 @@ import (
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/config"
 	"github.com/xdoubleu/essentia/pkg/context"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	sentrytools "github.com/xdoubleu/essentia/pkg/sentry"
 
 	"check-in/api/internal/constants"
@@ -45,14 +44,7 @@ func (app *Application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.services.Auth.SignInUser(r.Context(), signInDto)
 	if err != nil {
-		switch err {
-		case errortools.ErrFailedValidation:
-			httptools.FailedValidationResponse(w, r, signInDto.ValidationErrors)
-		case errortools.ErrUnauthorized:
-			httptools.UnauthorizedResponse(w, r, "Invalid Credentials")
-		default:
-			httptools.ServerErrorResponse(w, r, err)
-		}
+		httptools.HandleError(w, r, err, signInDto.ValidationErrors)
 		return
 	}
 

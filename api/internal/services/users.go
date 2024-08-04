@@ -7,7 +7,8 @@ import (
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
 
-	"github.com/xdoubleu/essentia/pkg/errors"
+	"github.com/xdoubleu/essentia/pkg/database"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 )
 
 type UserService struct {
@@ -26,6 +27,7 @@ func (service UserService) GetAll(
 
 func (service UserService) GetAllPaginated(
 	ctx context.Context,
+	user *models.User,
 	limit int64,
 	offset int64,
 ) ([]*models.User, error) {
@@ -39,7 +41,12 @@ func (service UserService) GetByID(
 ) (*models.User, error) {
 	user, err := service.users.GetByID(ctx, id, role)
 	if err != nil {
-		return nil, err
+		switch err {
+		case database.ErrResourceNotFound:
+			return nil, errortools.NewNotFoundError("user", id, "id")
+		default:
+			return nil, err
+		}
 	}
 
 	return user, nil
@@ -58,7 +65,7 @@ func (service UserService) Create(
 	role models.Role,
 ) (*models.User, error) {
 	if v := createUserDto.Validate(); !v.Valid() {
-		return nil, errors.ErrFailedValidation
+		return nil, errortools.ErrFailedValidation
 	}
 
 	passwordHash, err := models.HashPassword(createUserDto.Password)
@@ -66,11 +73,17 @@ func (service UserService) Create(
 		return nil, err
 	}
 
-	return service.users.Create(ctx, createUserDto.Username, passwordHash, role)
-}
+	user, err := service.users.Create(ctx, createUserDto.Username, passwordHash, role)
+	if err != nil {
+		switch err {
+		case database.ErrResourceConflict:
+			return nil, errortools.NewConflictError("user", createUserDto.Username, "username")
+		default:
+			return nil, err
+		}
+	}
 
-func (service UserService) Recreate(ctx context.Context, user *models.User) (*models.User, error) {
-	return service.users.Create(ctx, user.Username, user.PasswordHash, user.Role)
+	return user, nil
 }
 
 func (service UserService) Update(
@@ -80,17 +93,27 @@ func (service UserService) Update(
 	role models.Role,
 ) (*models.User, error) {
 	if v := updateUserDto.Validate(); !v.Valid() {
-		return nil, errors.ErrFailedValidation
+		return nil, errortools.ErrFailedValidation
 	}
 
 	user, err := service.GetByID(ctx, id, role)
 	if err != nil {
-		return nil, errors.ErrResourceNotFound
+		switch err {
+		case database.ErrResourceNotFound:
+			return nil, errortools.NewNotFoundError("user", id, "id")
+		default:
+			return nil, err
+		}
 	}
 
-	err = service.users.Update(ctx, user, updateUserDto, role)
+	user, err = service.users.Update(ctx, *user, updateUserDto, role)
 	if err != nil {
-		return nil, err
+		switch err {
+		case database.ErrResourceConflict:
+			return nil, errortools.NewConflictError("user", *updateUserDto.Username, "username")
+		default:
+			return nil, err
+		}
 	}
 
 	return user, nil
@@ -103,7 +126,12 @@ func (service UserService) Delete(
 ) (*models.User, error) {
 	user, err := service.GetByID(ctx, id, role)
 	if err != nil {
-		return nil, errors.ErrResourceNotFound
+		switch err {
+		case database.ErrResourceNotFound:
+			return nil, errortools.NewNotFoundError("user", id, "id")
+		default:
+			return nil, err
+		}
 	}
 
 	err = service.users.Delete(ctx, id, role)

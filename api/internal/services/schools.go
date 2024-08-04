@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
-	orderedmap "github.com/wk8/go-ordered-map/v2"
-	"github.com/xdoubleu/essentia/pkg/errors"
+	"github.com/xdoubleu/essentia/pkg/database"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -12,25 +12,31 @@ import (
 )
 
 type SchoolService struct {
-	schools repositories.SchoolRepository
+	schools         repositories.SchoolRepository
+	schoolIDNameMap map[int64]string
 }
 
 func (service SchoolService) GetTotalCount(ctx context.Context) (*int64, error) {
 	return service.schools.GetTotalCount(ctx)
 }
 
-// todo: refactor
-func (service SchoolService) GetSchoolMaps(
-	schools []*models.School,
-) (map[int64]string, *orderedmap.OrderedMap[string, int]) {
-	schoolsIDNameMap := make(map[int64]string)
-	schoolsMap := orderedmap.New[string, int]()
-	for _, school := range schools {
-		schoolsIDNameMap[school.ID] = school.Name
-		schoolsMap.Set(school.Name, 0)
+func (service SchoolService) SchoolIDNameMap(
+	ctx context.Context,
+) (map[int64]string, error) {
+	if len(service.schoolIDNameMap) != 0 {
+		return service.schoolIDNameMap, nil
 	}
 
-	return schoolsIDNameMap, schoolsMap
+	schools, err := service.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, school := range schools {
+		service.schoolIDNameMap[school.ID] = school.Name
+	}
+
+	return service.schoolIDNameMap, nil
 }
 
 func (service SchoolService) GetAll(ctx context.Context) ([]*models.School, error) {
@@ -46,6 +52,7 @@ func (service SchoolService) GetAllSortedByLocation(
 
 func (service SchoolService) GetAllPaginated(
 	ctx context.Context,
+	user *models.User,
 	limit int64,
 	offset int64,
 ) ([]*models.School, error) {
@@ -71,10 +78,22 @@ func (service SchoolService) Create(
 	schoolDto *dtos.SchoolDto,
 ) (*models.School, error) {
 	if v := schoolDto.Validate(); !v.Valid() {
-		return nil, errors.ErrFailedValidation
+		return nil, errortools.ErrFailedValidation
 	}
 
-	return service.schools.Create(ctx, schoolDto.Name)
+	school, err := service.schools.Create(ctx, schoolDto.Name)
+	if err != nil {
+		switch err {
+		case database.ErrResourceConflict:
+			return nil, errortools.NewConflictError("school", schoolDto.Name, "name")
+		default:
+			return nil, err
+		}
+	}
+
+	service.schoolIDNameMap[school.ID] = school.Name
+
+	return school, nil
 }
 
 func (service SchoolService) Update(
@@ -83,18 +102,30 @@ func (service SchoolService) Update(
 	schoolDto *dtos.SchoolDto,
 ) (*models.School, error) {
 	if v := schoolDto.Validate(); !v.Valid() {
-		return nil, errors.ErrFailedValidation
+		return nil, errortools.ErrFailedValidation
 	}
 
 	school, err := service.GetByIDWithoutReadOnly(ctx, id)
 	if err != nil {
-		return nil, errors.ErrResourceNotFound
+		switch err {
+		case database.ErrResourceNotFound:
+			return nil, errortools.NewNotFoundError("school", id, "id")
+		default:
+			return nil, err
+		}
 	}
 
-	err = service.schools.Update(ctx, school, schoolDto)
+	school, err = service.schools.Update(ctx, *school, schoolDto)
 	if err != nil {
-		return nil, err
+		switch err {
+		case database.ErrResourceConflict:
+			return nil, errortools.NewConflictError("school", schoolDto.Name, "name")
+		default:
+			return nil, err
+		}
 	}
+
+	service.schoolIDNameMap[school.ID] = school.Name
 
 	return school, nil
 }
@@ -102,13 +133,20 @@ func (service SchoolService) Update(
 func (service SchoolService) Delete(ctx context.Context, id int64) (*models.School, error) {
 	school, err := service.GetByIDWithoutReadOnly(ctx, id)
 	if err != nil {
-		return nil, errors.ErrResourceNotFound
+		switch err {
+		case database.ErrResourceNotFound:
+			return nil, errortools.NewNotFoundError("school", id, "id")
+		default:
+			return nil, err
+		}
 	}
 
 	err = service.schools.Delete(ctx, id)
 	if err != nil {
 		return nil, err
 	}
+
+	delete(service.schoolIDNameMap, school.ID)
 
 	return school, nil
 }

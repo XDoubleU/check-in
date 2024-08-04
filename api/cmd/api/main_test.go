@@ -15,13 +15,12 @@ import (
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/services"
 )
 
 type TestEnv struct {
+	ctx      context.Context
 	tx       postgres.PgxSyncTx
-	cfg      config.Config
-	services services.Services
+	app      *Application
 	Fixtures Fixtures
 }
 
@@ -47,7 +46,7 @@ func (env *TestEnv) defaultFixtures() {
 	var err error
 
 	password := "testpassword"
-	env.Fixtures.AdminUser, err = env.services.Users.Create(context.Background(),
+	env.Fixtures.AdminUser, err = env.app.services.Users.Create(env.ctx,
 		&dtos.CreateUserDto{
 			Username: "Admin",
 			Password: password,
@@ -58,7 +57,9 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.Fixtures.ManagerUser, err = env.services.Users.Create(context.Background(),
+	env.ctx = env.app.contextSetUser(env.ctx, *env.Fixtures.AdminUser)
+
+	env.Fixtures.ManagerUser, err = env.app.services.Users.Create(env.ctx,
 		&dtos.CreateUserDto{
 			Username: "Manager",
 			Password: password,
@@ -69,22 +70,22 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.AdminAccessToken, err = env.services.Auth.CreateCookie(
-		context.Background(),
+	env.Fixtures.Tokens.AdminAccessToken, err = env.app.services.Auth.CreateCookie(
+		env.ctx,
 		models.AccessScope,
 		env.Fixtures.AdminUser.ID,
-		env.cfg.AccessExpiry,
+		env.app.config.AccessExpiry,
 		false,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.ManagerAccessToken, err = env.services.Auth.CreateCookie(
-		context.Background(),
+	env.Fixtures.Tokens.ManagerAccessToken, err = env.app.services.Auth.CreateCookie(
+		env.ctx,
 		models.AccessScope,
 		env.Fixtures.ManagerUser.ID,
-		env.cfg.AccessExpiry,
+		env.app.config.AccessExpiry,
 		false,
 	)
 	if err != nil {
@@ -96,42 +97,45 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.Fixtures.DefaultLocation, err = env.services.Locations.Create(
-		context.Background(),
-		"TestLocation",
-		20,
-		timezone.String(),
-		"Default",
-		"testpassword",
+	env.Fixtures.DefaultLocation, err = env.app.services.Locations.Create(
+		env.ctx,
+		env.Fixtures.AdminUser,
+		&dtos.CreateLocationDto{
+			Name:     "TestLocation",
+			Capacity: 20,
+			TimeZone: timezone.String(),
+			Username: "Default",
+			Password: "testpassword",
+		},
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	env.Fixtures.DefaultUser, err = env.services.Locations.GetDefaultUserByUserID(
-		context.Background(),
+	env.Fixtures.DefaultUser, err = env.app.services.Locations.GetDefaultUserByUserID(
+		env.ctx,
 		env.Fixtures.DefaultLocation.UserID,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.DefaultAccessToken, err = env.services.Auth.CreateCookie(
-		context.Background(),
+	env.Fixtures.Tokens.DefaultAccessToken, err = env.app.services.Auth.CreateCookie(
+		env.ctx,
 		models.AccessScope,
 		env.Fixtures.DefaultUser.ID,
-		env.cfg.AccessExpiry,
+		env.app.config.AccessExpiry,
 		false,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.DefaultRefreshToken, err = env.services.Auth.CreateCookie(
-		context.Background(),
+	env.Fixtures.Tokens.DefaultRefreshToken, err = env.app.services.Auth.CreateCookie(
+		env.ctx,
 		models.RefreshScope,
 		env.Fixtures.DefaultUser.ID,
-		env.cfg.RefreshExpiry,
+		env.app.config.RefreshExpiry,
 		false,
 	)
 	if err != nil {
@@ -146,7 +150,7 @@ func (env *TestEnv) createManagerUsers(amount int) []*models.User {
 	users := []*models.User{}
 	for i := 0; i < amount; i++ {
 		var newUser *models.User
-		newUser, err = env.services.Users.Create(context.Background(),
+		newUser, err = env.app.services.Users.Create(env.ctx,
 			&dtos.CreateUserDto{
 				Username: fmt.Sprintf("TestManagerUser%d", i),
 				Password: password,
@@ -174,13 +178,16 @@ func (env *TestEnv) createLocations(amount int) []*models.Location {
 	locations := []*models.Location{}
 	for i := 0; i < amount; i++ {
 		var location *models.Location
-		location, err = env.services.Locations.Create(
-			context.Background(),
-			fmt.Sprintf("TestLocation%d", i),
-			20,
-			timezone.String(),
-			fmt.Sprintf("TestDefaultUser%d", i),
-			"testpassword",
+		location, err = env.app.services.Locations.Create(
+			env.ctx,
+			env.Fixtures.AdminUser,
+			&dtos.CreateLocationDto{
+				Name:     fmt.Sprintf("TestLocation%d", i),
+				Capacity: 20,
+				TimeZone: timezone.String(),
+				Username: fmt.Sprintf("TestDefaultUser%d", i),
+				Password: "testpassword",
+			},
 		)
 		if err != nil {
 			panic(err)
@@ -199,7 +206,7 @@ func (env *TestEnv) createCheckIns(
 ) []*dtos.CheckInDto {
 	var err error
 
-	defaultUser, err := env.services.Locations.GetDefaultUserByUserID(context.Background(), location.UserID)
+	defaultUser, err := env.app.services.Locations.GetDefaultUserByUserID(env.ctx, location.UserID)
 	if err != nil {
 		panic(err)
 	}
@@ -207,8 +214,8 @@ func (env *TestEnv) createCheckIns(
 	checkIns := []*dtos.CheckInDto{}
 	for i := 0; i < amount; i++ {
 		var checkIn *dtos.CheckInDto
-		checkIn, err = env.services.CheckInsWriter.Create(
-			context.Background(),
+		checkIn, err = env.app.services.CheckInsWriter.Create(
+			env.ctx,
 			&dtos.CreateCheckInDto{
 				SchoolID: schoolID,
 			},
@@ -227,7 +234,7 @@ func (env *TestEnv) createCheckIns(
 func (env *TestEnv) createSchools(amount int) []*models.School {
 	schools := []*models.School{}
 	for i := 0; i < amount; i++ {
-		school, err := env.services.Schools.Create(context.Background(),
+		school, err := env.app.services.Schools.Create(env.ctx,
 			&dtos.SchoolDto{
 				Name: fmt.Sprintf("TestSchool%d", i),
 			})
@@ -275,9 +282,9 @@ func setup(t *testing.T) (TestEnv, *Application) {
 	testApp := NewApp(logging.NewNopLogger(), cfg, tx)
 
 	testEnv := TestEnv{
-		tx:       tx,
-		cfg:      cfg,
-		services: testApp.services,
+		ctx: context.Background(),
+		tx:  tx,
+		app: testApp,
 		//nolint:exhaustruct //fields are optional
 		Fixtures: Fixtures{},
 	}

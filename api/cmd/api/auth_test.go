@@ -112,7 +112,7 @@ func TestSignInInexistentUser(t *testing.T) {
 	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
-	assert.Equal(t, "Invalid Credentials", rsData.Message)
+	assert.Equal(t, "invalid credentials", rsData.Message)
 }
 
 func TestSignInWrongPassword(t *testing.T) {
@@ -132,7 +132,7 @@ func TestSignInWrongPassword(t *testing.T) {
 	rs := tReq.Do(t, &rsData, httptools.ReadJSON)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
-	assert.Equal(t, "Invalid Credentials", rsData.Message)
+	assert.Equal(t, "invalid credentials", rsData.Message)
 }
 
 func TestSignInFailValidation(t *testing.T) {

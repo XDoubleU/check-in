@@ -16,7 +16,7 @@ func (app *Application) authAccess(allowedRoles []models.Role,
 		tokenCookie, err := r.Cookie("accessToken")
 
 		if err != nil {
-			httptools.UnauthorizedResponse(w, r, "No token in cookies")
+			httptools.UnauthorizedResponse(w, r, errortools.NewUnauthorizedError(errors.New("no token in cookies")))
 			return
 		}
 
@@ -26,12 +26,7 @@ func (app *Application) authAccess(allowedRoles []models.Role,
 			tokenCookie.Value,
 		)
 		if err != nil {
-			switch {
-			case errors.Is(err, errortools.ErrResourceNotFound):
-				httptools.UnauthorizedResponse(w, r, "Invalid token")
-			default:
-				httptools.ServerErrorResponse(w, r, err)
-			}
+			httptools.HandleError(w, r, err, nil)
 			return
 		}
 
@@ -66,19 +61,14 @@ func (app *Application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 		tokenCookie, err := r.Cookie("refreshToken")
 
 		if err != nil {
-			httptools.UnauthorizedResponse(w, r, "No token in cookies")
+			httptools.UnauthorizedResponse(w, r, errortools.NewUnauthorizedError(errors.New("no token in cookies")))
 			return
 		}
 
 		token, user, err := app.services.Auth.GetToken(r.Context(),
 			models.RefreshScope, tokenCookie.Value)
 		if err != nil {
-			switch {
-			case errors.Is(err, errortools.ErrResourceNotFound):
-				httptools.UnauthorizedResponse(w, r, "Invalid token")
-			default:
-				httptools.ServerErrorResponse(w, r, err)
-			}
+			httptools.HandleError(w, r, err, nil)
 			return
 		}
 
@@ -89,7 +79,7 @@ func (app *Application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 			if err != nil {
 				panic(err)
 			}
-			httptools.UnauthorizedResponse(w, r, "Invalid token")
+			httptools.UnauthorizedResponse(w, r, errortools.NewUnauthorizedError(errors.New("invalid token")))
 			return
 		}
 

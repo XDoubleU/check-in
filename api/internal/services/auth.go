@@ -5,9 +5,11 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"net/http"
 	"time"
 
+	"github.com/xdoubleu/essentia/pkg/database"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xhit/go-str2duration/v2"
 
@@ -29,8 +31,8 @@ func (service AuthService) SignInUser(ctx context.Context, signInDto *dtos.SignI
 	user, err := service.users.GetByUsername(ctx, signInDto.Username)
 	if err != nil {
 		switch err {
-		case errortools.ErrResourceNotFound:
-			return nil, errortools.ErrUnauthorized
+		case database.ErrResourceNotFound:
+			return nil, errortools.NewUnauthorizedError(errors.New("invalid credentials"))
 		default:
 			return nil, err
 		}
@@ -38,7 +40,7 @@ func (service AuthService) SignInUser(ctx context.Context, signInDto *dtos.SignI
 
 	match, _ := user.CompareHashAndPassword(signInDto.Password)
 	if !match {
-		return nil, errortools.ErrUnauthorized
+		return nil, errortools.NewUnauthorizedError(errors.New("invalid credentials"))
 	}
 
 	return user, nil

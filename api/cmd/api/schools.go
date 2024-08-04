@@ -4,10 +4,12 @@ import (
 	"net/http"
 
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
-	"github.com/xdoubleu/essentia/pkg/errors"
+	"github.com/xdoubleu/essentia/pkg/context"
 	"github.com/xdoubleu/essentia/pkg/parse"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
 )
 
 func (app *Application) schoolsRoutes(mux *http.ServeMux) {
@@ -47,9 +49,11 @@ func (app *Application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 		return
 	}
 
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 	result, err := getAllPaginated(
 		r.Context(),
 		app.services.Schools,
+		user,
 		page,
 		pageSize,
 	)
@@ -84,14 +88,7 @@ func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.Create(r.Context(), schoolDto)
 	if err != nil {
-		switch err {
-		case errors.ErrFailedValidation:
-			httptools.FailedValidationResponse(w, r, schoolDto.ValidationErrors)
-		case errors.ErrResourceConflict:
-			httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
-		default:
-			httptools.ServerErrorResponse(w, r, err)
-		}
+		httptools.HandleError(w, r, err, schoolDto.ValidationErrors)
 		return
 	}
 
@@ -128,16 +125,7 @@ func (app *Application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.Update(r.Context(), id, schoolDto)
 	if err != nil {
-		switch err {
-		case errors.ErrFailedValidation:
-			httptools.FailedValidationResponse(w, r, schoolDto.ValidationErrors)
-		case errors.ErrResourceNotFound:
-			httptools.NotFoundResponse(w, r, err, "school", id, "id")
-		case errors.ErrResourceConflict:
-			httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
-		default:
-			httptools.ServerErrorResponse(w, r, err)
-		}
+		httptools.HandleError(w, r, err, schoolDto.ValidationErrors)
 		return
 	}
 
@@ -165,14 +153,7 @@ func (app *Application) deleteSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.Delete(r.Context(), id)
 	if err != nil {
-		switch err {
-		case errors.ErrResourceNotFound:
-			httptools.NotFoundResponse(w, r, err, "school", id, "id")
-			return
-		default:
-			httptools.ServerErrorResponse(w, r, err)
-			return
-		}
+		httptools.HandleError(w, r, err, nil)
 	}
 
 	err = httptools.WriteJSON(w, http.StatusOK, school, nil)

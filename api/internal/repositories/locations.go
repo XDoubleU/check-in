@@ -2,11 +2,10 @@ package repositories
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/xdoubleu/essentia/pkg/database"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -115,17 +114,31 @@ func (repo LocationRepository) GetByIDs(ctx context.Context, ids []string) ([]*m
 	query := `
 		SELECT id, name, capacity, time_zone, user_id
 		FROM locations
-		WHERE locations.id IN $1
+		WHERE locations.id = ANY($1::uuid[])
 	`
 
-	var idsQuery string
-	for _, id := range ids {
-		idsQuery += fmt.Sprintf("%s,", id)
+	if len(ids) == 0 {
+		return make([]*models.Location, 0), nil
 	}
-	// remove last ,
-	idsQuery = idsQuery[:len(idsQuery)-1]
 
-	rows, err := repo.db.Query(ctx, query, idsQuery)
+	if len(ids) == 1 {
+		location, err := repo.GetByID(ctx, ids[0])
+		if err != nil {
+			return nil, err
+		}
+
+		return []*models.Location{location}, nil
+	}
+
+	pgArray := pgtype.Array[pgtype.Text]{}
+	for _, id := range ids {
+		pgArray.Elements = append(pgArray.Elements, pgtype.Text{
+			String: id,
+			Valid:  true,
+		})
+	}
+
+	rows, err := repo.db.Query(ctx, query, pgArray)
 	if err != nil {
 		return nil, postgres.PgxErrorToHTTPError(err)
 	}
@@ -245,25 +258,22 @@ func (repo LocationRepository) Create(
 	return &location, nil
 }
 
-// todo: refactor, need tx but don't want code duplication
 func (repo LocationRepository) Update(
 	ctx context.Context,
-	location *models.Location,
-	user *models.User,
-	updateLocationDto dtos.UpdateLocationDto,
-) error {
-	locationChanged := false
-	userChanged := false
+	location models.Location,
+	updateLocationDto *dtos.UpdateLocationDto,
+) (*models.Location, error) {
+	query := `
+		UPDATE locations
+		SET name = $2, capacity = $3, time_zone = $4
+		WHERE id = $1
+	`
 
 	if updateLocationDto.Name != nil {
-		locationChanged = true
-
 		location.Name = *updateLocationDto.Name
 	}
 
 	if updateLocationDto.Capacity != nil {
-		locationChanged = true
-
 		diff := *updateLocationDto.Capacity - location.Capacity
 		location.Available += diff
 
@@ -275,62 +285,12 @@ func (repo LocationRepository) Update(
 	}
 
 	if updateLocationDto.TimeZone != nil {
-		locationChanged = true
-
 		location.TimeZone = *updateLocationDto.TimeZone
 	}
 
-	if updateLocationDto.Username != nil {
-		userChanged = true
-
-		user.Username = *updateLocationDto.Username
-	}
-
-	if updateLocationDto.Password != nil {
-		userChanged = true
-
-		passwordHash, _ := models.HashPassword(*updateLocationDto.Password)
-		user.PasswordHash = passwordHash
-	}
-
-	tx, err := repo.db.Begin(ctx)
-	defer tx.Rollback(ctx) //nolint:errcheck //deferred
-	if err != nil {
-		return postgres.PgxErrorToHTTPError(err)
-	}
-
-	if locationChanged {
-		err = updateLocation(ctx, tx, location)
-		if err != nil {
-			return err
-		}
-	}
-
-	if userChanged {
-		err = updateUser(ctx, tx, user)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = tx.Commit(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) error {
-	queryLocation := `
-			UPDATE locations
-			SET name = $2, capacity = $3, time_zone = $4
-			WHERE id = $1
-		`
-
-	resultLocation, err := tx.Exec(
+	resultLocation, err := repo.db.Exec(
 		ctx,
-		queryLocation,
+		query,
 		location.ID,
 		location.Name,
 		location.Capacity,
@@ -338,42 +298,15 @@ func updateLocation(ctx context.Context, tx pgx.Tx, location *models.Location) e
 	)
 
 	if err != nil {
-		return postgres.PgxErrorToHTTPError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := resultLocation.RowsAffected()
 	if rowsAffected == 0 {
-		return errortools.ErrResourceNotFound
+		return nil, database.ErrResourceNotFound
 	}
 
-	return nil
-}
-
-func updateUser(ctx context.Context, tx pgx.Tx, user *models.User) error {
-	queryUser := `
-			UPDATE users
-			SET username = $2, password_hash = $3
-			WHERE id = $1 AND role = 'default'
-		`
-
-	resultUser, err := tx.Exec(
-		ctx,
-		queryUser,
-		user.ID,
-		user.Username,
-		user.PasswordHash,
-	)
-
-	if err != nil {
-		return postgres.PgxErrorToHTTPError(err)
-	}
-
-	rowsAffected := resultUser.RowsAffected()
-	if rowsAffected == 0 {
-		return errortools.ErrResourceNotFound
-	}
-
-	return nil
+	return &location, nil
 }
 
 func (repo LocationRepository) Delete(
@@ -392,7 +325,7 @@ func (repo LocationRepository) Delete(
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return errortools.ErrResourceNotFound
+		return database.ErrResourceNotFound
 	}
 
 	return nil

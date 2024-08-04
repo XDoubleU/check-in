@@ -5,7 +5,6 @@ import (
 
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/context"
-	"github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/parse"
 
 	"check-in/api/internal/constants"
@@ -74,7 +73,7 @@ func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.services.Locations.GetDefaultUserByUserID(r.Context(), id)
 	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "user", id, "id")
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 
@@ -102,9 +101,11 @@ func (app *Application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 		return
 	}
 
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 	result, err := getAllPaginated(
 		r.Context(),
 		app.services.Users,
+		user,
 		page,
 		pageSize,
 	)
@@ -146,14 +147,7 @@ func (app *Application) createManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		switch err {
-		case errors.ErrFailedValidation:
-			httptools.FailedValidationResponse(w, r, createUserDto.ValidationErrors)
-		case errors.ErrResourceConflict:
-			httptools.ConflictResponse(w, r, err, "user", createUserDto.Username, "username")
-		default:
-			httptools.ServerErrorResponse(w, r, err)
-		}
+		httptools.HandleError(w, r, err, createUserDto.ValidationErrors)
 		return
 	}
 
@@ -198,16 +192,7 @@ func (app *Application) updateManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		switch err {
-		case errors.ErrFailedValidation:
-			httptools.FailedValidationResponse(w, r, updateUserDto.ValidationErrors)
-		case errors.ErrResourceNotFound:
-			httptools.NotFoundResponse(w, r, err, "user", id, "id")
-		case errors.ErrResourceConflict:
-			httptools.ConflictResponse(w, r, err, "user", *updateUserDto.Username, "username")
-		default:
-			httptools.ServerErrorResponse(w, r, err)
-		}
+		httptools.HandleError(w, r, err, updateUserDto.ValidationErrors)
 		return
 	}
 
@@ -238,14 +223,8 @@ func (app *Application) deleteManagerUserHandler(
 
 	user, err := app.services.Users.Delete(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		switch err {
-		case errors.ErrResourceNotFound:
-			httptools.NotFoundResponse(w, r, err, "user", id, "id")
-			return
-		default:
-			httptools.ServerErrorResponse(w, r, err)
-			return
-		}
+		httptools.HandleError(w, r, err, nil)
+		return
 	}
 
 	err = httptools.WriteJSON(w, http.StatusOK, user, nil)

@@ -24,10 +24,10 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 	})
 
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
-		school, err := testEnv.services.Schools.GetByID(context.Background(), int64(1))
+		school, err := testApp.services.Schools.GetByID(context.Background(), int64(1))
 		require.Nil(t, err)
 
-		_, err = testEnv.services.CheckInsWriter.Create(
+		_, err = testApp.services.CheckInsWriter.Create(
 			context.Background(),
 			&dtos.CreateCheckInDto{
 				SchoolID: school.ID,
@@ -61,12 +61,12 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 	})
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
 		newCap := int64(10)
-		err := testEnv.services.Locations.Update(
+		_, err := testApp.services.Locations.Update(
 			context.Background(),
-			testEnv.Fixtures.DefaultLocation,
-			testEnv.Fixtures.DefaultUser,
+			testEnv.Fixtures.AdminUser,
+			testEnv.Fixtures.DefaultLocation.ID,
 			//nolint:exhaustruct //other fields are optional
-			dtos.UpdateLocationDto{
+			&dtos.UpdateLocationDto{
 				Capacity: &newCap,
 			},
 		)
@@ -94,10 +94,10 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	})
 
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
-		school, err := testEnv.services.Schools.GetByID(context.Background(), int64(1))
+		school, err := testApp.services.Schools.GetByID(context.Background(), int64(1))
 		require.Nil(t, err)
 
-		_, err = testEnv.services.CheckInsWriter.Create(
+		_, err = testApp.services.CheckInsWriter.Create(
 			context.Background(),
 			&dtos.CreateCheckInDto{
 				SchoolID: school.ID,
@@ -132,12 +132,12 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
 		newCap := int64(10)
-		err := testEnv.services.Locations.Update(
+		_, err := testApp.services.Locations.Update(
 			context.Background(),
-			testEnv.Fixtures.DefaultLocation,
-			testEnv.Fixtures.DefaultUser,
+			testEnv.Fixtures.AdminUser,
+			testEnv.Fixtures.DefaultLocation.ID,
 			//nolint:exhaustruct //other fields are optional
-			dtos.UpdateLocationDto{
+			&dtos.UpdateLocationDto{
 				Capacity: &newCap,
 			},
 		)

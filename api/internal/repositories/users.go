@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 
+	"github.com/xdoubleu/essentia/pkg/database"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -208,10 +208,10 @@ func (repo UserRepository) Create(
 
 func (repo UserRepository) Update(
 	ctx context.Context,
-	user *models.User,
+	user models.User,
 	updateUserDto *dtos.UpdateUserDto,
 	role models.Role,
-) error {
+) (*models.User, error) {
 	if updateUserDto.Username != nil {
 		user.Username = *updateUserDto.Username
 	}
@@ -237,15 +237,15 @@ func (repo UserRepository) Update(
 	)
 
 	if err != nil {
-		return postgres.PgxErrorToHTTPError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return errortools.ErrResourceNotFound
+		return nil, database.ErrResourceNotFound
 	}
 
-	return nil
+	return &user, nil
 }
 
 func (repo UserRepository) Delete(
@@ -265,7 +265,7 @@ func (repo UserRepository) Delete(
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return errortools.ErrResourceNotFound
+		return database.ErrResourceNotFound
 	}
 
 	return nil

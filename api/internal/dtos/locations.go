@@ -1,10 +1,11 @@
 package dtos
 
 import (
+	"check-in/api/internal/models"
+	"encoding/json"
+
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"github.com/xdoubleu/essentia/pkg/validate"
-
-	"check-in/api/internal/models"
 )
 
 type CapacityMap = *orderedmap.OrderedMap[string, int64]
@@ -14,6 +15,30 @@ type CheckInsLocationEntryRaw struct {
 	Capacities CapacityMap `json:"capacities" swaggertype:"object,number"`
 	Schools    SchoolsMap  `json:"schools"    swaggertype:"object,number"`
 } //	@name	CheckInsLocationEntryRaw
+
+func NewCheckInsLocationEntryRaw(capacities CapacityMap, schools SchoolsMap) CheckInsLocationEntryRaw {
+	// Used to deep copy capacities
+	var capacitiesCopy *orderedmap.OrderedMap[string, int64]
+	data, _ := json.Marshal(capacities)
+	_ = json.Unmarshal(data, &capacitiesCopy)
+
+	// Used to deep copy schools
+	var schoolsCopy *orderedmap.OrderedMap[string, int]
+	data, _ = json.Marshal(schools)
+	_ = json.Unmarshal(data, &schoolsCopy)
+
+	return CheckInsLocationEntryRaw{
+		Capacities: capacitiesCopy,
+		Schools:    schoolsCopy,
+	}
+}
+
+func (entry CheckInsLocationEntryRaw) Copy() CheckInsLocationEntryRaw {
+	return CheckInsLocationEntryRaw{
+		Capacities: entry.Capacities,
+		Schools:    entry.Schools,
+	}
+}
 
 type PaginatedLocationsDto struct {
 	PaginatedResultDto[models.Location]

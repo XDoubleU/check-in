@@ -1,12 +1,10 @@
 package main
 
 import (
-	"errors"
 	"net/http"
 
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/context"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
@@ -36,10 +34,9 @@ func (app *Application) getSortedSchoolsHandler(
 	r *http.Request,
 ) {
 	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
-
 	schools, err := app.services.CheckInsWriter.GetAllSchoolsSortedByLocation(
 		r.Context(),
-		user.ID,
+		user,
 	)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
@@ -77,27 +74,7 @@ func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		user,
 	)
 	if err != nil {
-		switch err {
-		case errortools.ErrFailedValidation:
-			httptools.FailedValidationResponse(w, r, createCheckInDto.ValidationErrors)
-		case errortools.ErrResourceNotFound:
-			httptools.NotFoundResponse(
-				w,
-				r,
-				err,
-				"school",
-				createCheckInDto.SchoolID,
-				"schoolId",
-			)
-		case errortools.ErrBadRequest:
-			httptools.BadRequestResponse(
-				w,
-				r,
-				errors.New("location has no available spots"),
-			)
-		default:
-			httptools.ServerErrorResponse(w, r, err)
-		}
+		httptools.HandleError(w, r, err, createCheckInDto.ValidationErrors)
 		return
 	}
 
