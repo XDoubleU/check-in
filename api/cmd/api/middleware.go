@@ -77,7 +77,7 @@ func (app *Application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 		if token.Used {
 			err = app.services.Auth.DeleteAllTokensForUser(r.Context(), user.ID)
 			if err != nil {
-				panic(err)
+				httptools.ServerErrorResponse(w, r, err)
 			}
 			httptools.UnauthorizedResponse(w, r, errortools.NewUnauthorizedError(errors.New("invalid token")))
 			return

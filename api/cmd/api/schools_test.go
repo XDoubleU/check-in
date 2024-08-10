@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
 
@@ -33,8 +34,10 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 		tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
 		tReq.AddCookie(user)
 
+		rs := tReq.Do(t)
+
 		var rsData dtos.PaginatedSchoolsDto
-		rs := tReq.Do(t, &rsData)
+		httptools.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -67,8 +70,10 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 		"page": "2",
 	})
 
+	rs := tReq.Do(t)
+
 	var rsData dtos.PaginatedSchoolsDto
-	rs := tReq.Do(t, &rsData)
+	httptools.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -142,8 +147,10 @@ func TestCreateSchool(t *testing.T) {
 
 		tReq.SetBody(data)
 
+		rs := tReq.Do(t)
+
 		var rsData models.School
-		rs := tReq.Do(t, &rsData)
+		httptools.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, http.StatusCreated, rs.StatusCode)
 		assert.Equal(t, unique, rsData.Name)
@@ -164,8 +171,10 @@ func TestCreateSchoolNameExists(t *testing.T) {
 
 	tReq.SetBody(data)
 
+	rs := tReq.Do(t)
+
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	httptools.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -243,8 +252,10 @@ func TestUpdateSchool(t *testing.T) {
 
 		tReq.SetBody(data)
 
+		rs := tReq.Do(t)
+
 		var rsData models.School
-		rs := tReq.Do(t, &rsData)
+		httptools.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, school.ID, rsData.ID)
@@ -273,8 +284,10 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 
 	tReq.SetBody(data)
 
+	rs := tReq.Do(t)
+
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	httptools.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -297,8 +310,10 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 
 	tReq.SetBody(data)
 
+	rs := tReq.Do(t)
+
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	httptools.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -325,8 +340,10 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 
 	tReq.SetBody(data)
 
+	rs := tReq.Do(t)
+
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	httptools.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -353,8 +370,10 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 
 	tReq.SetBody(data)
 
+	rs := tReq.Do(t)
+
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	httptools.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(
@@ -438,8 +457,10 @@ func TestDeleteSchool(t *testing.T) {
 		)
 		tReq.AddCookie(user)
 
+		rs := tReq.Do(t)
+
 		var rsData models.School
-		rs := tReq.Do(t, &rsData)
+		httptools.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, school.ID, rsData.ID)
@@ -455,8 +476,10 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodDelete, "/schools/1")
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
+	rs := tReq.Do(t)
+
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	httptools.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -477,8 +500,10 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
+	rs := tReq.Do(t)
+
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	httptools.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -499,8 +524,10 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	)
 	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
 
+	rs := tReq.Do(t)
+
 	var rsData errortools.ErrorDto
-	rs := tReq.Do(t, &rsData)
+	httptools.ReadJSON(rs.Body, &rsData)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(
