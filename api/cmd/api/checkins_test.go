@@ -21,17 +21,17 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	defer testEnv.teardown()
 
 	// Should always stay at the bottom
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, 1, 10)
+	testEnv.createCheckIns(fixtures.DefaultLocation, 1, 10)
 
 	school := testEnv.createSchools(1)[0]
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, school.ID, 10)
+	testEnv.createCheckIns(fixtures.DefaultLocation, school.ID, 10)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
 		http.MethodGet,
 		"/checkins/schools",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -58,11 +58,11 @@ func TestGetSortedSchoolsAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.ManagerAccessToken)
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
-	tReq3.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq3.AddCookie(fixtures.Tokens.AdminAccessToken)
 	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)
@@ -78,7 +78,7 @@ func TestCreateCheckIn(t *testing.T) {
 	tReq.SetBody(dtos.CreateCheckInDto{
 		SchoolID: school.ID,
 	})
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -89,8 +89,8 @@ func TestCreateCheckIn(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 	assert.Equal(t, school.Name, rsData.SchoolName)
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rsData.LocationID)
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.Capacity, rsData.Capacity)
+	assert.Equal(t, fixtures.DefaultLocation.ID, rsData.LocationID)
+	assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData.Capacity)
 	assert.Equal(
 		t,
 		time.Now().In(loc).Format(constants.DateFormat),
@@ -110,7 +110,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 
 	tReq.SetBody(data)
 
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -121,8 +121,8 @@ func TestCreateCheckInAndere(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 	assert.Equal(t, "Andere", rsData.SchoolName)
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rsData.LocationID)
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.Capacity, rsData.Capacity)
+	assert.Equal(t, fixtures.DefaultLocation.ID, rsData.LocationID)
+	assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData.Capacity)
 	assert.Equal(
 		t,
 		time.Now().In(loc).Format(constants.DateFormat),
@@ -142,11 +142,11 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 
 	tReq.SetBody(data)
 
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	var rs *http.Response
 
-	for i := 0; i < int(testEnv.Fixtures.DefaultLocation.Capacity)+1; i++ {
+	for i := 0; i < int(fixtures.DefaultLocation.Capacity)+1; i++ {
 		rs = tReq.Do(t)
 	}
 
@@ -169,7 +169,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 
 	tReq.SetBody(data)
 
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -189,7 +189,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 	tReq.SetBody(dtos.CreateCheckInDto{
 		SchoolID: 0,
 	})
@@ -217,11 +217,11 @@ func TestCreateCheckInAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.ManagerAccessToken)
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
-	tReq3.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq3.AddCookie(fixtures.Tokens.AdminAccessToken)
 	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	mt.Do(t)

@@ -18,10 +18,9 @@ import (
 )
 
 type TestEnv struct {
-	ctx      context.Context
-	tx       postgres.PgxSyncTx
-	app      *Application
-	Fixtures Fixtures
+	ctx context.Context
+	tx  *postgres.PgxSyncTx
+	app *Application
 }
 
 type Tokens struct {
@@ -39,14 +38,17 @@ type Fixtures struct {
 	DefaultLocation *models.Location
 }
 
-var db postgres.DB    //nolint:gochecknoglobals //needed for tests
-var cfg config.Config //nolint:gochecknoglobals //needed for tests
+var mainTx *postgres.PgxSyncTx //nolint:gochecknoglobals //needed for tests
+var cfg config.Config          //nolint:gochecknoglobals //needed for tests
+var fixtures Fixtures          //nolint:gochecknoglobals //needed for tests
+var mainTestApp *Application   //nolint:gochecknoglobals //needed for tests
+var testCtx context.Context    //nolint:gochecknoglobals //needed for tests
 
-func (env *TestEnv) defaultFixtures() {
+func defaultFixtures(ctx context.Context, app *Application) {
 	var err error
 
 	password := "testpassword"
-	env.Fixtures.AdminUser, err = env.app.services.Users.Create(env.ctx,
+	fixtures.AdminUser, err = app.services.Users.Create(ctx,
 		&dtos.CreateUserDto{
 			Username: "Admin",
 			Password: password,
@@ -57,9 +59,9 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.ctx = env.app.contextSetUser(env.ctx, *env.Fixtures.AdminUser)
+	ctx = app.contextSetUser(ctx, *fixtures.AdminUser)
 
-	env.Fixtures.ManagerUser, err = env.app.services.Users.Create(env.ctx,
+	fixtures.ManagerUser, err = app.services.Users.Create(ctx,
 		&dtos.CreateUserDto{
 			Username: "Manager",
 			Password: password,
@@ -70,22 +72,22 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.AdminAccessToken, err = env.app.services.Auth.CreateCookie(
-		env.ctx,
+	fixtures.Tokens.AdminAccessToken, err = app.services.Auth.CreateCookie(
+		ctx,
 		models.AccessScope,
-		env.Fixtures.AdminUser.ID,
-		env.app.config.AccessExpiry,
+		fixtures.AdminUser.ID,
+		app.config.AccessExpiry,
 		false,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.ManagerAccessToken, err = env.app.services.Auth.CreateCookie(
-		env.ctx,
+	fixtures.Tokens.ManagerAccessToken, err = app.services.Auth.CreateCookie(
+		ctx,
 		models.AccessScope,
-		env.Fixtures.ManagerUser.ID,
-		env.app.config.AccessExpiry,
+		fixtures.ManagerUser.ID,
+		app.config.AccessExpiry,
 		false,
 	)
 	if err != nil {
@@ -97,9 +99,9 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.Fixtures.DefaultLocation, err = env.app.services.Locations.Create(
-		env.ctx,
-		env.Fixtures.AdminUser,
+	fixtures.DefaultLocation, err = app.services.Locations.Create(
+		ctx,
+		fixtures.AdminUser,
 		&dtos.CreateLocationDto{
 			Name:     "TestLocation",
 			Capacity: 20,
@@ -112,30 +114,30 @@ func (env *TestEnv) defaultFixtures() {
 		panic(err)
 	}
 
-	env.Fixtures.DefaultUser, err = env.app.services.Locations.GetDefaultUserByUserID(
-		env.ctx,
-		env.Fixtures.DefaultLocation.UserID,
+	fixtures.DefaultUser, err = app.services.Locations.GetDefaultUserByUserID(
+		ctx,
+		fixtures.DefaultLocation.UserID,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.DefaultAccessToken, err = env.app.services.Auth.CreateCookie(
-		env.ctx,
+	fixtures.Tokens.DefaultAccessToken, err = app.services.Auth.CreateCookie(
+		ctx,
 		models.AccessScope,
-		env.Fixtures.DefaultUser.ID,
-		env.app.config.AccessExpiry,
+		fixtures.DefaultUser.ID,
+		app.config.AccessExpiry,
 		false,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	env.Fixtures.Tokens.DefaultRefreshToken, err = env.app.services.Auth.CreateCookie(
-		env.ctx,
+	fixtures.Tokens.DefaultRefreshToken, err = app.services.Auth.CreateCookie(
+		ctx,
 		models.RefreshScope,
-		env.Fixtures.DefaultUser.ID,
-		env.app.config.RefreshExpiry,
+		fixtures.DefaultUser.ID,
+		app.config.RefreshExpiry,
 		false,
 	)
 	if err != nil {
@@ -180,7 +182,7 @@ func (env *TestEnv) createLocations(amount int) []*models.Location {
 		var location *models.Location
 		location, err = env.app.services.Locations.Create(
 			env.ctx,
-			env.Fixtures.AdminUser,
+			fixtures.AdminUser,
 			&dtos.CreateLocationDto{
 				Name:     fmt.Sprintf("TestLocation%d", i),
 				Capacity: 20,
@@ -269,29 +271,37 @@ func TestMain(m *testing.M) {
 
 	ApplyMigrations(logging.NewNopLogger(), postgresDB)
 
-	db = postgresDB
+	mainTx = postgres.CreatePgxSyncTx(context.Background(), postgresDB)
 
-	os.Exit(m.Run())
-}
+	testCtx = context.Background()
+	mainTestApp = NewApp(logging.NewNopLogger(), cfg, mainTx)
 
-func setup(t *testing.T) (TestEnv, *Application) {
-	t.Parallel()
+	defaultFixtures(testCtx, mainTestApp)
 
-	tx := postgres.CreatePgxSyncTx(context.Background(), db)
-
-	testApp := NewApp(logging.NewNopLogger(), cfg, tx)
-
-	testEnv := TestEnv{
-		ctx: context.Background(),
-		tx:  tx,
-		app: testApp,
-		//nolint:exhaustruct //fields are optional
-		Fixtures: Fixtures{},
+	code := m.Run()
+	err = mainTx.Rollback(context.Background())
+	if err != nil {
+		panic(err)
 	}
 
-	testEnv.defaultFixtures()
+	os.Exit(code)
+}
 
-	return testEnv, testApp
+func setup(t *testing.T) (*TestEnv, *Application) {
+	//todo t.Parallel()
+
+	tx := postgres.CreatePgxSyncTx(context.Background(), mainTx)
+
+	testApp := *mainTestApp
+	testApp.SetDB(tx)
+
+	testEnv := &TestEnv{
+		ctx: testCtx,
+		tx:  tx,
+		app: &testApp,
+	}
+
+	return testEnv, &testApp
 }
 
 func (env *TestEnv) teardown() {

@@ -30,7 +30,7 @@ func TestYesterdayFullAt(t *testing.T) {
 
 	now := time.Now().In(loc).AddDate(0, 0, -1)
 
-	for i := 0; i < int(testEnv.Fixtures.DefaultLocation.Capacity); i++ {
+	for i := 0; i < int(fixtures.DefaultLocation.Capacity); i++ {
 		query := `
 			INSERT INTO check_ins 
 			(location_id, school_id, capacity, created_at)
@@ -40,9 +40,9 @@ func TestYesterdayFullAt(t *testing.T) {
 		_, err := testEnv.tx.Exec(
 			context.Background(),
 			query,
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 			1,
-			testEnv.Fixtures.DefaultLocation.Capacity,
+			fixtures.DefaultLocation.Capacity,
 			now,
 		)
 		if err != nil {
@@ -54,9 +54,9 @@ func TestYesterdayFullAt(t *testing.T) {
 		testApp.routes(),
 		http.MethodGet,
 		"/locations/%s",
-		testEnv.Fixtures.DefaultLocation.ID,
+		fixtures.DefaultLocation.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -66,7 +66,7 @@ func TestYesterdayFullAt(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
 	assert.EqualValues(t, 0, rsData.AvailableYesterday)
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.Capacity, rsData.CapacityYesterday)
+	assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData.CapacityYesterday)
 	assert.Equal(t, true, rsData.YesterdayFullAt.Valid)
 	assert.Equal(t, now.Day(), rsData.YesterdayFullAt.Time.Day())
 	assert.Equal(t, now.Hour(), rsData.YesterdayFullAt.Time.Hour())
@@ -76,7 +76,7 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, int64(1), 10)
+	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), 10)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 	utc, _ := time.LoadLocation("UTC")
@@ -90,9 +90,9 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	endDate = timetools.StartOfDay(endDate)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
-		testEnv.Fixtures.Tokens.DefaultAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.DefaultAccessToken,
 	}
 
 	for _, user := range users {
@@ -104,7 +104,7 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 		tReq.AddCookie(user)
 
 		tReq.SetQuery(map[string]string{
-			"ids":        testEnv.Fixtures.DefaultLocation.ID,
+			"ids":        fixtures.DefaultLocation.ID,
 			"startDate":  startDate.Format(constants.DateFormat),
 			"endDate":    endDate.Format(constants.DateFormat),
 			"returnType": "raw",
@@ -126,11 +126,11 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 		assert.Equal(t, true, present)
 
 		capacity, _ := rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].Capacities.Get(
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 		)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.Capacity,
+			fixtures.DefaultLocation.Capacity,
 			capacity,
 		)
 
@@ -157,7 +157,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, int64(1), 10)
+	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), 10)
 	testEnv.createCheckIns(location, int64(1), 10)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
@@ -172,8 +172,8 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	endDate = timetools.StartOfDay(endDate)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for _, user := range users {
@@ -186,7 +186,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 
 		id := fmt.Sprintf(
 			"%s,%s",
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 			location.ID,
 		)
 
@@ -214,7 +214,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 
 		capacity0, _ := rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
 			Capacities.Get(
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 		)
 		capacity1, _ := rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
 			Capacities.Get(
@@ -222,7 +222,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 		)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.Capacity,
+			fixtures.DefaultLocation.Capacity,
 			capacity0,
 		)
 
@@ -254,15 +254,15 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	defer testEnv.teardown()
 
 	amount := 10
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, 1, amount)
+	testEnv.createCheckIns(fixtures.DefaultLocation, 1, amount)
 
 	startDate := time.Now().AddDate(0, 0, -1).Format(constants.DateFormat)
 	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
-		testEnv.Fixtures.Tokens.DefaultAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.DefaultAccessToken,
 	}
 
 	for _, user := range users {
@@ -274,7 +274,7 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 		tReq.AddCookie(user)
 
 		tReq.SetQuery(map[string]string{
-			"ids":        testEnv.Fixtures.DefaultLocation.ID,
+			"ids":        fixtures.DefaultLocation.ID,
 			"startDate":  startDate,
 			"endDate":    endDate,
 			"returnType": "csv",
@@ -300,7 +300,7 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 		// today
 		fetchedTimeToday, _ := time.Parse(time.RFC3339, rsData[2][0])
 		assert.Equal(t, time.Now().Format(constants.DateFormat), fetchedTimeToday.Format(constants.DateFormat))
-		assert.Equal(t, strconv.Itoa(int(testEnv.Fixtures.DefaultLocation.Capacity)), rsData[2][1])
+		assert.Equal(t, strconv.Itoa(int(fixtures.DefaultLocation.Capacity)), rsData[2][1])
 		assert.Equal(t, strconv.Itoa(amount), rsData[2][2])
 
 		// tomorrow
@@ -325,7 +325,7 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":        id.String(),
@@ -361,7 +361,7 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":        location.ID,
@@ -396,7 +396,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":        location.ID,
@@ -426,7 +426,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":        location.ID,
@@ -457,7 +457,7 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":       location.ID,
@@ -486,7 +486,7 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":        "8000",
@@ -525,7 +525,7 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	defer testEnv.teardown()
 
 	amount := 10
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, int64(1), amount)
+	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), amount)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 	utc, _ := time.LoadLocation("UTC")
@@ -535,9 +535,9 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
-		testEnv.Fixtures.Tokens.DefaultAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.DefaultAccessToken,
 	}
 
 	for _, user := range users {
@@ -549,7 +549,7 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 		tReq.AddCookie(user)
 
 		tReq.SetQuery(map[string]string{
-			"ids":        testEnv.Fixtures.DefaultLocation.ID,
+			"ids":        fixtures.DefaultLocation.ID,
 			"date":       date.Format(constants.DateFormat),
 			"returnType": "raw",
 		})
@@ -568,7 +568,7 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 		}
 
 		capacity, _ := rsData[checkInDate].Capacities.Get(
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 		)
 		assert.Equal(t, capacity, int64(20))
 
@@ -585,7 +585,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 	location := testEnv.createLocations(1)[0]
 
 	amount := 10
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, int64(1), amount)
+	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), amount)
 	testEnv.createCheckIns(location, int64(1), amount)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
@@ -596,8 +596,8 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for _, user := range users {
@@ -610,7 +610,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 
 		id := fmt.Sprintf(
 			"%s,%s",
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 			location.ID,
 		)
 		tReq.SetQuery(map[string]string{
@@ -633,7 +633,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 		}
 
 		capacity0, _ := rsData[checkInDate].Capacities.Get(
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 		)
 		capacity1, _ := rsData[checkInDate].Capacities.Get(location.ID)
 		assert.Equal(t, int64(20), capacity0)
@@ -654,14 +654,14 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 	defer testEnv.teardown()
 
 	amount := 10
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, 1, amount)
+	testEnv.createCheckIns(fixtures.DefaultLocation, 1, amount)
 
 	date := time.Now().Format(constants.DateFormat)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
-		testEnv.Fixtures.Tokens.DefaultAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.DefaultAccessToken,
 	}
 
 	for _, user := range users {
@@ -673,7 +673,7 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 		tReq.AddCookie(user)
 
 		tReq.SetQuery(map[string]string{
-			"ids":        testEnv.Fixtures.DefaultLocation.ID,
+			"ids":        fixtures.DefaultLocation.ID,
 			"date":       date,
 			"returnType": "csv",
 		})
@@ -690,7 +690,7 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 		assert.Equal(t, "text/csv", rs.Header.Get("content-type"))
 		assert.Equal(t, expectedHeaders, rsData[0])
 		assert.Equal(t, date, fetchedTime.Format(constants.DateFormat))
-		assert.Equal(t, strconv.Itoa(int(testEnv.Fixtures.DefaultLocation.Capacity)), rsData[1][1])
+		assert.Equal(t, strconv.Itoa(int(fixtures.DefaultLocation.Capacity)), rsData[1][1])
 		assert.Equal(t, strconv.Itoa(amount), rsData[1][2])
 	}
 }
@@ -708,7 +708,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":        id.String(),
@@ -742,7 +742,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":        location.ID,
@@ -774,7 +774,7 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":        location.ID,
@@ -803,7 +803,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":  location.ID,
@@ -830,7 +830,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"ids":        "8000",
@@ -868,12 +868,12 @@ func TestGetAllCheckInsToday(t *testing.T) {
 	defer testEnv.teardown()
 
 	amount := 5
-	testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, int64(1), amount)
+	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), amount)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
-		testEnv.Fixtures.Tokens.DefaultAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.DefaultAccessToken,
 	}
 
 	for _, user := range users {
@@ -881,7 +881,7 @@ func TestGetAllCheckInsToday(t *testing.T) {
 			testApp.routes(),
 			http.MethodGet,
 			"/locations/%s/checkins",
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 		)
 		tReq.AddCookie(user)
 
@@ -894,7 +894,7 @@ func TestGetAllCheckInsToday(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, amount, len(rsData))
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rsData[0].LocationID)
+		assert.Equal(t, fixtures.DefaultLocation.ID, rsData[0].LocationID)
 		assert.Equal(t, "Andere", rsData[0].SchoolName)
 		assert.Equal(
 			t,
@@ -916,7 +916,7 @@ func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 		"/locations/%s/checkins",
 		id.String(),
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -943,7 +943,7 @@ func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
 		"/locations/%s/checkins",
 		location.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -967,7 +967,7 @@ func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
 		http.MethodGet,
 		"/locations/8000/checkins",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -1001,11 +1001,11 @@ func TestDeleteCheckIn(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	checkIns := testEnv.createCheckIns(testEnv.Fixtures.DefaultLocation, 1, 10)
+	checkIns := testEnv.createCheckIns(fixtures.DefaultLocation, 1, 10)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for i, user := range users {
@@ -1017,7 +1017,7 @@ func TestDeleteCheckIn(t *testing.T) {
 			testApp.routes(),
 			http.MethodDelete,
 			"/locations/%s/checkins/%s",
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 			id,
 		)
 		tReq.AddCookie(user)
@@ -1031,7 +1031,7 @@ func TestDeleteCheckIn(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, checkIns[i].ID, rsData.ID)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rsData.LocationID)
+		assert.Equal(t, fixtures.DefaultLocation.ID, rsData.LocationID)
 		assert.Equal(t, "Andere", rsData.SchoolName)
 		assert.Equal(
 			t,
@@ -1053,7 +1053,7 @@ func TestDeleteCheckInLocationNotFound(t *testing.T) {
 		"/locations/%s/checkins/1",
 		id.String(),
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -1076,9 +1076,9 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 		testApp.routes(),
 		http.MethodDelete,
 		"/locations/%s/checkins/8000",
-		testEnv.Fixtures.DefaultLocation.ID,
+		fixtures.DefaultLocation.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -1108,9 +1108,9 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 	err := testEnv.tx.QueryRow(
 		context.Background(),
 		query,
-		testEnv.Fixtures.DefaultLocation.ID,
+		fixtures.DefaultLocation.ID,
 		1,
-		testEnv.Fixtures.DefaultLocation.Capacity,
+		fixtures.DefaultLocation.Capacity,
 		time.Now().AddDate(0, 0, -1),
 	).Scan(&checkIn.ID)
 	if err != nil {
@@ -1125,10 +1125,10 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 		testApp.routes(),
 		http.MethodDelete,
 		"/locations/%s/checkins/%s",
-		testEnv.Fixtures.DefaultLocation.ID,
+		fixtures.DefaultLocation.ID,
 		id,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -1152,7 +1152,7 @@ func TestDeleteCheckInNotUUID(t *testing.T) {
 		http.MethodDelete,
 		"/locations/800O/checkins/1",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -1180,7 +1180,7 @@ func TestDeleteCheckInAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -1195,8 +1195,8 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 	testEnv.createLocations(amount)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for _, user := range users {
@@ -1218,21 +1218,21 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 		)
 		assert.Equal(t, 3, len(rsData.Data))
 
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rsData.Data[0].ID)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.Name, rsData.Data[0].Name)
+		assert.Equal(t, fixtures.DefaultLocation.ID, rsData.Data[0].ID)
+		assert.Equal(t, fixtures.DefaultLocation.Name, rsData.Data[0].Name)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.NormalizedName,
+			fixtures.DefaultLocation.NormalizedName,
 			rsData.Data[0].NormalizedName,
 		)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.Available,
+			fixtures.DefaultLocation.Available,
 			rsData.Data[0].Available,
 		)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.Capacity,
+			fixtures.DefaultLocation.Capacity,
 			rsData.Data[0].Capacity,
 		)
 		assert.NotEqual(
@@ -1247,15 +1247,15 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 		)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.YesterdayFullAt,
+			fixtures.DefaultLocation.YesterdayFullAt,
 			rsData.Data[0].YesterdayFullAt,
 		)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.TimeZone,
+			fixtures.DefaultLocation.TimeZone,
 			rsData.Data[0].TimeZone,
 		)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.UserID, rsData.Data[0].UserID)
+		assert.Equal(t, fixtures.DefaultLocation.UserID, rsData.Data[0].UserID)
 	}
 }
 
@@ -1267,7 +1267,7 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	locations := testEnv.createLocations(amount)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/locations")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"page": "2",
@@ -1324,7 +1324,7 @@ func TestGetPaginatedLocationsPageFull(t *testing.T) {
 	testEnv.createLocations(amount)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/locations")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	test.PaginatedEndpointTester(
 		t,
@@ -1344,7 +1344,7 @@ func TestGetPaginatedLocationsAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -1360,8 +1360,8 @@ func TestGetAllLocations(t *testing.T) {
 	require.Nil(t, err)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for _, user := range users {
@@ -1380,24 +1380,24 @@ func TestGetAllLocations(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
 		assert.EqualValues(t, *amount, len(rsData))
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rsData[0].ID)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.Name, rsData[0].Name)
+		assert.Equal(t, fixtures.DefaultLocation.ID, rsData[0].ID)
+		assert.Equal(t, fixtures.DefaultLocation.Name, rsData[0].Name)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.NormalizedName,
+			fixtures.DefaultLocation.NormalizedName,
 			rsData[0].NormalizedName,
 		)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.Available, rsData[0].Available)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.Capacity, rsData[0].Capacity)
+		assert.Equal(t, fixtures.DefaultLocation.Available, rsData[0].Available)
+		assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData[0].Capacity)
 		assert.NotEqual(t, 0, rsData[0].AvailableYesterday)
 		assert.NotEqual(t, 0, rsData[0].CapacityYesterday)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.YesterdayFullAt,
+			fixtures.DefaultLocation.YesterdayFullAt,
 			rsData[0].YesterdayFullAt,
 		)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.TimeZone, rsData[0].TimeZone)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.UserID, rsData[0].UserID)
+		assert.Equal(t, fixtures.DefaultLocation.TimeZone, rsData[0].TimeZone)
+		assert.Equal(t, fixtures.DefaultLocation.UserID, rsData[0].UserID)
 	}
 }
 
@@ -1415,7 +1415,7 @@ func TestGetAllLocationsAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -1427,9 +1427,9 @@ func TestGetLocation(t *testing.T) {
 	defer testEnv.teardown()
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
-		testEnv.Fixtures.Tokens.DefaultAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.DefaultAccessToken,
 	}
 
 	for _, user := range users {
@@ -1437,7 +1437,7 @@ func TestGetLocation(t *testing.T) {
 			testApp.routes(),
 			http.MethodGet,
 			"/locations/%s",
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.DefaultLocation.ID,
 		)
 		tReq.AddCookie(user)
 
@@ -1447,24 +1447,24 @@ func TestGetLocation(t *testing.T) {
 		httptools.ReadJSON(rs.Body, &rsData)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rsData.ID)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.Name, rsData.Name)
+		assert.Equal(t, fixtures.DefaultLocation.ID, rsData.ID)
+		assert.Equal(t, fixtures.DefaultLocation.Name, rsData.Name)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.NormalizedName,
+			fixtures.DefaultLocation.NormalizedName,
 			rsData.NormalizedName,
 		)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.Available, rsData.Available)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.Capacity, rsData.Capacity)
+		assert.Equal(t, fixtures.DefaultLocation.Available, rsData.Available)
+		assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData.Capacity)
 		assert.NotEqual(t, 0, rsData.AvailableYesterday)
 		assert.NotEqual(t, 0, rsData.CapacityYesterday)
 		assert.Equal(
 			t,
-			testEnv.Fixtures.DefaultLocation.YesterdayFullAt,
+			fixtures.DefaultLocation.YesterdayFullAt,
 			rsData.YesterdayFullAt,
 		)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.TimeZone, rsData.TimeZone)
-		assert.Equal(t, testEnv.Fixtures.DefaultLocation.UserID, rsData.UserID)
+		assert.Equal(t, fixtures.DefaultLocation.TimeZone, rsData.TimeZone)
+		assert.Equal(t, fixtures.DefaultLocation.UserID, rsData.UserID)
 	}
 }
 
@@ -1480,7 +1480,7 @@ func TestGetLocationNotFound(t *testing.T) {
 		"/locations/%s",
 		id.String(),
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -1507,7 +1507,7 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 		"/locations/%s",
 		location.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -1531,7 +1531,7 @@ func TestGetLocationNotUUID(t *testing.T) {
 		http.MethodGet,
 		"/locations/8000",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -1566,8 +1566,8 @@ func TestCreateLocation(t *testing.T) {
 	defer testEnv.teardown()
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for i, user := range users {
@@ -1614,7 +1614,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 	defer testEnv.teardown()
 
 	data := dtos.CreateLocationDto{
-		Name:     testEnv.Fixtures.DefaultLocation.Name,
+		Name:     fixtures.DefaultLocation.Name,
 		Capacity: 10,
 		Username: "test",
 		Password: "testpassword",
@@ -1622,7 +1622,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 	}
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/locations")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -1644,7 +1644,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 	defer testEnv.teardown()
 
 	data := dtos.CreateLocationDto{
-		Name:     fmt.Sprintf("$%s$", testEnv.Fixtures.DefaultLocation.Name),
+		Name:     fmt.Sprintf("$%s$", fixtures.DefaultLocation.Name),
 		Capacity: 10,
 		Username: "test",
 		Password: "testpassword",
@@ -1652,7 +1652,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 	}
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/locations")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -1676,13 +1676,13 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 	data := dtos.CreateLocationDto{
 		Name:     "test",
 		Capacity: 10,
-		Username: testEnv.Fixtures.DefaultUser.Username,
+		Username: fixtures.DefaultUser.Username,
 		Password: "testpassword",
 		TimeZone: "Europe/Brussels",
 	}
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/locations")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -1704,7 +1704,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/locations")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	mt := test.CreateMatrixTester()
 
@@ -1757,7 +1757,7 @@ func TestCreateLocationAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -1771,8 +1771,8 @@ func TestUpdateLocation(t *testing.T) {
 	location := testEnv.createLocations(1)[0]
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for i, user := range users {
@@ -1831,7 +1831,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	name, username, password, timeZone := testEnv.Fixtures.DefaultLocation.Name, "test",
+	name, username, password, timeZone := fixtures.DefaultLocation.Name, "test",
 		"testpassword", "Europe/Brussels"
 	var capacity int64 = 10
 	data := dtos.UpdateLocationDto{
@@ -1848,7 +1848,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 		"/locations/%s",
 		location.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -1873,7 +1873,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 
 	name, username, password, timeZone := fmt.Sprintf(
 		"$%s$",
-		testEnv.Fixtures.DefaultLocation.Name,
+		fixtures.DefaultLocation.Name,
 	), "test",
 		"testpassword", "Europe/Brussels"
 	var capacity int64 = 10
@@ -1891,7 +1891,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 		"/locations/%s",
 		location.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -1914,7 +1914,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	name, username, password, timeZone := "test", testEnv.Fixtures.DefaultUser.Username,
+	name, username, password, timeZone := "test", fixtures.DefaultUser.Username,
 		"testpassword", "Europe/Brussels"
 	var capacity int64 = 10
 	data := dtos.UpdateLocationDto{
@@ -1931,7 +1931,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 		"/locations/%s",
 		location.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -1960,7 +1960,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 		"/locations/%s",
 		location.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	mt := test.CreateMatrixTester()
 
@@ -2027,7 +2027,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 		"/locations/%s",
 		id.String(),
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -2066,7 +2066,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 		"/locations/%s",
 		location.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	tReq.SetBody(data)
 
@@ -2102,7 +2102,7 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 		http.MethodPatch,
 		"/locations/8000",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -2141,8 +2141,8 @@ func TestDeleteLocation(t *testing.T) {
 	locations := testEnv.createLocations(3)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for i, user := range users {
@@ -2197,7 +2197,7 @@ func TestDeleteLocationNotFound(t *testing.T) {
 		"/locations/%s",
 		id.String(),
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -2221,7 +2221,7 @@ func TestDeleteLocationNotUUID(t *testing.T) {
 		http.MethodDelete,
 		"/locations/8000",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -2249,7 +2249,7 @@ func TestDeleteLocationAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"log/slog"
@@ -17,6 +18,7 @@ import (
 	sentrytools "github.com/xdoubleu/essentia/pkg/sentry"
 
 	"check-in/api/internal/config"
+	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
 	"check-in/api/internal/services"
 )
@@ -26,6 +28,8 @@ var embedMigrations embed.FS
 
 type Application struct {
 	logger   *slog.Logger
+	db       postgres.DB
+	state    *models.State
 	config   config.Config
 	services services.Services
 }
@@ -74,15 +78,22 @@ func main() {
 func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application {
 	logger.Info(cfg.String())
 
+	app := &Application{
+		logger: logger,
+		config: cfg,
+	}
+
+	app.SetDB(db)
+
+	return app
+}
+
+func (app *Application) SetDB(db postgres.DB) {
 	spandb := postgres.NewSpanDB(db)
 
-	repos := repositories.New(spandb)
-
-	return &Application{
-		logger:   logger,
-		config:   cfg,
-		services: services.New(cfg, repos),
-	}
+	app.db = spandb
+	app.services = services.New(app.logger, app.config, repositories.New(app.db), func(ctx context.Context) bool { return db.Ping(ctx) == nil })
+	app.state = &app.services.State.Current
 }
 
 func ApplyMigrations(logger *slog.Logger, db *pgxpool.Pool) {

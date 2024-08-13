@@ -11,21 +11,22 @@ import (
 	"check-in/api/internal/models"
 )
 
-type GetAllLocationsFunc = func(ctx context.Context) ([]*models.Location, error)
+type GetAllLocationStatesFunc = func(ctx context.Context) ([]dtos.LocationStateDto, error)
 
 type WebSocketService struct {
-	handler  *wstools.WebSocketHandler[dtos.SubscribeMessageDto]
-	allTopic *wstools.Topic
-	topics   map[string]*wstools.Topic
+	handler           *wstools.WebSocketHandler[dtos.SubscribeMessageDto]
+	stateTopic        *wstools.Topic
+	allLocationsTopic *wstools.Topic
+	locationTopics    map[string]*wstools.Topic
 }
 
 func NewWebSocketService(
 	allowedOrigin string,
 ) *WebSocketService {
-	service := &WebSocketService{
-		handler:  nil,
-		allTopic: nil,
-		topics:   make(map[string]*wstools.Topic),
+	service := WebSocketService{
+		handler:           nil,
+		allLocationsTopic: nil,
+		locationTopics:    make(map[string]*wstools.Topic),
 	}
 
 	handler := wstools.CreateWebSocketHandler[dtos.SubscribeMessageDto](
@@ -35,11 +36,34 @@ func NewWebSocketService(
 	)
 	service.handler = &handler
 
-	return service
+	return &service
 }
 
 func (service WebSocketService) Handler() http.HandlerFunc {
 	return service.handler.Handler()
+}
+
+func (service *WebSocketService) SetStateTopic() error {
+	topic, err := service.handler.AddTopic("state", nil)
+	if err != nil {
+		return err
+	}
+
+	service.stateTopic = topic
+	return nil
+}
+
+func (service *WebSocketService) SetAllLocationsTopic(getAllLocationStates GetAllLocationStatesFunc) error {
+	topic, err := service.handler.AddTopic(
+		"*",
+		func(_ *wstools.Topic) (any, error) { return getAllLocationStates(context.Background()) },
+	)
+	if err != nil {
+		return err
+	}
+
+	service.allLocationsTopic = topic
+	return nil
 }
 
 func (service WebSocketService) AddLocation(location *models.Location) error {
@@ -48,12 +72,12 @@ func (service WebSocketService) AddLocation(location *models.Location) error {
 		return err
 	}
 
-	service.topics[location.ID] = topic
+	service.locationTopics[location.ID] = topic
 	return nil
 }
 
 func (service WebSocketService) UpdateLocation(location *models.Location) error {
-	topic, ok := service.topics[location.ID]
+	topic, ok := service.locationTopics[location.ID]
 	if !ok {
 		return errortools.NewNotFoundError("location", location.ID, "id")
 	}
@@ -63,13 +87,13 @@ func (service WebSocketService) UpdateLocation(location *models.Location) error 
 		return err
 	}
 
-	delete(service.topics, location.ID)
-	service.topics[location.ID] = newTopic
+	delete(service.locationTopics, location.ID)
+	service.locationTopics[location.ID] = newTopic
 	return nil
 }
 
 func (service WebSocketService) DeleteLocation(location *models.Location) error {
-	topic, ok := service.topics[location.ID]
+	topic, ok := service.locationTopics[location.ID]
 	if !ok {
 		return errortools.NewNotFoundError("location", location.ID, "id")
 	}
@@ -79,13 +103,17 @@ func (service WebSocketService) DeleteLocation(location *models.Location) error 
 		return err
 	}
 
-	delete(service.topics, topic.Name)
+	delete(service.locationTopics, topic.Name)
 	return nil
+}
+
+func (service WebSocketService) NewAppState(state models.State) {
+	service.stateTopic.EnqueueEvent(state)
 }
 
 func (service WebSocketService) NewLocationState(location models.Location) {
 	locationState := dtos.NewLocationStateDto(location)
 
-	service.allTopic.EnqueueEvent(locationState)
-	service.topics[location.ID].EnqueueEvent(locationState)
+	service.allLocationsTopic.EnqueueEvent(locationState)
+	service.locationTopics[location.ID].EnqueueEvent(locationState)
 }

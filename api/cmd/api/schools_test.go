@@ -26,8 +26,8 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	require.Nil(t, err)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for _, user := range users {
@@ -64,7 +64,7 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	require.Nil(t, err)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"page": "2",
@@ -98,7 +98,7 @@ func TestGetPaginatedSchoolsFull(t *testing.T) {
 	testEnv.createSchools(amount)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	test.PaginatedEndpointTester(
 		t,
@@ -119,7 +119,7 @@ func TestGetPaginatedSchoolsAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -131,8 +131,8 @@ func TestCreateSchool(t *testing.T) {
 	defer testEnv.teardown()
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for i, user := range users {
@@ -167,7 +167,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	}
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -189,7 +189,7 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 	tReq.SetBody(dtos.SchoolDto{
 		Name: "",
 	})
@@ -217,7 +217,7 @@ func TestCreateSchoolAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -229,8 +229,8 @@ func TestUpdateSchool(t *testing.T) {
 	defer testEnv.teardown()
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for i, user := range users {
@@ -280,7 +280,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 		"/schools/%d",
 		school.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -306,7 +306,7 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	}
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPatch, "/schools/1")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -336,7 +336,7 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 		http.MethodPatch,
 		"/schools/8000",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -366,7 +366,7 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 		http.MethodPatch,
 		"/schools/aaaa",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq.SetBody(data)
 
@@ -395,7 +395,7 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 		"/schools/%d",
 		school.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 	tReq.SetBody(dtos.SchoolDto{
 		Name: "",
 	})
@@ -430,7 +430,7 @@ func TestUpdateSchoolAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -442,8 +442,8 @@ func TestDeleteSchool(t *testing.T) {
 	defer testEnv.teardown()
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for _, user := range users {
@@ -474,7 +474,7 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodDelete, "/schools/1")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -498,7 +498,7 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 		http.MethodDelete,
 		"/schools/8000",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -522,7 +522,7 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 		http.MethodDelete,
 		"/schools/aaaa",
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -555,7 +555,7 @@ func TestDeleteSchoolAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 

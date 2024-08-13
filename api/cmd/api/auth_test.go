@@ -37,9 +37,9 @@ func TestSignInUser(t *testing.T) {
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 	assert.Contains(t, rs.Header.Values("set-cookie")[1], "refreshToken")
 
-	assert.Equal(t, testEnv.Fixtures.DefaultUser.ID, rsData.ID)
-	assert.Equal(t, testEnv.Fixtures.DefaultUser.Username, rsData.Username)
-	assert.Equal(t, testEnv.Fixtures.DefaultUser.Role, rsData.Role)
+	assert.Equal(t, fixtures.DefaultUser.ID, rsData.ID)
+	assert.Equal(t, fixtures.DefaultUser.Username, rsData.Username)
+	assert.Equal(t, fixtures.DefaultUser.Role, rsData.Role)
 	assert.Equal(t, 0, len(rsData.PasswordHash))
 }
 
@@ -66,9 +66,9 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	assert.Equal(t, 1, len(rs.Header.Values("set-cookie")))
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 
-	assert.Equal(t, testEnv.Fixtures.DefaultUser.ID, rsData.ID)
-	assert.Equal(t, testEnv.Fixtures.DefaultUser.Username, rsData.Username)
-	assert.Equal(t, testEnv.Fixtures.DefaultUser.Role, rsData.Role)
+	assert.Equal(t, fixtures.DefaultUser.ID, rsData.ID)
+	assert.Equal(t, fixtures.DefaultUser.Username, rsData.Username)
+	assert.Equal(t, fixtures.DefaultUser.Role, rsData.Role)
 	assert.Equal(t, 0, len(rsData.PasswordHash))
 }
 
@@ -95,9 +95,9 @@ func TestSignInAdmin(t *testing.T) {
 	assert.Equal(t, 1, len(rs.Header.Values("set-cookie")))
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 
-	assert.Equal(t, testEnv.Fixtures.AdminUser.ID, rsData.ID)
-	assert.Equal(t, testEnv.Fixtures.AdminUser.Username, rsData.Username)
-	assert.Equal(t, testEnv.Fixtures.AdminUser.Role, rsData.Role)
+	assert.Equal(t, fixtures.AdminUser.ID, rsData.ID)
+	assert.Equal(t, fixtures.AdminUser.Username, rsData.Username)
+	assert.Equal(t, fixtures.AdminUser.Role, rsData.Role)
 	assert.Equal(t, 0, len(rsData.PasswordHash))
 }
 
@@ -173,8 +173,8 @@ func TestSignOut(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultRefreshToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultRefreshToken)
 
 	rs := tReq.Do(t)
 
@@ -189,7 +189,7 @@ func TestSignOutNoRefresh(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
 
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -215,7 +215,7 @@ func TestRefresh(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultRefreshToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultRefreshToken)
 
 	rs := tReq.Do(t)
 
@@ -230,7 +230,7 @@ func TestRefreshReusedToken(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultRefreshToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultRefreshToken)
 
 	rs1 := tReq.Do(t)
 	rs2 := tReq.Do(t)
@@ -245,7 +245,7 @@ func TestRefreshInvalidToken(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
 
-	tReq.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 

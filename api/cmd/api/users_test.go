@@ -23,13 +23,13 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq1 := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/current-user")
-	tReq1.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq1.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	tReq2 := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/current-user")
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	tReq3 := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/current-user")
-	tReq3.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq3.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	var rs1Data, rs2Data, rs3Data models.User
 	rs1 := tReq1.Do(t)
@@ -41,47 +41,47 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	httptools.ReadJSON(rs3.Body, &rs3Data)
 
 	assert.Equal(t, http.StatusOK, rs1.StatusCode)
-	assert.Equal(t, testEnv.Fixtures.AdminUser.ID, rs1Data.ID)
-	assert.Equal(t, testEnv.Fixtures.AdminUser.Username, rs1Data.Username)
-	assert.Equal(t, testEnv.Fixtures.AdminUser.Role, rs1Data.Role)
+	assert.Equal(t, fixtures.AdminUser.ID, rs1Data.ID)
+	assert.Equal(t, fixtures.AdminUser.Username, rs1Data.Username)
+	assert.Equal(t, fixtures.AdminUser.Role, rs1Data.Role)
 	assert.Equal(t, 0, len(rs1Data.PasswordHash))
 	assert.Nil(t, rs1Data.Location)
 
 	assert.Equal(t, http.StatusOK, rs2.StatusCode)
-	assert.Equal(t, testEnv.Fixtures.ManagerUser.ID, rs2Data.ID)
-	assert.Equal(t, testEnv.Fixtures.ManagerUser.Username, rs2Data.Username)
-	assert.Equal(t, testEnv.Fixtures.ManagerUser.Role, rs2Data.Role)
+	assert.Equal(t, fixtures.ManagerUser.ID, rs2Data.ID)
+	assert.Equal(t, fixtures.ManagerUser.Username, rs2Data.Username)
+	assert.Equal(t, fixtures.ManagerUser.Role, rs2Data.Role)
 	assert.Equal(t, 0, len(rs2Data.PasswordHash))
 	assert.Nil(t, rs2Data.Location)
 
 	assert.Equal(t, http.StatusOK, rs3.StatusCode)
-	assert.Equal(t, testEnv.Fixtures.DefaultUser.ID, rs3Data.ID)
-	assert.Equal(t, testEnv.Fixtures.DefaultUser.Username, rs3Data.Username)
-	assert.Equal(t, testEnv.Fixtures.DefaultUser.Role, rs3Data.Role)
+	assert.Equal(t, fixtures.DefaultUser.ID, rs3Data.ID)
+	assert.Equal(t, fixtures.DefaultUser.Username, rs3Data.Username)
+	assert.Equal(t, fixtures.DefaultUser.Role, rs3Data.Role)
 	assert.Equal(t, 0, len(rs3Data.PasswordHash))
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.ID, rs3Data.Location.ID)
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.Name, rs3Data.Location.Name)
+	assert.Equal(t, fixtures.DefaultLocation.ID, rs3Data.Location.ID)
+	assert.Equal(t, fixtures.DefaultLocation.Name, rs3Data.Location.Name)
 	assert.Equal(
 		t,
-		testEnv.Fixtures.DefaultLocation.NormalizedName,
+		fixtures.DefaultLocation.NormalizedName,
 		rs3Data.Location.NormalizedName,
 	)
 	assert.Equal(
 		t,
-		testEnv.Fixtures.DefaultLocation.Available,
+		fixtures.DefaultLocation.Available,
 		rs3Data.Location.Available,
 	)
 	assert.Equal(
 		t,
-		testEnv.Fixtures.DefaultLocation.Capacity,
+		fixtures.DefaultLocation.Capacity,
 		rs3Data.Location.Capacity,
 	)
 	assert.Equal(
 		t,
-		testEnv.Fixtures.DefaultLocation.YesterdayFullAt,
+		fixtures.DefaultLocation.YesterdayFullAt,
 		rs3Data.Location.YesterdayFullAt,
 	)
-	assert.Equal(t, testEnv.Fixtures.DefaultLocation.UserID, rs3Data.Location.UserID)
+	assert.Equal(t, fixtures.DefaultLocation.UserID, rs3Data.Location.UserID)
 }
 
 func TestGetInfoLoggedInUserAccess(t *testing.T) {
@@ -107,8 +107,8 @@ func TestGetUser(t *testing.T) {
 	)
 
 	users := []*http.Cookie{
-		testEnv.Fixtures.Tokens.AdminAccessToken,
-		testEnv.Fixtures.Tokens.ManagerAccessToken,
+		fixtures.Tokens.AdminAccessToken,
+		fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for _, user := range users {
@@ -160,7 +160,7 @@ func TestGetUserNotFound(t *testing.T) {
 		"/users/%s",
 		id.String(),
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -180,7 +180,7 @@ func TestGetUserNotUUID(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users/8000")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -209,7 +209,7 @@ func TestGetUserAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -226,7 +226,7 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	require.Nil(t, err)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -243,10 +243,10 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	)
 	assert.Equal(t, 4, len(rsData.Data))
 
-	assert.Equal(t, testEnv.Fixtures.ManagerUser.ID, rsData.Data[0].ID)
-	assert.Equal(t, testEnv.Fixtures.ManagerUser.Username, rsData.Data[0].Username)
+	assert.Equal(t, fixtures.ManagerUser.ID, rsData.Data[0].ID)
+	assert.Equal(t, fixtures.ManagerUser.Username, rsData.Data[0].Username)
 	assert.Equal(t, 0, len(rsData.Data[0].PasswordHash))
-	assert.Equal(t, testEnv.Fixtures.ManagerUser.Role, rsData.Data[0].Role)
+	assert.Equal(t, fixtures.ManagerUser.Role, rsData.Data[0].Role)
 	assert.Nil(t, rsData.Data[0].Location)
 }
 
@@ -260,7 +260,7 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	require.Nil(t, err)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	tReq.SetQuery(map[string]string{
 		"page": "2",
@@ -298,7 +298,7 @@ func TestGetPaginatedManagerUsersPageFull(t *testing.T) {
 	require.Nil(t, err)
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/users")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	test.PaginatedEndpointTester(
 		t,
@@ -319,12 +319,12 @@ func TestGetPaginatedManagerUsersAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
-	tReq3.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq3.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -336,7 +336,7 @@ func TestCreateManagerUser(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	data := dtos.CreateUserDto{
 		Username: "test",
@@ -362,10 +362,10 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	data := dtos.CreateUserDto{
-		Username: testEnv.Fixtures.ManagerUser.Username,
+		Username: fixtures.ManagerUser.Username,
 		Password: "testpassword",
 	}
 	tReq.SetBody(data)
@@ -388,7 +388,7 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 	tReq.SetBody(dtos.CreateUserDto{
 		Username: "",
 		Password: "",
@@ -418,12 +418,12 @@ func TestCreateManagerUserAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
-	tReq3.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq3.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -448,7 +448,7 @@ func TestUpdateManagerUser(t *testing.T) {
 		"/users/%s",
 		user.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	tReq.SetBody(data)
 
@@ -471,7 +471,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 
 	user := testEnv.createManagerUsers(1)[0]
 
-	username, password := testEnv.Fixtures.ManagerUser.Username, "testpassword"
+	username, password := fixtures.ManagerUser.Username, "testpassword"
 	data := dtos.UpdateUserDto{
 		Username: &username,
 		Password: &password,
@@ -483,7 +483,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 		"/users/%s",
 		user.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	tReq.SetBody(data)
 
@@ -518,7 +518,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 		"/users/%s",
 		id.String(),
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	tReq.SetBody(data)
 
@@ -546,7 +546,7 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 	}
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPatch, "/users/8000")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	tReq.SetBody(data)
 
@@ -573,7 +573,7 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 		"/users/%s",
 		user.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 	tReq.SetBody(dtos.UpdateUserDto{
 		Username: &username,
 		Password: &password,
@@ -610,12 +610,12 @@ func TestUpdateManagerUserAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
-	tReq3.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq3.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -634,7 +634,7 @@ func TestDeleteManagerUser(t *testing.T) {
 		"/users/%s",
 		user.ID,
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -660,7 +660,7 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 		"/users/%s",
 		id.String(),
 	)
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -680,7 +680,7 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodDelete, "/users/8000")
-	tReq.AddCookie(testEnv.Fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -709,12 +709,12 @@ func TestDeleteManagerUserAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(testEnv.Fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
-	tReq3.AddCookie(testEnv.Fixtures.Tokens.ManagerAccessToken)
+	tReq3.AddCookie(fixtures.Tokens.ManagerAccessToken)
 
 	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 

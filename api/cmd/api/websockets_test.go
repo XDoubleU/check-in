@@ -32,7 +32,7 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 			&dtos.CreateCheckInDto{
 				SchoolID: school.ID,
 			},
-			testEnv.Fixtures.DefaultUser,
+			fixtures.DefaultUser,
 		)
 		require.Nil(t, err)
 	})
@@ -63,8 +63,8 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 		newCap := int64(10)
 		_, err := testApp.services.Locations.Update(
 			context.Background(),
-			testEnv.Fixtures.AdminUser,
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.AdminUser,
+			fixtures.DefaultLocation.ID,
 			//nolint:exhaustruct //other fields are optional
 			&dtos.UpdateLocationDto{
 				Capacity: &newCap,
@@ -90,7 +90,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
-		NormalizedName: testEnv.Fixtures.DefaultLocation.NormalizedName,
+		NormalizedName: fixtures.DefaultLocation.NormalizedName,
 	})
 
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
@@ -102,7 +102,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 			&dtos.CreateCheckInDto{
 				SchoolID: school.ID,
 			},
-			testEnv.Fixtures.DefaultUser,
+			fixtures.DefaultUser,
 		)
 		require.Nil(t, err)
 	})
@@ -114,7 +114,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	assert.Equal(
 		t,
 		locationState.NormalizedName,
-		testEnv.Fixtures.DefaultLocation.NormalizedName,
+		fixtures.DefaultLocation.NormalizedName,
 	)
 	assert.Equal(t, locationState.Capacity-1, locationState.Available)
 }
@@ -127,15 +127,15 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
-		NormalizedName: testEnv.Fixtures.DefaultLocation.NormalizedName,
+		NormalizedName: fixtures.DefaultLocation.NormalizedName,
 	})
 
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
 		newCap := int64(10)
 		_, err := testApp.services.Locations.Update(
 			context.Background(),
-			testEnv.Fixtures.AdminUser,
-			testEnv.Fixtures.DefaultLocation.ID,
+			fixtures.AdminUser,
+			fixtures.DefaultLocation.ID,
 			//nolint:exhaustruct //other fields are optional
 			&dtos.UpdateLocationDto{
 				Capacity: &newCap,
@@ -151,7 +151,9 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 	assert.Equal(
 		t,
 		locationState.NormalizedName,
-		testEnv.Fixtures.DefaultLocation.NormalizedName,
+		fixtures.DefaultLocation.NormalizedName,
 	)
 	assert.EqualValues(t, 10, locationState.Capacity)
 }
+
+//todo test for state

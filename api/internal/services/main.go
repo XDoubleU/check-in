@@ -3,6 +3,7 @@ package services
 import (
 	"check-in/api/internal/config"
 	"check-in/api/internal/repositories"
+	"log/slog"
 )
 
 type Services struct {
@@ -11,10 +12,13 @@ type Services struct {
 	Locations      LocationService
 	Schools        SchoolService
 	Users          UserService
+	State          StateService
+	WebSocket      *WebSocketService
 }
 
-func New(config config.Config, repositories repositories.Repositories) Services {
+func New(logger *slog.Logger, config config.Config, repositories repositories.Repositories, isDatabaseActive IsDatabaseActiveFunc) Services {
 	websocket := NewWebSocketService(config.WebURL)
+	state := NewStateService(logger, repositories.State, websocket, isDatabaseActive)
 
 	users := UserService{
 		users: repositories.Users,
@@ -45,11 +49,18 @@ func New(config config.Config, repositories repositories.Repositories) Services 
 		panic(err)
 	}
 
+	err = state.InitializeWS()
+	if err != nil {
+		panic(err)
+	}
+
 	return Services{
 		Auth:           auth,
 		CheckInsWriter: checkInsWriter,
 		Locations:      locations,
 		Schools:        schools,
 		Users:          users,
+		State:          state,
+		WebSocket:      websocket,
 	}
 }

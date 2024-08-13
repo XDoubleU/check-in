@@ -3,11 +3,9 @@ package services
 import (
 	"context"
 	"errors"
-	"net/http"
 	"time"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
-	wstools "github.com/xdoubleu/essentia/pkg/communication/ws"
 	"github.com/xdoubleu/essentia/pkg/database"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	timetools "github.com/xdoubleu/essentia/pkg/time"
@@ -22,8 +20,25 @@ type LocationService struct {
 	checkins  repositories.CheckInRepository
 	schools   SchoolService
 	users     UserService
-	// WebSocketService is an internal service
 	websocket *WebSocketService
+}
+
+func (service *LocationService) InitializeWS() error {
+	locations, err := service.GetAll(context.Background(), nil, true)
+	if err != nil {
+		return err
+	}
+
+	service.websocket.SetAllLocationsTopic(service.GetAllStates)
+
+	for _, location := range locations {
+		err = service.websocket.AddLocation(location)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (service LocationService) GetCheckInsEntriesDay(ctx context.Context, user *models.User, locationIDs []string, date time.Time) (*orderedmap.OrderedMap[string, dtos.CheckInsLocationEntryRaw], error) {
@@ -280,34 +295,6 @@ func (service LocationService) DeleteCheckIn(ctx context.Context, user *models.U
 	}
 
 	return checkInDto, nil
-}
-
-func (service *LocationService) InitializeWS() error {
-	locations, err := service.GetAll(context.Background(), nil, true)
-	if err != nil {
-		return err
-	}
-
-	service.websocket.allTopic, err = service.websocket.handler.AddTopic(
-		"*",
-		func(_ *wstools.Topic) (any, error) { return service.GetAllStates(context.Background()) },
-	)
-	if err != nil {
-		return err
-	}
-
-	for _, location := range locations {
-		err = service.websocket.AddLocation(location)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (service LocationService) GetWSHandler() http.HandlerFunc {
-	return service.websocket.Handler()
 }
 
 func (service LocationService) NewCheckIn(location models.Location) {

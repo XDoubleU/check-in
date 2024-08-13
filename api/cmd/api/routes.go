@@ -17,6 +17,7 @@ func (app *Application) routes() http.Handler {
 	app.schoolsRoutes(mux)
 	app.usersRoutes(mux)
 	app.websocketsRoutes(mux)
+	app.stateRoutes(mux)
 
 	var sentryClientOptions sentry.ClientOptions
 	if len(app.config.SentryDsn) > 0 {

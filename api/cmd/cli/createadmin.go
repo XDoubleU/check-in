@@ -35,7 +35,7 @@ func createAdmin(cfg config.Config, username string, password string) {
 		fmt.Println(err.Error())
 		return
 	}
-	services := services.New(cfg, repositories.New(db))
+	services := services.New(slog.Default(), cfg, repositories.New(db), func(ctx context.Context) bool { return db.Ping(ctx) == nil })
 
 	_, err = services.Users.Create(
 		context.Background(),

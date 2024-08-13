@@ -1,0 +1,81 @@
+package main
+
+import (
+	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
+	"net/http"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
+	"github.com/xdoubleu/essentia/pkg/test"
+)
+
+func TestGetState(t *testing.T) {
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
+
+	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/state")
+	rs := tReq.Do(t)
+
+	var rsData models.State
+	httptools.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, http.StatusOK, rs.StatusCode)
+	assert.Equal(t, false, rsData.IsMaintenance)
+	assert.Equal(t, true, rsData.IsDatabaseActive)
+}
+
+func TestUpdateState(t *testing.T) {
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
+
+	data := dtos.StateDto{
+		IsMaintenance: true,
+	}
+
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/state",
+	)
+	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
+
+	tReq.SetBody(data)
+
+	rs := tReq.Do(t)
+
+	var rsData models.State
+	httptools.ReadJSON(rs.Body, &rsData)
+
+	assert.Equal(t, http.StatusOK, rs.StatusCode)
+	assert.Equal(t, true, rsData.IsMaintenance)
+	assert.Equal(t, true, rsData.IsDatabaseActive)
+}
+
+func TestUpdateStateAccess(t *testing.T) {
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
+
+	tReqBase := test.CreateRequestTester(
+		testApp.routes(),
+		http.MethodPatch,
+		"/state",
+	)
+
+	mt := test.CreateMatrixTester()
+
+	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
+
+	tReq2 := tReqBase.Copy()
+	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
+
+	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
+
+	tReq3 := tReqBase.Copy()
+	tReq3.AddCookie(fixtures.Tokens.ManagerAccessToken)
+
+	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
+
+	mt.Do(t)
+}

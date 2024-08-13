@@ -5,8 +5,7 @@ import (
 
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/config"
-	"github.com/xdoubleu/essentia/pkg/context"
-	sentrytools "github.com/xdoubleu/essentia/pkg/sentry"
+	contexttools "github.com/xdoubleu/essentia/pkg/context"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
@@ -129,7 +128,7 @@ func (app *Application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure	500	{object}	ErrorDto
 // @Router		/auth/refresh [get].
 func (app *Application) refreshHandler(w http.ResponseWriter, r *http.Request) {
-	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
+	user := contexttools.GetValue[models.User](r.Context(), constants.UserContextKey)
 	secure := app.config.Env == config.ProdEnv
 
 	accessTokenCookie, err := app.services.Auth.CreateCookie(
@@ -160,10 +159,8 @@ func (app *Application) refreshHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, refreshTokenCookie)
 
-	go func() {
-		sentrytools.GoRoutineErrorHandler(
-			"delete expired tokens",
-			app.services.Auth.DeleteExpiredTokens,
-		)
-	}()
+	err = app.services.Auth.DeleteExpiredTokens(r.Context())
+	if err != nil {
+		httptools.ServerErrorResponse(w, r, err)
+	}
 }

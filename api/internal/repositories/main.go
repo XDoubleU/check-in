@@ -11,6 +11,7 @@ type Repositories struct {
 	Locations      LocationRepository
 	Schools        SchoolRepository
 	Users          UserRepository
+	State          StateRepository
 }
 
 func New(db postgres.DB) Repositories {
@@ -20,6 +21,7 @@ func New(db postgres.DB) Repositories {
 	locations := LocationRepository{db: db}
 	auth := AuthRepository{db: db}
 	users := UserRepository{db: db}
+	state := StateRepository{db: db}
 
 	return Repositories{
 		Auth:           auth,
@@ -28,5 +30,6 @@ func New(db postgres.DB) Repositories {
 		Locations:      locations,
 		Schools:        schools,
 		Users:          users,
+		State:          state,
 	}
 }
