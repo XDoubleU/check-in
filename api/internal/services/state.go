@@ -13,22 +13,18 @@ import (
 	"github.com/xdoubleu/essentia/pkg/sentry"
 )
 
-type IsDatabaseActiveFunc = func(ctx context.Context) bool
-
 type StateService struct {
-	logger           *slog.Logger
-	state            repositories.StateRepository
-	websocket        *WebSocketService
-	isDatabaseActive IsDatabaseActiveFunc
-	Current          models.State
+	logger    *slog.Logger
+	state     repositories.StateRepository
+	websocket *WebSocketService
+	Current   models.State
 }
 
-func NewStateService(logger *slog.Logger, repo repositories.StateRepository, websocket *WebSocketService, isDatabaseActive IsDatabaseActiveFunc) StateService {
+func NewStateService(logger *slog.Logger, repo repositories.StateRepository, websocket *WebSocketService) StateService {
 	service := StateService{
-		logger:           logger,
-		state:            repo,
-		websocket:        websocket,
-		isDatabaseActive: isDatabaseActive,
+		logger:    logger,
+		state:     repo,
+		websocket: websocket,
 	}
 
 	state, err := service.get(context.Background(), true)
@@ -62,7 +58,7 @@ func (service StateService) get(ctx context.Context, fetchPersistentState bool) 
 		}
 	}
 
-	state.IsDatabaseActive = service.isDatabaseActive(ctx)
+	state.IsDatabaseActive = service.state.IsDatabaseActive(ctx)
 
 	return state, nil
 }
@@ -81,7 +77,7 @@ func (service StateService) startPolling(logger *slog.Logger) {
 				service.websocket.NewAppState(*newState)
 			}
 
-			time.Sleep(10 * time.Second)
+			time.Sleep(1 * time.Millisecond)
 		}
 	})
 }
@@ -94,7 +90,7 @@ func (service StateService) UpdateState(ctx context.Context, stateDto *dtos.Stat
 
 	service.Current = models.State{
 		IsMaintenance:    stateDto.IsMaintenance,
-		IsDatabaseActive: service.isDatabaseActive(ctx),
+		IsDatabaseActive: service.state.IsDatabaseActive(ctx),
 	}
 
 	service.websocket.NewAppState(service.Current)

@@ -4,6 +4,7 @@ import (
 	"check-in/api/internal/models"
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/xdoubleu/essentia/pkg/database"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
@@ -57,6 +58,12 @@ func (repo StateRepository) Get(
 	}
 
 	return &state, nil
+}
+
+func (repo StateRepository) IsDatabaseActive(ctx context.Context) bool {
+	ctx2, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
+	return repo.db.Ping(ctx2) == nil
 }
 
 func (repo StateRepository) UpdateKey(

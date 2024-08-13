@@ -16,9 +16,9 @@ type Services struct {
 	WebSocket      *WebSocketService
 }
 
-func New(logger *slog.Logger, config config.Config, repositories repositories.Repositories, isDatabaseActive IsDatabaseActiveFunc) Services {
+func New(logger *slog.Logger, config config.Config, repositories repositories.Repositories) Services {
 	websocket := NewWebSocketService(config.WebURL)
-	state := NewStateService(logger, repositories.State, websocket, isDatabaseActive)
+	state := NewStateService(logger, repositories.State, websocket)
 
 	users := UserService{
 		users: repositories.Users,

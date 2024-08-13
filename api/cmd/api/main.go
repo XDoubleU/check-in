@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"embed"
 	"fmt"
 	"log/slog"
@@ -92,7 +91,7 @@ func (app *Application) SetDB(db postgres.DB) {
 	spandb := postgres.NewSpanDB(db)
 
 	app.db = spandb
-	app.services = services.New(app.logger, app.config, repositories.New(app.db), func(ctx context.Context) bool { return db.Ping(ctx) == nil })
+	app.services = services.New(app.logger, app.config, repositories.New(app.db))
 	app.state = &app.services.State.Current
 }
 
