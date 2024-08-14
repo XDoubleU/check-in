@@ -10,6 +10,7 @@ import (
 	"github.com/xdoubleu/essentia/pkg/test"
 
 	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
 )
 
 func TestAllLocationsWebSocketCheckIn(t *testing.T) {
@@ -156,4 +157,31 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 	assert.EqualValues(t, 10, locationState.Capacity)
 }
 
-//todo test for state
+func TestStateUpdate(t *testing.T) {
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
+
+	tWeb := test.CreateWebSocketTester(testApp.routes())
+
+	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
+		Subject: "state",
+	})
+
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
+		_, err := testApp.services.State.UpdateState(context.Background(), &dtos.StateDto{
+			IsMaintenance: true,
+		})
+		require.Nil(t, err)
+	})
+
+	var state models.State
+	err := tWeb.Do(t, nil, &state)
+
+	assert.Nil(t, err)
+	assert.Equal(
+		t,
+		true,
+		state.IsMaintenance,
+	)
+	assert.Equal(t, true, state.IsDatabaseActive)
+}

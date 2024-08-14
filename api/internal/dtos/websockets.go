@@ -44,7 +44,11 @@ func (dto SubscribeMessageDto) Topic() string {
 		return "*"
 	}
 
-	return dto.NormalizedName
+	if dto.Subject == SingleLocation {
+		return dto.NormalizedName
+	}
+
+	return string(dto.Subject)
 }
 
 func (dto SubscribeMessageDto) Validate() *validate.Validator {
