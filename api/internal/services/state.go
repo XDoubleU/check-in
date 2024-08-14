@@ -77,9 +77,8 @@ func (service StateService) startPolling(logger *slog.Logger, ctx context.Contex
 				service.websocket.NewAppState(*newState)
 			}
 
-			time.Sleep(1 * time.Second) //todo
+			time.Sleep(10 * time.Second)
 		}
-
 		return nil
 	})
 }

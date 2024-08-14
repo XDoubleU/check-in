@@ -2,3 +2,6 @@ bin
 .env
 coverage.out
 coverage.html
+cpu.prof
+mem.prof
+api.test

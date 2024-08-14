@@ -52,6 +52,9 @@ test/v:
 test/race:
 	go test ./cmd/api -race -v
 
+test/pprof:
+	go test ./cmd/api -cpuprofile cpu.prof -memprofile mem.prof -bench ./cmd/api
+
 test/cov/report:
 	go test ./cmd/api -coverpkg=./cmd/api,./internal/... -covermode=atomic -coverprofile=coverage.out
 

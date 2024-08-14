@@ -287,9 +287,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func setup(t *testing.T) (*TestEnv, *Application) {
-	//todo t.Parallel()
-
+func setup(_ *testing.T) (*TestEnv, *Application) {
 	tx := postgres.CreatePgxSyncTx(context.Background(), mainTx)
 
 	testApp := *mainTestApp
@@ -309,4 +307,6 @@ func (env *TestEnv) teardown() {
 	if err != nil {
 		panic(err)
 	}
+
+	env.app.ctxCancel()
 }
