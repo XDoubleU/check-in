@@ -899,6 +899,59 @@
                 }
             }
         },
+        "/state": {
+            "get": {
+                "tags": [
+                    "state"
+                ],
+                "summary": "Get current state",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/State"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "state"
+                ],
+                "summary": "Update state",
+                "parameters": [
+                    {
+                        "description": "StateDto",
+                        "name": "stateDto",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/StateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/State"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorDto"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "tags": [
@@ -1416,6 +1469,25 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "State": {
+            "type": "object",
+            "properties": {
+                "isDatabaseActive": {
+                    "type": "boolean"
+                },
+                "isMaintenance": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "StateDto": {
+            "type": "object",
+            "properties": {
+                "isMaintenance": {
+                    "type": "boolean"
                 }
             }
         },

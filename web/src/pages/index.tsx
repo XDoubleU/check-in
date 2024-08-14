@@ -151,7 +151,7 @@ export default function CheckIn() {
                   <br />
                   <Button
                     className={`${styles.btnCheckIn} bold text-white`}
-                    onClick={() => loadSchools()}
+                    onClick={loadSchools}
                     disabled={isDisabled}
                   >
                     CHECK-IN

@@ -1,7 +1,7 @@
 import { getMyUser } from "api-wrapper"
 import { type Role, type User } from "api-wrapper/types/apiTypes"
 import LoadingLayout from "layouts/LoadingLayout"
-import { type NextRouter, useRouter } from "next/router"
+import Router from "next/router";
 import { type ParsedUrlQueryInput } from "querystring"
 import React, {
   useState,
@@ -41,7 +41,6 @@ export function useAuth(): AuthContextProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const router = useRouter()
   const [currentUser, setCurrentUser] = useState<User | undefined>()
   const [loading, setLoading] = useState(true)
 
@@ -67,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return response.data
       })
       .then(() => setLoading(false))
-  }, [router, setLoading])
+  }, [setLoading])
 
   return (
     <AuthContext.Provider
@@ -83,31 +82,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 }
 
 function redirect(
-  router: NextRouter,
   redirects: Map<Role, string> | undefined,
   user: User | undefined
 ) {
   if (!user) {
-    if (!router.asPath.includes("/signin")) {
+    if (!Router.asPath.includes("/signin")) {
       let query: ParsedUrlQueryInput | undefined
 
-      if (!router.asPath.includes("/signout") && router.asPath !== "/") {
-        query = { redirect_to: router.asPath }
+      if (!Router.asPath.includes("/signout") && Router.asPath !== "/") {
+        query = { redirect_to: Router.asPath }
       }
 
-      if (router.asPath.includes("/settings/locations")) {
+      if (Router.asPath.includes("/settings/locations")) {
         query = { redirect_to: "/settings/locations" }
       }
 
-      return router.push({ pathname: `/signin`, query })
+      return Router.push({ pathname: `/signin`, query })
     }
 
     return new Promise((resolve) => resolve(true))
   }
 
-  if (router.asPath.includes("/signin")) {
-    const redirectPath = (router.query.redirect_to as string | undefined) ?? "/"
-    return router.push(redirectPath)
+  if (Router.asPath.includes("/signin")) {
+    const redirectPath = (Router.query.redirect_to as string | undefined) ?? "/"
+    return Router.push(redirectPath)
   }
 
   const redirectUrl = redirects?.get(user.role)
@@ -117,7 +115,7 @@ function redirect(
       query = { id: user.location?.id }
     }
 
-    return router.push({
+    return Router.push({
       pathname: redirectUrl,
       query
     })
@@ -131,14 +129,13 @@ export const AuthRedirecter = ({
   redirects
 }: AuthRedirecterProps) => {
   const { user, loadingUser } = useContext(AuthContext)
-  const router = useRouter()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!loadingUser) {
-      void redirect(router, redirects, user).then(() => setLoading(false))
+      void redirect(redirects, user).then(() => setLoading(false))
     }
-  }, [loadingUser, redirects, router, user])
+  }, [loadingUser, redirects, user])
 
   return <>{loading ? <LoadingLayout /> : children}</>
 }
