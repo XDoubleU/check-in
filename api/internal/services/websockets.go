@@ -56,7 +56,7 @@ func (service *WebSocketService) SetStateTopic() error {
 func (service *WebSocketService) SetAllLocationsTopic(getAllLocationStates GetAllLocationStatesFunc) error {
 	topic, err := service.handler.AddTopic(
 		"*",
-		func(_ *wstools.Topic) (any, error) { return getAllLocationStates(context.Background()) },
+		func(ctx context.Context, _ *wstools.Topic) (any, error) { return getAllLocationStates(ctx) },
 	)
 	if err != nil {
 		return err

@@ -23,8 +23,8 @@ type LocationService struct {
 	websocket *WebSocketService
 }
 
-func (service *LocationService) InitializeWS() error {
-	locations, err := service.GetAll(context.Background(), nil, true)
+func (service *LocationService) InitializeWS(ctx context.Context) error {
+	locations, err := service.GetAll(ctx, nil, true)
 	if err != nil {
 		return err
 	}
@@ -338,7 +338,7 @@ func (service LocationService) GetAll(ctx context.Context, user *models.User, al
 }
 
 func (service LocationService) GetAllStates(ctx context.Context) ([]dtos.LocationStateDto, error) {
-	locations, err := service.GetAll(context.Background(), nil, true)
+	locations, err := service.GetAll(ctx, nil, true)
 	if err != nil {
 		return nil, err
 	}

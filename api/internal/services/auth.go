@@ -95,11 +95,12 @@ func (service AuthService) CreateCookie(
 }
 
 func (service AuthService) DeleteCookie(
+	ctx context.Context,
 	scope models.Scope,
 	tokenValue string,
 ) (*http.Cookie, error) {
 	err := service.auth.DeleteToken(
-		context.Background(),
+		ctx,
 		service.hashTokenValue(tokenValue),
 	)
 	if err != nil {

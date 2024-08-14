@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"log/slog"
@@ -26,11 +27,13 @@ import (
 var embedMigrations embed.FS
 
 type Application struct {
-	logger   *slog.Logger
-	db       postgres.DB
-	state    *models.State
-	config   config.Config
-	services services.Services
+	logger    *slog.Logger
+	ctx       context.Context
+	ctxCancel context.CancelFunc
+	db        postgres.DB
+	state     *models.State
+	config    config.Config
+	services  services.Services
 }
 
 //	@title			Check-In API
@@ -82,17 +85,29 @@ func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application
 		config: cfg,
 	}
 
+	app.setContext()
 	app.SetDB(db)
 
 	return app
 }
 
 func (app *Application) SetDB(db postgres.DB) {
+	// make sure previous app is cancelled internally
+	app.ctxCancel()
+
+	app.setContext()
+
 	spandb := postgres.NewSpanDB(db)
 
 	app.db = spandb
-	app.services = services.New(app.logger, app.config, repositories.New(app.db))
+	app.services = services.New(app.logger, app.ctx, app.config, repositories.New(app.db))
 	app.state = &app.services.State.Current
+}
+
+func (app *Application) setContext() {
+	ctx, cancel := context.WithCancel(context.Background())
+	app.ctx = ctx
+	app.ctxCancel = cancel
 }
 
 func ApplyMigrations(logger *slog.Logger, db *pgxpool.Pool) {

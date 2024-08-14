@@ -20,14 +20,14 @@ type StateService struct {
 	Current   models.State
 }
 
-func NewStateService(logger *slog.Logger, repo repositories.StateRepository, websocket *WebSocketService) StateService {
+func NewStateService(logger *slog.Logger, ctx context.Context, repo repositories.StateRepository, websocket *WebSocketService) StateService {
 	service := StateService{
 		logger:    logger,
 		state:     repo,
 		websocket: websocket,
 	}
 
-	state, err := service.get(context.Background(), true)
+	state, err := service.get(ctx, true)
 	if err != nil {
 		panic(err)
 	}
@@ -37,13 +37,13 @@ func NewStateService(logger *slog.Logger, repo repositories.StateRepository, web
 	return service
 }
 
-func (service *StateService) InitializeWS() error {
+func (service *StateService) InitializeWS(ctx context.Context) error {
 	err := service.websocket.SetStateTopic()
 	if err != nil {
 		return err
 	}
 
-	go service.startPolling(service.logger)
+	go service.startPolling(service.logger, ctx)
 	return nil
 }
 
@@ -63,9 +63,9 @@ func (service StateService) get(ctx context.Context, fetchPersistentState bool) 
 	return state, nil
 }
 
-func (service StateService) startPolling(logger *slog.Logger) {
-	sentry.GoRoutineErrorHandler("State Polling", context.Background(), func(ctx context.Context) error {
-		for {
+func (service StateService) startPolling(logger *slog.Logger, ctx context.Context) {
+	sentry.GoRoutineErrorHandler("State Polling", ctx, func(ctx context.Context) error {
+		for ctx.Err() != context.Canceled {
 			newState, err := service.get(ctx, false)
 			if err != nil {
 				logger.Error("something went wrong while fetching current state", logging.ErrAttr(err))
@@ -77,8 +77,10 @@ func (service StateService) startPolling(logger *slog.Logger) {
 				service.websocket.NewAppState(*newState)
 			}
 
-			time.Sleep(1 * time.Millisecond)
+			time.Sleep(1 * time.Second) //todo
 		}
+
+		return nil
 	})
 }
 

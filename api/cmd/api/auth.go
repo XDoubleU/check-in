@@ -95,6 +95,7 @@ func (app *Application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 	refreshToken, _ := r.Cookie("refreshToken")
 
 	deleteAccessToken, err := app.services.Auth.DeleteCookie(
+		r.Context(),
 		models.AccessScope,
 		accessToken.Value,
 	)
@@ -110,6 +111,7 @@ func (app *Application) signOutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	deleteRefreshToken, err := app.services.Auth.DeleteCookie(
+		r.Context(),
 		models.RefreshScope,
 		refreshToken.Value,
 	)
