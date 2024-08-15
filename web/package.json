@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "npx serve@latest out",
+    "start": "cpx ./serve.json ./out/ && npx serve@latest out",
     "build": "yarn run swag && next build",
     "analyze": "cross-env ANALYZE=true next build",
     "format": "prettier --write ./**/*.{ts,tsx}",
@@ -21,6 +21,7 @@
     "@sentry/nextjs": "8.13.0",
     "bootstrap": "5.3.3",
     "bootstrap-icons": "1.11.3",
+    "cpx": "^1.5.0",
     "moment": "2.30.1",
     "moment-timezone": "0.5.45",
     "next": "14.2.4",
@@ -34,6 +35,7 @@
     "recharts": "2.12.7",
     "sass": "1.77.6",
     "typescript": "5.5.2",
+    "uglify-js": "^3.19.2",
     "uuid": "10.0.0"
   },
   "devDependencies": {
@@ -41,9 +43,11 @@
     "@testing-library/jest-dom": "6.4.6",
     "@testing-library/react": "15.0.7",
     "@testing-library/user-event": "14.5.2",
+    "@types/cpx": "^1",
     "@types/jest": "29.5.12",
     "@types/node": "20.14.9",
     "@types/react": "18.3.3",
+    "@types/uglify-js": "^3",
     "@types/uuid": "10.0.0",
     "@typescript-eslint/eslint-plugin": "7.14.1",
     "@typescript-eslint/parser": "7.14.1",

@@ -45,7 +45,7 @@ type Application struct {
 func main() {
 	cfg := config.New()
 
-	logger := slog.New(sentrytools.NewLogHandler())
+	logger := slog.New(sentrytools.NewLogHandler(cfg.Env))
 	db, err := postgres.Connect(
 		logger,
 		cfg.DBDsn,

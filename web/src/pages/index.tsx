@@ -18,6 +18,16 @@ import {
   type School
 } from "api-wrapper/types/apiTypes"
 import { AuthRedirecter, useAuth } from "contexts/authContext"
+import { generateIntegrationScripts } from "../../utils/integration-script"
+
+// is executed on compile time
+export function getStaticProps() {
+  generateIntegrationScripts()
+
+  // otherwise can't compile
+  return {props: {}}
+}
+
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {

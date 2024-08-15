@@ -54,3 +54,5 @@ eslint_report.json
 
 public/sw.js*
 public/workbox*
+
+public/scripts
