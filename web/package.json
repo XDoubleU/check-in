@@ -11,7 +11,8 @@
     "lint:fix": "eslint . --fix",
     "swag": "npx openapi-typescript@5.4 ./../api/docs/swagger.json -o ./src/api-wrapper/types/schema.d.ts --export-type",
     "test": "jest",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "jest-preview": "jest-preview"
   },
   "dependencies": {
     "@mdx-js/loader": "3.0.1",
@@ -22,6 +23,7 @@
     "bootstrap": "5.3.3",
     "bootstrap-icons": "1.11.3",
     "cpx": "^1.5.0",
+    "jest-preview": "^0.3.1",
     "moment": "2.30.1",
     "moment-timezone": "0.5.45",
     "next": "14.2.4",
@@ -36,7 +38,8 @@
     "sass": "1.77.6",
     "typescript": "5.5.2",
     "uglify-js": "^3.19.2",
-    "uuid": "10.0.0"
+    "uuid": "10.0.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "14.2.4",
@@ -49,6 +52,7 @@
     "@types/react": "18.3.3",
     "@types/uglify-js": "^3",
     "@types/uuid": "10.0.0",
+    "@types/ws": "^8",
     "@typescript-eslint/eslint-plugin": "7.14.1",
     "@typescript-eslint/parser": "7.14.1",
     "cross-env": "7.0.3",
