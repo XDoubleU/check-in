@@ -7,17 +7,23 @@ import (
 	"context"
 	"log/slog"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/xdoubleu/essentia/pkg/logging"
 	"github.com/xdoubleu/essentia/pkg/sentry"
 )
 
+type CurrentState struct {
+	value models.State
+	mu    *sync.RWMutex
+}
+
 type StateService struct {
 	logger    *slog.Logger
 	state     repositories.StateRepository
 	websocket *WebSocketService
-	Current   models.State
+	Current   *CurrentState
 }
 
 func NewStateService(logger *slog.Logger, ctx context.Context, repo repositories.StateRepository, websocket *WebSocketService) StateService {
@@ -32,7 +38,10 @@ func NewStateService(logger *slog.Logger, ctx context.Context, repo repositories
 		panic(err)
 	}
 
-	service.Current = *state
+	service.Current = &CurrentState{
+		value: *state,
+		mu:    &sync.RWMutex{},
+	}
 
 	return service
 }
@@ -48,22 +57,26 @@ func (service *StateService) InitializeWS(ctx context.Context) error {
 }
 
 func (service *StateService) get(ctx context.Context, fetchPersistentState bool) (*models.State, error) {
-	state := &service.Current
+	var state models.State
 	var err error
 
 	if fetchPersistentState {
-		state, err = service.state.Get(ctx)
+		var newState *models.State
+		newState, err = service.state.Get(ctx)
 		if err != nil {
 			return nil, err
 		}
+		state = *newState
+	} else {
+		state = service.Current.Get()
 	}
 
 	state.IsDatabaseActive = service.state.IsDatabaseActive(ctx)
 
-	return state, nil
+	return &state, nil
 }
 
-func (service StateService) startPolling(logger *slog.Logger, ctx context.Context) {
+func (service *StateService) startPolling(logger *slog.Logger, ctx context.Context) {
 	sentry.GoRoutineErrorHandler("State Polling", ctx, func(ctx context.Context) error {
 		for ctx.Err() != context.Canceled {
 			newState, err := service.get(ctx, false)
@@ -72,8 +85,8 @@ func (service StateService) startPolling(logger *slog.Logger, ctx context.Contex
 				continue
 			}
 
-			if service.Current != *newState {
-				service.Current = *newState
+			_, changed := service.Current.update(*newState)
+			if changed {
 				service.websocket.NewAppState(*newState)
 			}
 
@@ -89,12 +102,35 @@ func (service *StateService) UpdateState(ctx context.Context, stateDto *dtos.Sta
 		return nil, err
 	}
 
-	service.Current = models.State{
+	newState, changed := service.Current.update(models.State{
 		IsMaintenance:    stateDto.IsMaintenance,
 		IsDatabaseActive: service.state.IsDatabaseActive(ctx),
+	})
+
+	if changed {
+		service.websocket.NewAppState(newState)
 	}
 
-	service.websocket.NewAppState(service.Current)
+	return &newState, nil
+}
 
-	return &service.Current, nil
+func (state *CurrentState) Get() models.State {
+	state.mu.RLock()
+	defer state.mu.RUnlock()
+
+	return state.value
+}
+
+func (state *CurrentState) update(newState models.State) (models.State, bool) {
+	state.mu.Lock()
+	defer state.mu.Unlock()
+
+	changed := false
+
+	if state.value != newState {
+		state.value = newState
+		changed = true
+	}
+
+	return state.value, changed
 }

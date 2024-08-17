@@ -18,7 +18,6 @@ import (
 	sentrytools "github.com/xdoubleu/essentia/pkg/sentry"
 
 	"check-in/api/internal/config"
-	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
 	"check-in/api/internal/services"
 )
@@ -31,7 +30,6 @@ type Application struct {
 	ctx       context.Context
 	ctxCancel context.CancelFunc
 	db        postgres.DB
-	state     *models.State
 	config    config.Config
 	services  services.Services
 }
@@ -101,7 +99,6 @@ func (app *Application) SetDB(db postgres.DB) {
 
 	app.db = spandb
 	app.services = services.New(app.logger, app.ctx, app.config, repositories.New(app.db))
-	app.state = &app.services.State.Current
 }
 
 func (app *Application) setContext() {

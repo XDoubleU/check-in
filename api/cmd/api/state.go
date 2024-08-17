@@ -26,7 +26,7 @@ func (app *Application) stateRoutes(mux *http.ServeMux) {
 func (app *Application) getStateHandler(w http.ResponseWriter,
 	r *http.Request) {
 
-	err := httptools.WriteJSON(w, http.StatusOK, app.state, nil)
+	err := httptools.WriteJSON(w, http.StatusOK, app.services.State.Current.Get(), nil)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
 	}

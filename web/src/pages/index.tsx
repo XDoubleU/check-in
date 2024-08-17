@@ -59,8 +59,9 @@ export default function CheckIn() {
       if ((updateEvent as LocationUpdateEvent).available) {
         setAvailable((updateEvent as LocationUpdateEvent).available)
       }
-      else if ((updateEvent as State).isDatabaseActive) {
+      else if ((updateEvent as State).isDatabaseActive != undefined) {
         setApiState((updateEvent as State))
+        setDisabled((updateEvent as State).isMaintenance || !(updateEvent as State).isDatabaseActive)
       }
     }
 
