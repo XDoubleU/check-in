@@ -30,6 +30,7 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 
 		_, err = testApp.services.CheckInsWriter.Create(
 			context.Background(),
+			//nolint:exhaustruct //other fields are optional
 			&dtos.CreateCheckInDto{
 				SchoolID: school.ID,
 			},
@@ -100,6 +101,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 
 		_, err = testApp.services.CheckInsWriter.Create(
 			context.Background(),
+			//nolint:exhaustruct //other fields are optional
 			&dtos.CreateCheckInDto{
 				SchoolID: school.ID,
 			},
@@ -163,14 +165,18 @@ func TestStateUpdate(t *testing.T) {
 
 	tWeb := test.CreateWebSocketTester(testApp.routes())
 
+	//nolint:exhaustruct //other fields are optional
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "state",
 	})
 
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
-		_, err := testApp.services.State.UpdateState(context.Background(), &dtos.StateDto{
-			IsMaintenance: true,
-		})
+		_, err := testApp.services.State.UpdateState(
+			context.Background(),
+			&dtos.StateDto{
+				IsMaintenance: true,
+			},
+		)
 		require.Nil(t, err)
 	})
 

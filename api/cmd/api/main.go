@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 	_ "time/tzdata"
 
@@ -43,7 +44,8 @@ type Application struct {
 func main() {
 	cfg := config.New()
 
-	logger := slog.New(sentrytools.NewLogHandler(cfg.Env))
+	logger := slog.New(sentrytools.NewLogHandler(cfg.Env,
+		slog.NewTextHandler(os.Stdout, nil)))
 	db, err := postgres.Connect(
 		logger,
 		cfg.DBDsn,
@@ -78,6 +80,7 @@ func main() {
 func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application {
 	logger.Info(cfg.String())
 
+	//nolint:exhaustruct //other fields are optional
 	app := &Application{
 		logger: logger,
 		config: cfg,
@@ -98,7 +101,12 @@ func (app *Application) SetDB(db postgres.DB) {
 	spandb := postgres.NewSpanDB(db)
 
 	app.db = spandb
-	app.services = services.New(app.logger, app.ctx, app.config, repositories.New(app.db))
+	app.services = services.New(
+		app.ctx,
+		app.logger,
+		app.config,
+		repositories.New(app.db),
+	)
 }
 
 func (app *Application) setContext() {

@@ -16,7 +16,8 @@ func (app *Application) authAccess(allowedRoles []models.Role,
 		tokenCookie, err := r.Cookie("accessToken")
 
 		if err != nil {
-			httptools.UnauthorizedResponse(w, r, errortools.NewUnauthorizedError(errors.New("no token in cookies")))
+			httptools.UnauthorizedResponse(w, r,
+				errortools.NewUnauthorizedError(errors.New("no token in cookies")))
 			return
 		}
 
@@ -31,7 +32,10 @@ func (app *Application) authAccess(allowedRoles []models.Role,
 		}
 
 		if user.Role == models.DefaultRole {
-			user, err = app.services.Locations.GetDefaultUserByUserID(r.Context(), user.ID)
+			user, err = app.services.Locations.GetDefaultUserByUserID(
+				r.Context(),
+				user.ID,
+			)
 			if err != nil {
 				httptools.ServerErrorResponse(w, r, err)
 			}
@@ -61,7 +65,8 @@ func (app *Application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 		tokenCookie, err := r.Cookie("refreshToken")
 
 		if err != nil {
-			httptools.UnauthorizedResponse(w, r, errortools.NewUnauthorizedError(errors.New("no token in cookies")))
+			httptools.UnauthorizedResponse(w, r,
+				errortools.NewUnauthorizedError(errors.New("no token in cookies")))
 			return
 		}
 
@@ -79,7 +84,11 @@ func (app *Application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 			if err != nil {
 				httptools.ServerErrorResponse(w, r, err)
 			}
-			httptools.UnauthorizedResponse(w, r, errortools.NewUnauthorizedError(errors.New("invalid token")))
+			httptools.UnauthorizedResponse(
+				w,
+				r,
+				errortools.NewUnauthorizedError(errors.New("invalid token")),
+			)
 			return
 		}
 

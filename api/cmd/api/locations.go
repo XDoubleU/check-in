@@ -111,7 +111,12 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 			Format(constants.CSVFileNameFormat)
 		filename = "Day-" + filename
 
-		err = httptools.WriteCSV(w, filename, getCSVHeaders(checkInEntries), getCSVData(checkInEntries))
+		err = httptools.WriteCSV(
+			w,
+			filename,
+			getCSVHeaders(checkInEntries),
+			getCSVData(checkInEntries),
+		)
 	} else {
 		err = httptools.WriteJSON(w, http.StatusOK, checkInEntries, nil)
 	}
@@ -188,7 +193,12 @@ func (app *Application) getLocationCheckInsRangeHandler(
 			Format(constants.CSVFileNameFormat)
 		filename = "Range-" + filename
 
-		err = httptools.WriteCSV(w, filename, getCSVHeaders(checkInEntries), getCSVData(checkInEntries))
+		err = httptools.WriteCSV(
+			w,
+			filename,
+			getCSVHeaders(checkInEntries),
+			getCSVData(checkInEntries),
+		)
 	} else {
 		err = httptools.WriteJSON(w, http.StatusOK, checkInEntries, nil)
 	}
@@ -198,7 +208,9 @@ func (app *Application) getLocationCheckInsRangeHandler(
 	}
 }
 
-func getCSVHeaders(entries *orderedmap.OrderedMap[string, dtos.CheckInsLocationEntryRaw]) []string {
+func getCSVHeaders(
+	entries *orderedmap.OrderedMap[string, dtos.CheckInsLocationEntryRaw],
+) []string {
 	headers := []string{
 		"datetime",
 		"capacity",
@@ -262,7 +274,13 @@ func (app *Application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 	}
 
 	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
-	_, checkIns, err := app.services.Locations.GetAllCheckInsOfDay(r.Context(), user, false, []string{id}, time.Now())
+	_, checkIns, err := app.services.Locations.GetAllCheckInsOfDay(
+		r.Context(),
+		user,
+		false,
+		[]string{id},
+		time.Now(),
+	)
 	if err != nil {
 		httptools.HandleError(w, r, err, nil)
 		return
@@ -301,7 +319,12 @@ func (app *Application) deleteLocationCheckInHandler(
 	}
 
 	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
-	checkIn, err := app.services.Locations.DeleteCheckIn(r.Context(), user, locationID, checkInID)
+	checkIn, err := app.services.Locations.DeleteCheckIn(
+		r.Context(),
+		user,
+		locationID,
+		checkInID,
+	)
 	if err != nil {
 		httptools.HandleError(w, r, err, nil)
 		return

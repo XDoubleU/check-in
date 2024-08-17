@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
@@ -18,7 +19,7 @@ func TestSignInUser(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "Default",
 		Password:   "testpassword",
@@ -29,7 +30,8 @@ func TestSignInUser(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData models.User
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -48,7 +50,7 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "Default",
 		Password:   "testpassword",
@@ -59,7 +61,8 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData models.User
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -77,7 +80,7 @@ func TestSignInAdmin(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "Admin",
 		Password:   "testpassword",
@@ -88,7 +91,8 @@ func TestSignInAdmin(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData models.User
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -106,7 +110,7 @@ func TestSignInInexistentUser(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "inexistentuser",
 		Password:   "testpassword",
@@ -117,7 +121,8 @@ func TestSignInInexistentUser(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
 	assert.Equal(t, "invalid credentials", rsData.Message)
@@ -128,7 +133,7 @@ func TestSignInWrongPassword(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "Default",
 		Password:   "wrongpassword",
@@ -139,7 +144,8 @@ func TestSignInWrongPassword(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusUnauthorized, rs.StatusCode)
 	assert.Equal(t, "invalid credentials", rsData.Message)
@@ -150,6 +156,7 @@ func TestSignInFailValidation(t *testing.T) {
 	defer testEnv.teardown()
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
+	//nolint:exhaustruct //other fields are optional
 	tReq.SetBody(dtos.SignInDto{
 		Username:   "",
 		Password:   "",

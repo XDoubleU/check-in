@@ -2,13 +2,14 @@ package services
 
 import (
 	"context"
+	"errors"
+
+	"github.com/xdoubleu/essentia/pkg/database"
+	errortools "github.com/xdoubleu/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
-
-	"github.com/xdoubleu/essentia/pkg/database"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
 )
 
 type UserService struct {
@@ -27,7 +28,7 @@ func (service UserService) GetAll(
 
 func (service UserService) GetAllPaginated(
 	ctx context.Context,
-	user *models.User,
+	_ *models.User,
 	limit int64,
 	offset int64,
 ) ([]*models.User, error) {
@@ -41,12 +42,10 @@ func (service UserService) GetByID(
 ) (*models.User, error) {
 	user, err := service.users.GetByID(ctx, id, role)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewNotFoundError("user", id, "id")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	return user, nil
@@ -75,12 +74,14 @@ func (service UserService) Create(
 
 	user, err := service.users.Create(ctx, createUserDto.Username, passwordHash, role)
 	if err != nil {
-		switch err {
-		case database.ErrResourceConflict:
-			return nil, errortools.NewConflictError("user", createUserDto.Username, "username")
-		default:
-			return nil, err
+		if errors.Is(err, database.ErrResourceConflict) {
+			return nil, errortools.NewConflictError(
+				"user",
+				createUserDto.Username,
+				"username",
+			)
 		}
+		return nil, err
 	}
 
 	return user, nil
@@ -98,22 +99,22 @@ func (service UserService) Update(
 
 	user, err := service.GetByID(ctx, id, role)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewNotFoundError("user", id, "id")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	user, err = service.users.Update(ctx, *user, updateUserDto, role)
 	if err != nil {
-		switch err {
-		case database.ErrResourceConflict:
-			return nil, errortools.NewConflictError("user", *updateUserDto.Username, "username")
-		default:
-			return nil, err
+		if errors.Is(err, database.ErrResourceConflict) {
+			return nil, errortools.NewConflictError(
+				"user",
+				*updateUserDto.Username,
+				"username",
+			)
 		}
+		return nil, err
 	}
 
 	return user, nil
@@ -126,12 +127,11 @@ func (service UserService) Delete(
 ) (*models.User, error) {
 	user, err := service.GetByID(ctx, id, role)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewNotFoundError("user", id, "id")
-		default:
-			return nil, err
 		}
+
+		return nil, err
 	}
 
 	err = service.users.Delete(ctx, id, role)

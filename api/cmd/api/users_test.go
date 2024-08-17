@@ -36,9 +36,12 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	rs2 := tReq2.Do(t)
 	rs3 := tReq3.Do(t)
 
-	httptools.ReadJSON(rs1.Body, &rs1Data)
-	httptools.ReadJSON(rs2.Body, &rs2Data)
-	httptools.ReadJSON(rs3.Body, &rs3Data)
+	err := httptools.ReadJSON(rs1.Body, &rs1Data)
+	require.Nil(t, err)
+	err = httptools.ReadJSON(rs2.Body, &rs2Data)
+	require.Nil(t, err)
+	err = httptools.ReadJSON(rs3.Body, &rs3Data)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs1.StatusCode)
 	assert.Equal(t, fixtures.AdminUser.ID, rs1Data.ID)
@@ -123,7 +126,8 @@ func TestGetUser(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData models.User
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, defaultUser.ID, rsData.ID)
@@ -165,7 +169,8 @@ func TestGetUserNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -185,7 +190,8 @@ func TestGetUserNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -231,7 +237,8 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData dtos.PaginatedUsersDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err = httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -269,7 +276,8 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData dtos.PaginatedUsersDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err = httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -338,6 +346,7 @@ func TestCreateManagerUser(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.CreateUserDto{
 		Username: "test",
 		Password: "testpassword",
@@ -347,7 +356,8 @@ func TestCreateManagerUser(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData models.User
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 	assert.Nil(t, uuid.Validate(rsData.ID))
@@ -364,6 +374,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.CreateUserDto{
 		Username: fixtures.ManagerUser.Username,
 		Password: "testpassword",
@@ -373,7 +384,8 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -389,6 +401,7 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/users")
 	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
+	//nolint:exhaustruct //other fields are optional
 	tReq.SetBody(dtos.CreateUserDto{
 		Username: "",
 		Password: "",
@@ -437,6 +450,7 @@ func TestUpdateManagerUser(t *testing.T) {
 	user := testEnv.createManagerUsers(1)[0]
 
 	username, password := "test", "testpassword"
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateUserDto{
 		Username: &username,
 		Password: &password,
@@ -455,7 +469,8 @@ func TestUpdateManagerUser(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData models.User
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, user.ID, rsData.ID)
@@ -472,6 +487,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 	user := testEnv.createManagerUsers(1)[0]
 
 	username, password := fixtures.ManagerUser.Username, "testpassword"
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateUserDto{
 		Username: &username,
 		Password: &password,
@@ -490,7 +506,8 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -505,6 +522,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 	defer testEnv.teardown()
 
 	username, password := "test", "testpassword"
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateUserDto{
 		Username: &username,
 		Password: &password,
@@ -525,7 +543,8 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -540,6 +559,7 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 	defer testEnv.teardown()
 
 	username, password := "test", "testpassword"
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateUserDto{
 		Username: &username,
 		Password: &password,
@@ -553,7 +573,8 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -574,6 +595,7 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 		user.ID,
 	)
 	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
+	//nolint:exhaustruct //other fields are optional
 	tReq.SetBody(dtos.UpdateUserDto{
 		Username: &username,
 		Password: &password,
@@ -639,7 +661,8 @@ func TestDeleteManagerUser(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData models.User
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, user.ID, rsData.ID)
@@ -665,7 +688,8 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -685,7 +709,8 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")

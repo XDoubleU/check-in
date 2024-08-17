@@ -11,10 +11,13 @@ import (
 	"check-in/api/internal/models"
 )
 
+//
+//nolint:lll //can't make this shorter
 type GetAllLocationStatesFunc = func(ctx context.Context) ([]dtos.LocationStateDto, error)
 type GetStateFunc = func(ctx context.Context) (*models.State, error)
 
 type WebSocketService struct {
+	allowedOrigins    []string
 	handler           *wstools.WebSocketHandler[dtos.SubscribeMessageDto]
 	stateTopic        *wstools.Topic
 	allLocationsTopic *wstools.Topic
@@ -22,10 +25,12 @@ type WebSocketService struct {
 }
 
 func NewWebSocketService(
-	allowedOrigin string,
+	allowedOrigins []string,
 ) *WebSocketService {
 	service := WebSocketService{
+		allowedOrigins:    allowedOrigins,
 		handler:           nil,
+		stateTopic:        nil,
 		allLocationsTopic: nil,
 		locationTopics:    make(map[string]*wstools.Topic),
 	}
@@ -33,7 +38,6 @@ func NewWebSocketService(
 	handler := wstools.CreateWebSocketHandler[dtos.SubscribeMessageDto](
 		1,
 		100, //nolint:mnd //no magic number
-		[]string{allowedOrigin},
 	)
 	service.handler = &handler
 
@@ -47,6 +51,7 @@ func (service WebSocketService) Handler() http.HandlerFunc {
 func (service *WebSocketService) SetStateTopic(getState GetStateFunc) error {
 	topic, err := service.handler.AddTopic(
 		string(dtos.State),
+		service.allowedOrigins,
 		func(ctx context.Context, _ *wstools.Topic) (any, error) { return getState(ctx) },
 	)
 	if err != nil {
@@ -57,10 +62,15 @@ func (service *WebSocketService) SetStateTopic(getState GetStateFunc) error {
 	return nil
 }
 
-func (service *WebSocketService) SetAllLocationsTopic(getAllLocationStates GetAllLocationStatesFunc) error {
+func (service *WebSocketService) SetAllLocationsTopic(
+	getAllLocationStates GetAllLocationStatesFunc,
+) error {
 	topic, err := service.handler.AddTopic(
 		"*",
-		func(ctx context.Context, _ *wstools.Topic) (any, error) { return getAllLocationStates(ctx) },
+		[]string{"*"},
+		func(ctx context.Context, _ *wstools.Topic) (any, error) {
+			return getAllLocationStates(ctx)
+		},
 	)
 	if err != nil {
 		return err
@@ -71,7 +81,11 @@ func (service *WebSocketService) SetAllLocationsTopic(getAllLocationStates GetAl
 }
 
 func (service WebSocketService) AddLocation(location *models.Location) error {
-	topic, err := service.handler.AddTopic(location.NormalizedName, nil)
+	topic, err := service.handler.AddTopic(
+		location.NormalizedName,
+		service.allowedOrigins,
+		nil,
+	)
 	if err != nil {
 		return err
 	}

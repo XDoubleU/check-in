@@ -20,7 +20,10 @@ type Location struct {
 	UserID             string             `json:"userId"`
 } //	@name	Location
 
-func (location *Location) SetFields(checkInsToday []*CheckIn, checkInsYesterday []*CheckIn) error {
+func (location *Location) SetFields(
+	checkInsToday []*CheckIn,
+	checkInsYesterday []*CheckIn,
+) error {
 	location.SetCheckInRelatedFields(
 		checkInsToday,
 		checkInsYesterday,

@@ -35,10 +35,16 @@ func createAdmin(cfg config.Config, username string, password string) {
 		fmt.Println(err.Error())
 		return
 	}
-	services := services.New(slog.Default(), context.Background(), cfg, repositories.New(db))
+	services := services.New(
+		context.Background(),
+		slog.Default(),
+		cfg,
+		repositories.New(db),
+	)
 
 	_, err = services.Users.Create(
 		context.Background(),
+		//nolint:exhaustruct //other fields are optional
 		&dtos.CreateUserDto{
 			Username: username,
 			Password: password,

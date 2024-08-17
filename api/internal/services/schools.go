@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/xdoubleu/essentia/pkg/database"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
@@ -52,7 +53,7 @@ func (service SchoolService) GetAllSortedByLocation(
 
 func (service SchoolService) GetAllPaginated(
 	ctx context.Context,
-	user *models.User,
+	_ *models.User,
 	limit int64,
 	offset int64,
 ) ([]*models.School, error) {
@@ -83,12 +84,10 @@ func (service SchoolService) Create(
 
 	school, err := service.schools.Create(ctx, schoolDto.Name)
 	if err != nil {
-		switch err {
-		case database.ErrResourceConflict:
+		if errors.Is(err, database.ErrResourceConflict) {
 			return nil, errortools.NewConflictError("school", schoolDto.Name, "name")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	service.schoolIDNameMap[school.ID] = school.Name
@@ -107,22 +106,18 @@ func (service SchoolService) Update(
 
 	school, err := service.GetByIDWithoutReadOnly(ctx, id)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewNotFoundError("school", id, "id")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	school, err = service.schools.Update(ctx, *school, schoolDto)
 	if err != nil {
-		switch err {
-		case database.ErrResourceConflict:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewConflictError("school", schoolDto.Name, "name")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	service.schoolIDNameMap[school.ID] = school.Name
@@ -130,15 +125,16 @@ func (service SchoolService) Update(
 	return school, nil
 }
 
-func (service SchoolService) Delete(ctx context.Context, id int64) (*models.School, error) {
+func (service SchoolService) Delete(
+	ctx context.Context,
+	id int64,
+) (*models.School, error) {
 	school, err := service.GetByIDWithoutReadOnly(ctx, id)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewNotFoundError("school", id, "id")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	err = service.schools.Delete(ctx, id)

@@ -1,14 +1,16 @@
 package main
 
 import (
-	"check-in/api/internal/dtos"
-	"check-in/api/internal/models"
 	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	"github.com/xdoubleu/essentia/pkg/test"
+
+	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
 )
 
 func TestGetState(t *testing.T) {
@@ -19,7 +21,8 @@ func TestGetState(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData models.State
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, false, rsData.IsMaintenance)
@@ -46,7 +49,8 @@ func TestUpdateState(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData models.State
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, true, rsData.IsMaintenance)

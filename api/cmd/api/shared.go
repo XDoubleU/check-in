@@ -9,7 +9,12 @@ import (
 )
 
 type Service[T any] interface {
-	GetAllPaginated(ctx context.Context, user *models.User, limit int64, offset int64) ([]*T, error)
+	GetAllPaginated(
+		ctx context.Context,
+		user *models.User,
+		limit int64,
+		offset int64,
+	) ([]*T, error)
 	GetTotalCount(ctx context.Context) (*int64, error)
 }
 

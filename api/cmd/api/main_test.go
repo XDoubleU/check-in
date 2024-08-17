@@ -47,8 +47,16 @@ var testCtx context.Context    //nolint:gochecknoglobals //needed for tests
 func defaultFixtures(ctx context.Context, app *Application) {
 	var err error
 
+	_, err = app.services.State.UpdateState(context.Background(), &dtos.StateDto{
+		IsMaintenance: false,
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	password := "testpassword"
 	fixtures.AdminUser, err = app.services.Users.Create(ctx,
+		//nolint:exhaustruct //other fields are optional
 		&dtos.CreateUserDto{
 			Username: "Admin",
 			Password: password,
@@ -62,6 +70,7 @@ func defaultFixtures(ctx context.Context, app *Application) {
 	ctx = app.contextSetUser(ctx, *fixtures.AdminUser)
 
 	fixtures.ManagerUser, err = app.services.Users.Create(ctx,
+		//nolint:exhaustruct //other fields are optional
 		&dtos.CreateUserDto{
 			Username: "Manager",
 			Password: password,
@@ -102,6 +111,7 @@ func defaultFixtures(ctx context.Context, app *Application) {
 	fixtures.DefaultLocation, err = app.services.Locations.Create(
 		ctx,
 		fixtures.AdminUser,
+		//nolint:exhaustruct //other fields are optional
 		&dtos.CreateLocationDto{
 			Name:     "TestLocation",
 			Capacity: 20,
@@ -146,23 +156,33 @@ func defaultFixtures(ctx context.Context, app *Application) {
 }
 
 func clearAllData(ctx context.Context, app *Application) {
+	//nolint:exhaustruct //other fields are optional
 	fakeAdminUser := &models.User{
 		Role: models.AdminRole,
 	}
 
 	locations, _ := app.services.Locations.GetAll(ctx, nil, true)
 	for _, location := range locations {
-		app.services.Locations.Delete(ctx, fakeAdminUser, location.ID)
+		_, err := app.services.Locations.Delete(ctx, fakeAdminUser, location.ID)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	users, _ := app.services.Users.GetAll(ctx)
 	for _, user := range users {
-		app.services.Users.Delete(ctx, user.ID, user.Role)
+		_, err := app.services.Users.Delete(ctx, user.ID, user.Role)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	schools, _ := app.services.Schools.GetAll(ctx)
 	for _, school := range schools {
-		app.services.Schools.Delete(ctx, school.ID)
+		_, err := app.services.Schools.Delete(ctx, school.ID)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -174,6 +194,7 @@ func (env *TestEnv) createManagerUsers(amount int) []*models.User {
 	for i := 0; i < amount; i++ {
 		var newUser *models.User
 		newUser, err = env.app.services.Users.Create(env.ctx,
+			//nolint:exhaustruct //other fields are optional
 			&dtos.CreateUserDto{
 				Username: fmt.Sprintf("TestManagerUser%d", i),
 				Password: password,
@@ -204,6 +225,7 @@ func (env *TestEnv) createLocations(amount int) []*models.Location {
 		location, err = env.app.services.Locations.Create(
 			env.ctx,
 			fixtures.AdminUser,
+			//nolint:exhaustruct //other fields are optional
 			&dtos.CreateLocationDto{
 				Name:     fmt.Sprintf("TestLocation%d", i),
 				Capacity: 20,
@@ -229,7 +251,10 @@ func (env *TestEnv) createCheckIns(
 ) []*dtos.CheckInDto {
 	var err error
 
-	defaultUser, err := env.app.services.Locations.GetDefaultUserByUserID(env.ctx, location.UserID)
+	defaultUser, err := env.app.services.Locations.GetDefaultUserByUserID(
+		env.ctx,
+		location.UserID,
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -239,6 +264,7 @@ func (env *TestEnv) createCheckIns(
 		var checkIn *dtos.CheckInDto
 		checkIn, err = env.app.services.CheckInsWriter.Create(
 			env.ctx,
+			//nolint:exhaustruct //other fields are optional
 			&dtos.CreateCheckInDto{
 				SchoolID: schoolID,
 			},
@@ -258,6 +284,7 @@ func (env *TestEnv) createSchools(amount int) []*models.School {
 	schools := []*models.School{}
 	for i := 0; i < amount; i++ {
 		school, err := env.app.services.Schools.Create(env.ctx,
+			//nolint:exhaustruct //other fields are optional
 			&dtos.SchoolDto{
 				Name: fmt.Sprintf("TestSchool%d", i),
 			})

@@ -1,10 +1,11 @@
 package services
 
 import (
-	"check-in/api/internal/config"
-	"check-in/api/internal/repositories"
 	"context"
 	"log/slog"
+
+	"check-in/api/internal/config"
+	"check-in/api/internal/repositories"
 )
 
 type Services struct {
@@ -17,9 +18,14 @@ type Services struct {
 	WebSocket      *WebSocketService
 }
 
-func New(logger *slog.Logger, ctx context.Context, config config.Config, repositories repositories.Repositories) Services {
-	websocket := NewWebSocketService(config.WebURL)
-	state := NewStateService(logger, ctx, repositories.State, websocket)
+func New(
+	ctx context.Context,
+	logger *slog.Logger,
+	config config.Config,
+	repositories repositories.Repositories,
+) Services {
+	websocket := NewWebSocketService([]string{config.WebURL})
+	state := NewStateService(ctx, logger, repositories.State, websocket)
 
 	users := UserService{
 		users: repositories.Users,

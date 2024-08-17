@@ -17,7 +17,7 @@ tools/lint/go:
 	go install github.com/securego/gosec/v2/cmd/gosec@v2.20.0
 
 tools/lint/sql:
-	pip install sqlfluff
+	brew install sqlfluff
 
 lint/sql: tools/lint/sql
 	sqlfluff lint --dialect postgres ./migrations

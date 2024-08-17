@@ -37,7 +37,8 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData dtos.PaginatedSchoolsDto
-		httptools.ReadJSON(rs.Body, &rsData)
+		err = httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -73,7 +74,8 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData dtos.PaginatedSchoolsDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err = httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -138,6 +140,7 @@ func TestCreateSchool(t *testing.T) {
 	for i, user := range users {
 		unique := fmt.Sprintf("test%d", i)
 
+		//nolint:exhaustruct //other fields are optional
 		data := dtos.SchoolDto{
 			Name: unique,
 		}
@@ -150,7 +153,8 @@ func TestCreateSchool(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData models.School
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusCreated, rs.StatusCode)
 		assert.Equal(t, unique, rsData.Name)
@@ -162,6 +166,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "Andere",
 	}
@@ -174,7 +179,8 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -190,6 +196,7 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
 	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	//nolint:exhaustruct //other fields are optional
 	tReq.SetBody(dtos.SchoolDto{
 		Name: "",
 	})
@@ -238,6 +245,7 @@ func TestUpdateSchool(t *testing.T) {
 
 		unique := fmt.Sprintf("test%d", i)
 
+		//nolint:exhaustruct //other fields are optional
 		data := dtos.SchoolDto{
 			Name: unique,
 		}
@@ -255,7 +263,8 @@ func TestUpdateSchool(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData models.School
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, school.ID, rsData.ID)
@@ -268,6 +277,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "Andere",
 	}
@@ -287,7 +297,8 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -301,6 +312,7 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "test",
 	}
@@ -313,7 +325,8 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -327,6 +340,7 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "test",
 	}
@@ -343,7 +357,8 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -357,6 +372,7 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "test",
 	}
@@ -373,7 +389,8 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(
@@ -396,6 +413,7 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 		school.ID,
 	)
 	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	//nolint:exhaustruct //other fields are optional
 	tReq.SetBody(dtos.SchoolDto{
 		Name: "",
 	})
@@ -460,7 +478,8 @@ func TestDeleteSchool(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData models.School
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, school.ID, rsData.ID)
@@ -479,7 +498,8 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -503,7 +523,8 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -527,7 +548,8 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(

@@ -110,7 +110,10 @@ func (repo LocationRepository) GetAllPaginated(
 	return locations, nil
 }
 
-func (repo LocationRepository) GetByIDs(ctx context.Context, ids []string) ([]*models.Location, error) {
+func (repo LocationRepository) GetByIDs(
+	ctx context.Context,
+	ids []string,
+) ([]*models.Location, error) {
 	query := `
 		SELECT id, name, capacity, time_zone, user_id
 		FROM locations
@@ -130,6 +133,7 @@ func (repo LocationRepository) GetByIDs(ctx context.Context, ids []string) ([]*m
 		return []*models.Location{location}, nil
 	}
 
+	//nolint:exhaustruct //other fields are optional
 	pgArray := pgtype.Array[pgtype.Text]{}
 	for _, id := range ids {
 		pgArray.Elements = append(pgArray.Elements, pgtype.Text{
@@ -168,7 +172,10 @@ func (repo LocationRepository) GetByIDs(ctx context.Context, ids []string) ([]*m
 	return locations, nil
 }
 
-func (repo LocationRepository) GetByID(ctx context.Context, id string) (*models.Location, error) {
+func (repo LocationRepository) GetByID(
+	ctx context.Context,
+	id string,
+) (*models.Location, error) {
 	query := `
 		SELECT id, name, capacity, time_zone, user_id
 		FROM locations
@@ -194,7 +201,10 @@ func (repo LocationRepository) GetByID(ctx context.Context, id string) (*models.
 	return &location, nil
 }
 
-func (repo LocationRepository) GetByUserID(ctx context.Context, id string) (*models.Location, error) {
+func (repo LocationRepository) GetByUserID(
+	ctx context.Context,
+	id string,
+) (*models.Location, error) {
 	query := `
 		SELECT id, name, capacity, time_zone, user_id
 		FROM locations

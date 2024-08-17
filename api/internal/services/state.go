@@ -1,9 +1,6 @@
 package services
 
 import (
-	"check-in/api/internal/dtos"
-	"check-in/api/internal/models"
-	"check-in/api/internal/repositories"
 	"context"
 	"log/slog"
 	"strconv"
@@ -12,6 +9,10 @@ import (
 
 	"github.com/xdoubleu/essentia/pkg/logging"
 	"github.com/xdoubleu/essentia/pkg/sentry"
+
+	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
+	"check-in/api/internal/repositories"
 )
 
 type CurrentState struct {
@@ -26,7 +27,13 @@ type StateService struct {
 	Current   *CurrentState
 }
 
-func NewStateService(logger *slog.Logger, ctx context.Context, repo repositories.StateRepository, websocket *WebSocketService) StateService {
+func NewStateService(
+	ctx context.Context,
+	logger *slog.Logger,
+	repo repositories.StateRepository,
+	websocket *WebSocketService,
+) StateService {
+	//nolint:exhaustruct //Current is set later
 	service := StateService{
 		logger:    logger,
 		state:     repo,
@@ -47,16 +54,21 @@ func NewStateService(logger *slog.Logger, ctx context.Context, repo repositories
 }
 
 func (service *StateService) InitializeWS(ctx context.Context) error {
-	err := service.websocket.SetStateTopic(func(ctx context.Context) (*models.State, error) { return service.get(ctx, false) })
+	err := service.websocket.SetStateTopic(
+		func(ctx context.Context) (*models.State, error) { return service.get(ctx, false) },
+	)
 	if err != nil {
 		return err
 	}
 
-	go service.startPolling(service.logger, ctx)
+	go service.startPolling(ctx, service.logger)
 	return nil
 }
 
-func (service *StateService) get(ctx context.Context, fetchPersistentState bool) (*models.State, error) {
+func (service *StateService) get(
+	ctx context.Context,
+	fetchPersistentState bool,
+) (*models.State, error) {
 	var state models.State
 	var err error
 
@@ -76,12 +88,15 @@ func (service *StateService) get(ctx context.Context, fetchPersistentState bool)
 	return &state, nil
 }
 
-func (service *StateService) startPolling(logger *slog.Logger, ctx context.Context) {
-	sentry.GoRoutineErrorHandler("State Polling", ctx, func(ctx context.Context) error {
+func (service *StateService) startPolling(ctx context.Context, logger *slog.Logger) {
+	sentry.GoRoutineErrorHandler(ctx, "State Polling", func(ctx context.Context) error {
 		for ctx.Err() != context.Canceled {
 			newState, err := service.get(ctx, false)
 			if err != nil {
-				logger.Error("something went wrong while fetching current state", logging.ErrAttr(err))
+				logger.Error(
+					"something went wrong while fetching current state",
+					logging.ErrAttr(err),
+				)
 				continue
 			}
 
@@ -90,14 +105,21 @@ func (service *StateService) startPolling(logger *slog.Logger, ctx context.Conte
 				service.websocket.NewAppState(*newState)
 			}
 
-			time.Sleep(10 * time.Second)
+			time.Sleep(10 * time.Second) //nolint:mnd //no magic number
 		}
 		return nil
 	})
 }
 
-func (service *StateService) UpdateState(ctx context.Context, stateDto *dtos.StateDto) (*models.State, error) {
-	err := service.state.UpdateKey(ctx, models.IsMaintenanceKey, strconv.FormatBool(stateDto.IsMaintenance))
+func (service *StateService) UpdateState(
+	ctx context.Context,
+	stateDto *dtos.StateDto,
+) (*models.State, error) {
+	err := service.state.UpdateKey(
+		ctx,
+		models.IsMaintenanceKey,
+		strconv.FormatBool(stateDto.IsMaintenance),
+	)
 	if err != nil {
 		return nil, err
 	}

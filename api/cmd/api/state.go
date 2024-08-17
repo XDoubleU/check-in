@@ -1,10 +1,11 @@
 package main
 
 import (
-	"check-in/api/internal/dtos"
 	"net/http"
 
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
+
+	"check-in/api/internal/dtos"
 )
 
 func (app *Application) stateRoutes(mux *http.ServeMux) {
@@ -20,12 +21,10 @@ func (app *Application) stateRoutes(mux *http.ServeMux) {
 
 // @Summary	Get current state
 // @Tags		state
-// @Success	200		{object}	State
-// @Failure	500		{object}	ErrorDto
+// @Success	200	{object}	State
+// @Failure	500	{object}	ErrorDto
 // @Router		/state [get].
-func (app *Application) getStateHandler(w http.ResponseWriter,
-	r *http.Request) {
-
+func (app *Application) getStateHandler(w http.ResponseWriter, r *http.Request) {
 	err := httptools.WriteJSON(w, http.StatusOK, app.services.State.Current.Get(), nil)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)

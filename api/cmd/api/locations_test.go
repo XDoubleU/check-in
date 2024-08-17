@@ -61,7 +61,8 @@ func TestYesterdayFullAt(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData models.Location
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -113,7 +114,8 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -200,7 +202,8 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -299,8 +302,16 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 
 		// today
 		fetchedTimeToday, _ := time.Parse(time.RFC3339, rsData[2][0])
-		assert.Equal(t, time.Now().Format(constants.DateFormat), fetchedTimeToday.Format(constants.DateFormat))
-		assert.Equal(t, strconv.Itoa(int(fixtures.DefaultLocation.Capacity)), rsData[2][1])
+		assert.Equal(
+			t,
+			time.Now().Format(constants.DateFormat),
+			fetchedTimeToday.Format(constants.DateFormat),
+		)
+		assert.Equal(
+			t,
+			strconv.Itoa(int(fixtures.DefaultLocation.Capacity)),
+			rsData[2][1],
+		)
 		assert.Equal(t, strconv.Itoa(amount), rsData[2][2])
 
 		// tomorrow
@@ -337,7 +348,8 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -373,7 +385,8 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -407,7 +420,8 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(t, "missing query param 'startDate'", rsData.Message.(string))
@@ -437,7 +451,8 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(t, "missing query param 'endDate'", rsData.Message.(string))
@@ -468,7 +483,8 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(t, "missing query param 'returnType'", rsData.Message.(string))
@@ -498,7 +514,8 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -557,7 +574,8 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -622,7 +640,8 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -690,7 +709,11 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 		assert.Equal(t, "text/csv", rs.Header.Get("content-type"))
 		assert.Equal(t, expectedHeaders, rsData[0])
 		assert.Equal(t, date, fetchedTime.Format(constants.DateFormat))
-		assert.Equal(t, strconv.Itoa(int(fixtures.DefaultLocation.Capacity)), rsData[1][1])
+		assert.Equal(
+			t,
+			strconv.Itoa(int(fixtures.DefaultLocation.Capacity)),
+			rsData[1][1],
+		)
 		assert.Equal(t, strconv.Itoa(amount), rsData[1][2])
 	}
 }
@@ -719,7 +742,8 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -753,7 +777,8 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -784,7 +809,8 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(t, "missing query param 'date'", rsData.Message.(string))
@@ -813,7 +839,8 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(t, "missing query param 'returnType'", rsData.Message.(string))
@@ -841,7 +868,8 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -888,7 +916,8 @@ func TestGetAllCheckInsToday(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData []dtos.CheckInDto
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -921,7 +950,8 @@ func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -948,7 +978,8 @@ func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -972,7 +1003,8 @@ func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -1025,7 +1057,8 @@ func TestDeleteCheckIn(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData dtos.CheckInDto
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -1058,7 +1091,8 @@ func TestDeleteCheckInLocationNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -1083,7 +1117,8 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -1133,7 +1168,8 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err = httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(
@@ -1157,7 +1193,8 @@ func TestDeleteCheckInNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -1206,7 +1243,8 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData dtos.PaginatedLocationsDto
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -1276,7 +1314,8 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData dtos.PaginatedLocationsDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -1375,7 +1414,8 @@ func TestGetAllLocations(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData []models.Location
-		httptools.ReadJSON(rs.Body, &rsData)
+		err = httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
@@ -1444,7 +1484,8 @@ func TestGetLocation(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData models.Location
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, fixtures.DefaultLocation.ID, rsData.ID)
@@ -1485,7 +1526,8 @@ func TestGetLocationNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -1512,7 +1554,8 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -1536,7 +1579,8 @@ func TestGetLocationNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -1573,6 +1617,7 @@ func TestCreateLocation(t *testing.T) {
 	for i, user := range users {
 		unique := fmt.Sprintf("test%d", i)
 
+		//nolint:exhaustruct //other fields are optional
 		data := dtos.CreateLocationDto{
 			Name:     unique,
 			Capacity: 10,
@@ -1593,7 +1638,8 @@ func TestCreateLocation(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData models.Location
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusCreated, rs.StatusCode)
 		assert.Nil(t, uuid.Validate(rsData.ID))
@@ -1613,6 +1659,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.CreateLocationDto{
 		Name:     fixtures.DefaultLocation.Name,
 		Capacity: 10,
@@ -1629,7 +1676,8 @@ func TestCreateLocationNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -1643,6 +1691,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.CreateLocationDto{
 		Name:     fmt.Sprintf("$%s$", fixtures.DefaultLocation.Name),
 		Capacity: 10,
@@ -1659,7 +1708,8 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -1673,6 +1723,7 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.CreateLocationDto{
 		Name:     "test",
 		Capacity: 10,
@@ -1689,7 +1740,8 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -1709,6 +1761,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 	mt := test.CreateMatrixTester()
 
 	tReq1 := tReq.Copy()
+	//nolint:exhaustruct //other fields are optional
 	tReq1.SetBody(dtos.CreateLocationDto{
 		Name:     "test",
 		Capacity: -1,
@@ -1725,6 +1778,7 @@ func TestCreateLocationFailValidation(t *testing.T) {
 	mt.AddTestCase(tReq1, tRes1)
 
 	tReq2 := tReq.Copy()
+	//nolint:exhaustruct //other fields are optional
 	tReq2.SetBody(dtos.CreateLocationDto{
 		Name:     "test",
 		Capacity: 10,
@@ -1780,6 +1834,7 @@ func TestUpdateLocation(t *testing.T) {
 		name, username, password := unique, unique, "testpassword"
 		timeZone := "Europe/Brussels"
 		var capacity int64 = 3
+		//nolint:exhaustruct //other fields are optional
 		data := dtos.UpdateLocationDto{
 			Name:     &name,
 			Capacity: &capacity,
@@ -1801,7 +1856,8 @@ func TestUpdateLocation(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData models.Location
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, location.ID, rsData.ID)
@@ -1834,6 +1890,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 	name, username, password, timeZone := fixtures.DefaultLocation.Name, "test",
 		"testpassword", "Europe/Brussels"
 	var capacity int64 = 10
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity,
@@ -1855,7 +1912,8 @@ func TestUpdateLocationNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -1877,6 +1935,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 	), "test",
 		"testpassword", "Europe/Brussels"
 	var capacity int64 = 10
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity,
@@ -1898,7 +1957,8 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -1917,6 +1977,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 	name, username, password, timeZone := "test", fixtures.DefaultUser.Username,
 		"testpassword", "Europe/Brussels"
 	var capacity int64 = 10
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity,
@@ -1938,7 +1999,8 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusConflict, rs.StatusCode)
 	assert.Equal(
@@ -1966,8 +2028,10 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 
 	tReq1 := tReq.Copy()
 
+	//nolint:lll //can't make this shorter
 	name, username, password, timeZone1 := "test", "test", "testpassword", "Europe/Brussels"
 	var capacity1 int64 = -1
+	//nolint:exhaustruct //other fields are optional
 	tReq1.SetBody(dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity1,
@@ -1987,6 +2051,7 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 
 	timeZone2 := "wrong"
 	var capacity2 int64 = 10
+	//nolint:exhaustruct //other fields are optional
 	tReq2.SetBody(dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity2,
@@ -2011,6 +2076,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 
 	name, username, password, timeZone := "test", "test", "password", "Europe/Brussels"
 	var capacity int64 = 10
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity,
@@ -2034,7 +2100,8 @@ func TestUpdateLocationNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -2052,6 +2119,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 
 	name, username, password, timeZone := "test", "test", "testpassword", "Europe/Brussels"
 	var capacity int64 = 10
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity,
@@ -2073,7 +2141,8 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -2089,6 +2158,7 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 
 	name, username, password, timeZone := "test", "test", "password", "Europe/Brussels"
 	var capacity int64 = 10
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.UpdateLocationDto{
 		Name:     &name,
 		Capacity: &capacity,
@@ -2109,7 +2179,8 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
@@ -2157,7 +2228,8 @@ func TestDeleteLocation(t *testing.T) {
 		rs := tReq.Do(t)
 
 		var rsData models.Location
-		httptools.ReadJSON(rs.Body, &rsData)
+		err := httptools.ReadJSON(rs.Body, &rsData)
+		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, locations[i].ID, rsData.ID)
@@ -2202,7 +2274,8 @@ func TestDeleteLocationNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -2226,7 +2299,8 @@ func TestDeleteLocationNotUUID(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")

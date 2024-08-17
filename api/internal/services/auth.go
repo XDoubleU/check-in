@@ -24,19 +24,22 @@ type AuthService struct {
 	locations LocationService
 }
 
-func (service AuthService) SignInUser(ctx context.Context, signInDto *dtos.SignInDto) (*models.User, error) {
+func (service AuthService) SignInUser(
+	ctx context.Context,
+	signInDto *dtos.SignInDto,
+) (*models.User, error) {
 	if v := signInDto.Validate(); !v.Valid() {
 		return nil, errortools.ErrFailedValidation
 	}
 
 	user, err := service.users.GetByUsername(ctx, signInDto.Username)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
-			return nil, errortools.NewUnauthorizedError(errors.New("invalid credentials"))
-		default:
-			return nil, err
+		if errors.Is(err, database.ErrResourceNotFound) {
+			return nil, errortools.NewUnauthorizedError(
+				errors.New("invalid credentials"),
+			)
 		}
+		return nil, err
 	}
 
 	match, _ := user.CompareHashAndPassword(signInDto.Password)

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
 	errortools "github.com/xdoubleu/essentia/pkg/errors"
 	"github.com/xdoubleu/essentia/pkg/test"
@@ -36,7 +37,8 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData []models.School
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 	assert.Equal(t, school.ID, rsData[0].ID)
@@ -75,6 +77,7 @@ func TestCreateCheckIn(t *testing.T) {
 	school := testEnv.createSchools(1)[0]
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
+	//nolint:exhaustruct //other fields are optional
 	tReq.SetBody(dtos.CreateCheckInDto{
 		SchoolID: school.ID,
 	})
@@ -83,7 +86,8 @@ func TestCreateCheckIn(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData dtos.CheckInDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -104,6 +108,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.CreateCheckInDto{
 		SchoolID: 1,
 	}
@@ -115,7 +120,8 @@ func TestCreateCheckInAndere(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData dtos.CheckInDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
@@ -136,6 +142,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.CreateCheckInDto{
 		SchoolID: 1,
 	}
@@ -151,7 +158,8 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	}
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
 	assert.Equal(t, "location has no available spots", rsData.Message)
@@ -163,6 +171,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 
+	//nolint:exhaustruct //other fields are optional
 	data := dtos.CreateCheckInDto{
 		SchoolID: 8000,
 	}
@@ -174,7 +183,8 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	rs := tReq.Do(t)
 
 	var rsData errortools.ErrorDto
-	httptools.ReadJSON(rs.Body, &rsData)
+	err := httptools.ReadJSON(rs.Body, &rsData)
+	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusNotFound, rs.StatusCode)
 	assert.Equal(
@@ -190,6 +200,7 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/checkins")
 	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
+	//nolint:exhaustruct //other fields are optional
 	tReq.SetBody(dtos.CreateCheckInDto{
 		SchoolID: 0,
 	})

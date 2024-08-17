@@ -1,13 +1,14 @@
 package repositories
 
 import (
-	"check-in/api/internal/models"
 	"context"
 	"strconv"
 	"time"
 
 	"github.com/xdoubleu/essentia/pkg/database"
 	"github.com/xdoubleu/essentia/pkg/database/postgres"
+
+	"check-in/api/internal/models"
 )
 
 type StateRepository struct {
@@ -43,8 +44,7 @@ func (repo StateRepository) Get(
 			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
-		switch key {
-		case models.IsMaintenanceKey:
+		if key == models.IsMaintenanceKey {
 			state.IsMaintenance, err = strconv.ParseBool(value)
 		}
 

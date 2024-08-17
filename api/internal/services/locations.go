@@ -29,7 +29,10 @@ func (service *LocationService) InitializeWS(ctx context.Context) error {
 		return err
 	}
 
-	service.websocket.SetAllLocationsTopic(service.GetAllStates)
+	err = service.websocket.SetAllLocationsTopic(service.GetAllStates)
+	if err != nil {
+		return err
+	}
 
 	for _, location := range locations {
 		err = service.websocket.AddLocation(location)
@@ -41,7 +44,12 @@ func (service *LocationService) InitializeWS(ctx context.Context) error {
 	return nil
 }
 
-func (service LocationService) GetCheckInsEntriesDay(ctx context.Context, user *models.User, locationIDs []string, date time.Time) (*orderedmap.OrderedMap[string, dtos.CheckInsLocationEntryRaw], error) {
+func (service LocationService) GetCheckInsEntriesDay(
+	ctx context.Context,
+	user *models.User,
+	locationIDs []string,
+	date time.Time,
+) (*orderedmap.OrderedMap[string, dtos.CheckInsLocationEntryRaw], error) {
 	_, checkIns, err := service.GetAllCheckInsOfDay(
 		ctx,
 		user,
@@ -194,16 +202,22 @@ func (service LocationService) GetAllCheckInsInRange(
 	if !allowAnonymous {
 		locations, err := service.getByIDs(ctx, locationIDs)
 		if err != nil {
-			switch err {
-			case database.ErrResourceNotFound:
-				return nil, nil, errortools.NewNotFoundError("locations", locationIDs, "ids")
-			default:
-				return nil, nil, err
+			if errors.Is(err, database.ErrResourceNotFound) {
+				return nil, nil, errortools.NewNotFoundError(
+					"locations",
+					locationIDs,
+					"ids",
+				)
 			}
+			return nil, nil, err
 		}
 		for _, location := range locations {
 			if user.Role == models.DefaultRole && location.UserID != user.ID {
-				return nil, nil, errortools.NewNotFoundError("location", location.ID, "id")
+				return nil, nil, errortools.NewNotFoundError(
+					"location",
+					location.ID,
+					"id",
+				)
 			}
 		}
 	}
@@ -246,25 +260,26 @@ func (service LocationService) GetCheckInByID(
 	return service.checkins.GetByID(ctx, location, id)
 }
 
-func (service LocationService) DeleteCheckIn(ctx context.Context, user *models.User, locationID string, checkInID int64) (*dtos.CheckInDto, error) {
+func (service LocationService) DeleteCheckIn(
+	ctx context.Context,
+	user *models.User,
+	locationID string,
+	checkInID int64,
+) (*dtos.CheckInDto, error) {
 	location, err := service.GetByID(ctx, user, locationID)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewNotFoundError("location", locationID, "id")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	checkIn, err := service.GetCheckInByID(ctx, location, checkInID)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewNotFoundError("checkIn", checkInID, "id")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	today := timetools.NowTimeZoneIndependent(location.TimeZone)
@@ -273,7 +288,9 @@ func (service LocationService) DeleteCheckIn(ctx context.Context, user *models.U
 
 	if !(checkIn.CreatedAt.Time.After(startOfToday) &&
 		checkIn.CreatedAt.Time.Before(endOfToday)) {
-		return nil, errortools.NewBadRequestError(errors.New("checkIn didn't occur today and thus can't be deleted"))
+		return nil, errortools.NewBadRequestError(
+			errors.New("checkIn didn't occur today and thus can't be deleted"),
+		)
 	}
 
 	err = service.checkins.Delete(ctx, checkInID)
@@ -306,7 +323,11 @@ func (service LocationService) GetTotalCount(ctx context.Context) (*int64, error
 	return service.locations.GetTotalCount(ctx)
 }
 
-func (service LocationService) GetAll(ctx context.Context, user *models.User, allowAnonymous bool) ([]*models.Location, error) {
+func (service LocationService) GetAll(
+	ctx context.Context,
+	user *models.User,
+	allowAnonymous bool,
+) ([]*models.Location, error) {
 	locations, err := service.locations.GetAll(ctx)
 	if err != nil {
 		return nil, err
@@ -317,12 +338,24 @@ func (service LocationService) GetAll(ctx context.Context, user *models.User, al
 		locationIDs = append(locationIDs, location.ID)
 	}
 
-	checkInsToday, _, err := service.GetAllCheckInsOfDay(ctx, user, allowAnonymous, locationIDs, time.Now())
+	checkInsToday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		allowAnonymous,
+		locationIDs,
+		time.Now(),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(ctx, user, allowAnonymous, locationIDs, time.Now().Add(-24*time.Hour))
+	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		allowAnonymous,
+		locationIDs,
+		time.Now().Add(-24*time.Hour),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -337,7 +370,9 @@ func (service LocationService) GetAll(ctx context.Context, user *models.User, al
 	return locations, nil
 }
 
-func (service LocationService) GetAllStates(ctx context.Context) ([]dtos.LocationStateDto, error) {
+func (service LocationService) GetAllStates(
+	ctx context.Context,
+) ([]dtos.LocationStateDto, error) {
 	locations, err := service.GetAll(ctx, nil, true)
 	if err != nil {
 		return nil, err
@@ -367,12 +402,24 @@ func (service LocationService) GetAllPaginated(
 		locationIDs = append(locationIDs, location.ID)
 	}
 
-	checkInsToday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, locationIDs, time.Now())
+	checkInsToday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		locationIDs,
+		time.Now(),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, locationIDs, time.Now().Add(-24*time.Hour))
+	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		locationIDs,
+		time.Now().Add(-24*time.Hour),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -387,7 +434,10 @@ func (service LocationService) GetAllPaginated(
 	return locations, nil
 }
 
-func (service LocationService) getByIDs(ctx context.Context, ids []string) ([]*models.Location, error) {
+func (service LocationService) getByIDs(
+	ctx context.Context,
+	ids []string,
+) ([]*models.Location, error) {
 	return service.locations.GetByIDs(ctx, ids)
 }
 
@@ -398,24 +448,34 @@ func (service LocationService) GetByID(
 ) (*models.Location, error) {
 	location, err := service.locations.GetByID(ctx, id)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewNotFoundError("location", id, "id")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	if user.Role == models.DefaultRole && location.UserID != user.ID {
 		return nil, errortools.NewNotFoundError("location", location.ID, "id")
 	}
 
-	checkInsToday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, []string{location.ID}, time.Now())
+	checkInsToday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		[]string{location.ID},
+		time.Now(),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, []string{location.ID}, time.Now().Add(-24*time.Hour))
+	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		[]string{location.ID},
+		time.Now().Add(-24*time.Hour),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -437,12 +497,24 @@ func (service LocationService) GetByUser(
 		return nil, err
 	}
 
-	checkInsToday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, []string{location.ID}, time.Now())
+	checkInsToday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		[]string{location.ID},
+		time.Now(),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, []string{location.ID}, time.Now().Add(-24*time.Hour))
+	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		[]string{location.ID},
+		time.Now().Add(-24*time.Hour),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -455,7 +527,10 @@ func (service LocationService) GetByUser(
 	return location, nil
 }
 
-func (service LocationService) GetDefaultUserByUserID(ctx context.Context, id string) (*models.User, error) {
+func (service LocationService) GetDefaultUserByUserID(
+	ctx context.Context,
+	id string,
+) (*models.User, error) {
 	user, err := service.users.GetByID(ctx, id, models.DefaultRole)
 	if err != nil {
 		return nil, err
@@ -512,6 +587,7 @@ func (service LocationService) Create(
 		return nil, err
 	}
 
+	//nolint:exhaustruct //other fields are optional
 	defaultUser, err := service.users.Create(ctx, &dtos.CreateUserDto{
 		Username: createLocationDto.Username,
 		Password: createLocationDto.Password,
@@ -528,16 +604,32 @@ func (service LocationService) Create(
 		defaultUser.ID,
 	)
 	if err != nil {
-		service.users.Delete(ctx, defaultUser.ID, models.DefaultRole)
+		_, err2 := service.users.Delete(ctx, defaultUser.ID, models.DefaultRole)
+		if err2 != nil {
+			return nil, err2
+		}
+
 		return nil, err
 	}
 
-	checkInsToday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, []string{location.ID}, time.Now())
+	checkInsToday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		[]string{location.ID},
+		time.Now(),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, []string{location.ID}, time.Now().Add(-24*time.Hour))
+	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		[]string{location.ID},
+		time.Now().Add(-24*time.Hour),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -555,8 +647,17 @@ func (service LocationService) Create(
 	return location, nil
 }
 
-func (service LocationService) Recreate(ctx context.Context, location *models.Location) (*models.Location, error) {
-	return service.locations.Create(ctx, location.Name, location.Capacity, location.TimeZone, location.UserID)
+func (service LocationService) Recreate(
+	ctx context.Context,
+	location *models.Location,
+) (*models.Location, error) {
+	return service.locations.Create(
+		ctx,
+		location.Name,
+		location.Capacity,
+		location.TimeZone,
+		location.UserID,
+	)
 }
 
 func (service LocationService) checkForConflictsOnCreate(
@@ -579,7 +680,11 @@ func (service LocationService) checkForConflictsOnCreate(
 	)
 
 	if existingUser != nil {
-		return errortools.NewConflictError("user", createLocationDto.Username, "username")
+		return errortools.NewConflictError(
+			"user",
+			createLocationDto.Username,
+			"username",
+		)
 	}
 
 	return nil
@@ -610,25 +715,43 @@ func (service LocationService) Update(
 		return nil, err
 	}
 
+	//nolint:exhaustruct //other fields are optional
 	_, err = service.users.Update(ctx, location.UserID, &dtos.UpdateUserDto{
 		Username: updateLocationDto.Username,
 		Password: updateLocationDto.Password,
 	}, models.DefaultRole)
 	if err != nil {
-		service.locations.Update(ctx, *location, &dtos.UpdateLocationDto{
+		//nolint:exhaustruct //other fields are optional
+		_, err2 := service.locations.Update(ctx, *location, &dtos.UpdateLocationDto{
 			Name:     &oldLocation.Name,
 			Capacity: &oldLocation.Capacity,
 			TimeZone: &oldLocation.TimeZone,
 		})
+		if err2 != nil {
+			return nil, err2
+		}
+
 		return nil, err
 	}
 
-	checkInsToday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, []string{location.ID}, time.Now())
+	checkInsToday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		[]string{location.ID},
+		time.Now(),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(ctx, user, false, []string{location.ID}, time.Now().Add(-24*time.Hour))
+	checkInsYesterday, _, err := service.GetAllCheckInsOfDay(
+		ctx,
+		user,
+		false,
+		[]string{location.ID},
+		time.Now().Add(-24*time.Hour),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -663,7 +786,11 @@ func (service LocationService) checkForConflictsOnUpdate(
 		)
 
 		if existingLocation != nil {
-			return errortools.NewConflictError("location", *updateLocationDto.Name, "name")
+			return errortools.NewConflictError(
+				"location",
+				*updateLocationDto.Name,
+				"name",
+			)
 		}
 	}
 
@@ -674,7 +801,11 @@ func (service LocationService) checkForConflictsOnUpdate(
 		)
 
 		if existingUser != nil {
-			return errortools.NewConflictError("user", *updateLocationDto.Username, "username")
+			return errortools.NewConflictError(
+				"user",
+				*updateLocationDto.Username,
+				"username",
+			)
 		}
 	}
 
@@ -688,12 +819,10 @@ func (service LocationService) Delete(
 ) (*models.Location, error) {
 	location, err := service.GetByID(ctx, user, id)
 	if err != nil {
-		switch err {
-		case database.ErrResourceNotFound:
+		if errors.Is(err, database.ErrResourceNotFound) {
 			return nil, errortools.NewNotFoundError("location", id, "id")
-		default:
-			return nil, err
 		}
+		return nil, err
 	}
 
 	err = service.locations.Delete(ctx, location)
@@ -703,7 +832,11 @@ func (service LocationService) Delete(
 
 	_, err = service.users.Delete(ctx, location.UserID, models.DefaultRole)
 	if err != nil {
-		service.Recreate(ctx, location)
+		_, err2 := service.Recreate(ctx, location)
+		if err2 != nil {
+			return nil, err2
+		}
+
 		return nil, err
 	}
 

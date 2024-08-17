@@ -1,11 +1,12 @@
 package dtos
 
 import (
-	"check-in/api/internal/models"
 	"encoding/json"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"github.com/xdoubleu/essentia/pkg/validate"
+
+	"check-in/api/internal/models"
 )
 
 type CapacityMap = *orderedmap.OrderedMap[string, int64]
@@ -16,7 +17,10 @@ type CheckInsLocationEntryRaw struct {
 	Schools    SchoolsMap  `json:"schools"    swaggertype:"object,number"`
 } //	@name	CheckInsLocationEntryRaw
 
-func NewCheckInsLocationEntryRaw(capacities CapacityMap, schools SchoolsMap) CheckInsLocationEntryRaw {
+func NewCheckInsLocationEntryRaw(
+	capacities CapacityMap,
+	schools SchoolsMap,
+) CheckInsLocationEntryRaw {
 	// Used to deep copy capacities
 	var capacitiesCopy *orderedmap.OrderedMap[string, int64]
 	data, _ := json.Marshal(capacities)
