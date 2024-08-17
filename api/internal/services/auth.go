@@ -44,11 +44,14 @@ func (service AuthService) SignInUser(ctx context.Context, signInDto *dtos.SignI
 		return nil, errortools.NewUnauthorizedError(errors.New("invalid credentials"))
 	}
 
+	if user.Role != models.DefaultRole {
+		return user, nil
+	}
+
 	userWithLocation, err := service.locations.GetDefaultUserByUserID(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
-
 	return userWithLocation, nil
 }
 

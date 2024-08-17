@@ -145,6 +145,27 @@ func defaultFixtures(ctx context.Context, app *Application) {
 	}
 }
 
+func clearAllData(ctx context.Context, app *Application) {
+	fakeAdminUser := &models.User{
+		Role: models.AdminRole,
+	}
+
+	locations, _ := app.services.Locations.GetAll(ctx, nil, true)
+	for _, location := range locations {
+		app.services.Locations.Delete(ctx, fakeAdminUser, location.ID)
+	}
+
+	users, _ := app.services.Users.GetAll(ctx)
+	for _, user := range users {
+		app.services.Users.Delete(ctx, user.ID, user.Role)
+	}
+
+	schools, _ := app.services.Schools.GetAll(ctx)
+	for _, school := range schools {
+		app.services.Schools.Delete(ctx, school.ID)
+	}
+}
+
 func (env *TestEnv) createManagerUsers(amount int) []*models.User {
 	var err error
 	password := "testpassword"
@@ -276,6 +297,7 @@ func TestMain(m *testing.M) {
 	testCtx = context.Background()
 	mainTestApp = NewApp(logging.NewNopLogger(), cfg, mainTx)
 
+	clearAllData(testCtx, mainTestApp)
 	defaultFixtures(testCtx, mainTestApp)
 
 	code := m.Run()
