@@ -179,6 +179,10 @@ func clearAllData(ctx context.Context, app *Application) {
 
 	schools, _ := app.services.Schools.GetAll(ctx)
 	for _, school := range schools {
+		if school.ID == 1 {
+			continue
+		}
+
 		_, err := app.services.Schools.Delete(ctx, school.ID)
 		if err != nil {
 			panic(err)
