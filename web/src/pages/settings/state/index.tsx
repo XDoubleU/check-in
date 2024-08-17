@@ -57,6 +57,7 @@ export default function StateView() {
             submitBtnText="Update"
           >
             <Form.Check
+              id="isMaintenance"
               label="Is maintenance enabled"
               type="checkbox"
               {...register("isMaintenance")}
