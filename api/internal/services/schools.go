@@ -114,7 +114,7 @@ func (service SchoolService) Update(
 
 	school, err = service.schools.Update(ctx, *school, schoolDto)
 	if err != nil {
-		if errors.Is(err, database.ErrResourceNotFound) {
+		if errors.Is(err, database.ErrResourceConflict) {
 			return nil, errortools.NewConflictError("school", schoolDto.Name, "name")
 		}
 		return nil, err
