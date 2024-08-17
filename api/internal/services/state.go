@@ -38,7 +38,7 @@ func NewStateService(logger *slog.Logger, ctx context.Context, repo repositories
 }
 
 func (service *StateService) InitializeWS(ctx context.Context) error {
-	err := service.websocket.SetStateTopic()
+	err := service.websocket.SetStateTopic(func(ctx context.Context) (*models.State, error) { return service.get(ctx, false) })
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (service *StateService) InitializeWS(ctx context.Context) error {
 	return nil
 }
 
-func (service StateService) get(ctx context.Context, fetchPersistentState bool) (*models.State, error) {
+func (service *StateService) get(ctx context.Context, fetchPersistentState bool) (*models.State, error) {
 	state := &service.Current
 	var err error
 
@@ -83,7 +83,7 @@ func (service StateService) startPolling(logger *slog.Logger, ctx context.Contex
 	})
 }
 
-func (service StateService) UpdateState(ctx context.Context, stateDto *dtos.StateDto) (*models.State, error) {
+func (service *StateService) UpdateState(ctx context.Context, stateDto *dtos.StateDto) (*models.State, error) {
 	err := service.state.UpdateKey(ctx, models.IsMaintenanceKey, strconv.FormatBool(stateDto.IsMaintenance))
 	if err != nil {
 		return nil, err

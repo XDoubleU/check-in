@@ -174,10 +174,17 @@ func TestStateUpdate(t *testing.T) {
 		require.Nil(t, err)
 	})
 
+	var initialState models.State
 	var state models.State
-	err := tWeb.Do(t, nil, &state)
+	err := tWeb.Do(t, &initialState, &state)
 
 	assert.Nil(t, err)
+	assert.Equal(
+		t,
+		false,
+		initialState.IsMaintenance,
+	)
+	assert.Equal(t, true, initialState.IsDatabaseActive)
 	assert.Equal(
 		t,
 		true,

@@ -35,6 +35,9 @@ export type CheckInsLocationEntryRawMap = {
   [x: string]: CheckInsLocationEntryRaw
 }
 
+export type State = DeepRequired<definitions["State"]>
+export type StateDto = definitions["StateDto"]
+
 export const DATE_FORMAT = "YYYY-MM-DD"
 export const TIME_FORMAT = "HH:mm"
 export const FULL_FORMAT = "YYYY-MM-DD HH:mm"

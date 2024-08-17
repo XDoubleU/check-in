@@ -1554,11 +1554,13 @@
             "type": "string",
             "enum": [
                 "all-locations",
-                "single-location"
+                "single-location",
+                "state"
             ],
             "x-enum-varnames": [
                 "AllLocations",
-                "SingleLocation"
+                "SingleLocation",
+                "State"
             ]
         }
     }

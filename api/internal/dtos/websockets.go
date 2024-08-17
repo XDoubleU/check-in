@@ -12,6 +12,7 @@ type WebSocketSubject string //	@name	WebSocketSubject
 const (
 	AllLocations   WebSocketSubject = "all-locations"
 	SingleLocation WebSocketSubject = "single-location"
+	State          WebSocketSubject = "state"
 )
 
 type LocationStateDto struct {

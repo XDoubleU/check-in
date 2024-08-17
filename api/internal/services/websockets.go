@@ -12,6 +12,7 @@ import (
 )
 
 type GetAllLocationStatesFunc = func(ctx context.Context) ([]dtos.LocationStateDto, error)
+type GetStateFunc = func(ctx context.Context) (*models.State, error)
 
 type WebSocketService struct {
 	handler           *wstools.WebSocketHandler[dtos.SubscribeMessageDto]
@@ -43,8 +44,11 @@ func (service WebSocketService) Handler() http.HandlerFunc {
 	return service.handler.Handler()
 }
 
-func (service *WebSocketService) SetStateTopic() error {
-	topic, err := service.handler.AddTopic("state", nil)
+func (service *WebSocketService) SetStateTopic(getState GetStateFunc) error {
+	topic, err := service.handler.AddTopic(
+		string(dtos.State),
+		func(ctx context.Context, _ *wstools.Topic) (any, error) { return getState(ctx) },
+	)
 	if err != nil {
 		return err
 	}

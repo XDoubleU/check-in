@@ -855,7 +855,7 @@ export type definitions = {
     username?: string;
   };
   /** @enum {string} */
-  WebSocketSubject: "all-locations" | "single-location";
+  WebSocketSubject: "all-locations" | "single-location" | "state";
 };
 
 export type operations = {};

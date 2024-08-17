@@ -6,11 +6,15 @@ export function checkinsWebsocket(location: Location): WebSocket {
   const webSocket = new WebSocket(WS_URL)
 
   webSocket.onopen = (): void => {
-    const message: SubscribeMessageDto = {
+    let message: SubscribeMessageDto = {
       subject: "single-location",
       normalizedName: location.normalizedName
     }
+    webSocket.send(JSON.stringify(message))
 
+    message = {
+      subject: "state"
+    }
     webSocket.send(JSON.stringify(message))
   }
 
