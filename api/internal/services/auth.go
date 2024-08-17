@@ -19,8 +19,9 @@ import (
 )
 
 type AuthService struct {
-	auth  repositories.AuthRepository
-	users UserService
+	auth      repositories.AuthRepository
+	users     UserService
+	locations LocationService
 }
 
 func (service AuthService) SignInUser(ctx context.Context, signInDto *dtos.SignInDto) (*models.User, error) {
@@ -43,7 +44,12 @@ func (service AuthService) SignInUser(ctx context.Context, signInDto *dtos.SignI
 		return nil, errortools.NewUnauthorizedError(errors.New("invalid credentials"))
 	}
 
-	return user, nil
+	userWithLocation, err := service.locations.GetDefaultUserByUserID(ctx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return userWithLocation, nil
 }
 
 func (service AuthService) GetCookieName(scope models.Scope) string {

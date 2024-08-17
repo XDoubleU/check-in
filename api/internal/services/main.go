@@ -24,10 +24,6 @@ func New(logger *slog.Logger, ctx context.Context, config config.Config, reposit
 	users := UserService{
 		users: repositories.Users,
 	}
-	auth := AuthService{
-		auth:  repositories.Auth,
-		users: users,
-	}
 	schools := SchoolService{
 		schools:         repositories.Schools,
 		schoolIDNameMap: make(map[int64]string),
@@ -38,6 +34,11 @@ func New(logger *slog.Logger, ctx context.Context, config config.Config, reposit
 		schools:   schools,
 		users:     users,
 		websocket: websocket,
+	}
+	auth := AuthService{
+		auth:      repositories.Auth,
+		users:     users,
+		locations: locations,
 	}
 	checkInsWriter := CheckInWriterService{
 		checkins:  repositories.CheckInsWriter,
