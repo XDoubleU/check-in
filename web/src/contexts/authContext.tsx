@@ -1,7 +1,7 @@
 import { getMyUser } from "api-wrapper"
 import { type Role, type User } from "api-wrapper/types/apiTypes"
 import LoadingLayout from "layouts/LoadingLayout"
-import Router from "next/router";
+import Router from "next/router"
 import { type ParsedUrlQueryInput } from "querystring"
 import React, {
   useState,

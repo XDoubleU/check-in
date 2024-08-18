@@ -1,8 +1,5 @@
 import { useEffect } from "react"
-import {
-  type Role,
-  type StateDto
-} from "api-wrapper/types/apiTypes"
+import { type Role, type StateDto } from "api-wrapper/types/apiTypes"
 import { AuthRedirecter } from "contexts/authContext"
 import ManagerLayout from "layouts/ManagerLayout"
 import BaseForm from "components/forms/BaseForm"
@@ -29,13 +26,12 @@ export default function StateView() {
     void updateState(data).then((response) => {
       if (response.ok) {
         setValue("isMaintenance", response.data?.isMaintenance)
-      }
-      else {
+      } else {
         setError("root", {
           message: (response.message as string) ?? "Something went wrong"
         })
       }
-      
+
       return new Promise((resolve) => resolve(true))
     })
   }
@@ -51,18 +47,18 @@ export default function StateView() {
   return (
     <AuthRedirecter redirects={redirects}>
       <ManagerLayout title="State">
-      <BaseForm
-            onSubmit={handleSubmit(onSubmit)}
-            errors={errors}
-            submitBtnText="Update"
-          >
-            <Form.Check
-              id="isMaintenance"
-              label="Is maintenance enabled"
-              type="checkbox"
-              {...register("isMaintenance")}
-            ></Form.Check>
-          </BaseForm>
+        <BaseForm
+          onSubmit={handleSubmit(onSubmit)}
+          errors={errors}
+          submitBtnText="Update"
+        >
+          <Form.Check
+            id="isMaintenance"
+            label="Is maintenance enabled"
+            type="checkbox"
+            {...register("isMaintenance")}
+          ></Form.Check>
+        </BaseForm>
       </ManagerLayout>
     </AuthRedirecter>
   )

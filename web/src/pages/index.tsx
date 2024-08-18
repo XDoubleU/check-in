@@ -27,9 +27,8 @@ export function getStaticProps() {
   generateIntegrationScripts()
 
   // otherwise can't compile
-  return {props: {}}
+  return { props: {} }
 }
-
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {
@@ -52,16 +51,18 @@ export default function CheckIn() {
     let webSocket = checkinsWebsocket(apiLocation)
 
     webSocket.onmessage = (event): void => {
-      const updateEvent = JSON.parse(
-        event.data as string
-      ) as LocationUpdateEvent | State
+      const updateEvent = JSON.parse(event.data as string) as
+        | LocationUpdateEvent
+        | State
 
       if ((updateEvent as LocationUpdateEvent).available) {
         setAvailable((updateEvent as LocationUpdateEvent).available)
-      }
-      else if ((updateEvent as State).isDatabaseActive != undefined) {
-        setApiState((updateEvent as State))
-        setDisabled((updateEvent as State).isMaintenance || !(updateEvent as State).isDatabaseActive)
+      } else if ((updateEvent as State).isDatabaseActive != undefined) {
+        setApiState(updateEvent as State)
+        setDisabled(
+          (updateEvent as State).isMaintenance ||
+            !(updateEvent as State).isDatabaseActive
+        )
       }
     }
 

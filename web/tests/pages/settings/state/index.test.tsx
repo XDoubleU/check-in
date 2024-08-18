@@ -1,11 +1,12 @@
 import userEvent from "@testing-library/user-event"
-import {
-  getMyUser,
-  getState,
-  updateState
-} from "api-wrapper"
+import { getMyUser, getState, updateState } from "api-wrapper"
 import { mocked } from "jest-mock"
-import { adminUserMock, defaultUserMock, managerUserMock, noUserMock } from "mocks"
+import {
+  adminUserMock,
+  defaultUserMock,
+  managerUserMock,
+  noUserMock
+} from "mocks"
 import mockRouter from "next-router-mock"
 import StateView from "pages/settings/state"
 import { screen, render, waitFor } from "test-utils"
@@ -34,7 +35,9 @@ describe("StateView (page)", () => {
 
     render(<StateView />)
 
-    const isMaintenanceField = await screen.findByLabelText("Is maintenance enabled")
+    const isMaintenanceField = await screen.findByLabelText(
+      "Is maintenance enabled"
+    )
     await userEvent.click(isMaintenanceField)
 
     const updateButton = await screen.findByRole("button", { name: "Update" })
@@ -64,7 +67,9 @@ describe("StateView (page)", () => {
 
     render(<StateView />)
 
-    const isMaintenanceField = await screen.findByLabelText("Is maintenance enabled")
+    const isMaintenanceField = await screen.findByLabelText(
+      "Is maintenance enabled"
+    )
     await userEvent.click(isMaintenanceField)
 
     const updateButton = await screen.findByRole("button", { name: "Update" })

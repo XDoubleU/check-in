@@ -7,7 +7,7 @@ interface TimeZoneInputProps {
 }
 
 export default function TimeZoneInput({ register }: TimeZoneInputProps) {
-  const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
   return (
     <Form.Group
@@ -18,7 +18,11 @@ export default function TimeZoneInput({ register }: TimeZoneInputProps) {
       <Form.Select {...register}>
         {moment.tz.names().map((timeZone) => {
           return (
-            <option key={timeZone} value={timeZone} selected={browserTimeZone === timeZone}>
+            <option
+              key={timeZone}
+              value={timeZone}
+              selected={browserTimeZone === timeZone}
+            >
               {timeZone}
             </option>
           )

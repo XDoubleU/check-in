@@ -1,5 +1,9 @@
 import { type APIResponse } from "api-wrapper"
-import { type Location, type User, type State } from "api-wrapper/types/apiTypes"
+import {
+  type Location,
+  type User,
+  type State
+} from "api-wrapper/types/apiTypes"
 
 export const DefaultLocation: Location = {
   id: "locationId",
@@ -59,7 +63,7 @@ export async function stateMock(): Promise<APIResponse<State>> {
     ok: true,
     data: {
       isMaintenance: false,
-      IsDatabaseActive: true
+      isDatabaseActive: true
     }
   })
 }
