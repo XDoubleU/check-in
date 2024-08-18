@@ -26,7 +26,7 @@ ifeq ($(UNAME_S),Linux)
 endif
 
 lint/sql: tools/lint/sql
-	sqlfluff lint --dialect postgres ./migrations
+	sqlfluff lint --dialect postgres ./cmd/api/migrations
 
 lint: tools/lint
 	golangci-lint run
@@ -37,7 +37,7 @@ lint/fix: tools/swagger
 	golines . -m 88 -w
 	golangci-lint run --fix
 	gci write --skip-generated -s standard -s default -s "prefix(check-in/api)" .
-	sqlfluff fix --dialect postgres ./migrations
+	sqlfluff fix --dialect postgres ./cmd/api/migrations
 
 build: 
 	go build -o=./bin/api ./cmd/api
