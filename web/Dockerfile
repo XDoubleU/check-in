@@ -1,10 +1,14 @@
 FROM node:21-alpine AS deps
+ENV YARN_VERSION=4.x
+
 RUN apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare yarn@${YARN_VERSION}
 
 WORKDIR /app
 
-COPY --link package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production && yarn cache clean
+COPY --link package.json yarn.lock .yarnrc.yml ./
+COPY --link ./.yarn/releases ./.yarn/releases
+RUN yarn install --immutable && yarn cache clean
 
 FROM node:21-alpine AS builder
 WORKDIR /app
@@ -18,7 +22,7 @@ ARG SENTRY_ORG
 ARG SENTRY_PROJECT
 ARG SENTRY_AUTH_TOKEN
 
-COPY --from=deps --link /app/node_modules ./node_modules
+COPY --from=deps --link ./app/node_modules ./node_modules
 COPY --link  . .
 RUN yarn build
 

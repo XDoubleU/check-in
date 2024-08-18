@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	wstools "github.com/xdoubleu/essentia/pkg/communication/ws"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
+	wstools "github.com/XDoubleU/essentia/pkg/communication/ws"
+	errortools "github.com/XDoubleU/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"

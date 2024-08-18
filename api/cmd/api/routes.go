@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
+	"github.com/XDoubleU/essentia/pkg/middleware"
 	"github.com/getsentry/sentry-go"
 	"github.com/justinas/alice"
-	"github.com/xdoubleu/essentia/pkg/middleware"
 )
 
 func (app *Application) routes() http.Handler {

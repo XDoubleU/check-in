@@ -70,3 +70,4 @@ db/migrations/new: tools/db
 
 swag: tools/swagger
 	swag init --ot json --parseDependency -g cmd/api/main.go 
+	cp -R ./docs ./../web/docs 

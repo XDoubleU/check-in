@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/xdoubleu/essentia/pkg/database/postgres"
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"

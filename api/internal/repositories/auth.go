@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"time"
 
-	"github.com/xdoubleu/essentia/pkg/database/postgres"
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
 
 	"check-in/api/internal/models"
 )

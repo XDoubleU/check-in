@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	configtools "github.com/xdoubleu/essentia/pkg/config"
-	"github.com/xdoubleu/essentia/pkg/database/postgres"
-	"github.com/xdoubleu/essentia/pkg/logging"
+	configtools "github.com/XDoubleU/essentia/pkg/config"
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/XDoubleU/essentia/pkg/logging"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"

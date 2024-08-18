@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/xdoubleu/essentia/pkg/database"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
+	"github.com/XDoubleU/essentia/pkg/database"
+	errortools "github.com/XDoubleU/essentia/pkg/errors"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"

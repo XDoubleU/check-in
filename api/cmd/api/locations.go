@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
+	httptools "github.com/XDoubleU/essentia/pkg/communication/http"
+	"github.com/XDoubleU/essentia/pkg/context"
+	"github.com/XDoubleU/essentia/pkg/parse"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
-	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
-	"github.com/xdoubleu/essentia/pkg/context"
-	"github.com/xdoubleu/essentia/pkg/parse"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"

@@ -9,7 +9,7 @@
     "format": "prettier --write ./**/*.{ts,tsx}",
     "lint": "eslint . && tsc --noEmit && jscpd . && knip && prettier --check ./**/*.{ts,tsx} && npmPkgJsonLint .",
     "lint:fix": "eslint . --fix",
-    "swag": "npx openapi-typescript@5.4 ./../api/docs/swagger.json -o ./src/api-wrapper/types/schema.d.ts --export-type",
+    "swag": "npx openapi-typescript@5.4 ./docs/swagger.json -o ./src/api-wrapper/types/schema.d.ts --export-type",
     "test": "jest",
     "test:cov": "jest --coverage",
     "jest-preview": "jest-preview"

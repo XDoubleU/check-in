@@ -5,10 +5,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/database"
+	errortools "github.com/XDoubleU/essentia/pkg/errors"
+	timetools "github.com/XDoubleU/essentia/pkg/time"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
-	"github.com/xdoubleu/essentia/pkg/database"
-	errortools "github.com/xdoubleu/essentia/pkg/errors"
-	timetools "github.com/xdoubleu/essentia/pkg/time"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"

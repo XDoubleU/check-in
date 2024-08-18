@@ -10,13 +10,13 @@ import (
 	"time"
 	_ "time/tzdata"
 
+	httptools "github.com/XDoubleU/essentia/pkg/communication/http"
+	"github.com/XDoubleU/essentia/pkg/database/postgres"
+	"github.com/XDoubleU/essentia/pkg/logging"
+	sentrytools "github.com/XDoubleU/essentia/pkg/sentry"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
-	httptools "github.com/xdoubleu/essentia/pkg/communication/http"
-	"github.com/xdoubleu/essentia/pkg/database/postgres"
-	"github.com/xdoubleu/essentia/pkg/logging"
-	sentrytools "github.com/xdoubleu/essentia/pkg/sentry"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/repositories"
