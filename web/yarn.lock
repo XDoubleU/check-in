@@ -4051,7 +4051,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uglify-js@npm:^3":
+"@types/uglify-js@npm:3":
   version: 3.17.5
   resolution: "@types/uglify-js@npm:3.17.5"
   dependencies:
@@ -6158,7 +6158,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cpx@npm:^1.5.0":
+"cpx@npm:1.5.0":
   version: 1.5.0
   resolution: "cpx@npm:1.5.0"
   dependencies:
@@ -10103,7 +10103,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-preview@npm:^0.3.1":
+"jest-preview@npm:0.3.1":
   version: 0.3.1
   resolution: "jest-preview@npm:0.3.1"
   dependencies:
@@ -14285,7 +14285,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"serve@npm:^14.2.3":
+"serve@npm:14.2.3":
   version: 14.2.3
   resolution: "serve@npm:14.2.3"
   dependencies:
@@ -15565,7 +15565,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uglify-js@npm:^3.19.2":
+"uglify-js@npm:3.19.2":
   version: 3.19.2
   resolution: "uglify-js@npm:3.19.2"
   bin:
@@ -16105,13 +16105,13 @@ __metadata:
     "@types/jest": "npm:29.5.12"
     "@types/node": "npm:20.14.9"
     "@types/react": "npm:18.3.3"
-    "@types/uglify-js": "npm:^3"
+    "@types/uglify-js": "npm:3"
     "@types/uuid": "npm:10.0.0"
     "@typescript-eslint/eslint-plugin": "npm:7.14.1"
     "@typescript-eslint/parser": "npm:7.14.1"
     bootstrap: "npm:5.3.3"
     bootstrap-icons: "npm:1.11.3"
-    cpx: "npm:^1.5.0"
+    cpx: "npm:1.5.0"
     cross-env: "npm:7.0.3"
     eslint: "npm:8.57.0"
     eslint-config-next: "npm:14.2.4"
@@ -16126,7 +16126,7 @@ __metadata:
     jest: "npm:29.7.0"
     jest-environment-jsdom: "npm:29.7.0"
     jest-mock: "npm:29.7.0"
-    jest-preview: "npm:^0.3.1"
+    jest-preview: "npm:0.3.1"
     jest-websocket-mock: "npm:2.5.0"
     jscpd: "npm:4.0.4"
     knip: "npm:5.23.1"
@@ -16146,10 +16146,10 @@ __metadata:
     react-spinners: "npm:0.14.1"
     recharts: "npm:2.12.7"
     sass: "npm:1.77.6"
-    serve: "npm:^14.2.3"
+    serve: "npm:14.2.3"
     ts-jest: "npm:29.1.5"
     typescript: "npm:5.5.2"
-    uglify-js: "npm:^3.19.2"
+    uglify-js: "npm:3.19.2"
     uuid: "npm:10.0.0"
   languageName: unknown
   linkType: soft
