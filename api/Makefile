@@ -1,4 +1,5 @@
 db ?= postgres://postgres@localhost/postgres
+UNAME_S := $(shell uname -s)
 
 tools: tools/db tools/lint tools/swagger
 	
@@ -17,7 +18,12 @@ tools/lint/go:
 	go install github.com/securego/gosec/v2/cmd/gosec@v2.20.0
 
 tools/lint/sql:
+ifeq ($(UNAME_S),Darwin)
 	brew install sqlfluff
+endif
+ifeq ($(UNAME_S),Linux)
+	pip install sqlfluff
+endif
 
 lint/sql: tools/lint/sql
 	sqlfluff lint --dialect postgres ./migrations
