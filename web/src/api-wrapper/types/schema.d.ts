@@ -540,6 +540,38 @@ export type paths = {
       };
     };
   };
+  "/state": {
+    get: {
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["State"];
+        };
+        /** Internal Server Error */
+        500: {
+          schema: definitions["ErrorDto"];
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        body: {
+          /** StateDto */
+          stateDto: definitions["StateDto"];
+        };
+      };
+      responses: {
+        /** OK */
+        200: {
+          schema: definitions["State"];
+        };
+        /** Internal Server Error */
+        500: {
+          schema: definitions["ErrorDto"];
+        };
+      };
+    };
+  };
   "/users": {
     get: {
       parameters: {
@@ -794,6 +826,13 @@ export type definitions = {
     rememberMe?: boolean;
     username?: string;
   };
+  State: {
+    isDatabaseActive?: boolean;
+    isMaintenance?: boolean;
+  };
+  StateDto: {
+    isMaintenance?: boolean;
+  };
   SubscribeMessageDto: {
     normalizedName?: string;
     subject?: definitions["WebSocketSubject"];
@@ -816,7 +855,7 @@ export type definitions = {
     username?: string;
   };
   /** @enum {string} */
-  WebSocketSubject: "all-locations" | "single-location";
+  WebSocketSubject: "all-locations" | "single-location" | "state";
 };
 
 export type operations = {};

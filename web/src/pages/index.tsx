@@ -15,9 +15,20 @@ import {
   type Role,
   type Location,
   type LocationUpdateEvent,
-  type School
+  type School,
+  type State
 } from "api-wrapper/types/apiTypes"
 import { AuthRedirecter, useAuth } from "contexts/authContext"
+import { generateIntegrationScripts } from "../../utils/integration-script"
+import StateAlert from "components/StateAlert"
+
+// is executed on compile time
+export function getStaticProps() {
+  generateIntegrationScripts()
+
+  // otherwise can't compile
+  return { props: {} }
+}
 
 // eslint-disable-next-line max-lines-per-function
 export default function CheckIn() {
@@ -27,6 +38,7 @@ export default function CheckIn() {
   ])
 
   const { user } = useAuth()
+  const [apiState, setApiState] = useState<State>()
   const [available, setAvailable] = useState(0)
   const [schools, setSchools] = useState(new Array<School>())
   const [isDisabled, setDisabled] = useState(false)
@@ -39,11 +51,19 @@ export default function CheckIn() {
     let webSocket = checkinsWebsocket(apiLocation)
 
     webSocket.onmessage = (event): void => {
-      const locationUpdateEvent = JSON.parse(
-        event.data as string
-      ) as LocationUpdateEvent
+      const updateEvent = JSON.parse(event.data as string) as
+        | LocationUpdateEvent
+        | State
 
-      setAvailable(locationUpdateEvent.available)
+      if ((updateEvent as LocationUpdateEvent).available) {
+        setAvailable((updateEvent as LocationUpdateEvent).available)
+      } else if ((updateEvent as State).isDatabaseActive != undefined) {
+        setApiState(updateEvent as State)
+        setDisabled(
+          (updateEvent as State).isMaintenance ||
+            !(updateEvent as State).isDatabaseActive
+        )
+      }
     }
 
     webSocket.onclose = (): void => {
@@ -131,6 +151,7 @@ export default function CheckIn() {
 
           <div className="d-flex align-items-center min-vh-80">
             <Container className="text-center">
+              <StateAlert state={apiState} />
               <h1 className="bold" style={{ fontSize: "5rem" }}>
                 Welkom bij {user?.location?.name}!
               </h1>
@@ -151,7 +172,7 @@ export default function CheckIn() {
                   <br />
                   <Button
                     className={`${styles.btnCheckIn} bold text-white`}
-                    onClick={() => loadSchools()}
+                    onClick={loadSchools}
                     disabled={isDisabled}
                   >
                     CHECK-IN

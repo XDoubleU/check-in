@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 import { mocked } from "jest-mock"
-import { noUserMock } from "mocks"
-import { getMyUser } from "api-wrapper"
+import { noUserMock, stateMock } from "mocks"
+import { getMyUser, getState } from "api-wrapper"
 
 jest.mock('next/router', () => require('next-router-mock'))
 
@@ -23,4 +23,5 @@ window.ResizeObserver = jest.fn().mockImplementation(() => ({
 
 jest.mock("api-wrapper")
 mocked(getMyUser).mockImplementation(noUserMock)
+mocked(getState).mockImplementation(stateMock)
 

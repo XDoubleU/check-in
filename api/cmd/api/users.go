@@ -3,44 +3,38 @@ package main
 import (
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/contexttools"
-	"github.com/XDoubleU/essentia/pkg/httptools"
+	httptools "github.com/XDoubleU/essentia/pkg/communication/http"
+	"github.com/XDoubleU/essentia/pkg/context"
 	"github.com/XDoubleU/essentia/pkg/parse"
-	"github.com/julienschmidt/httprouter"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
-func (app *application) usersRoutes(router *httprouter.Router) {
-	router.HandlerFunc(
-		http.MethodGet,
-		"/current-user",
+func (app *Application) usersRoutes(mux *http.ServeMux) {
+	mux.HandleFunc(
+		"GET /current-user",
 		app.authAccess(allRoles, app.getInfoLoggedInUserHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/users",
+	mux.HandleFunc(
+		"GET /users",
 		app.authAccess(adminRole, app.getPaginatedManagerUsersHandler),
 	)
-	router.HandlerFunc(
-		http.MethodGet,
-		"/users/:id",
+	mux.HandleFunc(
+		"GET /users/{id}",
 		app.authAccess(managerAndAdminRole, app.getUserHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPost,
-		"/users",
+	mux.HandleFunc(
+		"POST /users",
 		app.authAccess(adminRole, app.createManagerUserHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPatch,
-		"/users/:id",
+	mux.HandleFunc(
+		"PATCH /users/{id}",
 		app.authAccess(adminRole, app.updateManagerUserHandler),
 	)
-	router.HandlerFunc(
-		http.MethodDelete,
-		"/users/:id",
+	mux.HandleFunc(
+		"DELETE /users/{id}",
 		app.authAccess(adminRole, app.deleteManagerUserHandler),
 	)
 }
@@ -51,9 +45,9 @@ func (app *application) usersRoutes(router *httprouter.Router) {
 // @Failure	401	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/current-user [get].
-func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
+func (app *Application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 	r *http.Request) {
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 
 	err := httptools.WriteJSON(w, http.StatusOK, user, nil)
 	if err != nil {
@@ -70,16 +64,16 @@ func (app *application) getInfoLoggedInUserHandler(w http.ResponseWriter,
 // @Failure	404	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/users/{id} [get].
-func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := parse.URLParam(r, "id", parse.UUID)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	user, err := app.repositories.Users.GetByID(r.Context(), id, models.DefaultRole)
+	user, err := app.services.Locations.GetDefaultUserByUserID(r.Context(), id)
 	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "user", id, "id")
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 
@@ -97,7 +91,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure	401		{object}	ErrorDto
 // @Failure	500		{object}	ErrorDto
 // @Router		/users [get].
-func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
+func (app *Application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
@@ -107,9 +101,11 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 		return
 	}
 
-	result, err := getAllPaginated[models.User](
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
+	result, err := getAllPaginated(
 		r.Context(),
-		app.repositories.Users,
+		app.services.Users,
+		user,
 		page,
 		pageSize,
 	)
@@ -133,11 +129,11 @@ func (app *application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 // @Failure	409				{object}	ErrorDto
 // @Failure	500				{object}	ErrorDto
 // @Router		/users [post].
-func (app *application) createManagerUserHandler(
+func (app *Application) createManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	var createUserDto dtos.CreateUserDto
+	var createUserDto *dtos.CreateUserDto
 
 	err := httptools.ReadJSON(r.Body, &createUserDto)
 	if err != nil {
@@ -145,26 +141,13 @@ func (app *application) createManagerUserHandler(
 		return
 	}
 
-	if v := createUserDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	user, err := app.repositories.Users.Create(
+	user, err := app.services.Users.Create(
 		r.Context(),
-		createUserDto.Username,
-		createUserDto.Password,
+		createUserDto,
 		models.ManagerRole,
 	)
 	if err != nil {
-		httptools.ConflictResponse(
-			w,
-			r,
-			err,
-			"user",
-			createUserDto.Username,
-			"username",
-		)
+		httptools.HandleError(w, r, err, createUserDto.ValidationErrors)
 		return
 	}
 
@@ -184,11 +167,11 @@ func (app *application) createManagerUserHandler(
 // @Failure	409				{object}	ErrorDto
 // @Failure	500				{object}	ErrorDto
 // @Router		/users/{id} [patch].
-func (app *application) updateManagerUserHandler(
+func (app *Application) updateManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	var updateUserDto dtos.UpdateUserDto
+	var updateUserDto *dtos.UpdateUserDto
 
 	id, err := parse.URLParam(r, "id", parse.UUID)
 	if err != nil {
@@ -202,32 +185,14 @@ func (app *application) updateManagerUserHandler(
 		return
 	}
 
-	if v := updateUserDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	user, err := app.repositories.Users.GetByID(r.Context(), id, models.ManagerRole)
-	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "user", id, "id")
-		return
-	}
-
-	err = app.repositories.Users.Update(
+	user, err := app.services.Users.Update(
 		r.Context(),
-		user,
+		id,
 		updateUserDto,
 		models.ManagerRole,
 	)
 	if err != nil {
-		httptools.ConflictResponse(
-			w,
-			r,
-			err,
-			"user",
-			*updateUserDto.Username,
-			"username",
-		)
+		httptools.HandleError(w, r, err, updateUserDto.ValidationErrors)
 		return
 	}
 
@@ -246,7 +211,7 @@ func (app *application) updateManagerUserHandler(
 // @Failure	404	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/users/{id} [delete].
-func (app *application) deleteManagerUserHandler(
+func (app *Application) deleteManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -256,15 +221,9 @@ func (app *application) deleteManagerUserHandler(
 		return
 	}
 
-	user, err := app.repositories.Users.GetByID(r.Context(), id, models.ManagerRole)
+	user, err := app.services.Users.Delete(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "user", id, "id")
-		return
-	}
-
-	err = app.repositories.Users.Delete(r.Context(), user.ID, models.ManagerRole)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 

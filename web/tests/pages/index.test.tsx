@@ -14,7 +14,10 @@ import {
   noUserMock
 } from "mocks"
 import WS from "jest-websocket-mock"
-import { type LocationUpdateEvent } from "api-wrapper/types/apiTypes"
+import {
+  type LocationUpdateEvent,
+  type State
+} from "api-wrapper/types/apiTypes"
 
 mocked(checkinsWebsocket).mockImplementation(() => {
   return new WebSocket("ws://localhost:8000")
@@ -93,6 +96,30 @@ describe("CheckIn (page)", () => {
     server.send(JSON.stringify(update))
 
     await screen.findByText("1", { selector: "span" })
+  })
+
+  it("Default user is logged in, Check-In btn is shown, server sends a state update", async () => {
+    mocked(getMyUser).mockImplementation(defaultUserMock)
+
+    await mockRouter.push("/")
+
+    render(<CheckIn />)
+
+    await waitFor(() => expect(document.title).toBe("Check-In"))
+
+    await screen.findByText("2", { selector: "span" })
+
+    const update: State = {
+      isMaintenance: true,
+      isDatabaseActive: false
+    }
+
+    server.send(JSON.stringify(update))
+
+    const alert = await screen.findByRole("alert")
+    expect(alert.innerHTML).toContain(
+      "The Check-In is currently under maintenance."
+    )
   })
 
   it("Redirect admin to settings", async () => {

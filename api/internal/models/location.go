@@ -20,16 +20,42 @@ type Location struct {
 	UserID             string             `json:"userId"`
 } //	@name	Location
 
-func (location *Location) SetCheckInRelatedFields(
+func (location *Location) SetFields(
 	checkInsToday []*CheckIn,
 	checkInsYesterday []*CheckIn,
+) error {
+	location.SetCheckInRelatedFields(
+		checkInsToday,
+		checkInsYesterday,
+	)
+
+	return location.NormalizeName()
+}
+
+func (location *Location) SetCheckInRelatedFields(
+	allCheckInsToday []*CheckIn,
+	allCheckInsYesterday []*CheckIn,
 ) {
-	var lastCheckInYesterday *CheckIn
+	checkInsToday := []*CheckIn{}
+	for _, checkIn := range allCheckInsToday {
+		if checkIn.LocationID == location.ID {
+			checkInsToday = append(checkInsToday, checkIn)
+		}
+	}
+
+	checkInsYesterday := []*CheckIn{}
+	for _, checkIn := range allCheckInsYesterday {
+		if checkIn.LocationID == location.ID {
+			checkInsYesterday = append(checkInsYesterday, checkIn)
+		}
+	}
 
 	location.Available = location.Capacity - int64(len(checkInsToday))
 	location.CapacityYesterday = 0
+	//nolint:exhaustruct //other fields are optional
 	location.YesterdayFullAt = pgtype.Timestamptz{}
 
+	var lastCheckInYesterday *CheckIn
 	switch {
 	case len(checkInsYesterday) > 0:
 		lastCheckInYesterday = checkInsYesterday[len(checkInsYesterday)-1]

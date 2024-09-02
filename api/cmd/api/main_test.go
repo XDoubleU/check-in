@@ -2,22 +2,26 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"testing"
 	"time"
 
+	configtools "github.com/XDoubleU/essentia/pkg/config"
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/test"
+	"github.com/XDoubleU/essentia/pkg/logging"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
-	"check-in/api/internal/repositories"
 )
+
+type TestEnv struct {
+	ctx context.Context
+	tx  *postgres.PgxSyncTx
+	app *Application
+}
 
 type Tokens struct {
 	AdminAccessToken    *http.Cookie
@@ -26,332 +30,336 @@ type Tokens struct {
 	DefaultRefreshToken *http.Cookie
 }
 
-type FixtureData struct {
-	AdminUser            *models.User
-	ManagerUser          *models.User
-	DefaultUser          *models.User
-	Schools              []*models.School
-	ManagerUsers         []*models.User
-	DefaultUsers         []*models.User
-	Locations            []*models.Location
-	CheckIns             []*models.CheckIn
-	DefaultLocation      *models.Location
-	AmountOfLocations    int
-	AmountOfSchools      int
-	AmountOfManagerUsers int
+type Fixtures struct {
+	Tokens          Tokens
+	AdminUser       *models.User
+	ManagerUser     *models.User
+	DefaultUser     *models.User
+	DefaultLocation *models.Location
 }
 
-var mainTestEnv *test.MainTestEnv //nolint:gochecknoglobals //global var for tests
-var tokens Tokens                 //nolint:gochecknoglobals //global var for tests
-var cfg config.Config             //nolint:gochecknoglobals //global var for tests
-var fixtureData FixtureData       //nolint:gochecknoglobals //global var for tests
+var mainTx *postgres.PgxSyncTx //nolint:gochecknoglobals //needed for tests
+var cfg config.Config          //nolint:gochecknoglobals //needed for tests
+var fixtures Fixtures          //nolint:gochecknoglobals //needed for tests
+var mainTestApp *Application   //nolint:gochecknoglobals //needed for tests
+var testCtx context.Context    //nolint:gochecknoglobals //needed for tests
 
-func clearAll(repositories repositories.Repositories) {
-	user, err := repositories.Users.GetByUsername(context.Background(), "Admin")
-	if user != nil {
-		err = repositories.Users.Delete(context.Background(), user.ID, user.Role)
-	}
+func defaultFixtures(ctx context.Context, app *Application) {
+	var err error
 
-	if err != nil && !errors.Is(err, httptools.ErrRecordNotFound) {
-		panic(err)
-	}
-
-	users, err := repositories.Users.GetAll(context.Background())
+	_, err = app.services.State.UpdateState(context.Background(), &dtos.StateDto{
+		IsMaintenance: false,
+	})
 	if err != nil {
 		panic(err)
 	}
 
-	for _, user := range users {
-		err = repositories.Users.Delete(context.Background(), user.ID, user.Role)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	fixtureData.AmountOfManagerUsers = 0
-
-	locations, err := repositories.Locations.GetAll(context.Background())
-	if err != nil {
-		panic(err)
-	}
-
-	for _, location := range locations {
-		err = repositories.Locations.Delete(context.Background(), location)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	fixtureData.AmountOfLocations = 0
-
-	schools, err := repositories.Schools.GetAll(context.Background())
-	if err != nil {
-		panic(err)
-	}
-
-	for _, school := range schools {
-		if school.ID == 1 {
-			continue
-		}
-
-		err = repositories.Schools.Delete(context.Background(), school.ID)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	fixtureData.AmountOfSchools = 1
-}
-
-func userFixtures(repositories repositories.Repositories) {
 	password := "testpassword"
-
-	adminUser, err := repositories.Users.Create(context.Background(),
-		"Admin",
-		password,
+	fixtures.AdminUser, err = app.services.Users.Create(ctx,
+		//nolint:exhaustruct //other fields are optional
+		&dtos.CreateUserDto{
+			Username: "Admin",
+			Password: password,
+		},
 		models.AdminRole,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	managerUser, err := repositories.Users.Create(context.Background(),
-		"Manager",
-		password,
+	ctx = app.contextSetUser(ctx, *fixtures.AdminUser)
+
+	fixtures.ManagerUser, err = app.services.Users.Create(ctx,
+		//nolint:exhaustruct //other fields are optional
+		&dtos.CreateUserDto{
+			Username: "Manager",
+			Password: password,
+		},
 		models.ManagerRole,
 	)
 	if err != nil {
 		panic(err)
 	}
-	fixtureData.AmountOfManagerUsers++
 
-	fixtureData.AdminUser = adminUser
-	fixtureData.ManagerUser = managerUser
+	fixtures.Tokens.AdminAccessToken, err = app.services.Auth.CreateCookie(
+		ctx,
+		models.AccessScope,
+		fixtures.AdminUser.ID,
+		app.config.AccessExpiry,
+		false,
+	)
+	if err != nil {
+		panic(err)
+	}
 
-	for i := 0; i < 10; i++ {
+	fixtures.Tokens.ManagerAccessToken, err = app.services.Auth.CreateCookie(
+		ctx,
+		models.AccessScope,
+		fixtures.ManagerUser.ID,
+		app.config.AccessExpiry,
+		false,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	timezone, err := time.LoadLocation("Europe/Brussels")
+	if err != nil {
+		panic(err)
+	}
+
+	fixtures.DefaultLocation, err = app.services.Locations.Create(
+		ctx,
+		fixtures.AdminUser,
+		//nolint:exhaustruct //other fields are optional
+		&dtos.CreateLocationDto{
+			Name:     "TestLocation",
+			Capacity: 20,
+			TimeZone: timezone.String(),
+			Username: "Default",
+			Password: "testpassword",
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fixtures.DefaultUser, err = app.services.Locations.GetDefaultUserByUserID(
+		ctx,
+		fixtures.DefaultLocation.UserID,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fixtures.Tokens.DefaultAccessToken, err = app.services.Auth.CreateCookie(
+		ctx,
+		models.AccessScope,
+		fixtures.DefaultUser.ID,
+		app.config.AccessExpiry,
+		false,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fixtures.Tokens.DefaultRefreshToken, err = app.services.Auth.CreateCookie(
+		ctx,
+		models.RefreshScope,
+		fixtures.DefaultUser.ID,
+		app.config.RefreshExpiry,
+		false,
+	)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func clearAllData(ctx context.Context, app *Application) {
+	//nolint:exhaustruct //other fields are optional
+	fakeAdminUser := &models.User{
+		Role: models.AdminRole,
+	}
+
+	locations, _ := app.services.Locations.GetAll(ctx, nil, true)
+	for _, location := range locations {
+		_, err := app.services.Locations.Delete(ctx, fakeAdminUser, location.ID)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	users, _ := app.services.Users.GetAll(ctx)
+	for _, user := range users {
+		_, err := app.services.Users.Delete(ctx, user.ID, user.Role)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	schools, _ := app.services.Schools.GetAll(ctx)
+	for _, school := range schools {
+		if school.ID == 1 {
+			continue
+		}
+
+		_, err := app.services.Schools.Delete(ctx, school.ID)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func (env *TestEnv) createManagerUsers(amount int) []*models.User {
+	var err error
+	password := "testpassword"
+
+	users := []*models.User{}
+	for i := 0; i < amount; i++ {
 		var newUser *models.User
-		newUser, err = repositories.Users.Create(context.Background(),
-			fmt.Sprintf("TestManagerUser%d", i),
-			password,
+		newUser, err = env.app.services.Users.Create(env.ctx,
+			//nolint:exhaustruct //other fields are optional
+			&dtos.CreateUserDto{
+				Username: fmt.Sprintf("TestManagerUser%d", i),
+				Password: password,
+			},
 			models.ManagerRole,
 		)
 		if err != nil {
 			panic(err)
 		}
 
-		fixtureData.AmountOfManagerUsers++
-
-		fixtureData.ManagerUsers = append(fixtureData.ManagerUsers, newUser)
+		users = append(users, newUser)
 	}
 
-	adminAccessToken, err := repositories.Auth.CreateCookie(context.Background(),
-		models.AccessScope,
-		adminUser.ID,
-		cfg.AccessExpiry,
-		false,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	managerAccessToken, err := repositories.Auth.CreateCookie(context.Background(),
-		models.AccessScope,
-		managerUser.ID,
-		cfg.AccessExpiry,
-		false,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	tokens.AdminAccessToken = adminAccessToken
-	tokens.ManagerAccessToken = managerAccessToken
+	return users
 }
 
-func locationFixtures(repositories repositories.Repositories) {
+func (env *TestEnv) createLocations(amount int) []*models.Location {
+	var err error
+
 	timezone, err := time.LoadLocation("Europe/Brussels")
 	if err != nil {
 		panic(err)
 	}
 
-	fixtureData.DefaultLocation, err = repositories.Locations.Create(
-		context.Background(),
-		"TestLocation",
-		20,
-		timezone.String(),
-		"Default",
-		"testpassword",
-	)
-	if err != nil {
-		panic(err)
-	}
-	fixtureData.AmountOfLocations++
-
-	fixtureData.DefaultUser, err = repositories.Users.GetByID(
-		context.Background(),
-		fixtureData.DefaultLocation.UserID,
-		models.DefaultRole,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	tokens.DefaultAccessToken, err = repositories.Auth.CreateCookie(
-		context.Background(),
-		models.AccessScope,
-		fixtureData.DefaultUser.ID,
-		cfg.AccessExpiry,
-		false,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	tokens.DefaultRefreshToken, err = repositories.Auth.CreateCookie(
-		context.Background(),
-		models.RefreshScope,
-		fixtureData.DefaultUser.ID,
-		cfg.RefreshExpiry,
-		false,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	for i := 0; i < 5; i++ {
-		newCap := fixtureData.DefaultLocation.Capacity + 1
-		err = repositories.Locations.Update(
-			context.Background(),
-			fixtureData.DefaultLocation,
-			fixtureData.AdminUser,
-			dtos.UpdateLocationDto{
-				Capacity: &newCap,
+	locations := []*models.Location{}
+	for i := 0; i < amount; i++ {
+		var location *models.Location
+		location, err = env.app.services.Locations.Create(
+			env.ctx,
+			fixtures.AdminUser,
+			//nolint:exhaustruct //other fields are optional
+			&dtos.CreateLocationDto{
+				Name:     fmt.Sprintf("TestLocation%d", i),
+				Capacity: 20,
+				TimeZone: timezone.String(),
+				Username: fmt.Sprintf("TestDefaultUser%d", i),
+				Password: "testpassword",
 			},
 		)
 		if err != nil {
 			panic(err)
 		}
 
-		var checkIn *models.CheckIn
-		checkIn, err = repositories.CheckIns.Create(
-			context.Background(),
-			fixtureData.DefaultLocation,
-			&models.School{ID: 1},
+		locations = append(locations, location)
+	}
+
+	return locations
+}
+
+func (env *TestEnv) createCheckIns(
+	location *models.Location,
+	schoolID int64,
+	amount int,
+) []*dtos.CheckInDto {
+	var err error
+
+	defaultUser, err := env.app.services.Locations.GetDefaultUserByUserID(
+		env.ctx,
+		location.UserID,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	checkIns := []*dtos.CheckInDto{}
+	for i := 0; i < amount; i++ {
+		var checkIn *dtos.CheckInDto
+		checkIn, err = env.app.services.CheckInsWriter.Create(
+			env.ctx,
+			//nolint:exhaustruct //other fields are optional
+			&dtos.CreateCheckInDto{
+				SchoolID: schoolID,
+			},
+			defaultUser,
 		)
 		if err != nil {
 			panic(err)
 		}
 
-		fixtureData.CheckIns = append(fixtureData.CheckIns, checkIn)
+		checkIns = append(checkIns, checkIn)
 	}
 
-	for i := 0; i < 20; i++ {
-		var location *models.Location
-		location, err = repositories.Locations.Create(
-			context.Background(),
-			fmt.Sprintf("TestLocation%d", i),
-			20,
-			timezone.String(),
-			fmt.Sprintf("TestDefaultUser%d", i),
-			"testpassword",
-		)
+	return checkIns
+}
+
+func (env *TestEnv) createSchools(amount int) []*models.School {
+	schools := []*models.School{}
+	for i := 0; i < amount; i++ {
+		school, err := env.app.services.Schools.Create(env.ctx,
+			//nolint:exhaustruct //other fields are optional
+			&dtos.SchoolDto{
+				Name: fmt.Sprintf("TestSchool%d", i),
+			})
 		if err != nil {
 			panic(err)
 		}
-		fixtureData.AmountOfLocations++
-
-		var user *models.User
-		user, err = repositories.Users.GetByID(
-			context.Background(),
-			location.UserID,
-			models.DefaultRole,
-		)
-		if err != nil {
-			panic(err)
-		}
-		fixtureData.DefaultUsers = append(fixtureData.DefaultUsers, user)
-
-		for j := 0; j < 5; j++ {
-			_, err = repositories.CheckIns.Create(
-				context.Background(),
-				location,
-				&models.School{ID: 1},
-			)
-			if err != nil {
-				panic(err)
-			}
-		}
-
-		fixtureData.Locations = append(fixtureData.Locations, location)
+		schools = append(schools, school)
 	}
-}
 
-func schoolFixtures(repositories repositories.Repositories) {
-	for i := 0; i < 20; i++ {
-		school, err := repositories.Schools.Create(context.Background(),
-			fmt.Sprintf("TestSchool%d", i))
-		if err != nil {
-			panic(err)
-		}
-		fixtureData.Schools = append(fixtureData.Schools, school)
-		fixtureData.AmountOfSchools++
-	}
-}
-
-func fixtures(db postgres.DB) {
-	repositories := repositories.New(db)
-
-	clearAll(repositories)
-	userFixtures(repositories)
-	locationFixtures(repositories)
-	schoolFixtures(repositories)
-}
-
-func removeFixtures(db postgres.DB) {
-	repositories := repositories.New(db)
-
-	clearAll(repositories)
+	return schools
 }
 
 func TestMain(m *testing.M) {
 	var err error
 
 	cfg = config.New()
-	cfg.Env = config.TestEnv
+	cfg.Env = configtools.TestEnv
 	cfg.Throttle = false
 
-	mainTestEnv, err = test.SetupGlobal(
-		cfg.DB.Dsn,
-		cfg.DB.MaxConns,
-		cfg.DB.MaxIdleTime,
+	postgresDB, err := postgres.Connect(
+		logging.NewNopLogger(),
+		cfg.DBDsn,
+		25,
+		"15m",
+		5,
+		15*time.Second,
+		30*time.Second,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	fixtures(mainTestEnv.TestDB)
-	exitCode := m.Run()
-	removeFixtures(mainTestEnv.TestDB)
+	ApplyMigrations(logging.NewNopLogger(), postgresDB)
 
-	err = test.TeardownGlobal(mainTestEnv)
+	mainTx = postgres.CreatePgxSyncTx(context.Background(), postgresDB)
+
+	testCtx = context.Background()
+	mainTestApp = NewApp(logging.NewNopLogger(), cfg, mainTx)
+
+	clearAllData(testCtx, mainTestApp)
+	defaultFixtures(testCtx, mainTestApp)
+
+	code := m.Run()
+	err = mainTx.Rollback(context.Background())
 	if err != nil {
 		panic(err)
 	}
 
-	os.Exit(exitCode)
+	os.Exit(code)
 }
 
-func setupTest(
-	t *testing.T,
-	mainTestEnv *test.MainTestEnv,
-) (test.Env, *application) {
-	t.Parallel()
-	testEnv := test.SetupSingle(mainTestEnv)
+func setup(_ *testing.T) (*TestEnv, *Application) {
+	tx := postgres.CreatePgxSyncTx(context.Background(), mainTx)
 
-	testApp := &application{
-		config:       cfg,
-		repositories: repositories.New(testEnv.TestTx),
+	testApp := *mainTestApp
+	testApp.SetDB(tx)
+
+	testEnv := &TestEnv{
+		ctx: testCtx,
+		tx:  tx,
+		app: &testApp,
 	}
 
-	return testEnv, testApp
+	return testEnv, &testApp
+}
+
+func (env *TestEnv) teardown() {
+	err := env.tx.Rollback(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	env.app.ctxCancel()
 }

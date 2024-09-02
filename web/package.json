@@ -3,14 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "start": "cpx ./serve.json ./out/ && serve out",
     "build": "yarn run swag && next build",
     "analyze": "cross-env ANALYZE=true next build",
     "format": "prettier --write ./**/*.{ts,tsx}",
     "lint": "eslint . && tsc --noEmit && jscpd . && knip && prettier --check ./**/*.{ts,tsx} && npmPkgJsonLint .",
     "lint:fix": "eslint . --fix",
-    "swag": "npx openapi-typescript@5.4 ./../api/docs/swagger.json -o ./src/api-wrapper/types/schema.d.ts --export-type",
+    "swag": "npx openapi-typescript@5.4 ./docs/swagger.json -o ./src/api-wrapper/types/schema.d.ts --export-type",
     "test": "jest",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "jest-preview": "jest-preview"
   },
   "dependencies": {
     "@mdx-js/loader": "3.0.1",
@@ -20,6 +22,8 @@
     "@sentry/nextjs": "8.13.0",
     "bootstrap": "5.3.3",
     "bootstrap-icons": "1.11.3",
+    "cpx": "1.5.0",
+    "jest-preview": "0.3.1",
     "moment": "2.30.1",
     "moment-timezone": "0.5.45",
     "next": "14.2.4",
@@ -32,7 +36,9 @@
     "react-spinners": "0.14.1",
     "recharts": "2.12.7",
     "sass": "1.77.6",
+    "serve": "14.2.3",
     "typescript": "5.5.2",
+    "uglify-js": "3.19.2",
     "uuid": "10.0.0"
   },
   "devDependencies": {
@@ -43,6 +49,7 @@
     "@types/jest": "29.5.12",
     "@types/node": "20.14.9",
     "@types/react": "18.3.3",
+    "@types/uglify-js": "3",
     "@types/uuid": "10.0.0",
     "@typescript-eslint/eslint-plugin": "7.14.1",
     "@typescript-eslint/parser": "7.14.1",

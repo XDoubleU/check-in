@@ -14,7 +14,7 @@ func main() {
 	var password string
 
 	flag.StringVar(
-		&cfg.DB.Dsn,
+		&cfg.DBDsn,
 		"db",
 		"postgres://postgres@localhost/postgres",
 		"DB DSN",

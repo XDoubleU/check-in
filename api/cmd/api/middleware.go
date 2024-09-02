@@ -4,37 +4,44 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/httptools"
+	httptools "github.com/XDoubleU/essentia/pkg/communication/http"
+	errortools "github.com/XDoubleU/essentia/pkg/errors"
 
 	"check-in/api/internal/models"
 )
 
-func (app *application) authAccess(allowedRoles []models.Role,
+func (app *Application) authAccess(allowedRoles []models.Role,
 	next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenCookie, err := r.Cookie("accessToken")
 
 		if err != nil {
-			httptools.UnauthorizedResponse(w, r, "No token in cookies")
+			httptools.UnauthorizedResponse(w, r,
+				errortools.NewUnauthorizedError(errors.New("no token in cookies")))
 			return
 		}
 
-		_, user, err := app.repositories.Auth.GetToken(
+		_, user, err := app.services.Auth.GetToken(
 			r.Context(),
 			models.AccessScope,
 			tokenCookie.Value,
 		)
 		if err != nil {
-			switch {
-			case errors.Is(err, httptools.ErrRecordNotFound):
-				httptools.UnauthorizedResponse(w, r, "Invalid token")
-			default:
-				httptools.ServerErrorResponse(w, r, err)
-			}
+			httptools.HandleError(w, r, err, nil)
 			return
 		}
 
-		r = app.contextSetUser(r, *user)
+		if user.Role == models.DefaultRole {
+			user, err = app.services.Locations.GetDefaultUserByUserID(
+				r.Context(),
+				user.ID,
+			)
+			if err != nil {
+				httptools.ServerErrorResponse(w, r, err)
+			}
+		}
+
+		r = r.WithContext(app.contextSetUser(r.Context(), *user))
 
 		forbidden := true
 		for _, role := range allowedRoles {
@@ -53,39 +60,39 @@ func (app *application) authAccess(allowedRoles []models.Role,
 	})
 }
 
-func (app *application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
+func (app *Application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenCookie, err := r.Cookie("refreshToken")
 
 		if err != nil {
-			httptools.UnauthorizedResponse(w, r, "No token in cookies")
+			httptools.UnauthorizedResponse(w, r,
+				errortools.NewUnauthorizedError(errors.New("no token in cookies")))
 			return
 		}
 
-		token, user, err := app.repositories.Auth.GetToken(r.Context(),
+		token, user, err := app.services.Auth.GetToken(r.Context(),
 			models.RefreshScope, tokenCookie.Value)
 		if err != nil {
-			switch {
-			case errors.Is(err, httptools.ErrRecordNotFound):
-				httptools.UnauthorizedResponse(w, r, "Invalid token")
-			default:
-				httptools.ServerErrorResponse(w, r, err)
-			}
+			httptools.HandleError(w, r, err, nil)
 			return
 		}
 
-		r = app.contextSetUser(r, *user)
+		r = r.WithContext(app.contextSetUser(r.Context(), *user))
 
 		if token.Used {
-			err = app.repositories.Auth.DeleteAllTokensForUser(r.Context(), user.ID)
+			err = app.services.Auth.DeleteAllTokensForUser(r.Context(), user.ID)
 			if err != nil {
-				panic(err)
+				httptools.ServerErrorResponse(w, r, err)
 			}
-			httptools.UnauthorizedResponse(w, r, "Invalid token")
+			httptools.UnauthorizedResponse(
+				w,
+				r,
+				errortools.NewUnauthorizedError(errors.New("invalid token")),
+			)
 			return
 		}
 
-		err = app.repositories.Auth.SetTokenAsUsed(r.Context(), tokenCookie.Value)
+		err = app.services.Auth.SetTokenAsUsed(r.Context(), tokenCookie.Value)
 		if err != nil {
 			httptools.ServerErrorResponse(w, r, err)
 			return

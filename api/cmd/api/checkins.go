@@ -1,26 +1,23 @@
 package main
 
 import (
-	"errors"
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/contexttools"
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/julienschmidt/httprouter"
+	httptools "github.com/XDoubleU/essentia/pkg/communication/http"
+	"github.com/XDoubleU/essentia/pkg/context"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
-func (app *application) checkInsRoutes(router *httprouter.Router) {
-	router.HandlerFunc(
-		http.MethodGet,
-		"/checkins/schools",
+func (app *Application) checkInsRoutes(mux *http.ServeMux) {
+	mux.HandleFunc(
+		"GET /checkins/schools",
 		app.authAccess(defaultRole, app.getSortedSchoolsHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPost,
-		"/checkins",
+	mux.HandleFunc(
+		"POST /checkins",
 		app.authAccess(defaultRole, app.createCheckInHandler),
 	)
 }
@@ -32,20 +29,14 @@ func (app *application) checkInsRoutes(router *httprouter.Router) {
 //	@Failure	500	{object}	ErrorDto
 //	@Router		/checkins/schools [get]
 
-func (app *application) getSortedSchoolsHandler(
+func (app *Application) getSortedSchoolsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
-	location, err := app.repositories.Locations.GetByUserID(r.Context(), user.ID)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	schools, err := app.repositories.Schools.GetAllSortedByLocation(
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
+	schools, err := app.services.CheckInsWriter.GetAllSchoolsSortedByLocation(
 		r.Context(),
-		location.ID,
+		user,
 	)
 	if err != nil {
 		httptools.ServerErrorResponse(w, r, err)
@@ -67,8 +58,8 @@ func (app *application) getSortedSchoolsHandler(
 // @Failure	404					{object}	ErrorDto
 // @Failure	500					{object}	ErrorDto
 // @Router		/checkins [post].
-func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
-	var createCheckInDto dtos.CreateCheckInDto
+func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
+	var createCheckInDto *dtos.CreateCheckInDto
 
 	err := httptools.ReadJSON(r.Body, &createCheckInDto)
 	if err != nil {
@@ -76,61 +67,15 @@ func (app *application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if v := createCheckInDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	user := contexttools.GetContextValue[models.User](r, userContextKey)
-	location, err := app.repositories.Locations.GetByUserID(r.Context(), user.ID)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	school, err := app.repositories.Schools.GetByID(
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
+	checkInDto, err := app.services.CheckInsWriter.Create(
 		r.Context(),
-		createCheckInDto.SchoolID,
+		createCheckInDto,
+		user,
 	)
 	if err != nil {
-		httptools.NotFoundResponse(
-			w,
-			r,
-			err,
-			"school",
-			createCheckInDto.SchoolID,
-			"schoolId",
-		)
+		httptools.HandleError(w, r, err, createCheckInDto.ValidationErrors)
 		return
-	}
-
-	if location.Available <= 0 {
-		httptools.BadRequestResponse(
-			w,
-			r,
-			errors.New("location has no available spots"),
-		)
-		return
-	}
-
-	checkIn, err := app.repositories.CheckIns.Create(
-		r.Context(),
-		location,
-		school,
-	)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
-	}
-
-	app.repositories.WebSockets.AddUpdateEvent(*location)
-
-	checkInDto := dtos.CheckInDto{
-		ID:         checkIn.ID,
-		LocationID: checkIn.LocationID,
-		SchoolName: school.Name,
-		Capacity:   checkIn.Capacity,
-		CreatedAt:  checkIn.CreatedAt,
 	}
 
 	err = httptools.WriteJSON(w, http.StatusCreated, checkInDto, nil)

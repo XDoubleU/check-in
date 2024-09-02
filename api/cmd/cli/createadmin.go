@@ -4,12 +4,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"time"
 
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 
 	"check-in/api/internal/config"
+	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
+	"check-in/api/internal/services"
 )
 
 func createAdmin(cfg config.Config, username string, password string) {
@@ -18,17 +22,33 @@ func createAdmin(cfg config.Config, username string, password string) {
 		return
 	}
 
-	db, err := postgres.Connect(cfg.DB.Dsn, cfg.DB.MaxConns, cfg.DB.MaxIdleTime)
+	db, err := postgres.Connect(
+		slog.Default(),
+		cfg.DBDsn,
+		25, //nolint:mnd //no magic number
+		"15m",
+		10,             //nolint:mnd //no magic number
+		10*time.Second, //nolint:mnd //no magic number
+		30*time.Second, //nolint:mnd //no magic number
+	)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	srvs := repositories.New(db)
-
-	_, err = srvs.Users.Create(
+	services := services.New(
 		context.Background(),
-		username,
-		password,
+		slog.Default(),
+		cfg,
+		repositories.New(db),
+	)
+
+	_, err = services.Users.Create(
+		context.Background(),
+		//nolint:exhaustruct //other fields are optional
+		&dtos.CreateUserDto{
+			Username: username,
+			Password: password,
+		},
 		models.AdminRole,
 	)
 	if err != nil {

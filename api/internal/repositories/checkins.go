@@ -4,28 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/XDoubleU/essentia/pkg/database"
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
-	"github.com/XDoubleU/essentia/pkg/httptools"
-	"github.com/XDoubleU/essentia/pkg/tools"
 
 	"check-in/api/internal/models"
 )
 
 type CheckInRepository struct {
 	db postgres.DB
-}
-
-func (repo CheckInRepository) GetAllOfDay(
-	ctx context.Context,
-	locationID string,
-	date time.Time,
-) ([]*models.CheckIn, error) {
-	return repo.GetAllInRange(
-		ctx,
-		[]string{locationID},
-		tools.StartOfDay(date),
-		tools.EndOfDay(date),
-	)
 }
 
 func (repo CheckInRepository) GetAllInRange(
@@ -54,7 +40,7 @@ func (repo CheckInRepository) GetAllInRange(
 		endDate,
 	)
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	checkIns := []*models.CheckIn{}
@@ -71,14 +57,14 @@ func (repo CheckInRepository) GetAllInRange(
 		)
 
 		if err != nil {
-			return nil, postgres.HandleError(err)
+			return nil, postgres.PgxErrorToHTTPError(err)
 		}
 
 		checkIns = append(checkIns, &checkIn)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return checkIns, nil
@@ -95,6 +81,7 @@ func (repo CheckInRepository) GetByID(
 		WHERE id = $1 AND location_id = $2
 	`
 
+	//nolint:exhaustruct //other fields are optional
 	checkIn := models.CheckIn{
 		ID:         id,
 		LocationID: location.ID,
@@ -113,43 +100,8 @@ func (repo CheckInRepository) GetByID(
 	)
 
 	if err != nil {
-		return nil, postgres.HandleError(err)
+		return nil, postgres.PgxErrorToHTTPError(err)
 	}
-
-	return &checkIn, nil
-}
-
-func (repo CheckInRepository) Create(
-	ctx context.Context,
-	location *models.Location,
-	school *models.School,
-) (*models.CheckIn, error) {
-	query := `
-		INSERT INTO check_ins (location_id, school_id, capacity)
-		VALUES ($1, $2, $3)
-		RETURNING id, (created_at AT TIME ZONE $4)
-	`
-
-	checkIn := models.CheckIn{
-		LocationID: location.ID,
-		SchoolID:   school.ID,
-		Capacity:   location.Capacity,
-	}
-
-	err := repo.db.QueryRow(
-		ctx,
-		query,
-		location.ID,
-		school.ID,
-		location.Capacity,
-		location.TimeZone,
-	).Scan(&checkIn.ID, &checkIn.CreatedAt)
-
-	if err != nil {
-		return nil, postgres.HandleError(err)
-	}
-
-	location.Available--
 
 	return &checkIn, nil
 }
@@ -162,12 +114,12 @@ func (repo CheckInRepository) Delete(ctx context.Context, id int64) error {
 
 	result, err := repo.db.Exec(ctx, query, id)
 	if err != nil {
-		return postgres.HandleError(err)
+		return postgres.PgxErrorToHTTPError(err)
 	}
 
 	rowsAffected := result.RowsAffected()
 	if rowsAffected == 0 {
-		return httptools.ErrRecordNotFound
+		return database.ErrResourceNotFound
 	}
 
 	return nil

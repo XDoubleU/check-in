@@ -1,141 +1,200 @@
 package main
 
 import (
-	"net/http"
+	"context"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/XDoubleU/essentia/pkg/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 )
 
 func TestAllLocationsWebSocketCheckIn(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
-	tWeb := test.CreateWebsocketTester(testApp.routes())
+	tWeb := test.CreateWebSocketTester(testApp.routes())
 
+	//nolint:exhaustruct // other fields are optional
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
 	})
 
-	tWeb.SetParallelOperation(createCheckIn)
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
+		school, err := testApp.services.Schools.GetByID(context.Background(), int64(1))
+		require.Nil(t, err)
 
-	var locationUpdateEventsInitial []models.LocationUpdateEvent
-	var locationUpdateEventsFinal []models.LocationUpdateEvent
-	tWeb.Do(t, &locationUpdateEventsInitial, &locationUpdateEventsFinal)
+		_, err = testApp.services.CheckInsWriter.Create(
+			context.Background(),
+			//nolint:exhaustruct //other fields are optional
+			&dtos.CreateCheckInDto{
+				SchoolID: school.ID,
+			},
+			fixtures.DefaultUser,
+		)
+		require.Nil(t, err)
+	})
 
-	assert.Equal(t, 21, len(locationUpdateEventsInitial))
-	assert.Equal(t, 1, len(locationUpdateEventsFinal))
+	var locationStatesInitial []dtos.LocationStateDto
+	var locationStatesFinal dtos.LocationStateDto
+	err := tWeb.Do(t, &locationStatesInitial, &locationStatesFinal)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(locationStatesInitial))
 	assert.Equal(
 		t,
-		locationUpdateEventsFinal[0].Capacity-6,
-		locationUpdateEventsFinal[0].Available,
+		locationStatesFinal.Capacity-1,
+		locationStatesFinal.Available,
 	)
 }
 
 func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
-	tWeb := test.CreateWebsocketTester(testApp.routes())
+	tWeb := test.CreateWebSocketTester(testApp.routes())
+	//nolint:exhaustruct // other fields are optional
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject: "all-locations",
 	})
-	tWeb.SetParallelOperation(updateCapacity)
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
+		newCap := int64(10)
+		_, err := testApp.services.Locations.Update(
+			context.Background(),
+			fixtures.AdminUser,
+			fixtures.DefaultLocation.ID,
+			//nolint:exhaustruct //other fields are optional
+			&dtos.UpdateLocationDto{
+				Capacity: &newCap,
+			},
+		)
+		require.Nil(t, err)
+	})
 
-	var locationUpdateEventsInitial []models.LocationUpdateEvent
-	var locationUpdateEventsFinal []models.LocationUpdateEvent
-	tWeb.Do(t, &locationUpdateEventsInitial, &locationUpdateEventsFinal)
+	var locationStatesInitial []dtos.LocationStateDto
+	var locationStatesFinal dtos.LocationStateDto
+	err := tWeb.Do(t, &locationStatesInitial, &locationStatesFinal)
 
-	assert.Equal(t, 21, len(locationUpdateEventsInitial))
-	assert.Equal(t, 1, len(locationUpdateEventsFinal))
-	assert.EqualValues(t, 10, locationUpdateEventsFinal[0].Capacity)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(locationStatesInitial))
+	assert.EqualValues(t, 10, locationStatesFinal.Capacity)
 }
 
 func TestSingleLocationWebSocketCheckIn(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
-	tWeb := test.CreateWebsocketTester(testApp.routes())
+	tWeb := test.CreateWebSocketTester(testApp.routes())
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
-		NormalizedName: fixtureData.DefaultLocation.NormalizedName,
+		NormalizedName: fixtures.DefaultLocation.NormalizedName,
 	})
 
-	tWeb.SetParallelOperation(createCheckIn)
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
+		school, err := testApp.services.Schools.GetByID(context.Background(), int64(1))
+		require.Nil(t, err)
 
-	var locationUpdateEvent models.LocationUpdateEvent
-	tWeb.Do(t, nil, &locationUpdateEvent)
+		_, err = testApp.services.CheckInsWriter.Create(
+			context.Background(),
+			//nolint:exhaustruct //other fields are optional
+			&dtos.CreateCheckInDto{
+				SchoolID: school.ID,
+			},
+			fixtures.DefaultUser,
+		)
+		require.Nil(t, err)
+	})
 
+	var locationState dtos.LocationStateDto
+	err := tWeb.Do(t, nil, &locationState)
+
+	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		locationUpdateEvent.NormalizedName,
-		fixtureData.DefaultLocation.NormalizedName,
+		locationState.NormalizedName,
+		fixtures.DefaultLocation.NormalizedName,
 	)
-	assert.Equal(t, locationUpdateEvent.Capacity-6, locationUpdateEvent.Available)
+	assert.Equal(t, locationState.Capacity-1, locationState.Available)
 }
 
 func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
-	testEnv, testApp := setupTest(t, mainTestEnv)
-	defer test.TeardownSingle(testEnv)
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
-	tWeb := test.CreateWebsocketTester(testApp.routes())
+	tWeb := test.CreateWebSocketTester(testApp.routes())
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
-		NormalizedName: fixtureData.DefaultLocation.NormalizedName,
+		NormalizedName: fixtures.DefaultLocation.NormalizedName,
 	})
 
-	tWeb.SetParallelOperation(updateCapacity)
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
+		newCap := int64(10)
+		_, err := testApp.services.Locations.Update(
+			context.Background(),
+			fixtures.AdminUser,
+			fixtures.DefaultLocation.ID,
+			//nolint:exhaustruct //other fields are optional
+			&dtos.UpdateLocationDto{
+				Capacity: &newCap,
+			},
+		)
+		require.Nil(t, err)
+	})
 
-	var locationUpdateEvent models.LocationUpdateEvent
-	tWeb.Do(t, nil, &locationUpdateEvent)
+	var locationState dtos.LocationStateDto
+	err := tWeb.Do(t, nil, &locationState)
 
+	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		locationUpdateEvent.NormalizedName,
-		fixtureData.DefaultLocation.NormalizedName,
+		locationState.NormalizedName,
+		fixtures.DefaultLocation.NormalizedName,
 	)
-	assert.EqualValues(t, 10, locationUpdateEvent.Capacity)
+	assert.EqualValues(t, 10, locationState.Capacity)
 }
 
-func createCheckIn(t *testing.T, ts *httptest.Server) {
-	data := dtos.CreateCheckInDto{
-		SchoolID: fixtureData.Schools[0].ID,
-	}
+func TestStateUpdate(t *testing.T) {
+	testEnv, testApp := setup(t)
+	defer testEnv.teardown()
 
-	tReq := test.CreateRequestTester(nil, http.MethodPost, "/checkins")
-	tReq.SetTestServer(ts)
-	tReq.SetReqData(data)
-	tReq.AddCookie(tokens.DefaultAccessToken)
+	tWeb := test.CreateWebSocketTester(testApp.routes())
 
-	rs := tReq.Do(t, nil)
+	//nolint:exhaustruct //other fields are optional
+	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
+		Subject: "state",
+	})
 
-	assert.Equal(t, http.StatusCreated, rs.StatusCode)
-}
+	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
+		_, err := testApp.services.State.UpdateState(
+			context.Background(),
+			&dtos.StateDto{
+				IsMaintenance: true,
+			},
+		)
+		require.Nil(t, err)
+	})
 
-func updateCapacity(t *testing.T, ts *httptest.Server) {
-	var capacity int64 = 10
-	data := dtos.UpdateLocationDto{
-		Capacity: &capacity,
-	}
+	var initialState models.State
+	var state models.State
+	err := tWeb.Do(t, &initialState, &state)
 
-	tReq := test.CreateRequestTester(
-		nil,
-		http.MethodPatch,
-		"/locations/%s",
-		fixtureData.DefaultLocation.ID,
+	assert.Nil(t, err)
+	assert.Equal(
+		t,
+		false,
+		initialState.IsMaintenance,
 	)
-	tReq.SetTestServer(ts)
-	tReq.SetReqData(data)
-	tReq.AddCookie(tokens.DefaultAccessToken)
-
-	rs := tReq.Do(t, nil)
-
-	assert.Equal(t, http.StatusOK, rs.StatusCode)
+	assert.Equal(t, true, initialState.IsDatabaseActive)
+	assert.Equal(
+		t,
+		true,
+		state.IsMaintenance,
+	)
+	assert.Equal(t, true, state.IsDatabaseActive)
 }

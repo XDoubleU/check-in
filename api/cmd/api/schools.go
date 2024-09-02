@@ -3,32 +3,30 @@ package main
 import (
 	"net/http"
 
-	"github.com/XDoubleU/essentia/pkg/httptools"
+	httptools "github.com/XDoubleU/essentia/pkg/communication/http"
+	"github.com/XDoubleU/essentia/pkg/context"
 	"github.com/XDoubleU/essentia/pkg/parse"
-	"github.com/julienschmidt/httprouter"
 
+	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
+	"check-in/api/internal/models"
 )
 
-func (app *application) schoolsRoutes(router *httprouter.Router) {
-	router.HandlerFunc(
-		http.MethodGet,
-		"/schools",
+func (app *Application) schoolsRoutes(mux *http.ServeMux) {
+	mux.HandleFunc(
+		"GET /schools",
 		app.authAccess(managerAndAdminRole, app.getPaginatedSchoolsHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPost,
-		"/schools",
+	mux.HandleFunc(
+		"POST /schools",
 		app.authAccess(managerAndAdminRole, app.createSchoolHandler),
 	)
-	router.HandlerFunc(
-		http.MethodPatch,
-		"/schools/:id",
+	mux.HandleFunc(
+		"PATCH /schools/{id}",
 		app.authAccess(managerAndAdminRole, app.updateSchoolHandler),
 	)
-	router.HandlerFunc(
-		http.MethodDelete,
-		"/schools/:id",
+	mux.HandleFunc(
+		"DELETE /schools/{id}",
 		app.authAccess(managerAndAdminRole, app.deleteSchoolHandler),
 	)
 }
@@ -41,7 +39,7 @@ func (app *application) schoolsRoutes(router *httprouter.Router) {
 // @Failure	401		{object}	ErrorDto
 // @Failure	500		{object}	ErrorDto
 // @Router		/schools [get].
-func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
+func (app *Application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
@@ -51,9 +49,11 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 		return
 	}
 
+	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 	result, err := getAllPaginated(
 		r.Context(),
-		app.repositories.Schools,
+		app.services.Schools,
+		user,
 		page,
 		pageSize,
 	)
@@ -77,8 +77,8 @@ func (app *application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 // @Failure	409			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
 // @Router		/schools [post].
-func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	var schoolDto dtos.SchoolDto
+func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
+	var schoolDto *dtos.SchoolDto
 
 	err := httptools.ReadJSON(r.Body, &schoolDto)
 	if err != nil {
@@ -86,14 +86,9 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if v := schoolDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	school, err := app.repositories.Schools.Create(r.Context(), schoolDto.Name)
+	school, err := app.services.Schools.Create(r.Context(), schoolDto)
 	if err != nil {
-		httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
+		httptools.HandleError(w, r, err, schoolDto.ValidationErrors)
 		return
 	}
 
@@ -113,8 +108,8 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	409			{object}	ErrorDto
 // @Failure	500			{object}	ErrorDto
 // @Router		/schools/{id} [patch].
-func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	var schoolDto dtos.SchoolDto
+func (app *Application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
+	var schoolDto *dtos.SchoolDto
 
 	id, err := parse.URLParam(r, "id", parse.Int64Func(true, false))
 	if err != nil {
@@ -128,20 +123,9 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if v := schoolDto.Validate(); !v.Valid() {
-		httptools.FailedValidationResponse(w, r, v.Errors)
-		return
-	}
-
-	school, err := app.repositories.Schools.GetByIDWithoutReadOnly(r.Context(), id)
+	school, err := app.services.Schools.Update(r.Context(), id, schoolDto)
 	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "school", id, "id")
-		return
-	}
-
-	err = app.repositories.Schools.Update(r.Context(), school, schoolDto)
-	if err != nil {
-		httptools.ConflictResponse(w, r, err, "school", schoolDto.Name, "name")
+		httptools.HandleError(w, r, err, schoolDto.ValidationErrors)
 		return
 	}
 
@@ -160,23 +144,16 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	404	{object}	ErrorDto
 // @Failure	500	{object}	ErrorDto
 // @Router		/schools/{id} [delete].
-func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := parse.URLParam(r, "id", parse.Int64Func(true, false))
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
 		return
 	}
 
-	school, err := app.repositories.Schools.GetByIDWithoutReadOnly(r.Context(), id)
+	school, err := app.services.Schools.Delete(r.Context(), id)
 	if err != nil {
-		httptools.NotFoundResponse(w, r, err, "school", id, "id")
-		return
-	}
-
-	err = app.repositories.Schools.Delete(r.Context(), school.ID)
-	if err != nil {
-		httptools.ServerErrorResponse(w, r, err)
-		return
+		httptools.HandleError(w, r, err, nil)
 	}
 
 	err = httptools.WriteJSON(w, http.StatusOK, school, nil)

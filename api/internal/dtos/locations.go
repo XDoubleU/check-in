@@ -1,7 +1,7 @@
 package dtos
 
 import (
-	"strconv"
+	"encoding/json"
 
 	"github.com/XDoubleU/essentia/pkg/validate"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -17,49 +17,31 @@ type CheckInsLocationEntryRaw struct {
 	Schools    SchoolsMap  `json:"schools"    swaggertype:"object,number"`
 } //	@name	CheckInsLocationEntryRaw
 
-func ConvertCheckInsLocationEntryRawMapToCSV(
-	entries *orderedmap.OrderedMap[string, *CheckInsLocationEntryRaw],
-) [][]string {
-	var output [][]string
+func NewCheckInsLocationEntryRaw(
+	capacities CapacityMap,
+	schools SchoolsMap,
+) CheckInsLocationEntryRaw {
+	// Used to deep copy capacities
+	var capacitiesCopy *orderedmap.OrderedMap[string, int64]
+	data, _ := json.Marshal(capacities)
+	_ = json.Unmarshal(data, &capacitiesCopy)
 
-	var headers []string
-	headers = append(headers, "datetime")
-	headers = append(headers, "capacity")
+	// Used to deep copy schools
+	var schoolsCopy *orderedmap.OrderedMap[string, int]
+	data, _ = json.Marshal(schools)
+	_ = json.Unmarshal(data, &schoolsCopy)
 
-	if entries.Len() == 0 {
-		output = append(output, headers)
-		return output
+	return CheckInsLocationEntryRaw{
+		Capacities: capacitiesCopy,
+		Schools:    schoolsCopy,
 	}
+}
 
-	singleEntry := entries.Oldest().Value
-	for school := singleEntry.Schools.Oldest(); school != nil; school = school.Next() {
-		headers = append(headers, school.Key)
+func (entry CheckInsLocationEntryRaw) Copy() CheckInsLocationEntryRaw {
+	return CheckInsLocationEntryRaw{
+		Capacities: entry.Capacities,
+		Schools:    entry.Schools,
 	}
-	output = append(output, headers)
-
-	for pair := entries.Oldest(); pair != nil; pair = pair.Next() {
-		var entry []string
-
-		var totalCapacity int64
-		capacities := pair.Value.Capacities
-		for capacity := capacities.Oldest(); capacity != nil; capacity = capacity.Next() {
-			totalCapacity += capacity.Value
-		}
-
-		entry = append(
-			entry,
-			pair.Key,
-		)
-		entry = append(entry, strconv.FormatInt(totalCapacity, 10))
-
-		for school := pair.Value.Schools.Oldest(); school != nil; school = school.Next() {
-			entry = append(entry, strconv.Itoa(school.Value))
-		}
-
-		output = append(output, entry)
-	}
-
-	return output
 }
 
 type PaginatedLocationsDto struct {
@@ -67,22 +49,24 @@ type PaginatedLocationsDto struct {
 } //	@name	PaginatedLocationsDto
 
 type CreateLocationDto struct {
-	Name     string `json:"name"`
-	Capacity int64  `json:"capacity"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	TimeZone string `json:"timeZone"`
+	Name             string            `json:"name"`
+	Capacity         int64             `json:"capacity"`
+	Username         string            `json:"username"`
+	Password         string            `json:"password"`
+	TimeZone         string            `json:"timeZone"`
+	ValidationErrors map[string]string `json:"-"`
 } //	@name	CreateLocationDto
 
 type UpdateLocationDto struct {
-	Name     *string `json:"name"`
-	Capacity *int64  `json:"capacity"`
-	Username *string `json:"username"`
-	Password *string `json:"password"`
-	TimeZone *string `json:"timeZone"`
+	Name             *string           `json:"name"`
+	Capacity         *int64            `json:"capacity"`
+	Username         *string           `json:"username"`
+	Password         *string           `json:"password"`
+	TimeZone         *string           `json:"timeZone"`
+	ValidationErrors map[string]string `json:"-"`
 } //	@name	UpdateLocationDto
 
-func (dto CreateLocationDto) Validate() *validate.Validator {
+func (dto *CreateLocationDto) Validate() *validate.Validator {
 	v := validate.New()
 
 	validate.Check(v, dto.Name, validate.IsNotEmpty, "name")
@@ -92,10 +76,12 @@ func (dto CreateLocationDto) Validate() *validate.Validator {
 	validate.Check(v, dto.TimeZone, validate.IsNotEmpty, "timeZone")
 	validate.Check(v, dto.TimeZone, validate.IsValidTimeZone, "timeZone")
 
+	dto.ValidationErrors = v.Errors
+
 	return v
 }
 
-func (dto UpdateLocationDto) Validate() *validate.Validator {
+func (dto *UpdateLocationDto) Validate() *validate.Validator {
 	v := validate.New()
 
 	if dto.Name != nil {
@@ -123,6 +109,8 @@ func (dto UpdateLocationDto) Validate() *validate.Validator {
 		validate.Check(v, *dto.TimeZone, validate.IsNotEmpty, "timeZone")
 		validate.Check(v, *dto.TimeZone, validate.IsValidTimeZone, "timeZone")
 	}
+
+	dto.ValidationErrors = v.Errors
 
 	return v
 }

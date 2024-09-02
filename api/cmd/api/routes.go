@@ -5,43 +5,45 @@ import (
 
 	"github.com/XDoubleU/essentia/pkg/middleware"
 	"github.com/getsentry/sentry-go"
-	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
-
-	"check-in/api/internal/config"
 )
 
-func (app *application) routes() http.Handler {
-	router := httprouter.New()
+func (app *Application) routes() http.Handler {
+	mux := http.NewServeMux()
 
-	app.authRoutes(router)
-	app.checkInsRoutes(router)
-	app.locationsRoutes(router)
-	app.schoolsRoutes(router)
-	app.usersRoutes(router)
-	app.websocketsRoutes(router)
+	app.authRoutes(mux)
+	app.checkInsRoutes(mux)
+	app.locationsRoutes(mux)
+	app.schoolsRoutes(mux)
+	app.usersRoutes(mux)
+	app.websocketsRoutes(mux)
+	app.stateRoutes(mux)
 
-	var sentryClientOptions *sentry.ClientOptions
+	var sentryClientOptions sentry.ClientOptions
 	if len(app.config.SentryDsn) > 0 {
-		sentryClientOptions = &sentry.ClientOptions{
-			Dsn:              app.config.SentryDsn,
-			Environment:      app.config.Env,
-			Release:          app.config.Release,
-			EnableTracing:    true,
-			TracesSampleRate: app.config.SampleRate,
+		//nolint:exhaustruct //other fields are optional
+		sentryClientOptions = sentry.ClientOptions{
+			Dsn:                app.config.SentryDsn,
+			Environment:        app.config.Env,
+			Release:            app.config.Release,
+			EnableTracing:      true,
+			TracesSampleRate:   app.config.SampleRate,
+			ProfilesSampleRate: app.config.SampleRate,
 		}
 	}
 
-	isTestEnv := app.config.Env == config.TestEnv
 	allowedOrigins := []string{app.config.WebURL}
-	handlers := middleware.Default(
-		isTestEnv,
+	handlers, err := middleware.DefaultWithSentry(
+		app.logger,
 		allowedOrigins,
+		app.config.Env,
 		sentryClientOptions,
-		app.config.Env == config.DevEnv || app.config.Env == config.TestEnv,
 	)
 
-	standard := alice.New(handlers...)
+	if err != nil {
+		panic(err)
+	}
 
-	return standard.Then(router)
+	standard := alice.New(handlers...)
+	return standard.Then(mux)
 }
