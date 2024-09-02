@@ -12429,14 +12429,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"query-string@npm:9.0.0":
-  version: 9.0.0
-  resolution: "query-string@npm:9.0.0"
+"query-string@npm:9.1.0":
+  version: 9.1.0
+  resolution: "query-string@npm:9.1.0"
   dependencies:
     decode-uri-component: "npm:^0.4.1"
     filter-obj: "npm:^5.1.0"
     split-on-first: "npm:^3.0.0"
-  checksum: 10c0/6b4f2f08e5ab288088a2e5b0671be7ffb9c2de57fa12e54d8e352ce5f278a1a96235d8b8d467b8f7fea3e200f7afb7062244ac0113f291e4d6a98caeb44f235b
+  checksum: 10c0/45aed8f932c350b0d489455700f25960b748247072d7c1e231cc7ac52af54014b7e380ee1b76dd939e767feeacc5bc48130e8c97a440c039fd3ded9fc9e7fbc4
   languageName: node
   linkType: hard
 
@@ -14971,7 +14971,7 @@ __metadata:
     npm-package-json-lint: "npm:8.0.0"
     openapi-typescript: "npm:7.3"
     prettier: "npm:3.3.2"
-    query-string: "npm:9.0.0"
+    query-string: "npm:9.1.0"
     react: "npm:18.3.1"
     react-bootstrap: "npm:2.10.3"
     react-dom: "npm:18.3.1"
