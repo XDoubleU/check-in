@@ -14427,12 +14427,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uglify-js@npm:3.19.2":
-  version: 3.19.2
-  resolution: "uglify-js@npm:3.19.2"
+"uglify-js@npm:3.19.3":
+  version: 3.19.3
+  resolution: "uglify-js@npm:3.19.3"
   bin:
     uglifyjs: bin/uglifyjs
-  checksum: 10c0/51dbe1304a91cac5daa01f6a2d4ecd545fab7b7d0625e11590b923e95a6d2263b3481dcea974abfc0282b33d2c76f74f1196a992df07eae0847175bc39ea45bb
+  checksum: 10c0/83b0a90eca35f778e07cad9622b80c448b6aad457c9ff8e568afed978212b42930a95f9e1be943a1ffa4258a3340fbb899f41461131c05bb1d0a9c303aed8479
   languageName: node
   linkType: hard
 
@@ -14982,7 +14982,7 @@ __metadata:
     serve: "npm:14.2.3"
     ts-jest: "npm:29.1.5"
     typescript: "npm:5.5.4"
-    uglify-js: "npm:3.19.2"
+    uglify-js: "npm:3.19.3"
     uuid: "npm:10.0.0"
   languageName: unknown
   linkType: soft
