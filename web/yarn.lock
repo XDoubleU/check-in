@@ -9871,9 +9871,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jscpd@npm:4.0.4":
-  version: 4.0.4
-  resolution: "jscpd@npm:4.0.4"
+"jscpd@npm:4.0.5":
+  version: 4.0.5
+  resolution: "jscpd@npm:4.0.5"
   dependencies:
     "@jscpd/core": "npm:4.0.1"
     "@jscpd/finder": "npm:4.0.1"
@@ -9886,7 +9886,7 @@ __metadata:
     jscpd-sarif-reporter: "npm:4.0.3"
   bin:
     jscpd: bin/jscpd
-  checksum: 10c0/50b3b5ea9d02929fc80c32677832d2cb3e20c0a0e0047b724855e498c66fd7a0cb2556b9b7332b9ffe69749100497c2a7805472216b77029229503af4079b109
+  checksum: 10c0/f6fc533df6344521ca7869efe423f3d38c8f8206477eaeb0c2ee7e6c5551067823d571b30101449c4f487f8b2b0d585aa405ccb6e8b6cdaa20c937e541005986
   languageName: node
   linkType: hard
 
@@ -15103,7 +15103,7 @@ __metadata:
     jest-mock: "npm:29.7.0"
     jest-preview: "npm:0.3.1"
     jest-websocket-mock: "npm:2.5.0"
-    jscpd: "npm:4.0.4"
+    jscpd: "npm:4.0.5"
     knip: "npm:5.23.1"
     moment: "npm:2.30.1"
     moment-timezone: "npm:0.5.45"
