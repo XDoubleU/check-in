@@ -12,6 +12,8 @@ jobs:
   build:
     name: Build API & Web
     runs-on: ubuntu-latest
+    env:
+      PAT: ${{ secrets.PAT }}
     outputs:
       committed_generated_files: ${{ steps.set_output.outputs.committed_generated_files }}
     permissions:
@@ -19,13 +21,13 @@ jobs:
       actions: write
     steps:
       - 
-        if: ${{ secrets.PAT != "" }} 
+        if: ${{ env.PAT != "" }} 
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.PAT }}
           ref: ${{ github.head_ref }}
       -
-        if: ${{ secrets.PAT == "" }} 
+        if: ${{ env.PAT == "" }} 
         uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
@@ -45,7 +47,7 @@ jobs:
         working-directory: './web'        
 
       - 
-        if: github.event.pull_request.head.repo.full_name == github.repository
+        if: ${{ env.PAT != "" }} 
         name: Commit generated files
         id: commit
         continue-on-error: true
