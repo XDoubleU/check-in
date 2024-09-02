@@ -11567,9 +11567,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openapi-typescript@npm:7.0":
-  version: 7.0.0
-  resolution: "openapi-typescript@npm:7.0.0"
+"openapi-typescript@npm:7.3":
+  version: 7.3.3
+  resolution: "openapi-typescript@npm:7.3.3"
   dependencies:
     "@redocly/openapi-core": "npm:^1.16.0"
     ansi-colors: "npm:^4.1.3"
@@ -11580,7 +11580,7 @@ __metadata:
     typescript: ^5.x
   bin:
     openapi-typescript: bin/cli.js
-  checksum: 10c0/2e63d93f9b9ad64a65b2430ed2d1da0f5f89c9f7ee002d11e4815d500b6d308bdd4df97ab38790edcbd91c9a8372e9df3aec24764ce1e84cbfe161da5dfd9f58
+  checksum: 10c0/4e40f395ee2c4f439bdaef115a8ffd4df15a7389183c9171ebabe75a045d07d7c5e8254785592816ee280834a560239c19747663b08ec61a24b4de89f4d786e7
   languageName: node
   linkType: hard
 
@@ -14969,7 +14969,7 @@ __metadata:
     next-pwa: "npm:5.6.0"
     next-router-mock: "npm:0.9.13"
     npm-package-json-lint: "npm:8.0.0"
-    openapi-typescript: "npm:7.0"
+    openapi-typescript: "npm:7.3"
     prettier: "npm:3.3.2"
     query-string: "npm:9.0.0"
     react: "npm:18.3.1"
