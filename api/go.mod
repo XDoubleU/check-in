@@ -2,7 +2,7 @@ module check-in/api
 
 go 1.22
 
-toolchain go1.22.4
+toolchain go1.23.2
 
 require github.com/justinas/alice v1.2.0
 
