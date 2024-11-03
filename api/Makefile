@@ -4,7 +4,7 @@ UNAME_S := $(shell uname -s)
 tools: tools/db tools/lint tools/swagger
 	
 tools/swagger:
-	go install github.com/swaggo/swag/cmd/swag@v1.16.3
+	go install github.com/swaggo/swag/cmd/swag@v1.16.4
 
 tools/db:
 	go install github.com/pressly/goose/v3/cmd/goose@v3.21.1
