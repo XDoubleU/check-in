@@ -2563,31 +2563,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redocly/ajv@npm:^8.11.0":
-  version: 8.11.0
-  resolution: "@redocly/ajv@npm:8.11.0"
+"@redocly/ajv@npm:^8.11.2":
+  version: 8.11.2
+  resolution: "@redocly/ajv@npm:8.11.2"
   dependencies:
     fast-deep-equal: "npm:^3.1.1"
     json-schema-traverse: "npm:^1.0.0"
     require-from-string: "npm:^2.0.2"
-    uri-js: "npm:^4.2.2"
-  checksum: 10c0/7ee77a8304b54189e903c30248282f81638e2bb7dcf8b7cb80e078966999c4de4eb6dabe6ac8406b5c8fe7a1443540e2bd0009d975ac285d38c2426157bc774d
+    uri-js-replace: "npm:^1.0.1"
+  checksum: 10c0/249ca2e237f7b1248ee1018ba1ad3a739cb9f16e5f7fe821875948806980d65246c79ef7d5e7bd8db773c120e2cd5ce15aa47883893608e1965ca4d45c5572f4
   languageName: node
   linkType: hard
 
-"@redocly/config@npm:^0.10.1":
-  version: 0.10.1
-  resolution: "@redocly/config@npm:0.10.1"
-  checksum: 10c0/c9dc37578b19a97ceccf5a7ee38f772cfbbb81093f3d6b1714b46434616c8242403d64648e3e1b184b604f5740020baba4d95ec53446b05be89c1366b8a6cae1
+"@redocly/config@npm:^0.16.0":
+  version: 0.16.0
+  resolution: "@redocly/config@npm:0.16.0"
+  checksum: 10c0/9e2ee2b1eb61312d0479aee9ebb583818d0a061170ac4b733c5ab3a9351e2fdcaf282e9378f82853a7adcde899e218e43ea8d95f0068b3c0ac97c7333517ef34
   languageName: node
   linkType: hard
 
-"@redocly/openapi-core@npm:^1.16.0":
-  version: 1.22.1
-  resolution: "@redocly/openapi-core@npm:1.22.1"
+"@redocly/openapi-core@npm:^1.25.3":
+  version: 1.25.10
+  resolution: "@redocly/openapi-core@npm:1.25.10"
   dependencies:
-    "@redocly/ajv": "npm:^8.11.0"
-    "@redocly/config": "npm:^0.10.1"
+    "@redocly/ajv": "npm:^8.11.2"
+    "@redocly/config": "npm:^0.16.0"
     colorette: "npm:^1.2.0"
     https-proxy-agent: "npm:^7.0.4"
     js-levenshtein: "npm:^1.1.6"
@@ -2597,7 +2597,7 @@ __metadata:
     node-fetch: "npm:^2.6.1"
     pluralize: "npm:^8.0.0"
     yaml-ast-parser: "npm:0.0.43"
-  checksum: 10c0/bf061cac6f5350b7a67e9830dc7067d9bc7f03d9dc586271a0e7d314726bfeabb5d0f34ae9ef62ccf6855303aa8e9412ee1e4664b4b7e0f8122b7958e3fdfaab
+  checksum: 10c0/3d46a288a2a324c7197d5f5a4734fa7ffbc2a555157fb903c69c98892f143d6267162182c3a44aa4c9c0766f84980c58c31b6b8dcb2671c23ed31d647cce758e
   languageName: node
   linkType: hard
 
@@ -5226,6 +5226,13 @@ __metadata:
   version: 5.3.0
   resolution: "chalk@npm:5.3.0"
   checksum: 10c0/8297d436b2c0f95801103ff2ef67268d362021b8210daf8ddbe349695333eb3610a71122172ff3b0272f1ef2cf7cc2c41fdaa4715f52e49ffe04c56340feed09
+  languageName: node
+  linkType: hard
+
+"change-case@npm:^5.4.4":
+  version: 5.4.4
+  resolution: "change-case@npm:5.4.4"
+  checksum: 10c0/2a9c2b9c9ad6ab2491105aaf506db1a9acaf543a18967798dcce20926c6a173aa63266cb6189f3086e3c14bf7ae1f8ea4f96ecc466fcd582310efa00372f3734
   languageName: node
   linkType: hard
 
@@ -11326,12 +11333,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openapi-typescript@npm:7.3":
-  version: 7.3.3
-  resolution: "openapi-typescript@npm:7.3.3"
+"openapi-typescript@npm:7.4":
+  version: 7.4.2
+  resolution: "openapi-typescript@npm:7.4.2"
   dependencies:
-    "@redocly/openapi-core": "npm:^1.16.0"
+    "@redocly/openapi-core": "npm:^1.25.3"
     ansi-colors: "npm:^4.1.3"
+    change-case: "npm:^5.4.4"
     parse-json: "npm:^8.1.0"
     supports-color: "npm:^9.4.0"
     yargs-parser: "npm:^21.1.1"
@@ -11339,7 +11347,7 @@ __metadata:
     typescript: ^5.x
   bin:
     openapi-typescript: bin/cli.js
-  checksum: 10c0/4e40f395ee2c4f439bdaef115a8ffd4df15a7389183c9171ebabe75a045d07d7c5e8254785592816ee280834a560239c19747663b08ec61a24b4de89f4d786e7
+  checksum: 10c0/a8728957234b39c7d404bc779b53878eb1469d83055983cae8efc4d6467495a4f89afd3699b465bb3548fbea8bab06011f3a613db53b23745e5841a6c47928be
   languageName: node
   linkType: hard
 
@@ -14378,6 +14386,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"uri-js-replace@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "uri-js-replace@npm:1.0.1"
+  checksum: 10c0/0be6c972c84c316e29667628ce7b4ce4de7fc77cec9a514f70c4a3336eea8d1d783c71c9988ac5da333f0f6a85a04a7ae05a3c4aa43af6cd07b7a4d85c8d9f11
+  languageName: node
+  linkType: hard
+
 "uri-js@npm:^4.2.2":
   version: 4.4.1
   resolution: "uri-js@npm:4.4.1"
@@ -14598,7 +14613,7 @@ __metadata:
     next-pwa: "npm:5.6.0"
     next-router-mock: "npm:0.9.13"
     npm-package-json-lint: "npm:8.0.0"
-    openapi-typescript: "npm:7.3"
+    openapi-typescript: "npm:7.4"
     prettier: "npm:3.3.3"
     query-string: "npm:9.1.1"
     react: "npm:18.3.1"
