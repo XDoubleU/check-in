@@ -1,35 +1,48 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
   ],
-  "regexManagers": [
+  customManagers: [
     {
-      "fileMatch": [
-        "^api/Makefile$"
+      customType: 'regex',
+      fileMatch: [
+        '^api/Makefile$',
       ],
-      "matchStrings": [
-        "go install (?<depName>[^@]+)@(?<currentValue>[0-9a-zA-Z\.]+)"
+      matchStrings: [
+        'go install (?<depName>[^@]+)@(?<currentValue>[0-9a-zA-Z.]+)',
       ],
-      "datasourceTemplate": "go"
+      datasourceTemplate: 'go',
     },
     {
-      "fileMatch": [
-        "^api/go.mod$"
+      customType: 'regex',
+      fileMatch: [
+        '^api/go.mod$',
       ],
-      "matchStrings": [
-        "\\sgo (?<currentValue>.+?)\\s"
+      matchStrings: [
+        '\\sgo (?<currentValue>.+?)\\s',
       ],
-      "depNameTemplate": "golang",
-      "datasourceTemplate": "docker"
-    }
+      depNameTemplate: 'golang',
+      datasourceTemplate: 'docker',
+    },
   ],
-  "pre-commit": {
-    "enabled": true
+  'pre-commit': {
+    enabled: true,
   },
-  "timezone":"Europe/Brussels",
-  "labels": ["dependencies"],
-  "dependencyDashboardLabels": ["dependencies"],
-  "lockFileMaintenance": { "enabled": true, "schedule": ["monthly"] },
-  "schedule": ["monthly"]
+  timezone: 'Europe/Brussels',
+  labels: [
+    'dependencies',
+  ],
+  dependencyDashboardLabels: [
+    'dependencies',
+  ],
+  lockFileMaintenance: {
+    enabled: true,
+    schedule: [
+      'monthly',
+    ],
+  },
+  schedule: [
+    'monthly',
+  ],
 }
