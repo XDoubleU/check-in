@@ -12,7 +12,7 @@ tools/db:
 tools/lint: tools/lint/go tools/lint/sql
 
 tools/lint/go:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.60.3
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
 	go install github.com/segmentio/golines@v0.12.2
 	go install github.com/daixiang0/gci@v0.13.5
 	go install github.com/securego/gosec/v2/cmd/gosec@v2.20.0
