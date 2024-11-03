@@ -1,4 +1,4 @@
-FROM node:21-alpine AS deps
+FROM node:22-alpine AS deps
 ENV YARN_VERSION=4.x
 
 RUN apk add --no-cache libc6-compat
@@ -10,7 +10,7 @@ COPY --link package.json yarn.lock .yarnrc.yml ./
 COPY --link ./.yarn/releases ./.yarn/releases
 RUN yarn install --immutable && yarn cache clean
 
-FROM node:21-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 ARG NEXT_PUBLIC_API_URL
