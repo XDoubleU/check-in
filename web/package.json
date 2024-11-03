@@ -39,7 +39,7 @@
     "serve": "14.2.4",
     "typescript": "5.6.3",
     "uglify-js": "3.19.3",
-    "uuid": "10.0.0"
+    "uuid": "11.0.2"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "14.2.16",
