@@ -7,7 +7,7 @@
     "build": "yarn run swag && next build",
     "analyze": "cross-env ANALYZE=true next build",
     "format": "prettier --write ./**/*.{ts,tsx}",
-    "lint": "eslint . && tsc --noEmit && jscpd . && knip && prettier --check ./**/*.{ts,tsx} && npmPkgJsonLint .",
+    "lint": "eslint . && tsc --noEmit && jscpd . && knip && prettier --check './**/*.{ts,tsx}' && npmPkgJsonLint .",
     "lint:fix": "eslint . --fix",
     "swag": "npx openapi-typescript@5.4 ./docs/swagger.json -o ./src/api-wrapper/types/schema.d.ts --export-type",
     "test": "jest",
