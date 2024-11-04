@@ -15,7 +15,7 @@ export default function ManagerLayout({
   children,
   title,
   titleButton
-}: ManagerLayoutProps) {
+}: Readonly<ManagerLayoutProps>) {
   const [apiState, setApiState] = useState<State>()
 
   const fetchState = useCallback(async () => {
@@ -27,23 +27,21 @@ export default function ManagerLayout({
   }, [fetchState])
 
   return (
-    <>
-      <BaseLayout title={title} showLinks={true} showNav={true}>
-        <Row>
-          <Col>
-            <StateAlert state={apiState} />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <h1>{title}</h1>
-          </Col>
-          <Col className="text-end">{titleButton}</Col>
-        </Row>
-        <br />
+    <BaseLayout title={title} showLinks={true} showNav={true}>
+      <Row>
+        <Col>
+          <StateAlert state={apiState} />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <h1>{title}</h1>
+        </Col>
+        <Col className="text-end">{titleButton}</Col>
+      </Row>
+      <br />
 
-        <Container style={{ minHeight: "65vh" }}>{children}</Container>
-      </BaseLayout>
-    </>
+      <Container style={{ minHeight: "65vh" }}>{children}</Container>
+    </BaseLayout>
   )
 }

@@ -24,7 +24,7 @@ export default function UserInputs<T extends Inputs>({
   register,
   watch,
   errors
-}: UserInputsProps<T>) {
+}: Readonly<UserInputsProps<T>>) {
   return (
     <>
       <FormInput
