@@ -4,6 +4,8 @@ github.com/XDoubleU/essentia v0.1.2 h1:lSlbXIfvHa4r6hEdoprdEpMeuhrJG37f4sL5f8ils
 github.com/XDoubleU/essentia v0.1.2/go.mod h1:19WxY8JdjY9yiplmwWQuiOL0ZAgjNedS8InyqtoGHhw=
 github.com/XDoubleU/essentia v0.1.3 h1:UFvgYIQpX4DubUcX2iuGTryIJvdgXmHSoHWiJrW3pg8=
 github.com/XDoubleU/essentia v0.1.3/go.mod h1:WKHRc1+WKS8mN0Hj0oZ2vNfyZEpOt2DXAIQzX5uBPNA=
+github.com/XDoubleU/essentia v0.1.4 h1:GIIj12tgtc2R42fmqoMo2D7BmcILTiUCI/Br8EGbFVw=
+github.com/XDoubleU/essentia v0.1.4/go.mod h1:WKHRc1+WKS8mN0Hj0oZ2vNfyZEpOt2DXAIQzX5uBPNA=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/buger/jsonparser v1.1.1 h1:2PnMjfWD7wBILjqQbt530v576A/cAbQvEW9gGIpYMUs=
