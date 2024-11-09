@@ -8,7 +8,9 @@ export default function SignOut() {
 
   useEffect(() => {
     if (!loadingUser) {
-      void signOut().then(() => setUser(undefined))
+      void signOut().then(() => {
+        setUser(undefined)
+      })
     }
   }, [loadingUser, setUser])
 

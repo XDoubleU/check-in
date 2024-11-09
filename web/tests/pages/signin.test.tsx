@@ -15,7 +15,9 @@ describe("SignIn (page)", () => {
 
     render(<SignIn />)
 
-    await waitFor(() => expect(document.title).toContain("Sign In"))
+    await waitFor(() => {
+      expect(document.title).toContain("Sign In")
+    })
 
     const usernameInput = screen.getByLabelText("Username")
     const passwordInput = screen.getByLabelText("Password")
@@ -25,7 +27,9 @@ describe("SignIn (page)", () => {
     await userEvent.type(passwordInput, "validpassword")
     fireEvent.click(signInButton)
 
-    await waitFor(() => expect(signIn).toHaveBeenCalled())
+    await waitFor(() => {
+      expect(signIn).toHaveBeenCalled()
+    })
     expect(mockRouter.asPath).toBe("/")
   })
 
@@ -41,7 +45,9 @@ describe("SignIn (page)", () => {
 
     render(<SignIn />)
 
-    await waitFor(() => expect(document.title).toContain("Sign In"))
+    await waitFor(() => {
+      expect(document.title).toContain("Sign In")
+    })
 
     const usernameInput = screen.getByLabelText("Username")
     const passwordInput = screen.getByLabelText("Password")
@@ -51,10 +57,12 @@ describe("SignIn (page)", () => {
     await userEvent.type(passwordInput, "invalidpassword")
     fireEvent.click(signInButton)
 
-    await waitFor(() => expect(signIn).toHaveBeenCalled())
+    await waitFor(() => {
+      expect(signIn).toHaveBeenCalled()
+    })
 
-    await waitFor(() =>
+    await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent("Invalid credentials")
-    )
+    })
   })
 })

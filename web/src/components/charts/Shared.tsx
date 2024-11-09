@@ -11,7 +11,7 @@ import {
 } from "recharts"
 import Loader from "components/Loader"
 
-export type ChartDataEntry = {
+export interface ChartDataEntry {
   [name: string]: number | string
   datetime: string
   capacity: number
@@ -72,39 +72,35 @@ export const COLORS = [
 
 export function NoDataFound() {
   return (
-    <>
-      <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%"
-          }}
-        >
-          <h2>No data found</h2>
-        </div>
-      </ResponsiveContainer>
-    </>
+    <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%"
+        }}
+      >
+        <h2>No data found</h2>
+      </div>
+    </ResponsiveContainer>
   )
 }
 
 export function DataLoading() {
   return (
-    <>
-      <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%"
-          }}
-        >
-          <Loader message="Fetching chart data." />
-        </div>
-      </ResponsiveContainer>
-    </>
+    <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%"
+        }}
+      >
+        <Loader message="Fetching chart data." />
+      </div>
+    </ResponsiveContainer>
   )
 }
 
@@ -118,7 +114,7 @@ export function SharedComposedChart({
   data,
   xAxisTickFomatter,
   children
-}: SharedComposedChartProps) {
+}: Readonly<SharedComposedChartProps>) {
   return (
     <ResponsiveContainer {...RESPONSIVE_CONTAINER_PROPS}>
       <ComposedChart data={data} {...CHART_PROPS}>

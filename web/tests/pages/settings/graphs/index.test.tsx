@@ -201,7 +201,9 @@ describe("Graphs (page)", () => {
 
     render(<Graphs />)
 
-    await waitFor(() => expect(document.title).toBe("Loading..."))
+    await waitFor(() => {
+      expect(document.title).toBe("Loading...")
+    })
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/settings")
@@ -214,7 +216,9 @@ describe("Graphs (page)", () => {
 
     render(<Graphs />)
 
-    await waitFor(() => expect(document.title).toBe("Loading..."))
+    await waitFor(() => {
+      expect(document.title).toBe("Loading...")
+    })
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings%2Fgraphs")
