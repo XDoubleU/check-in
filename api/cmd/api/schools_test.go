@@ -186,6 +186,7 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("school with name '%s' already exists", data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -304,6 +305,7 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("school with name '%s' already exists", data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -332,6 +334,7 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	assert.Equal(
 		t,
 		"school with id '1' doesn't exist",
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -364,6 +367,7 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		"school with id '8000' doesn't exist",
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -505,6 +509,7 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	assert.Equal(
 		t,
 		"school with id '1' doesn't exist",
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -530,6 +535,7 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		"school with id '8000' doesn't exist",
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -555,6 +561,7 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 	assert.Equal(
 		t,
 		"invalid URL param 'id' with value 'aaaa', should be an integer",
+		//nolint:errcheck //not needed
 		rsData.Message.(string),
 	)
 }

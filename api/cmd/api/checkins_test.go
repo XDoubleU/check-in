@@ -190,6 +190,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("school with schoolId '%d' doesn't exist", data.SchoolID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["schoolId"].(string),
 	)
 }

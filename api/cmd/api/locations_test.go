@@ -355,6 +355,7 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("locations with ids '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["ids"].(string),
 	)
 }
@@ -392,6 +393,7 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -424,6 +426,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'startDate'", rsData.Message.(string))
 }
 
@@ -455,6 +458,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'endDate'", rsData.Message.(string))
 }
 
@@ -487,6 +491,7 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'returnType'", rsData.Message.(string))
 }
 
@@ -518,6 +523,7 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -749,6 +755,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("locations with ids '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["ids"].(string),
 	)
 }
@@ -784,6 +791,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -813,6 +821,7 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'date'", rsData.Message.(string))
 }
 
@@ -843,6 +852,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'returnType'", rsData.Message.(string))
 }
 
@@ -872,6 +882,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -957,6 +968,7 @@ func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("locations with ids '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["ids"].(string),
 	)
 }
@@ -985,6 +997,7 @@ func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1007,6 +1020,7 @@ func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -1098,6 +1112,7 @@ func TestDeleteCheckInLocationNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1124,6 +1139,7 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		"checkIn with id '8000' doesn't exist",
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1197,6 +1213,7 @@ func TestDeleteCheckInNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -1533,6 +1550,7 @@ func TestGetLocationNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1561,6 +1579,7 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1583,6 +1602,7 @@ func TestGetLocationNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -1683,6 +1703,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with name '%s' already exists", data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -1715,6 +1736,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with name '%s' already exists", data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -1747,6 +1769,7 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("user with username '%s' already exists", data.Username),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["username"].(string),
 	)
 }
@@ -1919,6 +1942,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with name '%s' already exists", *data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -1964,6 +1988,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with name '%s' already exists", *data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -2006,6 +2031,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("user with username '%s' already exists", *data.Username),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["username"].(string),
 	)
 }
@@ -2107,6 +2133,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -2148,6 +2175,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -2183,6 +2211,7 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -2281,6 +2310,7 @@ func TestDeleteLocationNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -2303,6 +2333,7 @@ func TestDeleteLocationNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 

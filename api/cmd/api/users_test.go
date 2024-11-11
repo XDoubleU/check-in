@@ -176,6 +176,7 @@ func TestGetUserNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("user with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -194,6 +195,7 @@ func TestGetUserNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -391,6 +393,7 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("user with username '%s' already exists", data.Username),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["username"].(string),
 	)
 }
@@ -513,6 +516,7 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("user with username '%s' already exists", *data.Username),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["username"].(string),
 	)
 }
@@ -550,6 +554,7 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("user with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -577,6 +582,7 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -695,6 +701,7 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("user with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -713,6 +720,7 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
