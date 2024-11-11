@@ -316,9 +316,9 @@ func TestMain(m *testing.M) {
 
 	timesToCheck := []shared.NowTimeProvider{
 		time.Now,
-		func() time.Time { return getTimeNowWithHour(23, false) },
-		func() time.Time { return getTimeNowWithHour(00, true) },
-		func() time.Time { return getTimeNowWithHour(01, true) },
+		func() time.Time { return getTimeNow(23, false, "Europe/Brussels") },
+		func() time.Time { return getTimeNow(00, true, "Europe/Brussels") },
+		func() time.Time { return getTimeNow(01, true, "Europe/Brussels") },
 	}
 
 	for _, timeNow := range timesToCheck {
@@ -329,8 +329,9 @@ func TestMain(m *testing.M) {
 		clearAllData(testCtx, mainTestApp)
 		defaultFixtures(testCtx, mainTestApp)
 
+		tz, _ := timeNow().Zone()
 		//nolint:forbidigo //allowed
-		fmt.Printf("running test suite for hour %d\n", timeNow().Hour())
+		fmt.Printf("running test suite for hour '%d' with timezone '%s'\n", timeNow().Hour(), tz)
 		code := m.Run()
 
 		err = mainTx.Rollback(context.Background())
@@ -346,12 +347,14 @@ func TestMain(m *testing.M) {
 	os.Exit(0)
 }
 
-func getTimeNowWithHour(hour int, nextDay bool) time.Time {
+func getTimeNow(hour int, nextDay bool, tz string) time.Time {
 	now := time.Now()
 
 	if nextDay {
 		now = now.Add(24 * time.Hour)
 	}
+
+	location, _ := time.LoadLocation(tz)
 
 	return time.Date(
 		now.Year(),
@@ -361,7 +364,7 @@ func getTimeNowWithHour(hour int, nextDay bool) time.Time {
 		now.Minute(),
 		now.Second(),
 		now.Nanosecond(),
-		now.Location(),
+		location,
 	)
 }
 

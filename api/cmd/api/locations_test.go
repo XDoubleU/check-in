@@ -79,8 +79,14 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), 10)
 
 	now := testApp.getTimeNow()
-	startDate := shared.GetTimeZoneIndependantValue(timetools.StartOfDay(now.Add(-24*time.Hour)), "UTC")
-	endDate := shared.GetTimeZoneIndependantValue(timetools.StartOfDay(now.Add(24*time.Hour)), "UTC")
+	startDate := shared.GetTimeZoneIndependantValue(
+		timetools.StartOfDay(now.Add(-24*time.Hour)),
+		"UTC",
+	)
+	endDate := shared.GetTimeZoneIndependantValue(
+		timetools.StartOfDay(now.Add(24*time.Hour)),
+		"UTC",
+	)
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -155,8 +161,14 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	testEnv.createCheckIns(location, int64(1), 10)
 
 	now := testApp.getTimeNow()
-	startDate := shared.GetTimeZoneIndependantValue(timetools.StartOfDay(now.Add(-24*time.Hour)), "UTC")
-	endDate := shared.GetTimeZoneIndependantValue(timetools.StartOfDay(now.Add(24*time.Hour)), "UTC")
+	startDate := shared.GetTimeZoneIndependantValue(
+		timetools.StartOfDay(now.Add(-24*time.Hour)),
+		"UTC",
+	)
+	endDate := shared.GetTimeZoneIndependantValue(
+		timetools.StartOfDay(now.Add(24*time.Hour)),
+		"UTC",
+	)
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
