@@ -20,15 +20,14 @@ import (
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
+	"check-in/api/internal/shared"
 )
 
 func TestYesterdayFullAt(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-
-	now := testApp.getTimeNow().In(loc).AddDate(0, 0, -1)
+	now := testApp.getTimeNow().AddDate(0, 0, -1)
 
 	for i := 0; i < int(fixtures.DefaultLocation.Capacity); i++ {
 		query := `
@@ -79,16 +78,9 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 
 	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), 10)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-	utc, _ := time.LoadLocation("UTC")
-
-	now := testApp.getTimeNow().In(loc)
-
-	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = timetools.StartOfDay(startDate)
-
-	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = timetools.StartOfDay(endDate)
+	now := testApp.getTimeNow()
+	startDate := shared.GetTimeZoneIndependantValue(timetools.StartOfDay(now.Add(-24*time.Hour)), "UTC")
+	endDate := shared.GetTimeZoneIndependantValue(timetools.StartOfDay(now.Add(24*time.Hour)), "UTC")
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -162,16 +154,9 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), 10)
 	testEnv.createCheckIns(location, int64(1), 10)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-	utc, _ := time.LoadLocation("UTC")
-
-	now := testApp.getTimeNow().In(loc)
-
-	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = timetools.StartOfDay(startDate)
-
-	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = timetools.StartOfDay(endDate)
+	now := testApp.getTimeNow()
+	startDate := shared.GetTimeZoneIndependantValue(timetools.StartOfDay(now.Add(-24*time.Hour)), "UTC")
+	endDate := shared.GetTimeZoneIndependantValue(timetools.StartOfDay(now.Add(24*time.Hour)), "UTC")
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -550,12 +535,7 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	amount := 10
 	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), amount)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-	utc, _ := time.LoadLocation("UTC")
-
-	now := testApp.getTimeNow().In(loc)
-
-	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
+	date := testApp.getTimeNow()
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -612,12 +592,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), amount)
 	testEnv.createCheckIns(location, int64(1), amount)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-	utc, _ := time.LoadLocation("UTC")
-
-	now := testApp.getTimeNow().In(loc)
-
-	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
+	date := testApp.getTimeNow()
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -930,15 +905,13 @@ func TestGetAllCheckInsToday(t *testing.T) {
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 
-		loc, _ := time.LoadLocation("Europe/Brussels")
-
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, amount, len(rsData))
 		assert.Equal(t, fixtures.DefaultLocation.ID, rsData[0].LocationID)
 		assert.Equal(t, "Andere", rsData[0].SchoolName)
 		assert.Equal(
 			t,
-			testApp.getTimeNow().In(loc).Format(constants.DateFormat),
+			testApp.getTimeNow().Format(constants.DateFormat),
 			rsData[0].CreatedAt.Time.Format(constants.DateFormat),
 		)
 	}
@@ -1074,15 +1047,13 @@ func TestDeleteCheckIn(t *testing.T) {
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 
-		loc, _ := time.LoadLocation("Europe/Brussels")
-
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, checkIns[i].ID, rsData.ID)
 		assert.Equal(t, fixtures.DefaultLocation.ID, rsData.LocationID)
 		assert.Equal(t, "Andere", rsData.SchoolName)
 		assert.Equal(
 			t,
-			testApp.getTimeNow().In(loc).Format(constants.DateFormat),
+			testApp.getTimeNow().Format(constants.DateFormat),
 			rsData.CreatedAt.Time.Format(constants.DateFormat),
 		)
 	}

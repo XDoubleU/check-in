@@ -104,11 +104,6 @@ func defaultFixtures(ctx context.Context, app *Application) {
 		panic(err)
 	}
 
-	timezone, err := time.LoadLocation("Europe/Brussels")
-	if err != nil {
-		panic(err)
-	}
-
 	fixtures.DefaultLocation, err = app.services.Locations.Create(
 		ctx,
 		fixtures.AdminUser,
@@ -116,7 +111,7 @@ func defaultFixtures(ctx context.Context, app *Application) {
 		&dtos.CreateLocationDto{
 			Name:     "TestLocation",
 			Capacity: 20,
-			TimeZone: timezone.String(),
+			TimeZone: "Europe/Brussels",
 			Username: "Default",
 			Password: "testpassword",
 		},
@@ -219,11 +214,6 @@ func (env *TestEnv) createManagerUsers(amount int) []*models.User {
 func (env *TestEnv) createLocations(amount int) []*models.Location {
 	var err error
 
-	timezone, err := time.LoadLocation("Europe/Brussels")
-	if err != nil {
-		panic(err)
-	}
-
 	locations := []*models.Location{}
 	for i := 0; i < amount; i++ {
 		var location *models.Location
@@ -234,7 +224,7 @@ func (env *TestEnv) createLocations(amount int) []*models.Location {
 			&dtos.CreateLocationDto{
 				Name:     fmt.Sprintf("TestLocation%d", i),
 				Capacity: 20,
-				TimeZone: timezone.String(),
+				TimeZone: "Europe/Brussels",
 				Username: fmt.Sprintf("TestDefaultUser%d", i),
 				Password: "testpassword",
 			},
