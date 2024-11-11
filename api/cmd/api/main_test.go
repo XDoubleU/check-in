@@ -15,6 +15,7 @@ import (
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
+	"check-in/api/internal/shared"
 )
 
 type TestEnv struct {
@@ -323,28 +324,62 @@ func TestMain(m *testing.M) {
 
 	ApplyMigrations(logging.NewNopLogger(), postgresDB)
 
-	mainTx = postgres.CreatePgxSyncTx(context.Background(), postgresDB)
-
-	testCtx = context.Background()
-	mainTestApp = NewApp(logging.NewNopLogger(), cfg, mainTx)
-
-	clearAllData(testCtx, mainTestApp)
-	defaultFixtures(testCtx, mainTestApp)
-
-	code := m.Run()
-	err = mainTx.Rollback(context.Background())
-	if err != nil {
-		panic(err)
+	timesToCheck := []shared.NowTimeProvider{
+		time.Now,
+		func() time.Time { return getTimeNowWithHour(23, false) },
+		func() time.Time { return getTimeNowWithHour(00, true) },
+		func() time.Time { return getTimeNowWithHour(01, true) },
 	}
 
-	os.Exit(code)
+	for _, timeNow := range timesToCheck {
+		mainTx = postgres.CreatePgxSyncTx(context.Background(), postgresDB)
+		mainTestApp = NewApp(logging.NewNopLogger(), cfg, mainTx, timeNow)
+
+		testCtx = context.Background()
+		clearAllData(testCtx, mainTestApp)
+		defaultFixtures(testCtx, mainTestApp)
+
+		//nolint:forbidigo //allowed
+		fmt.Printf("running test suite for hour %d\n", timeNow().Hour())
+		code := m.Run()
+
+		err = mainTx.Rollback(context.Background())
+		if err != nil {
+			panic(err)
+		}
+
+		if code != 0 {
+			os.Exit(code)
+		}
+	}
+
+	os.Exit(0)
+}
+
+func getTimeNowWithHour(hour int, nextDay bool) time.Time {
+	now := time.Now()
+
+	if nextDay {
+		now = now.Add(24 * time.Hour)
+	}
+
+	return time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		hour,
+		now.Minute(),
+		now.Second(),
+		now.Nanosecond(),
+		now.Location(),
+	)
 }
 
 func setup(_ *testing.T) (*TestEnv, *Application) {
 	tx := postgres.CreatePgxSyncTx(context.Background(), mainTx)
 
 	testApp := *mainTestApp
-	testApp.SetDB(tx)
+	testApp.setDB(tx)
 
 	testEnv := &TestEnv{
 		ctx: testCtx,

@@ -16,26 +16,24 @@ type CheckInRepository struct {
 
 func (repo CheckInRepository) GetAllInRange(
 	ctx context.Context,
-	locationIDs []string,
+	locationID string,
 	startDate time.Time,
 	endDate time.Time,
 ) ([]*models.CheckIn, error) {
 	query := `
 		SELECT check_ins.id, check_ins.location_id, check_ins.school_id,
-		 check_ins.capacity, (check_ins.created_at AT TIME ZONE locations.time_zone)
+		 check_ins.capacity, check_ins.created_at
 		FROM check_ins
-		INNER JOIN locations
-		ON locations.id = check_ins.location_id
-		WHERE check_ins.location_id = any($1)
-		AND (check_ins.created_at AT TIME ZONE locations.time_zone) >= $2
-		AND (check_ins.created_at AT TIME ZONE locations.time_zone) <= $3
+		WHERE check_ins.location_id = $1 
+		AND check_ins.created_at >= $2
+		AND check_ins.created_at <= $3
 		ORDER BY check_ins.created_at 
 	`
 
 	rows, err := repo.db.Query(
 		ctx,
 		query,
-		locationIDs,
+		locationID,
 		startDate,
 		endDate,
 	)
@@ -76,7 +74,7 @@ func (repo CheckInRepository) GetByID(
 	id int64,
 ) (*models.CheckIn, error) {
 	query := `
-		SELECT school_id, capacity, created_at AT TIME ZONE $3
+		SELECT school_id, capacity, created_at
 		FROM check_ins
 		WHERE id = $1 AND location_id = $2
 	`
@@ -92,7 +90,6 @@ func (repo CheckInRepository) GetByID(
 		query,
 		id,
 		location.ID,
-		location.TimeZone,
 	).Scan(
 		&checkIn.SchoolID,
 		&checkIn.Capacity,

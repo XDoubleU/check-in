@@ -6,6 +6,7 @@ import (
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/repositories"
+	"check-in/api/internal/shared"
 )
 
 type Services struct {
@@ -23,6 +24,7 @@ func New(
 	logger *slog.Logger,
 	config config.Config,
 	repositories repositories.Repositories,
+	nowTimeProvider shared.NowTimeProvider,
 ) Services {
 	websocket := NewWebSocketService([]string{config.WebURL})
 	state := NewStateService(ctx, logger, repositories.State, websocket)
@@ -35,16 +37,18 @@ func New(
 		schoolIDNameMap: make(map[int64]string),
 	}
 	locations := LocationService{
-		locations: repositories.Locations,
-		checkins:  repositories.CheckIns,
-		schools:   schools,
-		users:     users,
-		websocket: websocket,
+		locations:  repositories.Locations,
+		checkins:   repositories.CheckIns,
+		schools:    schools,
+		users:      users,
+		websocket:  websocket,
+		getTimeNow: nowTimeProvider,
 	}
 	auth := AuthService{
-		auth:      repositories.Auth,
-		users:     users,
-		locations: locations,
+		auth:       repositories.Auth,
+		users:      users,
+		locations:  locations,
+		getTimeNow: nowTimeProvider,
 	}
 	checkInsWriter := CheckInWriterService{
 		checkins:  repositories.CheckInsWriter,

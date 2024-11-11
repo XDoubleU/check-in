@@ -97,7 +97,7 @@ func TestCreateCheckIn(t *testing.T) {
 	assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData.Capacity)
 	assert.Equal(
 		t,
-		time.Now().In(loc).Format(constants.DateFormat),
+		testApp.getTimeNow().In(loc).Format(constants.DateFormat),
 		rsData.CreatedAt.Time.Format(constants.DateFormat),
 	)
 }
@@ -131,7 +131,7 @@ func TestCreateCheckInAndere(t *testing.T) {
 	assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData.Capacity)
 	assert.Equal(
 		t,
-		time.Now().In(loc).Format(constants.DateFormat),
+		testApp.getTimeNow().In(loc).Format(constants.DateFormat),
 		rsData.CreatedAt.Time.Format(constants.DateFormat),
 	)
 }
@@ -153,7 +153,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 
 	var rs *http.Response
 
-	for i := 0; i < int(fixtures.DefaultLocation.Capacity)+1; i++ {
+	for i := 0; i <= int(fixtures.DefaultLocation.Capacity); i++ {
 		rs = tReq.Do(t)
 	}
 

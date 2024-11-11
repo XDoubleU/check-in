@@ -21,18 +21,20 @@ import (
 	"check-in/api/internal/config"
 	"check-in/api/internal/repositories"
 	"check-in/api/internal/services"
+	"check-in/api/internal/shared"
 )
 
 //go:embed migrations/*.sql
 var embedMigrations embed.FS
 
 type Application struct {
-	logger    *slog.Logger
-	ctx       context.Context
-	ctxCancel context.CancelFunc
-	db        postgres.DB
-	config    config.Config
-	services  services.Services
+	logger     *slog.Logger
+	ctx        context.Context
+	ctxCancel  context.CancelFunc
+	db         postgres.DB
+	config     config.Config
+	getTimeNow shared.NowTimeProvider
+	services   services.Services
 }
 
 //	@title			Check-In API
@@ -62,7 +64,7 @@ func main() {
 
 	ApplyMigrations(logger, db)
 
-	app := NewApp(logger, cfg, db)
+	app := NewApp(logger, cfg, db, time.Now)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", app.config.Port),
@@ -77,22 +79,32 @@ func main() {
 	}
 }
 
-func NewApp(logger *slog.Logger, cfg config.Config, db postgres.DB) *Application {
+func NewApp(
+	logger *slog.Logger,
+	cfg config.Config,
+	db postgres.DB,
+	nowTimeProvider shared.NowTimeProvider,
+) *Application {
 	logger.Info(cfg.String())
 
 	//nolint:exhaustruct //other fields are optional
 	app := &Application{
-		logger: logger,
-		config: cfg,
+		logger:     logger,
+		config:     cfg,
+		getTimeNow: nowTimeProvider,
 	}
 
 	app.setContext()
-	app.SetDB(db)
+	app.setDB(db)
 
 	return app
 }
 
-func (app *Application) SetDB(db postgres.DB) {
+func (app *Application) getNowTimeProvider() shared.NowTimeProvider {
+	return func() time.Time { return app.getTimeNow() }
+}
+
+func (app *Application) setDB(db postgres.DB) {
 	// make sure previous app is cancelled internally
 	app.ctxCancel()
 
@@ -105,7 +117,8 @@ func (app *Application) SetDB(db postgres.DB) {
 		app.ctx,
 		app.logger,
 		app.config,
-		repositories.New(app.db),
+		repositories.New(app.db, app.getNowTimeProvider()),
+		app.getNowTimeProvider(),
 	)
 }
 

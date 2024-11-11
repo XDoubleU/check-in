@@ -28,7 +28,7 @@ func TestYesterdayFullAt(t *testing.T) {
 
 	loc, _ := time.LoadLocation("Europe/Brussels")
 
-	now := time.Now().In(loc).AddDate(0, 0, -1)
+	now := testApp.getTimeNow().In(loc).AddDate(0, 0, -1)
 
 	for i := 0; i < int(fixtures.DefaultLocation.Capacity); i++ {
 		query := `
@@ -82,7 +82,7 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	loc, _ := time.LoadLocation("Europe/Brussels")
 	utc, _ := time.LoadLocation("UTC")
 
-	now := time.Now().In(loc)
+	now := testApp.getTimeNow().In(loc)
 
 	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
 	startDate = timetools.StartOfDay(startDate)
@@ -165,7 +165,7 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	loc, _ := time.LoadLocation("Europe/Brussels")
 	utc, _ := time.LoadLocation("UTC")
 
-	now := time.Now().In(loc)
+	now := testApp.getTimeNow().In(loc)
 
 	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
 	startDate = timetools.StartOfDay(startDate)
@@ -259,8 +259,8 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	amount := 10
 	testEnv.createCheckIns(fixtures.DefaultLocation, 1, amount)
 
-	startDate := time.Now().AddDate(0, 0, -1).Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNow().AddDate(0, 0, -1).Format(constants.DateFormat)
+	endDate := testApp.getTimeNow().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -304,7 +304,7 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 		fetchedTimeToday, _ := time.Parse(time.RFC3339, rsData[2][0])
 		assert.Equal(
 			t,
-			time.Now().Format(constants.DateFormat),
+			testApp.getTimeNow().Format(constants.DateFormat),
 			fetchedTimeToday.Format(constants.DateFormat),
 		)
 		assert.Equal(
@@ -326,8 +326,8 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNow().Format(constants.DateFormat)
+	endDate := testApp.getTimeNow().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	id, _ := uuid.NewUUID()
 
@@ -365,8 +365,8 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNow().Format(constants.DateFormat)
+	endDate := testApp.getTimeNow().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -402,7 +402,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	endDate := testApp.getTimeNow().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -433,7 +433,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	startDate := time.Now().Format(constants.DateFormat)
+	startDate := testApp.getTimeNow().Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -464,8 +464,8 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNow().Format(constants.DateFormat)
+	endDate := testApp.getTimeNow().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -494,8 +494,8 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNow().Format(constants.DateFormat)
+	endDate := testApp.getTimeNow().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -547,7 +547,7 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	loc, _ := time.LoadLocation("Europe/Brussels")
 	utc, _ := time.LoadLocation("UTC")
 
-	now := time.Now().In(loc)
+	now := testApp.getTimeNow().In(loc)
 
 	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
 
@@ -609,7 +609,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 	loc, _ := time.LoadLocation("Europe/Brussels")
 	utc, _ := time.LoadLocation("UTC")
 
-	now := time.Now().In(loc)
+	now := testApp.getTimeNow().In(loc)
 
 	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
 
@@ -675,7 +675,7 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 	amount := 10
 	testEnv.createCheckIns(fixtures.DefaultLocation, 1, amount)
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNow().Format(constants.DateFormat)
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -722,7 +722,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNow().Format(constants.DateFormat)
 
 	id, _ := uuid.NewUUID()
 
@@ -759,7 +759,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNow().Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -822,7 +822,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNow().Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -850,7 +850,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNow().Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -927,7 +927,7 @@ func TestGetAllCheckInsToday(t *testing.T) {
 		assert.Equal(t, "Andere", rsData[0].SchoolName)
 		assert.Equal(
 			t,
-			time.Now().In(loc).Format(constants.DateFormat),
+			testApp.getTimeNow().In(loc).Format(constants.DateFormat),
 			rsData[0].CreatedAt.Time.Format(constants.DateFormat),
 		)
 	}
@@ -1068,7 +1068,7 @@ func TestDeleteCheckIn(t *testing.T) {
 		assert.Equal(t, "Andere", rsData.SchoolName)
 		assert.Equal(
 			t,
-			time.Now().In(loc).Format(constants.DateFormat),
+			testApp.getTimeNow().In(loc).Format(constants.DateFormat),
 			rsData.CreatedAt.Time.Format(constants.DateFormat),
 		)
 	}
@@ -1146,7 +1146,7 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 		fixtures.DefaultLocation.ID,
 		1,
 		fixtures.DefaultLocation.Capacity,
-		time.Now().AddDate(0, 0, -1),
+		testApp.getTimeNow().AddDate(0, 0, -1),
 	).Scan(&checkIn.ID)
 	if err != nil {
 		panic(err)
