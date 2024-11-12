@@ -16,12 +16,14 @@ import (
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
 	"check-in/api/internal/repositories"
+	"check-in/api/internal/shared"
 )
 
 type AuthService struct {
-	auth      repositories.AuthRepository
-	users     UserService
-	locations LocationService
+	auth          repositories.AuthRepository
+	users         UserService
+	locations     LocationService
+	getTimeNowUTC shared.UTCNowTimeProvider
 }
 
 func (service AuthService) SignInUser(
@@ -179,7 +181,7 @@ func (service AuthService) generateToken(
 	//nolint:exhaustruct //other fields are optional
 	token := &models.Token{
 		UserID: userID,
-		Expiry: time.Now().Add(ttl),
+		Expiry: service.getTimeNowUTC().Add(ttl),
 		Scope:  scope,
 	}
 

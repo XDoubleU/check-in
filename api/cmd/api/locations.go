@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	httptools "github.com/XDoubleU/essentia/pkg/communication/http"
 	"github.com/XDoubleU/essentia/pkg/context"
@@ -106,7 +105,7 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	}
 
 	if returnType == "csv" {
-		filename := time.Now().
+		filename := app.getTimeNowUTC().
 			In(date.Location()).
 			Format(constants.CSVFileNameFormat)
 		filename = "Day-" + filename
@@ -188,7 +187,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 	}
 
 	if returnType == "csv" {
-		filename := time.Now().
+		filename := app.getTimeNowUTC().
 			In(startDate.Location()).
 			Format(constants.CSVFileNameFormat)
 		filename = "Range-" + filename
@@ -279,7 +278,7 @@ func (app *Application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		user,
 		false,
 		[]string{id},
-		time.Now(),
+		app.getTimeNowUTC(),
 	)
 	if err != nil {
 		httptools.HandleError(w, r, err, nil)

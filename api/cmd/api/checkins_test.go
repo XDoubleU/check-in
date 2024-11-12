@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
-	"time"
 
 	httptools "github.com/XDoubleU/essentia/pkg/communication/http"
 	errortools "github.com/XDoubleU/essentia/pkg/errors"
@@ -89,15 +88,13 @@ func TestCreateCheckIn(t *testing.T) {
 	err := httptools.ReadJSON(rs.Body, &rsData)
 	require.Nil(t, err)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-
 	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 	assert.Equal(t, school.Name, rsData.SchoolName)
 	assert.Equal(t, fixtures.DefaultLocation.ID, rsData.LocationID)
 	assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData.Capacity)
 	assert.Equal(
 		t,
-		time.Now().In(loc).Format(constants.DateFormat),
+		testApp.getTimeNowUTC().Format(constants.DateFormat),
 		rsData.CreatedAt.Time.Format(constants.DateFormat),
 	)
 }
@@ -123,15 +120,13 @@ func TestCreateCheckInAndere(t *testing.T) {
 	err := httptools.ReadJSON(rs.Body, &rsData)
 	require.Nil(t, err)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-
 	assert.Equal(t, http.StatusCreated, rs.StatusCode)
 	assert.Equal(t, "Andere", rsData.SchoolName)
 	assert.Equal(t, fixtures.DefaultLocation.ID, rsData.LocationID)
 	assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData.Capacity)
 	assert.Equal(
 		t,
-		time.Now().In(loc).Format(constants.DateFormat),
+		testApp.getTimeNowUTC().Format(constants.DateFormat),
 		rsData.CreatedAt.Time.Format(constants.DateFormat),
 	)
 }
@@ -153,7 +148,7 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 
 	var rs *http.Response
 
-	for i := 0; i < int(fixtures.DefaultLocation.Capacity)+1; i++ {
+	for i := 0; i <= int(fixtures.DefaultLocation.Capacity); i++ {
 		rs = tReq.Do(t)
 	}
 
@@ -190,6 +185,7 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("school with schoolId '%d' doesn't exist", data.SchoolID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["schoolId"].(string),
 	)
 }

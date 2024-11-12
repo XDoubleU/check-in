@@ -26,10 +26,7 @@ func TestYesterdayFullAt(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-
-	now := time.Now().In(loc).AddDate(0, 0, -1)
-
+	now := testApp.getTimeNowUTC().AddDate(0, 0, -1)
 	for i := 0; i < int(fixtures.DefaultLocation.Capacity); i++ {
 		query := `
 			INSERT INTO check_ins 
@@ -66,11 +63,12 @@ func TestYesterdayFullAt(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rs.StatusCode)
 
+	loc, _ := time.LoadLocation(rsData.TimeZone)
 	assert.EqualValues(t, 0, rsData.AvailableYesterday)
 	assert.Equal(t, fixtures.DefaultLocation.Capacity, rsData.CapacityYesterday)
 	assert.Equal(t, true, rsData.YesterdayFullAt.Valid)
-	assert.Equal(t, now.Day(), rsData.YesterdayFullAt.Time.Day())
-	assert.Equal(t, now.Hour(), rsData.YesterdayFullAt.Time.Hour())
+	assert.Equal(t, now.In(loc).Day(), rsData.YesterdayFullAt.Time.Day())
+	assert.Equal(t, now.In(loc).Hour(), rsData.YesterdayFullAt.Time.Hour())
 }
 
 func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
@@ -79,16 +77,9 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 
 	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), 10)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-	utc, _ := time.LoadLocation("UTC")
-
-	now := time.Now().In(loc)
-
-	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = timetools.StartOfDay(startDate)
-
-	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = timetools.StartOfDay(endDate)
+	now := testApp.getTimeNowUTC()
+	startDate := timetools.StartOfDay(now.Add(-24 * time.Hour))
+	endDate := timetools.StartOfDay(now.Add(24 * time.Hour))
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -162,16 +153,9 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), 10)
 	testEnv.createCheckIns(location, int64(1), 10)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-	utc, _ := time.LoadLocation("UTC")
-
-	now := time.Now().In(loc)
-
-	startDate := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, utc)
-	startDate = timetools.StartOfDay(startDate)
-
-	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, utc)
-	endDate = timetools.StartOfDay(endDate)
+	now := testApp.getTimeNowUTC()
+	startDate := timetools.StartOfDay(now.Add(-24 * time.Hour))
+	endDate := timetools.StartOfDay(now.Add(24 * time.Hour))
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -259,8 +243,8 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	amount := 10
 	testEnv.createCheckIns(fixtures.DefaultLocation, 1, amount)
 
-	startDate := time.Now().AddDate(0, 0, -1).Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNowUTC().AddDate(0, 0, -1).Format(constants.DateFormat)
+	endDate := testApp.getTimeNowUTC().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -304,7 +288,7 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 		fetchedTimeToday, _ := time.Parse(time.RFC3339, rsData[2][0])
 		assert.Equal(
 			t,
-			time.Now().Format(constants.DateFormat),
+			testApp.getTimeNowUTC().Format(constants.DateFormat),
 			fetchedTimeToday.Format(constants.DateFormat),
 		)
 		assert.Equal(
@@ -326,8 +310,8 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNowUTC().Format(constants.DateFormat)
+	endDate := testApp.getTimeNowUTC().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	id, _ := uuid.NewUUID()
 
@@ -355,6 +339,7 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("locations with ids '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["ids"].(string),
 	)
 }
@@ -365,8 +350,8 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNowUTC().Format(constants.DateFormat)
+	endDate := testApp.getTimeNowUTC().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -392,6 +377,7 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -402,7 +388,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	endDate := testApp.getTimeNowUTC().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -424,6 +410,7 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'startDate'", rsData.Message.(string))
 }
 
@@ -433,7 +420,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	startDate := time.Now().Format(constants.DateFormat)
+	startDate := testApp.getTimeNowUTC().Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -455,6 +442,7 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'endDate'", rsData.Message.(string))
 }
 
@@ -464,8 +452,8 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNowUTC().Format(constants.DateFormat)
+	endDate := testApp.getTimeNowUTC().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -487,6 +475,7 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'returnType'", rsData.Message.(string))
 }
 
@@ -494,8 +483,8 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	startDate := time.Now().Format(constants.DateFormat)
-	endDate := time.Now().AddDate(0, 0, 1).Format(constants.DateFormat)
+	startDate := testApp.getTimeNowUTC().Format(constants.DateFormat)
+	endDate := testApp.getTimeNowUTC().AddDate(0, 0, 1).Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -518,6 +507,7 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -544,12 +534,7 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	amount := 10
 	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), amount)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-	utc, _ := time.LoadLocation("UTC")
-
-	now := time.Now().In(loc)
-
-	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
+	date := testApp.getTimeNowUTC()
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -606,12 +591,7 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 	testEnv.createCheckIns(fixtures.DefaultLocation, int64(1), amount)
 	testEnv.createCheckIns(location, int64(1), amount)
 
-	loc, _ := time.LoadLocation("Europe/Brussels")
-	utc, _ := time.LoadLocation("UTC")
-
-	now := time.Now().In(loc)
-
-	date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, utc)
+	date := testApp.getTimeNowUTC()
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -675,7 +655,7 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 	amount := 10
 	testEnv.createCheckIns(fixtures.DefaultLocation, 1, amount)
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNowUTC().Format(constants.DateFormat)
 
 	users := []*http.Cookie{
 		fixtures.Tokens.AdminAccessToken,
@@ -722,7 +702,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNowUTC().Format(constants.DateFormat)
 
 	id, _ := uuid.NewUUID()
 
@@ -749,6 +729,7 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("locations with ids '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["ids"].(string),
 	)
 }
@@ -759,7 +740,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNowUTC().Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -784,6 +765,7 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -813,6 +795,7 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'date'", rsData.Message.(string))
 }
 
@@ -822,7 +805,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 
 	location := testEnv.createLocations(1)[0]
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNowUTC().Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -843,6 +826,7 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Equal(t, "missing query param 'returnType'", rsData.Message.(string))
 }
 
@@ -850,7 +834,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	date := time.Now().Format(constants.DateFormat)
+	date := testApp.getTimeNowUTC().Format(constants.DateFormat)
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
@@ -872,6 +856,7 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -919,15 +904,13 @@ func TestGetAllCheckInsToday(t *testing.T) {
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 
-		loc, _ := time.LoadLocation("Europe/Brussels")
-
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, amount, len(rsData))
 		assert.Equal(t, fixtures.DefaultLocation.ID, rsData[0].LocationID)
 		assert.Equal(t, "Andere", rsData[0].SchoolName)
 		assert.Equal(
 			t,
-			time.Now().In(loc).Format(constants.DateFormat),
+			testApp.getTimeNowUTC().Format(constants.DateFormat),
 			rsData[0].CreatedAt.Time.Format(constants.DateFormat),
 		)
 	}
@@ -957,6 +940,7 @@ func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("locations with ids '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["ids"].(string),
 	)
 }
@@ -985,6 +969,7 @@ func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1007,6 +992,7 @@ func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -1060,15 +1046,13 @@ func TestDeleteCheckIn(t *testing.T) {
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 
-		loc, _ := time.LoadLocation("Europe/Brussels")
-
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		assert.Equal(t, checkIns[i].ID, rsData.ID)
 		assert.Equal(t, fixtures.DefaultLocation.ID, rsData.LocationID)
 		assert.Equal(t, "Andere", rsData.SchoolName)
 		assert.Equal(
 			t,
-			time.Now().In(loc).Format(constants.DateFormat),
+			testApp.getTimeNowUTC().Format(constants.DateFormat),
 			rsData.CreatedAt.Time.Format(constants.DateFormat),
 		)
 	}
@@ -1098,6 +1082,7 @@ func TestDeleteCheckInLocationNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1124,6 +1109,7 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		"checkIn with id '8000' doesn't exist",
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1146,7 +1132,7 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 		fixtures.DefaultLocation.ID,
 		1,
 		fixtures.DefaultLocation.Capacity,
-		time.Now().AddDate(0, 0, -1),
+		testApp.getTimeNowUTC().AddDate(0, 0, -1),
 	).Scan(&checkIn.ID)
 	if err != nil {
 		panic(err)
@@ -1197,6 +1183,7 @@ func TestDeleteCheckInNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -1533,6 +1520,7 @@ func TestGetLocationNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1561,6 +1549,7 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -1583,6 +1572,7 @@ func TestGetLocationNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -1683,6 +1673,7 @@ func TestCreateLocationNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with name '%s' already exists", data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -1715,6 +1706,7 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with name '%s' already exists", data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -1747,6 +1739,7 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("user with username '%s' already exists", data.Username),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["username"].(string),
 	)
 }
@@ -1919,6 +1912,7 @@ func TestUpdateLocationNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with name '%s' already exists", *data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -1964,6 +1958,7 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with name '%s' already exists", *data.Name),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["name"].(string),
 	)
 }
@@ -2006,6 +2001,7 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("user with username '%s' already exists", *data.Username),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["username"].(string),
 	)
 }
@@ -2107,6 +2103,7 @@ func TestUpdateLocationNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -2148,6 +2145,7 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", location.ID),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -2183,6 +2181,7 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 
@@ -2281,6 +2280,7 @@ func TestDeleteLocationNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		fmt.Sprintf("location with id '%s' doesn't exist", id.String()),
+		//nolint:errcheck //not needed
 		rsData.Message.(map[string]interface{})["id"].(string),
 	)
 }
@@ -2303,6 +2303,7 @@ func TestDeleteLocationNotUUID(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rs.StatusCode)
+	//nolint:errcheck //not needed
 	assert.Contains(t, rsData.Message.(string), "should be a UUID")
 }
 

@@ -47,7 +47,7 @@ func TestNormalizeName(t *testing.T) {
 }
 
 func TestSetCheckInRelatedFields(t *testing.T) {
-	createdAt := time.Now()
+	createdAt := time.Now().UTC()
 	noCheckIns := []*models.CheckIn{}
 	fiveCheckIns := generateCheckIns(5, 10, createdAt)
 	tenCheckIns := generateCheckIns(10, 10, createdAt)

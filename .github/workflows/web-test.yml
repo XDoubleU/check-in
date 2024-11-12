@@ -1,10 +1,6 @@
 name: Web Test Workflow
 
-on:
-  schedule:
-    - cron: "0 22,23 * * 5"
-    - cron: "0 0,1,2 * * 6"
-    
+on:    
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   workflow_call:
