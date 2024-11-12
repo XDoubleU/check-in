@@ -10,8 +10,8 @@ import (
 )
 
 type CheckInWriteRepository struct {
-	db         postgres.DB
-	getTimeNow shared.NowTimeProvider
+	db            postgres.DB
+	getTimeNowUTC shared.UTCNowTimeProvider
 }
 
 func (repo CheckInWriteRepository) Create(
@@ -22,7 +22,7 @@ func (repo CheckInWriteRepository) Create(
 	query := `
 		INSERT INTO check_ins (location_id, school_id, capacity, created_at)
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, created_at
+		RETURNING id, (created_at AT TIME ZONE 'utc')
 	`
 
 	//nolint:exhaustruct //other fields are optional
@@ -38,7 +38,7 @@ func (repo CheckInWriteRepository) Create(
 		location.ID,
 		school.ID,
 		location.Capacity,
-		repo.getTimeNow(),
+		repo.getTimeNowUTC(),
 	).Scan(&checkIn.ID, &checkIn.CreatedAt)
 
 	if err != nil {

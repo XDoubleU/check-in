@@ -11,8 +11,8 @@ import (
 )
 
 type AuthRepository struct {
-	db         postgres.DB
-	getTimeNow shared.NowTimeProvider
+	db            postgres.DB
+	getTimeNowUTC shared.UTCNowTimeProvider
 }
 
 func (repo AuthRepository) CreateToken(ctx context.Context, token *models.Token) error {
@@ -49,7 +49,7 @@ func (repo AuthRepository) DeleteExpiredTokens(ctx context.Context) error {
 		WHERE expiry < $1
 	`
 
-	_, err := repo.db.Exec(ctx, query, repo.getTimeNow())
+	_, err := repo.db.Exec(ctx, query, repo.getTimeNowUTC())
 	return err
 }
 
@@ -68,7 +68,7 @@ func (repo AuthRepository) GetToken(
 		AND tokens.expiry > $3
 	`
 
-	args := []any{tokenHash[:], scope, repo.getTimeNow()}
+	args := []any{tokenHash[:], scope, repo.getTimeNowUTC()}
 
 	var token models.Token
 	var userID string

@@ -28,13 +28,13 @@ import (
 var embedMigrations embed.FS
 
 type Application struct {
-	logger     *slog.Logger
-	ctx        context.Context
-	ctxCancel  context.CancelFunc
-	db         postgres.DB
-	config     config.Config
-	getTimeNow shared.NowTimeProvider
-	services   services.Services
+	logger        *slog.Logger
+	ctx           context.Context
+	ctxCancel     context.CancelFunc
+	db            postgres.DB
+	config        config.Config
+	getTimeNowUTC shared.UTCNowTimeProvider
+	services      services.Services
 }
 
 //	@title			Check-In API
@@ -83,15 +83,15 @@ func NewApp(
 	logger *slog.Logger,
 	cfg config.Config,
 	db postgres.DB,
-	nowTimeProvider shared.NowTimeProvider,
+	localNowTimeProvider shared.LocalNowTimeProvider,
 ) *Application {
 	logger.Info(cfg.String())
 
 	//nolint:exhaustruct //other fields are optional
 	app := &Application{
-		logger:     logger,
-		config:     cfg,
-		getTimeNow: nowTimeProvider,
+		logger:        logger,
+		config:        cfg,
+		getTimeNowUTC: func() time.Time { return localNowTimeProvider().UTC() },
 	}
 
 	app.setContext()
@@ -100,8 +100,8 @@ func NewApp(
 	return app
 }
 
-func (app *Application) getNowTimeProvider() shared.NowTimeProvider {
-	return func() time.Time { return app.getTimeNow() }
+func (app *Application) getUTCNowTimeProvider() shared.UTCNowTimeProvider {
+	return func() time.Time { return app.getTimeNowUTC() }
 }
 
 func (app *Application) setDB(db postgres.DB) {
@@ -117,8 +117,8 @@ func (app *Application) setDB(db postgres.DB) {
 		app.ctx,
 		app.logger,
 		app.config,
-		repositories.New(app.db, app.getNowTimeProvider()),
-		app.getNowTimeProvider(),
+		repositories.New(app.db, app.getUTCNowTimeProvider()),
+		app.getUTCNowTimeProvider(),
 	)
 }
 

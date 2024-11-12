@@ -314,7 +314,7 @@ func TestMain(m *testing.M) {
 
 	ApplyMigrations(logging.NewNopLogger(), postgresDB)
 
-	timesToCheck := []shared.NowTimeProvider{
+	timesToCheck := []shared.LocalNowTimeProvider{
 		time.Now,
 		func() time.Time { return getTimeNow(23, false, "Europe/Brussels") },
 		func() time.Time { return getTimeNow(00, true, "Europe/Brussels") },

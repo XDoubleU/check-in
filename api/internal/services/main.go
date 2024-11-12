@@ -24,7 +24,7 @@ func New(
 	logger *slog.Logger,
 	config config.Config,
 	repositories repositories.Repositories,
-	nowTimeProvider shared.NowTimeProvider,
+	utcNowTimeProvider shared.UTCNowTimeProvider,
 ) Services {
 	websocket := NewWebSocketService([]string{config.WebURL})
 	state := NewStateService(ctx, logger, repositories.State, websocket)
@@ -37,18 +37,18 @@ func New(
 		schoolIDNameMap: make(map[int64]string),
 	}
 	locations := LocationService{
-		locations:  repositories.Locations,
-		checkins:   repositories.CheckIns,
-		schools:    schools,
-		users:      users,
-		websocket:  websocket,
-		getTimeNow: nowTimeProvider,
+		locations:     repositories.Locations,
+		checkins:      repositories.CheckIns,
+		schools:       schools,
+		users:         users,
+		websocket:     websocket,
+		getTimeNowUTC: utcNowTimeProvider,
 	}
 	auth := AuthService{
-		auth:       repositories.Auth,
-		users:      users,
-		locations:  locations,
-		getTimeNow: nowTimeProvider,
+		auth:          repositories.Auth,
+		users:         users,
+		locations:     locations,
+		getTimeNowUTC: utcNowTimeProvider,
 	}
 	checkInsWriter := CheckInWriterService{
 		checkins:  repositories.CheckInsWriter,

@@ -20,10 +20,10 @@ import (
 )
 
 type AuthService struct {
-	auth       repositories.AuthRepository
-	users      UserService
-	locations  LocationService
-	getTimeNow shared.NowTimeProvider
+	auth          repositories.AuthRepository
+	users         UserService
+	locations     LocationService
+	getTimeNowUTC shared.UTCNowTimeProvider
 }
 
 func (service AuthService) SignInUser(
@@ -181,7 +181,7 @@ func (service AuthService) generateToken(
 	//nolint:exhaustruct //other fields are optional
 	token := &models.Token{
 		UserID: userID,
-		Expiry: service.getTimeNow().Add(ttl),
+		Expiry: service.getTimeNowUTC().Add(ttl),
 		Scope:  scope,
 	}
 

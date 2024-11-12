@@ -2,7 +2,8 @@ package shared
 
 import "time"
 
-type NowTimeProvider = func() time.Time
+type LocalNowTimeProvider = func() time.Time
+type UTCNowTimeProvider = func() time.Time
 
 func GetTimeZoneIndependantValue(datetime time.Time, tz string) time.Time {
 	// change TZ without changing actual time value

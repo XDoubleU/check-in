@@ -22,7 +22,7 @@ func (repo CheckInRepository) GetAllInRange(
 ) ([]*models.CheckIn, error) {
 	query := `
 		SELECT check_ins.id, check_ins.location_id, check_ins.school_id,
-		 check_ins.capacity, check_ins.created_at
+		 check_ins.capacity, (check_ins.created_at AT TIME ZONE 'utc')
 		FROM check_ins
 		WHERE check_ins.location_id = $1 
 		AND check_ins.created_at >= $2
@@ -74,7 +74,7 @@ func (repo CheckInRepository) GetByID(
 	id int64,
 ) (*models.CheckIn, error) {
 	query := `
-		SELECT school_id, capacity, created_at
+		SELECT school_id, capacity, (created_at AT TIME ZONE 'utc')
 		FROM check_ins
 		WHERE id = $1 AND location_id = $2
 	`

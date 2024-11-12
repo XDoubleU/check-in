@@ -105,7 +105,7 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	}
 
 	if returnType == "csv" {
-		filename := app.getTimeNow().
+		filename := app.getTimeNowUTC().
 			In(date.Location()).
 			Format(constants.CSVFileNameFormat)
 		filename = "Day-" + filename
@@ -187,7 +187,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 	}
 
 	if returnType == "csv" {
-		filename := app.getTimeNow().
+		filename := app.getTimeNowUTC().
 			In(startDate.Location()).
 			Format(constants.CSVFileNameFormat)
 		filename = "Range-" + filename
@@ -278,7 +278,7 @@ func (app *Application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		user,
 		false,
 		[]string{id},
-		app.getTimeNow(),
+		app.getTimeNowUTC(),
 	)
 	if err != nil {
 		httptools.HandleError(w, r, err, nil)

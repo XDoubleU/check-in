@@ -16,12 +16,12 @@ type Repositories struct {
 	State          StateRepository
 }
 
-func New(db postgres.DB, nowTimeProvider shared.NowTimeProvider) Repositories {
-	checkInsWriter := CheckInWriteRepository{db: db, getTimeNow: nowTimeProvider}
+func New(db postgres.DB, utcNowTimeProvider shared.UTCNowTimeProvider) Repositories {
+	checkInsWriter := CheckInWriteRepository{db: db, getTimeNowUTC: utcNowTimeProvider}
 	checkIns := CheckInRepository{db: db}
 	schools := SchoolRepository{db: db}
 	locations := LocationRepository{db: db}
-	auth := AuthRepository{db: db, getTimeNow: nowTimeProvider}
+	auth := AuthRepository{db: db, getTimeNowUTC: utcNowTimeProvider}
 	users := UserRepository{db: db}
 	state := StateRepository{db: db}
 

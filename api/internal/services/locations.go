@@ -18,12 +18,12 @@ import (
 )
 
 type LocationService struct {
-	locations  repositories.LocationRepository
-	checkins   repositories.CheckInRepository
-	schools    SchoolService
-	users      UserService
-	websocket  *WebSocketService
-	getTimeNow shared.NowTimeProvider
+	locations     repositories.LocationRepository
+	checkins      repositories.CheckInRepository
+	schools       SchoolService
+	users         UserService
+	websocket     *WebSocketService
+	getTimeNowUTC shared.UTCNowTimeProvider
 }
 
 func (service *LocationService) InitializeWS(ctx context.Context) error {
@@ -236,8 +236,8 @@ func (service LocationService) GetAllCheckInsInRange(
 		locationCheckIns, err = service.checkins.GetAllInRange(
 			ctx,
 			location.ID,
-			shared.GetTimeZoneIndependantValue(startDate, location.TimeZone),
-			shared.GetTimeZoneIndependantValue(endDate, location.TimeZone),
+			startDate,
+			endDate,
 		)
 		if err != nil {
 			return nil, nil, err
@@ -306,7 +306,7 @@ func (service LocationService) DeleteCheckIn(
 		return nil, err
 	}
 
-	today := service.getTimeNow()
+	today := service.getTimeNowUTC()
 	startOfToday := timetools.StartOfDay(today)
 	endOfToday := timetools.EndOfDay(today)
 
@@ -367,7 +367,7 @@ func (service LocationService) GetAll(
 		user,
 		allowAnonymous,
 		locationIDs,
-		service.getTimeNow(),
+		service.getTimeNowUTC(),
 	)
 	if err != nil {
 		return nil, err
@@ -378,7 +378,7 @@ func (service LocationService) GetAll(
 		user,
 		allowAnonymous,
 		locationIDs,
-		service.getTimeNow().Add(-24*time.Hour),
+		service.getTimeNowUTC().Add(-24*time.Hour),
 	)
 	if err != nil {
 		return nil, err
@@ -431,7 +431,7 @@ func (service LocationService) GetAllPaginated(
 		user,
 		false,
 		locationIDs,
-		service.getTimeNow(),
+		service.getTimeNowUTC(),
 	)
 	if err != nil {
 		return nil, err
@@ -442,7 +442,7 @@ func (service LocationService) GetAllPaginated(
 		user,
 		false,
 		locationIDs,
-		service.getTimeNow().Add(-24*time.Hour),
+		service.getTimeNowUTC().Add(-24*time.Hour),
 	)
 	if err != nil {
 		return nil, err
@@ -487,7 +487,7 @@ func (service LocationService) GetByID(
 		user,
 		false,
 		[]string{location.ID},
-		service.getTimeNow(),
+		service.getTimeNowUTC(),
 	)
 	if err != nil {
 		return nil, err
@@ -498,7 +498,7 @@ func (service LocationService) GetByID(
 		user,
 		false,
 		[]string{location.ID},
-		service.getTimeNow().Add(-24*time.Hour),
+		service.getTimeNowUTC().Add(-24*time.Hour),
 	)
 	if err != nil {
 		return nil, err
@@ -526,7 +526,7 @@ func (service LocationService) GetByUser(
 		user,
 		false,
 		[]string{location.ID},
-		service.getTimeNow(),
+		service.getTimeNowUTC(),
 	)
 	if err != nil {
 		return nil, err
@@ -537,7 +537,7 @@ func (service LocationService) GetByUser(
 		user,
 		false,
 		[]string{location.ID},
-		service.getTimeNow().Add(-24*time.Hour),
+		service.getTimeNowUTC().Add(-24*time.Hour),
 	)
 	if err != nil {
 		return nil, err
@@ -641,7 +641,7 @@ func (service LocationService) Create(
 		user,
 		false,
 		[]string{location.ID},
-		service.getTimeNow(),
+		service.getTimeNowUTC(),
 	)
 	if err != nil {
 		return nil, err
@@ -652,7 +652,7 @@ func (service LocationService) Create(
 		user,
 		false,
 		[]string{location.ID},
-		service.getTimeNow().Add(-24*time.Hour),
+		service.getTimeNowUTC().Add(-24*time.Hour),
 	)
 	if err != nil {
 		return nil, err
@@ -763,7 +763,7 @@ func (service LocationService) Update(
 		user,
 		false,
 		[]string{location.ID},
-		service.getTimeNow(),
+		service.getTimeNowUTC(),
 	)
 	if err != nil {
 		return nil, err
@@ -774,7 +774,7 @@ func (service LocationService) Update(
 		user,
 		false,
 		[]string{location.ID},
-		service.getTimeNow().Add(-24*time.Hour),
+		service.getTimeNowUTC().Add(-24*time.Hour),
 	)
 	if err != nil {
 		return nil, err
