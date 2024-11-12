@@ -319,6 +319,9 @@ func TestMain(m *testing.M) {
 		func() time.Time { return getTimeNow(23, false, "Europe/Brussels") },
 		func() time.Time { return getTimeNow(00, true, "Europe/Brussels") },
 		func() time.Time { return getTimeNow(01, true, "Europe/Brussels") },
+		func() time.Time { return getTimeNow(23, false, "UTC") },
+		func() time.Time { return getTimeNow(00, false, "UTC") },
+		func() time.Time { return getTimeNow(01, false, "UTC") },
 	}
 
 	for _, timeNow := range timesToCheck {
@@ -331,7 +334,11 @@ func TestMain(m *testing.M) {
 
 		tz, _ := timeNow().Zone()
 		//nolint:forbidigo //allowed
-		fmt.Printf("running test suite for hour '%d' with timezone '%s'\n", timeNow().Hour(), tz)
+		fmt.Printf(
+			"running test suite for hour '%d' with timezone '%s'\n",
+			timeNow().Hour(),
+			tz,
+		)
 		code := m.Run()
 
 		err = mainTx.Rollback(context.Background())
