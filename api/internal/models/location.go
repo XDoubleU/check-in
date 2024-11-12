@@ -2,6 +2,7 @@ package models
 
 import (
 	"strings"
+	"time"
 
 	"github.com/dlclark/regexp2"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -72,8 +73,10 @@ func (location *Location) SetCheckInRelatedFields(
 		location.AvailableYesterday = location.Capacity
 	}
 
+	loc, _ := time.LoadLocation(location.TimeZone)
 	if location.AvailableYesterday == 0 && lastCheckInYesterday != nil {
 		location.YesterdayFullAt = lastCheckInYesterday.CreatedAt
+		location.YesterdayFullAt.Time = location.YesterdayFullAt.Time.In(loc)
 	}
 }
 

@@ -15,6 +15,7 @@ import (
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
+	"check-in/api/internal/shared"
 )
 
 type TestEnv struct {
@@ -103,11 +104,6 @@ func defaultFixtures(ctx context.Context, app *Application) {
 		panic(err)
 	}
 
-	timezone, err := time.LoadLocation("Europe/Brussels")
-	if err != nil {
-		panic(err)
-	}
-
 	fixtures.DefaultLocation, err = app.services.Locations.Create(
 		ctx,
 		fixtures.AdminUser,
@@ -115,7 +111,7 @@ func defaultFixtures(ctx context.Context, app *Application) {
 		&dtos.CreateLocationDto{
 			Name:     "TestLocation",
 			Capacity: 20,
-			TimeZone: timezone.String(),
+			TimeZone: "Europe/Brussels",
 			Username: "Default",
 			Password: "testpassword",
 		},
@@ -218,11 +214,6 @@ func (env *TestEnv) createManagerUsers(amount int) []*models.User {
 func (env *TestEnv) createLocations(amount int) []*models.Location {
 	var err error
 
-	timezone, err := time.LoadLocation("Europe/Brussels")
-	if err != nil {
-		panic(err)
-	}
-
 	locations := []*models.Location{}
 	for i := 0; i < amount; i++ {
 		var location *models.Location
@@ -233,7 +224,7 @@ func (env *TestEnv) createLocations(amount int) []*models.Location {
 			&dtos.CreateLocationDto{
 				Name:     fmt.Sprintf("TestLocation%d", i),
 				Capacity: 20,
-				TimeZone: timezone.String(),
+				TimeZone: "Europe/Brussels",
 				Username: fmt.Sprintf("TestDefaultUser%d", i),
 				Password: "testpassword",
 			},
@@ -323,28 +314,72 @@ func TestMain(m *testing.M) {
 
 	ApplyMigrations(logging.NewNopLogger(), postgresDB)
 
-	mainTx = postgres.CreatePgxSyncTx(context.Background(), postgresDB)
-
-	testCtx = context.Background()
-	mainTestApp = NewApp(logging.NewNopLogger(), cfg, mainTx)
-
-	clearAllData(testCtx, mainTestApp)
-	defaultFixtures(testCtx, mainTestApp)
-
-	code := m.Run()
-	err = mainTx.Rollback(context.Background())
-	if err != nil {
-		panic(err)
+	timesToCheck := []shared.LocalNowTimeProvider{
+		time.Now,
+		func() time.Time { return getTimeNow(23, false, "Europe/Brussels") },
+		func() time.Time { return getTimeNow(00, true, "Europe/Brussels") },
+		func() time.Time { return getTimeNow(01, true, "Europe/Brussels") },
+		func() time.Time { return getTimeNow(23, false, "UTC") },
+		func() time.Time { return getTimeNow(00, false, "UTC") },
+		func() time.Time { return getTimeNow(01, false, "UTC") },
 	}
 
-	os.Exit(code)
+	for _, timeNow := range timesToCheck {
+		mainTx = postgres.CreatePgxSyncTx(context.Background(), postgresDB)
+		mainTestApp = NewApp(logging.NewNopLogger(), cfg, mainTx, timeNow)
+
+		testCtx = context.Background()
+		clearAllData(testCtx, mainTestApp)
+		defaultFixtures(testCtx, mainTestApp)
+
+		tz, _ := timeNow().Zone()
+		//nolint:forbidigo //allowed
+		fmt.Printf(
+			"running test suite for hour '%d' with timezone '%s'\n",
+			timeNow().Hour(),
+			tz,
+		)
+		code := m.Run()
+
+		err = mainTx.Rollback(context.Background())
+		if err != nil {
+			panic(err)
+		}
+
+		if code != 0 {
+			os.Exit(code)
+		}
+	}
+
+	os.Exit(0)
+}
+
+func getTimeNow(hour int, nextDay bool, tz string) time.Time {
+	now := time.Now()
+
+	if nextDay {
+		now = now.Add(24 * time.Hour)
+	}
+
+	location, _ := time.LoadLocation(tz)
+
+	return time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		hour,
+		now.Minute(),
+		now.Second(),
+		now.Nanosecond(),
+		location,
+	)
 }
 
 func setup(_ *testing.T) (*TestEnv, *Application) {
 	tx := postgres.CreatePgxSyncTx(context.Background(), mainTx)
 
 	testApp := *mainTestApp
-	testApp.SetDB(tx)
+	testApp.setDB(tx)
 
 	testEnv := &TestEnv{
 		ctx: testCtx,

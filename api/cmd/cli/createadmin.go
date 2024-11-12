@@ -39,7 +39,8 @@ func createAdmin(cfg config.Config, username string, password string) {
 		context.Background(),
 		slog.Default(),
 		cfg,
-		repositories.New(db),
+		repositories.New(db, time.Now),
+		time.Now,
 	)
 
 	_, err = services.Users.Create(

@@ -6,10 +6,12 @@ import (
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 
 	"check-in/api/internal/models"
+	"check-in/api/internal/shared"
 )
 
 type CheckInWriteRepository struct {
-	db postgres.DB
+	db            postgres.DB
+	getTimeNowUTC shared.UTCNowTimeProvider
 }
 
 func (repo CheckInWriteRepository) Create(
@@ -18,9 +20,9 @@ func (repo CheckInWriteRepository) Create(
 	school *models.School,
 ) (*models.CheckIn, error) {
 	query := `
-		INSERT INTO check_ins (location_id, school_id, capacity)
-		VALUES ($1, $2, $3)
-		RETURNING id, (created_at AT TIME ZONE $4)
+		INSERT INTO check_ins (location_id, school_id, capacity, created_at)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, (created_at AT TIME ZONE 'utc')
 	`
 
 	//nolint:exhaustruct //other fields are optional
@@ -36,7 +38,7 @@ func (repo CheckInWriteRepository) Create(
 		location.ID,
 		school.ID,
 		location.Capacity,
-		location.TimeZone,
+		repo.getTimeNowUTC(),
 	).Scan(&checkIn.ID, &checkIn.CreatedAt)
 
 	if err != nil {

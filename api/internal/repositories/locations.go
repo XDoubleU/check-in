@@ -114,23 +114,14 @@ func (repo LocationRepository) GetByIDs(
 	ctx context.Context,
 	ids []string,
 ) ([]*models.Location, error) {
-	query := `
-		SELECT id, name, capacity, time_zone, user_id
-		FROM locations
-		WHERE locations.id = ANY($1::uuid[])
-	`
-
-	if len(ids) == 0 {
-		return make([]*models.Location, 0), nil
-	}
-
-	if len(ids) == 1 {
-		location, err := repo.GetByID(ctx, ids[0])
+	locations := []*models.Location{}
+	for _, id := range ids {
+		location, err := repo.GetByID(ctx, id)
 		if err != nil {
 			return nil, err
 		}
 
-		return []*models.Location{location}, nil
+		locations = append(locations, location)
 	}
 
 	//nolint:exhaustruct //other fields are optional
@@ -140,33 +131,6 @@ func (repo LocationRepository) GetByIDs(
 			String: id,
 			Valid:  true,
 		})
-	}
-
-	rows, err := repo.db.Query(ctx, query, pgArray)
-	if err != nil {
-		return nil, postgres.PgxErrorToHTTPError(err)
-	}
-
-	locations := []*models.Location{}
-	for rows.Next() {
-		var location models.Location
-
-		err = rows.Scan(
-			&location.ID,
-			&location.Name,
-			&location.Capacity,
-			&location.TimeZone,
-			&location.UserID,
-		)
-		if err != nil {
-			return nil, postgres.PgxErrorToHTTPError(err)
-		}
-
-		locations = append(locations, &location)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, postgres.PgxErrorToHTTPError(err)
 	}
 
 	return locations, nil
