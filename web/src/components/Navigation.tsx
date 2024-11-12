@@ -10,7 +10,7 @@ interface NavItemProps {
   active?: boolean
 }
 
-function NavItem({ children, href, onClick, active }: Readonly<NavItemProps>) {
+function NavItem({ children, href, onClick, active }: NavItemProps) {
   const router = useRouter()
 
   if (onClick !== undefined) {
