@@ -17,5 +17,5 @@ export async function getAllSchoolsSortedForLocation(): Promise<
 export async function createCheckIn(
   createCheckInDto: CreateCheckInDto
 ): Promise<APIResponse<CheckIn>> {
-  return await fetchHandler(CHECKINS_ENDPOINT, "POST", createCheckInDto)
+  return await fetchHandler(`${CHECKINS_ENDPOINT}`, "POST", createCheckInDto)
 }

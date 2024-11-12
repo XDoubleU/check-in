@@ -46,9 +46,7 @@ describe("CheckIn (page)", () => {
 
     render(<CheckIn />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Check-In")
-    })
+    await waitFor(() => expect(document.title).toBe("Check-In"))
 
     // First check-in
     const button = screen.getByRole("button", { name: "CHECK-IN" })
@@ -58,18 +56,11 @@ describe("CheckIn (page)", () => {
     let school = screen.getByRole("button", { name: "ANDERE" })
     fireEvent.click(school)
 
-    await waitFor(() => {
-      expect(school).not.toBeVisible()
-    })
+    await waitFor(() => expect(school).not.toBeVisible())
 
     // Check if button is disabled and becomes enabled again
     expect(button).toBeDisabled()
-    await waitFor(
-      () => {
-        expect(button).toBeEnabled()
-      },
-      { timeout: 1500 }
-    )
+    await waitFor(() => expect(button).toBeEnabled(), { timeout: 1500 })
 
     // Second check-in
     fireEvent.click(button)
@@ -89,9 +80,7 @@ describe("CheckIn (page)", () => {
 
     render(<CheckIn />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Check-In")
-    })
+    await waitFor(() => expect(document.title).toBe("Check-In"))
 
     await screen.findByText("2", { selector: "span" })
 
@@ -116,9 +105,7 @@ describe("CheckIn (page)", () => {
 
     render(<CheckIn />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Check-In")
-    })
+    await waitFor(() => expect(document.title).toBe("Check-In"))
 
     await screen.findByText("2", { selector: "span" })
 
@@ -142,9 +129,7 @@ describe("CheckIn (page)", () => {
 
     render(<CheckIn />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Loading...")
-    })
+    await waitFor(() => expect(document.title).toBe("Loading..."))
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/settings")
@@ -157,9 +142,7 @@ describe("CheckIn (page)", () => {
 
     render(<CheckIn />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Loading...")
-    })
+    await waitFor(() => expect(document.title).toBe("Loading..."))
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/settings")
@@ -172,9 +155,7 @@ describe("CheckIn (page)", () => {
 
     render(<CheckIn />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Loading...")
-    })
+    await waitFor(() => expect(document.title).toBe("Loading..."))
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/signin")

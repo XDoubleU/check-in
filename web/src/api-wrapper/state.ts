@@ -5,7 +5,7 @@ import { type APIResponse } from "./types"
 const STATE_ENDPOINT = "state"
 
 export async function getState(): Promise<APIResponse<State>> {
-  return await fetchHandler(STATE_ENDPOINT)
+  return await fetchHandler(`${STATE_ENDPOINT}`, undefined, undefined)
 }
 
 export async function updateState(

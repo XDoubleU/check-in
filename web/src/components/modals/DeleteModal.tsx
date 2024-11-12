@@ -17,14 +17,10 @@ export default function DeleteModal<T extends FieldValues>({
   handler,
   fetchData,
   typeName
-}: Readonly<DeleteModalProps<T>>) {
+}: DeleteModalProps<T>) {
   const [showDelete, setShowDelete] = useState(false)
-  const handleCloseDelete = () => {
-    setShowDelete(false)
-  }
-  const handleShowDelete = () => {
-    setShowDelete(true)
-  }
+  const handleCloseDelete = () => setShowDelete(false)
+  const handleShowDelete = () => setShowDelete(true)
 
   const {
     handleSubmit,

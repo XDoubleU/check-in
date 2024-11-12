@@ -15,7 +15,7 @@ export default function BaseLayout({
   title,
   showLinks,
   showNav
-}: Readonly<BaseLayoutProps>) {
+}: BaseLayoutProps) {
   const fullTitle = title ? `${title} - Check-In` : "Check-In"
 
   return (

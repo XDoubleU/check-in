@@ -29,7 +29,7 @@ export default function FormInput<T extends string>({
   min,
   autocomplete,
   errors
-}: Readonly<FormInputProps<T>>) {
+}: FormInputProps<T>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let registerOrOnChange: any
 
@@ -44,7 +44,6 @@ export default function FormInput<T extends string>({
   return (
     <Form.Group
       className="mb-3"
-      // eslint-disable-next-line sonarjs/pseudo-random
       controlId={Math.random().toString(36).slice(2)}
     >
       <Form.Label>{label}</Form.Label>

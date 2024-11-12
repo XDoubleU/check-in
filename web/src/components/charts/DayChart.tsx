@@ -25,7 +25,7 @@ interface FilterProps {
   setDate: Dispatch<SetStateAction<Moment>>
 }
 
-function Filter({ date, setDate }: Readonly<FilterProps>) {
+function Filter({ date, setDate }: FilterProps) {
   return (
     <Row>
       <Col>
@@ -33,9 +33,7 @@ function Filter({ date, setDate }: Readonly<FilterProps>) {
           label="Date"
           type="date"
           value={date.format(DATE_FORMAT)}
-          onChange={(e) => {
-            setDate(moment(e.target.value))
-          }}
+          onChange={(e) => setDate(moment(e.target.value))}
         />
       </Col>
       <Col></Col>
@@ -50,7 +48,7 @@ export default function DayChart({
   date,
   setDayData,
   setDate
-}: Readonly<DayChartProps>) {
+}: DayChartProps) {
   const [schools, setSchools] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -70,9 +68,7 @@ export default function DayChart({
         setDayData(newData)
         setSchools(extractAllSchools(response.data))
       })
-      .then(() => {
-        setLoading(false)
-      })
+      .then(() => setLoading(false))
   }, [date, locationIds, setDayData])
 
   if (loading) {
