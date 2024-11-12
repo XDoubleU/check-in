@@ -41,11 +41,15 @@ export default function CheckIn() {
   const [apiState, setApiState] = useState<State>()
   const [available, setAvailable] = useState(0)
   const [schools, setSchools] = useState(new Array<School>())
-  const [isDisabled, setDisabled] = useState(false)
+  const [isDisabled, setIsDisabled] = useState(false)
 
   const [showSchools, setShowSchools] = useState(false)
-  const handleClose = () => setShowSchools(false)
-  const handleShow = () => setShowSchools(true)
+  const handleClose = () => {
+    setShowSchools(false)
+  }
+  const handleShow = () => {
+    setShowSchools(true)
+  }
 
   const connectWebSocket = useCallback((apiLocation: Location): WebSocket => {
     let webSocket = checkinsWebsocket(apiLocation)
@@ -57,9 +61,9 @@ export default function CheckIn() {
 
       if ((updateEvent as LocationUpdateEvent).available) {
         setAvailable((updateEvent as LocationUpdateEvent).available)
-      } else if ((updateEvent as State).isDatabaseActive != undefined) {
+      } else {
         setApiState(updateEvent as State)
-        setDisabled(
+        setIsDisabled(
           (updateEvent as State).isMaintenance ||
             !(updateEvent as State).isDatabaseActive
         )
@@ -89,15 +93,17 @@ export default function CheckIn() {
     }
   }, [connectWebSocket, user?.location])
 
-  const loadSchools = async () => {
-    const response = await getAllSchoolsSortedForLocation()
+  const loadSchools = () => {
+    void getAllSchoolsSortedForLocation().then((response) => {
+      if (!response.data) return
 
-    setSchools(response.data as School[])
-    handleShow()
+      setSchools(response.data)
+      handleShow()
+    })
   }
 
   const onClick: MouseEventHandler<HTMLButtonElement> = (event) => {
-    setDisabled(true)
+    setIsDisabled(true)
 
     void createCheckIn({
       schoolId: parseInt((event.target as HTMLButtonElement).value)
@@ -108,7 +114,7 @@ export default function CheckIn() {
     handleClose()
 
     setTimeout(function () {
-      setDisabled(false)
+      setIsDisabled(false)
     }, 1500)
   }
 
@@ -153,7 +159,7 @@ export default function CheckIn() {
             <Container className="text-center">
               <StateAlert state={apiState} />
               <h1 className="bold" style={{ fontSize: "5rem" }}>
-                Welkom bij {user?.location?.name}!
+                Welkom bij {user.location.name}!
               </h1>
               <br />
               {available <= 0 ? (
@@ -170,13 +176,13 @@ export default function CheckIn() {
                     plekken vrij
                   </h2>
                   <br />
-                  <Button
-                    className={`${styles.btnCheckIn} bold text-white`}
+                  <CustomButton
+                    className={`${styles.btnCheckIn} bold`}
                     onClick={loadSchools}
                     disabled={isDisabled}
                   >
                     CHECK-IN
-                  </Button>
+                  </CustomButton>
                 </>
               )}
             </Container>

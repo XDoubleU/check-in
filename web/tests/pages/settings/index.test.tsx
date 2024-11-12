@@ -57,7 +57,9 @@ describe("SettingsHome (page)", () => {
 
     render(<SettingsHome />)
 
-    await waitFor(() => expect(document.title).toBe("Loading..."))
+    await waitFor(() => {
+      expect(document.title).toBe("Loading...")
+    })
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings")

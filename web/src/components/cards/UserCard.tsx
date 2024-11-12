@@ -11,7 +11,7 @@ type UserUpdateForm = UpdateUserDto & { repeatPassword?: string }
 
 type UserCardProps = ICardProps<User>
 
-function UserUpdateModal({ data, fetchData }: UserCardProps) {
+function UserUpdateModal({ data, fetchData }: Readonly<UserCardProps>) {
   const form = useForm<UserUpdateForm>({
     defaultValues: {
       username: data.username
@@ -45,7 +45,7 @@ function UserUpdateModal({ data, fetchData }: UserCardProps) {
   )
 }
 
-function UserDeleteModal({ data, fetchData }: UserCardProps) {
+function UserDeleteModal({ data, fetchData }: Readonly<UserCardProps>) {
   const handleDelete = () => {
     return deleteUser(data.id)
   }
@@ -60,7 +60,7 @@ function UserDeleteModal({ data, fetchData }: UserCardProps) {
   )
 }
 
-export default function UserCard({ data, fetchData }: UserCardProps) {
+export default function UserCard({ data, fetchData }: Readonly<UserCardProps>) {
   return (
     <>
       <Card>

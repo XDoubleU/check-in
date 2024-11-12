@@ -17,7 +17,7 @@ type CreateUserForm = CreateUserDto & { repeatPassword?: string }
 
 export type CreateUserModalProps = ICreateModalProps<CreateUserForm>
 
-function CreateUserModal({ form, fetchData }: CreateUserModalProps) {
+function CreateUserModal({ form, fetchData }: Readonly<CreateUserModalProps>) {
   const {
     register,
     watch,

@@ -21,13 +21,13 @@ export async function getUser(id: string): Promise<APIResponse<User>> {
 export async function getAllUsersPaged(
   page?: number
 ): Promise<APIResponse<PaginatedUsersDto>> {
-  return await fetchHandler(`${USERS_ENDPOINT}`, undefined, undefined, { page })
+  return await fetchHandler(USERS_ENDPOINT, undefined, undefined, { page })
 }
 
 export async function createUser(
   createUserDto: CreateUserDto
 ): Promise<APIResponse<User>> {
-  return await fetchHandler(`${USERS_ENDPOINT}`, "POST", createUserDto)
+  return await fetchHandler(USERS_ENDPOINT, "POST", createUserDto)
 }
 
 export async function updateUser(

@@ -9,7 +9,8 @@ import React, {
   type Dispatch,
   type ReactNode,
   useEffect,
-  useContext
+  useContext,
+  useMemo
 } from "react"
 import * as Sentry from "@sentry/nextjs"
 
@@ -31,8 +32,7 @@ interface AuthRedirecterProps {
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const AuthContext = React.createContext<AuthContextProps>({
   user: undefined,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setUser: () => {},
+  setUser: () => undefined,
   loadingUser: true
 })
 
@@ -65,20 +65,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setCurrentUser(response.data)
         return response.data
       })
-      .then(() => setLoading(false))
+      .then(() => {
+        setLoading(false)
+      })
   }, [setLoading])
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user: currentUser,
-        setUser: setCurrentUser,
-        loadingUser: loading
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
+  const value = useMemo(() => {
+    return {
+      user: currentUser,
+      setUser: setCurrentUser,
+      loadingUser: loading
+    }
+  }, [currentUser, loading])
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 function redirect(
@@ -100,7 +100,7 @@ function redirect(
       return Router.push({ pathname: `/signin`, query })
     }
 
-    return new Promise((resolve) => resolve(true))
+    return Promise.resolve(true)
   }
 
   if (Router.asPath.includes("/signin")) {
@@ -121,21 +121,24 @@ function redirect(
     })
   }
 
-  return new Promise((resolve) => resolve(true))
+  return Promise.resolve(true)
 }
 
 export const AuthRedirecter = ({
   children,
   redirects
+  // eslint-disable-next-line sonarjs/function-return-type
 }: AuthRedirecterProps) => {
   const { user, loadingUser } = useContext(AuthContext)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!loadingUser) {
-      void redirect(redirects, user).then(() => setLoading(false))
+      void redirect(redirects, user).then(() => {
+        setLoading(false)
+      })
     }
   }, [loadingUser, redirects, user])
 
-  return <>{loading ? <LoadingLayout /> : children}</>
+  return loading ? <LoadingLayout /> : children
 }

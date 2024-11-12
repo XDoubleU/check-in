@@ -24,7 +24,7 @@ function getDate(): Moment {
 }
 
 // eslint-disable-next-line max-lines-per-function
-export default function Charts({ locationIds }: ChartProps) {
+export default function Charts({ locationIds }: Readonly<ChartProps>) {
   const [weekStart, weekEnd] = getDates()
 
   const [startDate, setStartDate] = useState(weekStart)

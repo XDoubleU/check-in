@@ -15,7 +15,10 @@ import { AuthRedirecter } from "contexts/authContext"
 
 export type CreateSchoolModalProps = ICreateModalProps<SchoolDto>
 
-function CreateSchoolModal({ form, fetchData }: CreateSchoolModalProps) {
+function CreateSchoolModal({
+  form,
+  fetchData
+}: Readonly<CreateSchoolModalProps>) {
   const {
     register,
     formState: { errors }

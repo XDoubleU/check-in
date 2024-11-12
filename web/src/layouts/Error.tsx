@@ -2,7 +2,7 @@ import styles from "./error.module.css"
 import Head from "next/head"
 import { type MouseEventHandler, useRef } from "react"
 
-export default function Error() {
+export default function CustomError() {
   const leftEye = useRef<HTMLDivElement>(null)
   const rightEye = useRef<HTMLDivElement>(null)
 
@@ -19,8 +19,8 @@ export default function Error() {
     const rrad = Math.atan2(event.pageX - rx, event.pageY - ry)
     const rrot = rrad * (180 / Math.PI) * -1 + 180
 
-    leftEye.current.style.transform = `rotate(${lrot}deg)`
-    rightEye.current.style.transform = `rotate(${rrot}deg)`
+    leftEye.current.style.transform = `rotate(${lrot.toString()}deg)`
+    rightEye.current.style.transform = `rotate(${rrot.toString()}deg)`
   }
 
   return (

@@ -60,7 +60,7 @@ export default function ListViewLayout<
   apiCallArgs,
   preprocessList,
   card
-}: ListViewLayoutProps<T, U, V, W, X>) {
+}: Readonly<ListViewLayoutProps<T, U, V, W, X>>) {
   const router = useRouter()
 
   const fetchData = useCallback(async () => {

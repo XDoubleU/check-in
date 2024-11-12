@@ -15,10 +15,14 @@ export default function CreateModal<T extends FieldValues, Y>({
   handler,
   fetchData,
   typeName
-}: CreateModalProps<T, Y>) {
+}: Readonly<CreateModalProps<T, Y>>) {
   const [showCreate, setShowCreate] = useState(false)
-  const handleCloseCreate = () => setShowCreate(false)
-  const handleShowCreate = () => setShowCreate(true)
+  const handleCloseCreate = () => {
+    setShowCreate(false)
+  }
+  const handleShowCreate = () => {
+    setShowCreate(true)
+  }
 
   const {
     handleSubmit,
