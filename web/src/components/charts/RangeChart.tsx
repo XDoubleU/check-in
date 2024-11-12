@@ -27,7 +27,12 @@ interface FilterProps {
   setEndDate: Dispatch<SetStateAction<Moment>>
 }
 
-function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
+function Filter({
+  startDate,
+  endDate,
+  setStartDate,
+  setEndDate
+}: Readonly<FilterProps>) {
   return (
     <Row>
       <Col>
@@ -35,7 +40,9 @@ function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
           label="Start date"
           type="date"
           value={startDate.format(DATE_FORMAT)}
-          onChange={(e) => setStartDate(moment(e.target.value))}
+          onChange={(e) => {
+            setStartDate(moment(e.target.value))
+          }}
           max={endDate.format(DATE_FORMAT)}
         />
       </Col>
@@ -44,7 +51,9 @@ function Filter({ startDate, endDate, setStartDate, setEndDate }: FilterProps) {
           label="End date"
           type="date"
           value={endDate.format(DATE_FORMAT)}
-          onChange={(e) => setEndDate(moment(e.target.value))}
+          onChange={(e) => {
+            setEndDate(moment(e.target.value))
+          }}
           min={startDate.format(DATE_FORMAT)}
         />
       </Col>
@@ -61,7 +70,7 @@ export default function RangeChart({
   setRangeData,
   setStartDate,
   setEndDate
-}: RangeChartProps) {
+}: Readonly<RangeChartProps>) {
   const [schools, setSchools] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -81,7 +90,9 @@ export default function RangeChart({
         setRangeData(newdata)
         setSchools(extractAllSchools(response.data))
       })
-      .then(() => setLoading(false))
+      .then(() => {
+        setLoading(false)
+      })
   }, [startDate, endDate, setRangeData, locationIds])
 
   if (loading) {

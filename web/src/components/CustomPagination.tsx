@@ -8,14 +8,14 @@ export interface CustomPaginationProps {
 export default function CustomPagination({
   current,
   total
-}: CustomPaginationProps) {
+}: Readonly<CustomPaginationProps>) {
   const pages = []
   for (let number = 1; number <= total; number++) {
     pages.push(
       <Pagination.Item
         key={number}
         active={number === current}
-        href={`?page=${number}`}
+        href={`?page=${number.toString()}`}
       >
         {number}
       </Pagination.Item>

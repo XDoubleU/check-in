@@ -31,9 +31,10 @@ export type User = PartialBy<DeepRequired<definitions["User"]>, "location">
 
 export type WebSocketSubject = DeepRequired<definitions["WebSocketSubject"]>
 
-export type CheckInsLocationEntryRawMap = {
-  [x: string]: CheckInsLocationEntryRaw
-}
+export type CheckInsLocationEntryRawMap = Record<
+  string,
+  CheckInsLocationEntryRaw
+>
 
 export type State = DeepRequired<definitions["State"]>
 export type StateDto = definitions["StateDto"]

@@ -6,7 +6,10 @@ interface TimeZoneInputProps {
   register: UseFormRegisterReturn<"timeZone">
 }
 
-export default function TimeZoneInput({ register }: TimeZoneInputProps) {
+export default function TimeZoneInput({
+  register
+}: Readonly<TimeZoneInputProps>) {
+  // eslint-disable-next-line sonarjs/new-cap
   const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
   return (

@@ -9,7 +9,7 @@ import { type SchoolDto, type School } from "api-wrapper/types/apiTypes"
 
 type SchoolCardProps = ICardProps<School>
 
-function SchoolUpdateModal({ data, fetchData }: SchoolCardProps) {
+function SchoolUpdateModal({ data, fetchData }: Readonly<SchoolCardProps>) {
   const form = useForm<SchoolDto>({
     defaultValues: {
       name: data.name
@@ -43,7 +43,7 @@ function SchoolUpdateModal({ data, fetchData }: SchoolCardProps) {
   )
 }
 
-function SchoolDeleteModal({ data, fetchData }: SchoolCardProps) {
+function SchoolDeleteModal({ data, fetchData }: Readonly<SchoolCardProps>) {
   const handleDelete = () => {
     return deleteSchool(data.id)
   }
@@ -58,7 +58,10 @@ function SchoolDeleteModal({ data, fetchData }: SchoolCardProps) {
   )
 }
 
-export default function SchoolCard({ data, fetchData }: SchoolCardProps) {
+export default function SchoolCard({
+  data,
+  fetchData
+}: Readonly<SchoolCardProps>) {
   return (
     <>
       <Card>

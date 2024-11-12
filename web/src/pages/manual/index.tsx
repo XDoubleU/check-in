@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import { type Role } from "api-wrapper/types/apiTypes"
 import Loader from "components/Loader"
 import { AuthRedirecter, useAuth } from "contexts/authContext"
@@ -20,7 +19,7 @@ export function ManualNavigation() {
 
   useEffect(() => {
     const regex = "/([a-z]{2})/"
-    const match = (router.pathname.match(regex) as RegExpMatchArray)[1]
+    const match = (RegExp(regex).exec(router.pathname) as RegExpMatchArray)[1]
     setLanguage(match)
 
     const endpoint = router.pathname.split(`/manual/${match}/`)[1]
@@ -45,40 +44,36 @@ export function ManualNavigation() {
   ])
 
   return (
-    <>
-      <ul>
-        {language === "en" ? (
-          <li>
-            <Link href={`/manual/nl/${currentEndpoint}`}>
-              Verander naar Nederlands
-            </Link>
-          </li>
-        ) : (
-          <li>
-            <Link href={`/manual/en/${currentEndpoint}`}>
-              Switch to English
-            </Link>
-          </li>
-        )}
+    <ul>
+      {language === "en" ? (
+        <li>
+          <Link href={`/manual/nl/${currentEndpoint}`}>
+            Verander naar Nederlands
+          </Link>
+        </li>
+      ) : (
+        <li>
+          <Link href={`/manual/en/${currentEndpoint}`}>Switch to English</Link>
+        </li>
+      )}
 
-        {user?.role === "admin" || user?.role === "manager" ? (
-          <>
-            <li>
-              <Link href={`/manual/${language}/manager`}>
-                {linkTitles.get("manager")?.get(language)}
-              </Link>
-            </li>
-            <li>
-              <Link href={`/manual/${language}/location`}>
-                {linkTitles.get("location")?.get(language)}
-              </Link>
-            </li>
-          </>
-        ) : (
-          <></>
-        )}
-      </ul>
-    </>
+      {user?.role === "admin" || user?.role === "manager" ? (
+        <>
+          <li>
+            <Link href={`/manual/${language}/manager`}>
+              {linkTitles.get("manager")?.get(language)}
+            </Link>
+          </li>
+          <li>
+            <Link href={`/manual/${language}/location`}>
+              {linkTitles.get("location")?.get(language)}
+            </Link>
+          </li>
+        </>
+      ) : (
+        <></>
+      )}
+    </ul>
   )
 }
 
