@@ -83,9 +83,7 @@ describe("StateView (page)", () => {
 
     render(<StateView />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Loading...")
-    })
+    await waitFor(() => expect(document.title).toBe("Loading..."))
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/settings")
@@ -98,9 +96,7 @@ describe("StateView (page)", () => {
 
     render(<StateView />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Loading...")
-    })
+    await waitFor(() => expect(document.title).toBe("Loading..."))
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/settings")
@@ -113,9 +109,7 @@ describe("StateView (page)", () => {
 
     render(<StateView />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Loading...")
-    })
+    await waitFor(() => expect(document.title).toBe("Loading..."))
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings%2Fstate")

@@ -202,9 +202,7 @@ describe("LocationDetail (page)", () => {
 
     render(<LocationDetail />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Loading...")
-    })
+    await waitFor(() => expect(document.title).toBe("Loading..."))
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe(

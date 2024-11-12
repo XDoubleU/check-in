@@ -1,7 +1,7 @@
 import Loader, { type LoaderProps } from "components/Loader"
 import Head from "next/head"
 
-export default function LoadingLayout(props: Readonly<LoaderProps>) {
+export default function LoadingLayout(props: LoaderProps) {
   return (
     <>
       <Head>

@@ -5,7 +5,7 @@ import CustomButton from "components/CustomButton"
 
 interface BaseFormProps {
   errors: FieldErrors
-  onSubmit: () => Promise<void>
+  onSubmit: () => void
   submitBtnText: string
   children?: ReactElement | ReactElement[]
   className?: string
@@ -21,11 +21,10 @@ export default function BaseForm({
   submitBtnText,
   onCancelCallback,
   submitBtnDisabled
-}: Readonly<BaseFormProps>) {
+}: BaseFormProps) {
   const floatDir = onCancelCallback ? "right" : "left"
 
   return (
-    // eslint-disable-next-line sonarjs/no-misused-promises
     <Form className={className ?? ""} onSubmit={onSubmit}>
       {children}
       <br />
@@ -33,13 +32,15 @@ export default function BaseForm({
       {errors.root && <Alert variant="danger">{errors.root.message}</Alert>}
 
       {onCancelCallback ? (
-        <CustomButton
-          type="button"
-          style={{ float: "left" }}
-          onClick={onCancelCallback}
-        >
-          Cancel
-        </CustomButton>
+        <>
+          <CustomButton
+            type="button"
+            style={{ float: "left" }}
+            onClick={onCancelCallback}
+          >
+            Cancel
+          </CustomButton>
+        </>
       ) : (
         <></>
       )}

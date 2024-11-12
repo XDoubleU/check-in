@@ -7,7 +7,7 @@ import LoadingLayout from "layouts/LoadingLayout"
 import { type LocationWithUsername } from "."
 import { AuthRedirecter, useAuth } from "contexts/authContext"
 import Charts from "components/charts/Charts"
-import { type CheckIn } from "api-wrapper/types/apiTypes"
+import { type CheckIn, type User } from "api-wrapper/types/apiTypes"
 import CheckInCard from "components/cards/CheckInCard"
 import Loader from "components/Loader"
 
@@ -15,14 +15,14 @@ import Loader from "components/Loader"
 export default function LocationDetail() {
   const { user } = useAuth()
   const router = useRouter()
-  const [location, setLocation] = useState<LocationWithUsername>()
-  const [checkInsList, setCheckInsList] = useState<CheckIn[]>()
+  const [location, updateLocation] = useState<LocationWithUsername>()
+  const [checkInsList, setCheckInsList] = useState<CheckIn[]>([])
 
   const fetchCheckInData = useCallback(async () => {
     const locationId = router.query.id as string
 
     const response = await getCheckInsToday(locationId)
-    setCheckInsList(response.data)
+    setCheckInsList(response.data as CheckIn[])
   }, [router])
 
   const fetchData = useCallback(async () => {
@@ -31,13 +31,11 @@ export default function LocationDetail() {
     const responseLocation = await getLocation(locationId)
     if (!responseLocation.data) return
 
-    let responseUser = user
+    let responseUser: User = user as User
     if (user?.role !== "default") {
       const response = await getUser(responseLocation.data.userId)
-      responseUser = response.data
+      responseUser = response.data as User
     }
-
-    if (!responseUser) return
 
     const locationWithUsername = {
       id: responseLocation.data.id,
@@ -52,7 +50,7 @@ export default function LocationDetail() {
       capacityYesterday: responseLocation.data.capacityYesterday
     }
 
-    setLocation(locationWithUsername)
+    updateLocation(locationWithUsername)
   }, [router, user])
 
   useEffect(() => {
@@ -78,9 +76,9 @@ export default function LocationDetail() {
 
           {!checkInsList && <Loader message="Fetching data." />}
 
-          {checkInsList?.length == 0 ? "Nothing to see here." : ""}
+          {checkInsList.length == 0 ? "Nothing to see here." : ""}
 
-          {checkInsList?.map((item) => {
+          {checkInsList.map((item) => {
             return (
               <div key={item.id}>
                 <CheckInCard
