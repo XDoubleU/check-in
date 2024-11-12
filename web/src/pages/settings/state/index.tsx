@@ -28,11 +28,11 @@ export default function StateView() {
         setValue("isMaintenance", response.data?.isMaintenance)
       } else {
         setError("root", {
-          message: (response.message as string) ?? "Something went wrong"
+          message: (response.message as string | null) ?? "Something went wrong"
         })
       }
 
-      return new Promise((resolve) => resolve(true))
+      return Promise.resolve(true)
     })
   }
 

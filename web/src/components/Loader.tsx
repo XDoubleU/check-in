@@ -4,7 +4,7 @@ export interface LoaderProps {
   message?: string
 }
 
-export default function Loader({ message }: LoaderProps) {
+export default function Loader({ message }: Readonly<LoaderProps>) {
   const style: React.CSSProperties = {
     position: "fixed",
     top: "50%",

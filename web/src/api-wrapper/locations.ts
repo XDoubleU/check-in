@@ -18,8 +18,8 @@ const LOCATIONS_ENDPOINT = "locations"
 const INVALID_UUID = "Invalid UUID"
 
 function areValidUUIDs(strings: string[]): boolean {
-  for (let i = 0; i < strings.length; i++) {
-    if (!isValidUUID(strings[i])) {
+  for (const str of strings) {
+    if (!isValidUUID(str)) {
       return false
     }
   }
@@ -136,7 +136,7 @@ export async function deleteCheckIn(
   checkInId: number
 ): Promise<APIResponse<CheckIn>> {
   return await fetchHandler(
-    `${LOCATIONS_ENDPOINT}/${locationId}/checkins/${checkInId}`,
+    `${LOCATIONS_ENDPOINT}/${locationId}/checkins/${checkInId.toString()}`,
     "DELETE"
   )
 }
@@ -148,7 +148,7 @@ export async function getAllLocations(): Promise<APIResponse<Location[]>> {
 export async function getAllLocationsPaged(
   page?: number
 ): Promise<APIResponse<PaginatedLocationsDto>> {
-  return await fetchHandler(`${LOCATIONS_ENDPOINT}`, undefined, undefined, {
+  return await fetchHandler(LOCATIONS_ENDPOINT, undefined, undefined, {
     page
   })
 }
@@ -167,7 +167,7 @@ export async function getLocation(id: string): Promise<APIResponse<Location>> {
 export async function createLocation(
   createLocationDto: CreateLocationDto
 ): Promise<APIResponse<Location>> {
-  return await fetchHandler(`${LOCATIONS_ENDPOINT}`, "POST", createLocationDto)
+  return await fetchHandler(LOCATIONS_ENDPOINT, "POST", createLocationDto)
 }
 
 export async function updateLocation(

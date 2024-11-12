@@ -15,10 +15,14 @@ export default function UpdateModal<T extends FieldValues, Y>({
   handler,
   fetchData,
   typeName
-}: UpdateModalProps<T, Y>) {
+}: Readonly<UpdateModalProps<T, Y>>) {
   const [showUpdate, setShowUpdate] = useState(false)
-  const handleCloseUpdate = () => setShowUpdate(false)
-  const handleShowUpdate = () => setShowUpdate(true)
+  const handleCloseUpdate = () => {
+    setShowUpdate(false)
+  }
+  const handleShowUpdate = () => {
+    setShowUpdate(true)
+  }
 
   const {
     handleSubmit,
