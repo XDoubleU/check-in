@@ -21,10 +21,7 @@ type LocationUpdateForm = UpdateLocationDto & { repeatPassword?: string }
 type LocationCardProps = ICardProps<LocationWithUsername>
 
 // eslint-disable-next-line max-lines-per-function
-export function LocationUpdateModal({
-  data,
-  fetchData
-}: Readonly<LocationCardProps>) {
+export function LocationUpdateModal({ data, fetchData }: LocationCardProps) {
   const form = useForm<LocationUpdateForm>({
     defaultValues: {
       name: data.name,
@@ -78,7 +75,7 @@ export function LocationUpdateModal({
   )
 }
 
-function LocationDeleteModal({ data, fetchData }: Readonly<LocationCardProps>) {
+function LocationDeleteModal({ data, fetchData }: LocationCardProps) {
   const handleDelete = () => {
     return deleteLocation(data.id)
   }
@@ -93,10 +90,7 @@ function LocationDeleteModal({ data, fetchData }: Readonly<LocationCardProps>) {
   )
 }
 
-export default function LocationCard({
-  data,
-  fetchData
-}: Readonly<LocationCardProps>) {
+export default function LocationCard({ data, fetchData }: LocationCardProps) {
   return (
     <>
       <Card>
@@ -115,7 +109,7 @@ export default function LocationCard({
                   ? `Yesterday full at ${moment
                       .utc(data.yesterdayFullAt)
                       .format(TIME_FORMAT)}`
-                  : `Yesterday ${data.availableYesterday.toString()} / ${data.capacityYesterday.toString()} spots available`}
+                  : `Yesterday ${data.availableYesterday} / ${data.capacityYesterday} spots available`}
               </Card.Subtitle>
             </div>
             <div className="ms-auto">

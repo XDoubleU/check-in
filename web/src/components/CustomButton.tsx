@@ -19,7 +19,7 @@ export default function CustomButton({
   className,
   value,
   disabled
-}: Readonly<CustomButtonProps>) {
+}: CustomButtonProps) {
   return (
     <Button
       className={`${className ?? ""} text-white`}

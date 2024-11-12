@@ -237,9 +237,7 @@ describe("LocationListView (page)", () => {
 
     render(<LocationListView />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Loading...")
-    })
+    await waitFor(() => expect(document.title).toBe("Loading..."))
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe("/settings")
@@ -252,9 +250,7 @@ describe("LocationListView (page)", () => {
 
     render(<LocationListView />)
 
-    await waitFor(() => {
-      expect(document.title).toBe("Loading...")
-    })
+    await waitFor(() => expect(document.title).toBe("Loading..."))
 
     await waitFor(() => expect(mockRouter.isReady))
     expect(mockRouter.asPath).toBe(

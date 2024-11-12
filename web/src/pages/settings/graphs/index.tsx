@@ -28,13 +28,13 @@ export default function Graphs() {
           <Form.Label>Locations</Form.Label>
           <Form.Select
             multiple
-            onChange={(e) => {
+            onChange={(e) =>
               setLocationIds(
                 Array<HTMLOptionElement>()
                   .slice.call(e.target.selectedOptions)
                   .map((item) => item.value)
               )
-            }}
+            }
           >
             {locations.map((location) => {
               return (

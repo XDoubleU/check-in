@@ -10,7 +10,8 @@ import {
   type Role,
   type CreateLocationDto,
   type Location,
-  type PaginatedLocationsDto
+  type PaginatedLocationsDto,
+  type User
 } from "api-wrapper/types/apiTypes"
 import { AuthRedirecter } from "contexts/authContext"
 import UserInputs from "components/forms/UserInputs"
@@ -20,10 +21,8 @@ type CreateLocationForm = CreateLocationDto & { repeatPassword?: string }
 
 export type CreateLocationModalProps = ICreateModalProps<CreateLocationForm>
 
-function CreateLocationModal({
-  form,
-  fetchData
-}: Readonly<CreateLocationModalProps>) {
+// eslint-disable-next-line max-lines-per-function
+function CreateLocationModal({ form, fetchData }: CreateLocationModalProps) {
   const {
     register,
     watch,
@@ -97,14 +96,10 @@ export default function LocationListView() {
       }
 
       for (const location of responseData.data) {
-        const username = (await getUser(location.userId)).data?.username
+        const username = ((await getUser(location.userId)).data as User)
+          .username
 
-        if (username == null) continue
-
-        if (locationsWithUsernames.data == null)
-          locationsWithUsernames.data = []
-
-        locationsWithUsernames.data.push({
+        ;(locationsWithUsernames.data as LocationWithUsername[]).push({
           id: location.id,
           name: location.name,
           normalizedName: location.normalizedName,

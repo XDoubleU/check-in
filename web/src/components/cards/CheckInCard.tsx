@@ -7,7 +7,7 @@ import moment from "moment"
 
 type CheckInCardProps = ICardProps<CheckIn>
 
-function CheckInDeleteModal({ data, fetchData }: Readonly<CheckInCardProps>) {
+function CheckInDeleteModal({ data, fetchData }: CheckInCardProps) {
   const handleDelete = () => {
     return deleteCheckIn(data.locationId, data.id)
   }
@@ -25,16 +25,16 @@ export default function CheckInCard({
   data,
   readonly,
   fetchData
-}: Readonly<CheckInCardProps>) {
+}: CheckInCardProps) {
   return (
     <>
       <Card>
         <Card.Body>
           <div className="d-flex flex-row">
             <div>
-              <Card.Title>
-                {moment.utc(data.createdAt).format(FULL_FORMAT)}
-              </Card.Title>
+              <Card.Title>{`${moment
+                .utc(data.createdAt)
+                .format(FULL_FORMAT)}`}</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">
                 ID: {data.id}
               </Card.Subtitle>
