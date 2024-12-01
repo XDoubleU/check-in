@@ -422,7 +422,9 @@ describe("SchoolListView (page)", () => {
     })
 
     await waitFor(() => {
-      expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings%2Fschools")
+      expect(mockRouter.asPath).toBe(
+        "/signin?redirect_to=%2Fsettings%2Fschools"
+      )
     })
   })
 })
