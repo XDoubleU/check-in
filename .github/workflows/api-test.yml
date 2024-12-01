@@ -31,7 +31,7 @@ jobs:
         working-directory: './api'
       - name: Upload coverage reports to Codecov
         if: always()
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # required
           flags: api
