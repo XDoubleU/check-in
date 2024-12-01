@@ -133,6 +133,14 @@ eslintConfigPrettier,
         "testing-library/no-await-sync-events": ["error", {
             eventModules: ["fire-event"],
         }],
+
+        // otherwise linter stops working
+        "sonarjs/no-empty-function": ["error", {
+            "allow": []
+        }],
+        "sonarjs/no-unused-expressions": ["error", {
+            "allowShortCircuit": false
+        }],
     },
 }, {
     files: ["tests/**"],
