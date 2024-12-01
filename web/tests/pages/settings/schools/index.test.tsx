@@ -405,8 +405,9 @@ describe("SchoolListView (page)", () => {
       expect(document.title).toBe("Loading...")
     })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/settings")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/settings")
+    })
   })
 
   it("Redirect anonymous", async () => {
@@ -420,7 +421,8 @@ describe("SchoolListView (page)", () => {
       expect(document.title).toBe("Loading...")
     })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings%2Fschools")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings%2Fschools")
+    })
   })
 })

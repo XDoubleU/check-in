@@ -68,8 +68,9 @@ describe("ManualHome (page)", () => {
 
     await screen.findByText("Loading manual.", { selector: "p" })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/manual/en/manager")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/manual/en/manager")
+    })
   })
 
   it("Redirect manager", async () => {
@@ -81,8 +82,9 @@ describe("ManualHome (page)", () => {
 
     await screen.findByText("Loading manual.", { selector: "p" })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/manual/en/manager")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/manual/en/manager")
+    })
   })
 
   it("Redirect default", async () => {
@@ -94,8 +96,9 @@ describe("ManualHome (page)", () => {
 
     await screen.findByText("Loading manual.", { selector: "p" })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/manual/en/location")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/manual/en/location")
+    })
   })
 
   it("Redirect anonymous", async () => {
@@ -109,7 +112,8 @@ describe("ManualHome (page)", () => {
       expect(document.title).toBe("Loading...")
     })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fmanual")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fmanual")
+    })
   })
 })

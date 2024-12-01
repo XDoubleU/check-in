@@ -206,9 +206,8 @@ describe("LocationDetail (page)", () => {
       expect(document.title).toBe("Loading...")
     })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe(
-      "/signin?redirect_to=%2Fsettings%2Flocations"
-    )
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings%2Flocations")
+    })
   })
 })
