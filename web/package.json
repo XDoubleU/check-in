@@ -63,7 +63,7 @@
     "eslint-config-next": "15.0.3",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-import": "2.31.0",
-    "eslint-plugin-jest-dom": "5.4.0",
+    "eslint-plugin-jest-dom": "5.5.0",
     "eslint-plugin-redundant-undefined": "1.0.0",
     "eslint-plugin-sonarjs": "2.0.4",
     "eslint-plugin-testing-library": "7.0.0",
