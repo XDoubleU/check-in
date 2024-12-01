@@ -37,7 +37,8 @@ describe("SignOut (page)", () => {
       expect(document.title).toBe("Loading...")
     })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/signin")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/signin")
+    })
   })
 })

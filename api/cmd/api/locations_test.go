@@ -561,23 +561,22 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
-
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		var checkInDate string
-		for k := range rsData {
-			checkInDate = k
-			break
+		total := 0
+		for _, row := range rsData {
+			capacity, _ := row.Capacities.Get(
+				fixtures.DefaultLocation.ID,
+			)
+			value, present := row.Schools.Get("Andere")
+
+			assert.Equal(t, int64(20), capacity)
+			assert.Equal(t, true, present)
+
+			total += value
 		}
 
-		capacity, _ := rsData[checkInDate].Capacities.Get(
-			fixtures.DefaultLocation.ID,
-		)
-		assert.Equal(t, capacity, int64(20))
-
-		value, present := rsData[checkInDate].Schools.Get("Andere")
-		assert.Equal(t, amount, value)
-		assert.Equal(t, true, present)
+		assert.Equal(t, amount, total)
 	}
 }
 
@@ -622,29 +621,29 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 		var rsData map[string]dtos.CheckInsLocationEntryRaw
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
-
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		var checkInDate string
-		for k := range rsData {
-			checkInDate = k
-			break
+		total := 0
+		for _, row := range rsData {
+			capacity0, _ := row.Capacities.Get(
+				fixtures.DefaultLocation.ID,
+			)
+			capacity1, _ := row.Capacities.Get(location.ID)
+
+			value, present := row.Schools.Get("Andere")
+
+			assert.Equal(t, int64(20), capacity0)
+			assert.Equal(
+				t,
+				location.Capacity,
+				capacity1,
+			)
+			assert.Equal(t, true, present)
+
+			total += value
 		}
 
-		capacity0, _ := rsData[checkInDate].Capacities.Get(
-			fixtures.DefaultLocation.ID,
-		)
-		capacity1, _ := rsData[checkInDate].Capacities.Get(location.ID)
-		assert.Equal(t, int64(20), capacity0)
-		assert.Equal(
-			t,
-			location.Capacity,
-			capacity1,
-		)
-
-		value, present := rsData[checkInDate].Schools.Get("Andere")
-		assert.Equal(t, 2*amount, value)
-		assert.Equal(t, true, present)
+		assert.Equal(t, 2*amount, total)
 	}
 }
 
@@ -678,23 +677,27 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 		})
 
 		rs := tReq.Do(t)
+		assert.Equal(t, http.StatusOK, rs.StatusCode)
+		assert.Equal(t, "text/csv", rs.Header.Get("content-type"))
 
 		rsData, _ := httptools.ReadCSV(rs.Body)
 
 		expectedHeaders := []string{"datetime", "capacity", "Andere"}
-
-		fetchedTime, _ := time.Parse(time.RFC3339, rsData[1][0])
-
-		assert.Equal(t, http.StatusOK, rs.StatusCode)
-		assert.Equal(t, "text/csv", rs.Header.Get("content-type"))
 		assert.Equal(t, expectedHeaders, rsData[0])
-		assert.Equal(t, date, fetchedTime.Format(constants.DateFormat))
-		assert.Equal(
-			t,
-			strconv.Itoa(int(fixtures.DefaultLocation.Capacity)),
-			rsData[1][1],
-		)
-		assert.Equal(t, strconv.Itoa(amount), rsData[1][2])
+
+		total := 0
+		for i := 1; i < len(rsData); i++ {
+			time, _ := time.Parse(time.RFC3339, rsData[i][0])
+			capacity, _ := strconv.Atoi(rsData[i][1])
+			value, _ := strconv.Atoi(rsData[i][2])
+
+			assert.Equal(t, date, time.Format(constants.DateFormat))
+			assert.EqualValues(t, fixtures.DefaultLocation.Capacity, capacity)
+
+			total += value
+		}
+
+		assert.Equal(t, amount, total)
 	}
 }
 

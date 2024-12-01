@@ -20,8 +20,9 @@ describe("SettingsHome (page)", () => {
 
     await screen.findByText("Loading home page.", { selector: "p" })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/settings/locations")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/settings/locations")
+    })
   })
 
   it("Redirect manager", async () => {
@@ -33,8 +34,9 @@ describe("SettingsHome (page)", () => {
 
     await screen.findByText("Loading home page.", { selector: "p" })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/settings/locations")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/settings/locations")
+    })
   })
 
   it("Redirect default", async () => {
@@ -46,8 +48,9 @@ describe("SettingsHome (page)", () => {
 
     await screen.findByText("Loading home page.", { selector: "p" })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/settings/locations/locationId")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/settings/locations/locationId")
+    })
   })
 
   it("Redirect anonymous", async () => {
@@ -61,7 +64,8 @@ describe("SettingsHome (page)", () => {
       expect(document.title).toBe("Loading...")
     })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/signin?redirect_to=%2Fsettings")
+    })
   })
 })

@@ -146,8 +146,9 @@ describe("CheckIn (page)", () => {
       expect(document.title).toBe("Loading...")
     })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/settings")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/settings")
+    })
   })
 
   it("Redirect manager to settings", async () => {
@@ -161,8 +162,9 @@ describe("CheckIn (page)", () => {
       expect(document.title).toBe("Loading...")
     })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/settings")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/settings")
+    })
   })
 
   it("Redirect anonymous", async () => {
@@ -176,7 +178,8 @@ describe("CheckIn (page)", () => {
       expect(document.title).toBe("Loading...")
     })
 
-    await waitFor(() => expect(mockRouter.isReady))
-    expect(mockRouter.asPath).toBe("/signin")
+    await waitFor(() => {
+      expect(mockRouter.asPath).toBe("/signin")
+    })
   })
 })

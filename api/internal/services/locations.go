@@ -83,7 +83,7 @@ func (service LocationService) GetCheckInsEntriesDay(
 
 	checkInEntries := orderedmap.New[string, dtos.CheckInsLocationEntryRaw]()
 	for _, checkIn := range checkIns {
-		datetime := shared.GetTimeZoneIndependantValue(checkIn.CreatedAt.Time, "UTC")
+		datetime := shared.GetTimeZoneIndependentValue(checkIn.CreatedAt.Time, "UTC")
 
 		schoolName := checkIn.SchoolName
 
@@ -244,7 +244,7 @@ func (service LocationService) GetAllCheckInsInRange(
 		}
 
 		for _, checkIn := range locationCheckIns {
-			checkIn.CreatedAt.Time = shared.GetTimeZoneIndependantValue(
+			checkIn.CreatedAt.Time = shared.GetTimeZoneIndependentValue(
 				checkIn.CreatedAt.Time,
 				"UTC",
 			)
