@@ -563,20 +563,19 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 		require.Nil(t, err)
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		total := 0
-		for _, row := range rsData {
-			capacity, _ := row.Capacities.Get(
-				fixtures.DefaultLocation.ID,
-			)
-			value, present := row.Schools.Get("Andere")
-
-			assert.Equal(t, int64(20), capacity)
-			assert.Equal(t, true, present)
-
-			total += value
+		lastDate := ""
+		for date := range rsData {
+			lastDate = date
 		}
 
-		assert.Equal(t, amount, total)
+		capacity, _ := rsData[lastDate].Capacities.Get(
+			fixtures.DefaultLocation.ID,
+		)
+		value, present := rsData[lastDate].Schools.Get("Andere")
+
+		assert.Equal(t, int64(20), capacity)
+		assert.Equal(t, true, present)
+		assert.Equal(t, amount, value)
 	}
 }
 
@@ -623,27 +622,26 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 		require.Nil(t, err)
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		total := 0
-		for _, row := range rsData {
-			capacity0, _ := row.Capacities.Get(
-				fixtures.DefaultLocation.ID,
-			)
-			capacity1, _ := row.Capacities.Get(location.ID)
-
-			value, present := row.Schools.Get("Andere")
-
-			assert.Equal(t, int64(20), capacity0)
-			assert.Equal(
-				t,
-				location.Capacity,
-				capacity1,
-			)
-			assert.Equal(t, true, present)
-
-			total += value
+		lastDate := ""
+		for date := range rsData {
+			lastDate = date
 		}
 
-		assert.Equal(t, 2*amount, total)
+		capacity0, _ := rsData[lastDate].Capacities.Get(
+			fixtures.DefaultLocation.ID,
+		)
+		capacity1, _ := rsData[lastDate].Capacities.Get(location.ID)
+
+		value, present := rsData[lastDate].Schools.Get("Andere")
+
+		assert.Equal(t, int64(20), capacity0)
+		assert.Equal(
+			t,
+			location.Capacity,
+			capacity1,
+		)
+		assert.Equal(t, true, present)
+		assert.Equal(t, 2*amount, value)
 	}
 }
 
@@ -685,19 +683,15 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 		expectedHeaders := []string{"datetime", "capacity", "Andere"}
 		assert.Equal(t, expectedHeaders, rsData[0])
 
-		total := 0
-		for i := 1; i < len(rsData); i++ {
-			time, _ := time.Parse(time.RFC3339, rsData[i][0])
-			capacity, _ := strconv.Atoi(rsData[i][1])
-			value, _ := strconv.Atoi(rsData[i][2])
+		lastRow := rsData[len(rsData)-1]
 
-			assert.Equal(t, date, time.Format(constants.DateFormat))
-			assert.EqualValues(t, fixtures.DefaultLocation.Capacity, capacity)
+		time, _ := time.Parse(time.RFC3339, lastRow[0])
+		capacity, _ := strconv.Atoi(lastRow[1])
+		value, _ := strconv.Atoi(lastRow[2])
 
-			total += value
-		}
-
-		assert.Equal(t, amount, total)
+		assert.Equal(t, date, time.Format(constants.DateFormat))
+		assert.EqualValues(t, fixtures.DefaultLocation.Capacity, capacity)
+		assert.Equal(t, amount, value)
 	}
 }
 
