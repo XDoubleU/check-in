@@ -27,10 +27,12 @@ export default function SignIn() {
     void signIn(data).then((response) => {
       if (response.ok) {
         setUser(response.data)
+      } else {
+        setError("root", {
+          message: (response.message as string | null) ?? "Something went wrong"
+        })
       }
-      setError("root", {
-        message: (response.message as string | null) ?? "Something went wrong"
-      })
+
       return Promise.resolve(true)
     })
   }

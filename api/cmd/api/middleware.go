@@ -27,7 +27,8 @@ func (app *Application) authAccess(allowedRoles []models.Role,
 			tokenCookie.Value,
 		)
 		if err != nil {
-			httptools.HandleError(w, r, err, nil)
+			httptools.UnauthorizedResponse(w, r,
+				errortools.NewUnauthorizedError(errors.New("provided token doesn't exist")))
 			return
 		}
 
