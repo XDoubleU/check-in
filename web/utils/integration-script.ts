@@ -96,7 +96,7 @@ function getScript(apiUrl: string, language: string) {
 
                 let output = ${yesterday}
                 if (location.yesterdayFullAt) {
-                    const time = new Date(location.yesterdayFullAt).toUTCString([], {
+                    const time = new Date(location.yesterdayFullAt).toLocaleTimeString([], {
                         timeStyle: "short",
                         hourCycle: "h23"
                     })
