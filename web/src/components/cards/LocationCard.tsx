@@ -112,8 +112,8 @@ export default function LocationCard({
               </Card.Subtitle>
               <Card.Subtitle className="mb-2 text-muted">
                 {data.yesterdayFullAt
-                  ? `Yesterday full at ${moment
-                      .utc(data.yesterdayFullAt)
+                  ? `Yesterday full at ${moment(data.yesterdayFullAt)
+                      .local()
                       .format(TIME_FORMAT)}`
                   : `Yesterday ${data.availableYesterday.toString()} / ${data.capacityYesterday.toString()} spots available`}
               </Card.Subtitle>
