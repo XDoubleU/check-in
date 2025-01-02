@@ -57,7 +57,7 @@
     "@types/react-dom": "18.3.5",
     "@types/uglify-js": "3",
     "@types/uuid": "10.0.0",
-    "@typescript-eslint/parser": "8.16.0",
+    "@typescript-eslint/parser": "8.19.0",
     "cross-env": "7.0.3",
     "eslint": "9.17.0",
     "eslint-config-next": "15.0.3",
@@ -78,7 +78,7 @@
     "openapi-typescript": "7.4",
     "prettier": "3.4.2",
     "ts-jest": "29.2.5",
-    "typescript-eslint": "8.16.0"
+    "typescript-eslint": "8.19.0"
   },
   "engines": {
     "node": "21.x",
