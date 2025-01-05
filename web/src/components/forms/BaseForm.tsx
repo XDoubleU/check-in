@@ -25,7 +25,6 @@ export default function BaseForm({
   const floatDir = onCancelCallback ? "right" : "left"
 
   return (
-    // eslint-disable-next-line sonarjs/no-misused-promises
     <Form className={className ?? ""} onSubmit={onSubmit}>
       {children}
       <br />
