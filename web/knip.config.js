@@ -5,7 +5,6 @@ module.exports = {
         "src/api-wrapper/types/*",
     ],
     "ignoreDependencies": [
-        "jest-environment-jsdom",
         "eslint-config-next"
     ]
 }
