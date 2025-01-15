@@ -74,7 +74,8 @@ func (app *Application) authRefresh(next http.HandlerFunc) http.HandlerFunc {
 		token, user, err := app.services.Auth.GetToken(r.Context(),
 			models.RefreshScope, tokenCookie.Value)
 		if err != nil {
-			httptools.HandleError(w, r, err, nil)
+			httptools.UnauthorizedResponse(w, r,
+				errortools.NewUnauthorizedError(errors.New("provided token doesn't exist")))
 			return
 		}
 
