@@ -4086,12 +4086,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:20.17.11":
-  version: 20.17.11
-  resolution: "@types/node@npm:20.17.11"
+"@types/node@npm:20.17.16":
+  version: 20.17.16
+  resolution: "@types/node@npm:20.17.16"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10c0/16cb9c63d5b8903a6ee05b2948af3379e34b438682cb219f7877521fb24cf3ec5dbd7016dc95a156ae60821a936dea0018f460a7016cc3228b7f572d862bad68
+  checksum: 10c0/50c589dd6a377238bc51b6fb5b8fc60ff6d688df0bde621d4a9fc59f480eb956cdf6d46052e1cb9536f150bc62e9194ddc733aa78b65e812155b4d3a32717de2
   languageName: node
   linkType: hard
 
@@ -15103,7 +15103,7 @@ __metadata:
     "@testing-library/user-event": "npm:14.5.2"
     "@types/eslint__js": "npm:8.42.3"
     "@types/jest": "npm:29.5.14"
-    "@types/node": "npm:20.17.11"
+    "@types/node": "npm:20.17.16"
     "@types/react": "npm:19.0.2"
     "@types/react-dom": "npm:19.0.2"
     "@types/uglify-js": "npm:3"
