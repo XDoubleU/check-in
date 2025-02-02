@@ -23,9 +23,10 @@ import (
 )
 
 func TestYesterdayFullAt(t *testing.T) {
-	testEnv, testApp := setup(t)
-	defer testEnv.teardown()
+	runForAllTimes(t, YesterdayFullAt)
+}
 
+func YesterdayFullAt(t *testing.T, testEnv TestEnv, testApp Application) {
 	now := testApp.getTimeNowUTC().AddDate(0, 0, -1)
 	for i := 0; i < int(testEnv.fixtures.DefaultLocation.Capacity); i++ {
 		query := `
@@ -73,9 +74,10 @@ func TestYesterdayFullAt(t *testing.T) {
 }
 
 func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
-	testEnv, testApp := setup(t)
-	defer testEnv.teardown()
+	runForAllTimes(t, GetCheckInsLocationRangeRawSingle)
+}
 
+func GetCheckInsLocationRangeRawSingle(t *testing.T, testEnv TestEnv, testApp Application) {
 	testEnv.createCheckIns(testEnv.fixtures.DefaultLocation, int64(1), 10)
 
 	now := testApp.getTimeNowUTC()
@@ -147,9 +149,10 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 }
 
 func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
-	testEnv, testApp := setup(t)
-	defer testEnv.teardown()
+	runForAllTimes(t, GetCheckInsLocationRangeRawMultiple)
+}
 
+func GetCheckInsLocationRangeRawMultiple(t *testing.T, testEnv TestEnv, testApp Application) {
 	location := testEnv.createLocations(1)[0]
 
 	testEnv.createCheckIns(testEnv.fixtures.DefaultLocation, int64(1), 10)
@@ -539,9 +542,10 @@ func TestGetCheckInsLocationRangeAccess(t *testing.T) {
 }
 
 func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
-	testEnv, testApp := setup(t)
-	defer testEnv.teardown()
+	runForAllTimes(t, GetCheckInsLocationDayRawSingle)
+}
 
+func GetCheckInsLocationDayRawSingle(t *testing.T, testEnv TestEnv, testApp Application) {
 	amount := 10
 	testEnv.createCheckIns(testEnv.fixtures.DefaultLocation, int64(1), amount)
 
@@ -592,9 +596,10 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 }
 
 func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
-	testEnv, testApp := setup(t)
-	defer testEnv.teardown()
+	runForAllTimes(t, GetCheckInsLocationDayRawMultiple)
+}
 
+func GetCheckInsLocationDayRawMultiple(t *testing.T, testEnv TestEnv, testApp Application) {
 	location := testEnv.createLocations(1)[0]
 
 	amount := 10
@@ -894,9 +899,10 @@ func TestGetCheckInsLocationDayAccess(t *testing.T) {
 }
 
 func TestGetAllCheckInsToday(t *testing.T) {
-	testEnv, testApp := setup(t)
-	defer testEnv.teardown()
+	runForAllTimes(t, GetAllCheckInsToday)
+}
 
+func GetAllCheckInsToday(t *testing.T, testEnv TestEnv, testApp Application) {
 	amount := 5
 	testEnv.createCheckIns(testEnv.fixtures.DefaultLocation, int64(1), amount)
 

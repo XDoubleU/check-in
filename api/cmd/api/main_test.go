@@ -43,9 +43,18 @@ type Fixtures struct {
 	DefaultLocation *models.Location
 }
 
-var cfg config.Config                   //nolint:gochecknoglobals //required
-var postgresDB *pgxpool.Pool            //nolint:gochecknoglobals //required
-var timeNow shared.LocalNowTimeProvider //nolint:gochecknoglobals //required
+var cfg config.Config        //nolint:gochecknoglobals //required
+var postgresDB *pgxpool.Pool //nolint:gochecknoglobals //required
+
+var timesToCheck = []shared.LocalNowTimeProvider{
+	time.Now,
+	func() time.Time { return getTimeNow(23, false, "Europe/Brussels") },
+	func() time.Time { return getTimeNow(00, true, "Europe/Brussels") },
+	func() time.Time { return getTimeNow(01, true, "Europe/Brussels") },
+	func() time.Time { return getTimeNow(23, false, "UTC") },
+	func() time.Time { return getTimeNow(00, false, "UTC") },
+	func() time.Time { return getTimeNow(01, false, "UTC") },
+}
 
 func (env *TestEnv) defaultFixtures() {
 	var err error
@@ -351,32 +360,15 @@ func TestMain(m *testing.M) {
 
 	ApplyMigrations(logging.NewNopLogger(), postgresDB)
 
-	timesToCheck := []shared.LocalNowTimeProvider{
-		time.Now,
-		func() time.Time { return getTimeNow(23, false, "Europe/Brussels") },
-		func() time.Time { return getTimeNow(00, true, "Europe/Brussels") },
-		func() time.Time { return getTimeNow(01, true, "Europe/Brussels") },
-		func() time.Time { return getTimeNow(23, false, "UTC") },
-		func() time.Time { return getTimeNow(00, false, "UTC") },
-		func() time.Time { return getTimeNow(01, false, "UTC") },
+	os.Exit(m.Run())
+}
+
+func runForAllTimes(t *testing.T, testFunc func(t *testing.T, testEnv TestEnv, testApp Application)) {
+	for _, timeNow := range timesToCheck {
+		testEnv, testApp := setupSpecificTimeProvider(timeNow)
+		testFunc(t, testEnv, testApp)
+		testEnv.teardown()
 	}
-
-	for _, timeNow = range timesToCheck {
-		tz, _ := timeNow().Zone()
-		//nolint:forbidigo //allowed
-		fmt.Printf(
-			"running test suite for hour '%d' with timezone '%s'\n",
-			timeNow().Hour(),
-			tz,
-		)
-		code := m.Run()
-
-		if code != 0 {
-			os.Exit(code)
-		}
-	}
-
-	os.Exit(0)
 }
 
 func getTimeNow(hour int, nextDay bool, tz string) time.Time {
@@ -400,8 +392,8 @@ func getTimeNow(hour int, nextDay bool, tz string) time.Time {
 	)
 }
 
-func setup(_ *testing.T) (TestEnv, Application) {
-	testApp := NewApp(logging.NewNopLogger(), cfg, postgresDB, timeNow)
+func setupSpecificTimeProvider(timeProvider shared.LocalNowTimeProvider) (TestEnv, Application) {
+	testApp := NewApp(logging.NewNopLogger(), cfg, postgresDB, timeProvider)
 	testEnv := TestEnv{
 		ctx: context.Background(),
 		app: *testApp,
@@ -413,6 +405,10 @@ func setup(_ *testing.T) (TestEnv, Application) {
 	testEnv.defaultFixtures()
 
 	return testEnv, *testApp
+}
+
+func setup(_ *testing.T) (TestEnv, Application) {
+	return setupSpecificTimeProvider(time.Now)
 }
 
 func (env *TestEnv) teardown() {
