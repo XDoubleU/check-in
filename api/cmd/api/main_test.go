@@ -309,7 +309,7 @@ func (env *TestEnv) createSchools(amount int) []*models.School {
 		name := fmt.Sprintf("TestSchool%d", i)
 
 		school, err := env.app.services.Schools.GetByName(env.ctx, name)
-		if err != nil && errors.Is(err, database.ErrResourceNotFound) {
+		if err != nil && !errors.Is(err, database.ErrResourceNotFound) {
 			panic(err)
 		}
 
