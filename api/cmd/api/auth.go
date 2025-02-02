@@ -33,7 +33,7 @@ func (app *Application) authRoutes(mux *http.ServeMux) {
 // @Failure	500			{object}	ErrorDto
 // @Router		/auth/signin [post].
 func (app *Application) signInHandler(w http.ResponseWriter, r *http.Request) {
-	var signInDto *dtos.SignInDto
+	var signInDto dtos.SignInDto
 
 	err := httptools.ReadJSON(r.Body, &signInDto)
 	if err != nil {
@@ -41,9 +41,14 @@ func (app *Application) signInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if v, validationErrors := signInDto.Validate(); !v {
+		httptools.FailedValidationResponse(w, r, validationErrors)
+		return
+	}
+
 	user, err := app.services.Auth.SignInUser(r.Context(), signInDto)
 	if err != nil {
-		httptools.HandleError(w, r, err, signInDto.ValidationErrors)
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 

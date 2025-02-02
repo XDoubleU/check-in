@@ -45,8 +45,8 @@ func createAdmin(cfg config.Config, username string, password string) {
 
 	_, err = services.Users.Create(
 		context.Background(),
-		//nolint:exhaustruct //other fields are optional
-		&dtos.CreateUserDto{
+
+		dtos.CreateUserDto{
 			Username: username,
 			Password: password,
 		},

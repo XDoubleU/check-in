@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -9,8 +10,10 @@ import (
 	"time"
 
 	configtools "github.com/XDoubleU/essentia/pkg/config"
+	"github.com/XDoubleU/essentia/pkg/database"
 	"github.com/XDoubleU/essentia/pkg/database/postgres"
 	"github.com/XDoubleU/essentia/pkg/logging"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"check-in/api/internal/config"
 	"check-in/api/internal/dtos"
@@ -19,14 +22,15 @@ import (
 )
 
 type TestEnv struct {
-	ctx context.Context
-	tx  *postgres.PgxSyncTx
-	app *Application
+	ctx      context.Context
+	app      Application
+	fixtures Fixtures
 }
 
 type Tokens struct {
 	AdminAccessToken    *http.Cookie
 	ManagerAccessToken  *http.Cookie
+	ManagerRefreshToken *http.Cookie
 	DefaultAccessToken  *http.Cookie
 	DefaultRefreshToken *http.Cookie
 }
@@ -39,16 +43,23 @@ type Fixtures struct {
 	DefaultLocation *models.Location
 }
 
-var mainTx *postgres.PgxSyncTx //nolint:gochecknoglobals //needed for tests
-var cfg config.Config          //nolint:gochecknoglobals //needed for tests
-var fixtures Fixtures          //nolint:gochecknoglobals //needed for tests
-var mainTestApp *Application   //nolint:gochecknoglobals //needed for tests
-var testCtx context.Context    //nolint:gochecknoglobals //needed for tests
+var cfg config.Config        //nolint:gochecknoglobals //required
+var postgresDB *pgxpool.Pool //nolint:gochecknoglobals //required
 
-func defaultFixtures(ctx context.Context, app *Application) {
+var timesToCheck = []shared.LocalNowTimeProvider{ //nolint:gochecknoglobals //required
+	time.Now,
+	func() time.Time { return getTimeNow(23, false, "Europe/Brussels") },
+	func() time.Time { return getTimeNow(00, true, "Europe/Brussels") },
+	func() time.Time { return getTimeNow(01, true, "Europe/Brussels") },
+	func() time.Time { return getTimeNow(23, false, "UTC") },
+	func() time.Time { return getTimeNow(00, false, "UTC") },
+	func() time.Time { return getTimeNow(01, false, "UTC") },
+}
+
+func (env *TestEnv) defaultFixtures() {
 	var err error
 
-	_, err = app.services.State.UpdateState(context.Background(), &dtos.StateDto{
+	_, err = env.app.services.State.UpdateState(context.Background(), dtos.StateDto{
 		IsMaintenance: false,
 	})
 	if err != nil {
@@ -56,9 +67,9 @@ func defaultFixtures(ctx context.Context, app *Application) {
 	}
 
 	password := "testpassword"
-	fixtures.AdminUser, err = app.services.Users.Create(ctx,
-		//nolint:exhaustruct //other fields are optional
-		&dtos.CreateUserDto{
+	env.fixtures.AdminUser, err = env.app.services.Users.Create(env.ctx,
+
+		dtos.CreateUserDto{
 			Username: "Admin",
 			Password: password,
 		},
@@ -68,11 +79,11 @@ func defaultFixtures(ctx context.Context, app *Application) {
 		panic(err)
 	}
 
-	ctx = app.contextSetUser(ctx, *fixtures.AdminUser)
+	env.ctx = env.app.contextSetUser(env.ctx, *env.fixtures.AdminUser)
 
-	fixtures.ManagerUser, err = app.services.Users.Create(ctx,
-		//nolint:exhaustruct //other fields are optional
-		&dtos.CreateUserDto{
+	env.fixtures.ManagerUser, err = env.app.services.Users.Create(env.ctx,
+
+		dtos.CreateUserDto{
 			Username: "Manager",
 			Password: password,
 		},
@@ -82,33 +93,22 @@ func defaultFixtures(ctx context.Context, app *Application) {
 		panic(err)
 	}
 
-	fixtures.Tokens.AdminAccessToken, err = app.services.Auth.CreateCookie(
-		ctx,
-		models.AccessScope,
-		fixtures.AdminUser.ID,
-		app.config.AccessExpiry,
-		false,
+	env.fixtures.Tokens.AdminAccessToken = env.createAccessToken(
+		*env.fixtures.AdminUser,
 	)
-	if err != nil {
-		panic(err)
-	}
 
-	fixtures.Tokens.ManagerAccessToken, err = app.services.Auth.CreateCookie(
-		ctx,
-		models.AccessScope,
-		fixtures.ManagerUser.ID,
-		app.config.AccessExpiry,
-		false,
+	env.fixtures.Tokens.ManagerAccessToken = env.createAccessToken(
+		*env.fixtures.ManagerUser,
 	)
-	if err != nil {
-		panic(err)
-	}
+	env.fixtures.Tokens.ManagerRefreshToken = env.createRefreshToken(
+		*env.fixtures.ManagerUser,
+	)
 
-	fixtures.DefaultLocation, err = app.services.Locations.Create(
-		ctx,
-		fixtures.AdminUser,
-		//nolint:exhaustruct //other fields are optional
-		&dtos.CreateLocationDto{
+	env.fixtures.DefaultLocation, err = env.app.services.Locations.Create(
+		env.ctx,
+		env.fixtures.AdminUser,
+
+		dtos.CreateLocationDto{
 			Name:     "TestLocation",
 			Capacity: 20,
 			TimeZone: "Europe/Brussels",
@@ -120,66 +120,103 @@ func defaultFixtures(ctx context.Context, app *Application) {
 		panic(err)
 	}
 
-	fixtures.DefaultUser, err = app.services.Locations.GetDefaultUserByUserID(
-		ctx,
-		fixtures.DefaultLocation.UserID,
+	env.fixtures.DefaultUser, err = env.app.services.Locations.GetDefaultUserByUserID(
+		env.ctx,
+		env.fixtures.DefaultLocation.UserID,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	fixtures.Tokens.DefaultAccessToken, err = app.services.Auth.CreateCookie(
-		ctx,
-		models.AccessScope,
-		fixtures.DefaultUser.ID,
-		app.config.AccessExpiry,
-		false,
+	env.fixtures.Tokens.DefaultAccessToken = env.createAccessToken(
+		*env.fixtures.DefaultUser,
 	)
-	if err != nil {
-		panic(err)
-	}
-
-	fixtures.Tokens.DefaultRefreshToken, err = app.services.Auth.CreateCookie(
-		ctx,
-		models.RefreshScope,
-		fixtures.DefaultUser.ID,
-		app.config.RefreshExpiry,
-		false,
+	env.fixtures.Tokens.DefaultRefreshToken = env.createRefreshToken(
+		*env.fixtures.DefaultUser,
 	)
-	if err != nil {
-		panic(err)
-	}
 }
 
-func clearAllData(ctx context.Context, app *Application) {
+func (env *TestEnv) createAccessToken(user models.User) *http.Cookie {
+	var err error
+
+	accessToken, err := env.app.services.Auth.CreateCookie(
+		env.ctx,
+		models.AccessScope,
+		user.ID,
+		env.app.config.AccessExpiry,
+		false,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	return accessToken
+}
+
+func (env *TestEnv) createRefreshToken(user models.User) *http.Cookie {
+	var err error
+
+	refreshToken, err := env.app.services.Auth.CreateCookie(
+		env.ctx,
+		models.RefreshScope,
+		user.ID,
+		env.app.config.RefreshExpiry,
+		false,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	return refreshToken
+}
+
+func (env *TestEnv) clearAllData() {
+	var err error
+
 	//nolint:exhaustruct //other fields are optional
 	fakeAdminUser := &models.User{
 		Role: models.AdminRole,
 	}
 
-	locations, _ := app.services.Locations.GetAll(ctx, nil, true)
+	locations, _ := env.app.services.Locations.GetAll(env.ctx, nil, true)
 	for _, location := range locations {
-		_, err := app.services.Locations.Delete(ctx, fakeAdminUser, location.ID)
+		_, err = env.app.services.Locations.Delete(
+			env.ctx,
+			fakeAdminUser,
+			location.ID,
+		)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	users, _ := app.services.Users.GetAll(ctx)
+	users, _ := env.app.services.Users.GetAll(env.ctx)
 	for _, user := range users {
-		_, err := app.services.Users.Delete(ctx, user.ID, user.Role)
+		_, err = env.app.services.Users.Delete(env.ctx, user.ID, user.Role)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	schools, _ := app.services.Schools.GetAll(ctx)
+	adminUser, _ := env.app.services.Users.GetByUsername(env.ctx, "Admin")
+	if adminUser != nil {
+		_, err = env.app.services.Users.Delete(
+			env.ctx,
+			adminUser.ID,
+			adminUser.Role,
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	schools, _ := env.app.services.Schools.GetAll(env.ctx)
 	for _, school := range schools {
 		if school.ID == 1 {
 			continue
 		}
 
-		_, err := app.services.Schools.Delete(ctx, school.ID)
+		_, err = env.app.services.Schools.Delete(env.ctx, school.ID)
 		if err != nil {
 			panic(err)
 		}
@@ -194,8 +231,8 @@ func (env *TestEnv) createManagerUsers(amount int) []*models.User {
 	for i := 0; i < amount; i++ {
 		var newUser *models.User
 		newUser, err = env.app.services.Users.Create(env.ctx,
-			//nolint:exhaustruct //other fields are optional
-			&dtos.CreateUserDto{
+
+			dtos.CreateUserDto{
 				Username: fmt.Sprintf("TestManagerUser%d", i),
 				Password: password,
 			},
@@ -219,9 +256,9 @@ func (env *TestEnv) createLocations(amount int) []*models.Location {
 		var location *models.Location
 		location, err = env.app.services.Locations.Create(
 			env.ctx,
-			fixtures.AdminUser,
-			//nolint:exhaustruct //other fields are optional
-			&dtos.CreateLocationDto{
+			env.fixtures.AdminUser,
+
+			dtos.CreateLocationDto{
 				Name:     fmt.Sprintf("TestLocation%d", i),
 				Capacity: 20,
 				TimeZone: "Europe/Brussels",
@@ -259,8 +296,8 @@ func (env *TestEnv) createCheckIns(
 		var checkIn *dtos.CheckInDto
 		checkIn, err = env.app.services.CheckInsWriter.Create(
 			env.ctx,
-			//nolint:exhaustruct //other fields are optional
-			&dtos.CreateCheckInDto{
+
+			dtos.CreateCheckInDto{
 				SchoolID: schoolID,
 			},
 			defaultUser,
@@ -278,14 +315,23 @@ func (env *TestEnv) createCheckIns(
 func (env *TestEnv) createSchools(amount int) []*models.School {
 	schools := []*models.School{}
 	for i := 0; i < amount; i++ {
-		school, err := env.app.services.Schools.Create(env.ctx,
-			//nolint:exhaustruct //other fields are optional
-			&dtos.SchoolDto{
-				Name: fmt.Sprintf("TestSchool%d", i),
-			})
-		if err != nil {
+		name := fmt.Sprintf("TestSchool%d", i)
+
+		school, err := env.app.services.Schools.GetByName(env.ctx, name)
+		if err != nil && !errors.Is(err, database.ErrResourceNotFound) {
 			panic(err)
 		}
+
+		if school == nil {
+			school, err = env.app.services.Schools.Create(env.ctx,
+				dtos.SchoolDto{
+					Name: name,
+				})
+			if err != nil {
+				panic(err)
+			}
+		}
+
 		schools = append(schools, school)
 	}
 
@@ -295,11 +341,11 @@ func (env *TestEnv) createSchools(amount int) []*models.School {
 func TestMain(m *testing.M) {
 	var err error
 
-	cfg = config.New()
+	cfg = config.New(logging.NewNopLogger())
 	cfg.Env = configtools.TestEnv
 	cfg.Throttle = false
 
-	postgresDB, err := postgres.Connect(
+	postgresDB, err = postgres.Connect(
 		logging.NewNopLogger(),
 		cfg.DBDsn,
 		25,
@@ -314,44 +360,18 @@ func TestMain(m *testing.M) {
 
 	ApplyMigrations(logging.NewNopLogger(), postgresDB)
 
-	timesToCheck := []shared.LocalNowTimeProvider{
-		time.Now,
-		func() time.Time { return getTimeNow(23, false, "Europe/Brussels") },
-		func() time.Time { return getTimeNow(00, true, "Europe/Brussels") },
-		func() time.Time { return getTimeNow(01, true, "Europe/Brussels") },
-		func() time.Time { return getTimeNow(23, false, "UTC") },
-		func() time.Time { return getTimeNow(00, false, "UTC") },
-		func() time.Time { return getTimeNow(01, false, "UTC") },
-	}
+	os.Exit(m.Run())
+}
 
+func runForAllTimes(
+	t *testing.T,
+	testFunc func(t *testing.T, testEnv TestEnv, testApp Application),
+) {
 	for _, timeNow := range timesToCheck {
-		mainTx = postgres.CreatePgxSyncTx(context.Background(), postgresDB)
-		mainTestApp = NewApp(logging.NewNopLogger(), cfg, mainTx, timeNow)
-
-		testCtx = context.Background()
-		clearAllData(testCtx, mainTestApp)
-		defaultFixtures(testCtx, mainTestApp)
-
-		tz, _ := timeNow().Zone()
-		//nolint:forbidigo //allowed
-		fmt.Printf(
-			"running test suite for hour '%d' with timezone '%s'\n",
-			timeNow().Hour(),
-			tz,
-		)
-		code := m.Run()
-
-		err = mainTx.Rollback(context.Background())
-		if err != nil {
-			panic(err)
-		}
-
-		if code != 0 {
-			os.Exit(code)
-		}
+		testEnv, testApp := setupSpecificTimeProvider(timeNow)
+		testFunc(t, testEnv, testApp)
+		testEnv.teardown()
 	}
-
-	os.Exit(0)
 }
 
 func getTimeNow(hour int, nextDay bool, tz string) time.Time {
@@ -375,26 +395,27 @@ func getTimeNow(hour int, nextDay bool, tz string) time.Time {
 	)
 }
 
-func setup(_ *testing.T) (*TestEnv, *Application) {
-	tx := postgres.CreatePgxSyncTx(context.Background(), mainTx)
-
-	testApp := *mainTestApp
-	testApp.setDB(tx)
-
-	testEnv := &TestEnv{
-		ctx: testCtx,
-		tx:  tx,
-		app: &testApp,
+func setupSpecificTimeProvider(
+	timeProvider shared.LocalNowTimeProvider,
+) (TestEnv, Application) {
+	testApp := NewApp(logging.NewNopLogger(), cfg, postgresDB, timeProvider)
+	testEnv := TestEnv{
+		ctx: context.Background(),
+		app: *testApp,
+		//nolint:exhaustruct //other fields are optional
+		fixtures: Fixtures{},
 	}
 
-	return testEnv, &testApp
+	testEnv.clearAllData()
+	testEnv.defaultFixtures()
+
+	return testEnv, *testApp
+}
+
+func setup(_ *testing.T) (TestEnv, Application) {
+	return setupSpecificTimeProvider(time.Now)
 }
 
 func (env *TestEnv) teardown() {
-	err := env.tx.Rollback(context.Background())
-	if err != nil {
-		panic(err)
-	}
-
-	env.app.ctxCancel()
+	env.clearAllData()
 }

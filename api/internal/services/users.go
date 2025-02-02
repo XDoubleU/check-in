@@ -60,13 +60,9 @@ func (service UserService) GetByUsername(
 
 func (service UserService) Create(
 	ctx context.Context,
-	createUserDto *dtos.CreateUserDto,
+	createUserDto dtos.CreateUserDto,
 	role models.Role,
 ) (*models.User, error) {
-	if v := createUserDto.Validate(); !v.Valid() {
-		return nil, errortools.ErrFailedValidation
-	}
-
 	passwordHash, err := models.HashPassword(createUserDto.Password)
 	if err != nil {
 		return nil, err
@@ -90,13 +86,9 @@ func (service UserService) Create(
 func (service UserService) Update(
 	ctx context.Context,
 	id string,
-	updateUserDto *dtos.UpdateUserDto,
+	updateUserDto dtos.UpdateUserDto,
 	role models.Role,
 ) (*models.User, error) {
-	if v := updateUserDto.Validate(); !v.Valid() {
-		return nil, errortools.ErrFailedValidation
-	}
-
 	user, err := service.GetByID(ctx, id, role)
 	if err != nil {
 		if errors.Is(err, database.ErrResourceNotFound) {

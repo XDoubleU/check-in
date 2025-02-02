@@ -67,6 +67,13 @@ func (service SchoolService) GetByID(
 	return service.schools.GetByID(ctx, id)
 }
 
+func (service SchoolService) GetByName(
+	ctx context.Context,
+	name string,
+) (*models.School, error) {
+	return service.schools.GetByName(ctx, name)
+}
+
 func (service SchoolService) GetByIDWithoutReadOnly(
 	ctx context.Context,
 	id int64,
@@ -76,12 +83,8 @@ func (service SchoolService) GetByIDWithoutReadOnly(
 
 func (service SchoolService) Create(
 	ctx context.Context,
-	schoolDto *dtos.SchoolDto,
+	schoolDto dtos.SchoolDto,
 ) (*models.School, error) {
-	if v := schoolDto.Validate(); !v.Valid() {
-		return nil, errortools.ErrFailedValidation
-	}
-
 	school, err := service.schools.Create(ctx, schoolDto.Name)
 	if err != nil {
 		if errors.Is(err, database.ErrResourceConflict) {
@@ -98,12 +101,8 @@ func (service SchoolService) Create(
 func (service SchoolService) Update(
 	ctx context.Context,
 	id int64,
-	schoolDto *dtos.SchoolDto,
+	schoolDto dtos.SchoolDto,
 ) (*models.School, error) {
-	if v := schoolDto.Validate(); !v.Valid() {
-		return nil, errortools.ErrFailedValidation
-	}
-
 	school, err := service.GetByIDWithoutReadOnly(ctx, id)
 	if err != nil {
 		if errors.Is(err, database.ErrResourceNotFound) {

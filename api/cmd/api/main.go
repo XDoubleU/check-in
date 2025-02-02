@@ -44,7 +44,7 @@ type Application struct {
 //	@Produce		json
 
 func main() {
-	cfg := config.New()
+	cfg := config.New(slog.New(slog.NewTextHandler(os.Stdout, nil)))
 
 	logger := slog.New(sentrytools.NewLogHandler(cfg.Env,
 		slog.NewTextHandler(os.Stdout, nil)))
@@ -85,8 +85,6 @@ func NewApp(
 	db postgres.DB,
 	localNowTimeProvider shared.LocalNowTimeProvider,
 ) *Application {
-	logger.Info(cfg.String())
-
 	//nolint:exhaustruct //other fields are optional
 	app := &Application{
 		logger:        logger,

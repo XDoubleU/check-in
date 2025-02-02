@@ -49,68 +49,48 @@ type PaginatedLocationsDto struct {
 } //	@name	PaginatedLocationsDto
 
 type CreateLocationDto struct {
-	Name             string            `json:"name"`
-	Capacity         int64             `json:"capacity"`
-	Username         string            `json:"username"`
-	Password         string            `json:"password"`
-	TimeZone         string            `json:"timeZone"`
-	ValidationErrors map[string]string `json:"-"`
+	Name     string `json:"name"`
+	Capacity int64  `json:"capacity"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	TimeZone string `json:"timeZone"`
 } //	@name	CreateLocationDto
 
 type UpdateLocationDto struct {
-	Name             *string           `json:"name"`
-	Capacity         *int64            `json:"capacity"`
-	Username         *string           `json:"username"`
-	Password         *string           `json:"password"`
-	TimeZone         *string           `json:"timeZone"`
-	ValidationErrors map[string]string `json:"-"`
+	Name     *string `json:"name"`
+	Capacity *int64  `json:"capacity"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
+	TimeZone *string `json:"timeZone"`
 } //	@name	UpdateLocationDto
 
-func (dto *CreateLocationDto) Validate() *validate.Validator {
+func (dto *CreateLocationDto) Validate() (bool, map[string]string) {
 	v := validate.New()
 
-	validate.Check(v, dto.Name, validate.IsNotEmpty, "name")
-	validate.Check(v, dto.Capacity, validate.IsGreaterThanFunc(int64(0)), "capacity")
-	validate.Check(v, dto.Username, validate.IsNotEmpty, "username")
-	validate.Check(v, dto.Password, validate.IsNotEmpty, "password")
-	validate.Check(v, dto.TimeZone, validate.IsNotEmpty, "timeZone")
-	validate.Check(v, dto.TimeZone, validate.IsValidTimeZone, "timeZone")
+	validate.Check(v, "name", dto.Name, validate.IsNotEmpty)
+	validate.Check(v, "capacity", dto.Capacity, validate.IsGreaterThan(int64(0)))
+	validate.Check(v, "username", dto.Username, validate.IsNotEmpty)
+	validate.Check(v, "password", dto.Password, validate.IsNotEmpty)
+	validate.Check(v, "timeZone", dto.TimeZone, validate.IsNotEmpty)
+	validate.Check(v, "timeZone", dto.TimeZone, validate.IsValidTimeZone)
 
-	dto.ValidationErrors = v.Errors
-
-	return v
+	return v.Valid(), v.Errors()
 }
 
-func (dto *UpdateLocationDto) Validate() *validate.Validator {
+func (dto *UpdateLocationDto) Validate() (bool, map[string]string) {
 	v := validate.New()
 
-	if dto.Name != nil {
-		validate.Check(v, *dto.Name, validate.IsNotEmpty, "name")
-	}
+	validate.CheckOptional(v, "name", dto.Name, validate.IsNotEmpty)
+	validate.CheckOptional(
+		v,
+		"capacity",
+		dto.Capacity,
+		validate.IsGreaterThan(int64(0)),
+	)
+	validate.CheckOptional(v, "username", dto.Username, validate.IsNotEmpty)
+	validate.CheckOptional(v, "password", dto.Password, validate.IsNotEmpty)
+	validate.CheckOptional(v, "timeZone", dto.TimeZone, validate.IsNotEmpty)
+	validate.CheckOptional(v, "timeZone", dto.TimeZone, validate.IsValidTimeZone)
 
-	if dto.Capacity != nil {
-		validate.Check(
-			v,
-			*dto.Capacity,
-			validate.IsGreaterThanFunc(int64(0)),
-			"capacity",
-		)
-	}
-
-	if dto.Username != nil {
-		validate.Check(v, *dto.Username, validate.IsNotEmpty, "username")
-	}
-
-	if dto.Password != nil {
-		validate.Check(v, *dto.Password, validate.IsNotEmpty, "password")
-	}
-
-	if dto.TimeZone != nil {
-		validate.Check(v, *dto.TimeZone, validate.IsNotEmpty, "timeZone")
-		validate.Check(v, *dto.TimeZone, validate.IsValidTimeZone, "timeZone")
-	}
-
-	dto.ValidationErrors = v.Errors
-
-	return v
+	return v.Valid(), v.Errors()
 }

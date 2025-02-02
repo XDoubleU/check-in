@@ -26,7 +26,7 @@ func New(
 	repositories repositories.Repositories,
 	utcNowTimeProvider shared.UTCNowTimeProvider,
 ) Services {
-	websocket := NewWebSocketService([]string{config.WebURL})
+	websocket := NewWebSocketService(logger, []string{config.WebURL})
 	state := NewStateService(ctx, logger, repositories.State, websocket)
 
 	users := UserService{

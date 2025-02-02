@@ -26,12 +26,17 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	require.Nil(t, err)
 
 	users := []*http.Cookie{
-		fixtures.Tokens.AdminAccessToken,
-		fixtures.Tokens.ManagerAccessToken,
+		testEnv.fixtures.Tokens.AdminAccessToken,
+		testEnv.fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for _, user := range users {
-		tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
+		tReq := test.CreateRequestTester(
+			testApp.routes(),
+			test.JSONContentType,
+			http.MethodGet,
+			"/schools",
+		)
 		tReq.AddCookie(user)
 
 		rs := tReq.Do(t)
@@ -64,11 +69,16 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 	amount, err := testApp.services.Schools.GetTotalCount(context.Background())
 	require.Nil(t, err)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/schools",
+	)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetQuery(map[string]string{
-		"page": "2",
+	tReq.SetQuery(map[string][]string{
+		"page": {"2"},
 	})
 
 	rs := tReq.Do(t)
@@ -99,8 +109,13 @@ func TestGetPaginatedSchoolsFull(t *testing.T) {
 	amount := 20
 	testEnv.createSchools(amount)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/schools",
+	)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
 	test.PaginatedEndpointTester(
 		t,
@@ -114,14 +129,19 @@ func TestGetPaginatedSchoolsAccess(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	tReqBase := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/schools")
+	tReqBase := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/schools",
+	)
 
 	mt := test.CreateMatrixTester()
 
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(testEnv.fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -133,22 +153,26 @@ func TestCreateSchool(t *testing.T) {
 	defer testEnv.teardown()
 
 	users := []*http.Cookie{
-		fixtures.Tokens.AdminAccessToken,
-		fixtures.Tokens.ManagerAccessToken,
+		testEnv.fixtures.Tokens.AdminAccessToken,
+		testEnv.fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for i, user := range users {
 		unique := fmt.Sprintf("test%d", i)
 
-		//nolint:exhaustruct //other fields are optional
 		data := dtos.SchoolDto{
 			Name: unique,
 		}
 
-		tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
+		tReq := test.CreateRequestTester(
+			testApp.routes(),
+			test.JSONContentType,
+			http.MethodPost,
+			"/schools",
+		)
 		tReq.AddCookie(user)
 
-		tReq.SetBody(data)
+		tReq.SetData(data)
 
 		rs := tReq.Do(t)
 
@@ -166,15 +190,19 @@ func TestCreateSchoolNameExists(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "Andere",
 	}
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPost,
+		"/schools",
+	)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -195,10 +223,15 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
-	//nolint:exhaustruct //other fields are optional
-	tReq.SetBody(dtos.SchoolDto{
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPost,
+		"/schools",
+	)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
+
+	tReq.SetData(dtos.SchoolDto{
 		Name: "",
 	})
 
@@ -218,14 +251,19 @@ func TestCreateSchoolAccess(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	tReqBase := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/schools")
+	tReqBase := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPost,
+		"/schools",
+	)
 
 	mt := test.CreateMatrixTester()
 
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(testEnv.fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -237,8 +275,8 @@ func TestUpdateSchool(t *testing.T) {
 	defer testEnv.teardown()
 
 	users := []*http.Cookie{
-		fixtures.Tokens.AdminAccessToken,
-		fixtures.Tokens.ManagerAccessToken,
+		testEnv.fixtures.Tokens.AdminAccessToken,
+		testEnv.fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for i, user := range users {
@@ -246,20 +284,20 @@ func TestUpdateSchool(t *testing.T) {
 
 		unique := fmt.Sprintf("test%d", i)
 
-		//nolint:exhaustruct //other fields are optional
 		data := dtos.SchoolDto{
 			Name: unique,
 		}
 
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
+			test.JSONContentType,
 			http.MethodPatch,
 			"/schools/%d",
 			school.ID,
 		)
 		tReq.AddCookie(user)
 
-		tReq.SetBody(data)
+		tReq.SetData(data)
 
 		rs := tReq.Do(t)
 
@@ -278,7 +316,6 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "Andere",
 	}
@@ -287,13 +324,14 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/%d",
 		school.ID,
 	)
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -314,15 +352,19 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "test",
 	}
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPatch, "/schools/1")
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPatch,
+		"/schools/1",
+	)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -343,19 +385,19 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "test",
 	}
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/8000",
 	)
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -376,19 +418,19 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SchoolDto{
 		Name: "test",
 	}
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/aaaa",
 	)
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -412,13 +454,14 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/%d",
 		school.ID,
 	)
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
-	//nolint:exhaustruct //other fields are optional
-	tReq.SetBody(dtos.SchoolDto{
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
+
+	tReq.SetData(dtos.SchoolDto{
 		Name: "",
 	})
 
@@ -442,6 +485,7 @@ func TestUpdateSchoolAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/%d",
 		school.ID,
@@ -452,7 +496,7 @@ func TestUpdateSchoolAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(testEnv.fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
@@ -464,8 +508,8 @@ func TestDeleteSchool(t *testing.T) {
 	defer testEnv.teardown()
 
 	users := []*http.Cookie{
-		fixtures.Tokens.AdminAccessToken,
-		fixtures.Tokens.ManagerAccessToken,
+		testEnv.fixtures.Tokens.AdminAccessToken,
+		testEnv.fixtures.Tokens.ManagerAccessToken,
 	}
 
 	for _, user := range users {
@@ -473,6 +517,7 @@ func TestDeleteSchool(t *testing.T) {
 
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
+			test.JSONContentType,
 			http.MethodDelete,
 			"/schools/%d",
 			school.ID,
@@ -495,9 +540,13 @@ func TestDeleteSchool(t *testing.T) {
 func TestDeleteSchoolReadOnly(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
-
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodDelete, "/schools/1")
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodDelete,
+		"/schools/1",
+	)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -520,10 +569,11 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodDelete,
 		"/schools/8000",
 	)
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -546,10 +596,11 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodDelete,
 		"/schools/aaaa",
 	)
-	tReq.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -574,6 +625,7 @@ func TestDeleteSchoolAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodDelete,
 		"/schools/%d",
 		school.ID,
@@ -584,7 +636,7 @@ func TestDeleteSchoolAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(testEnv.fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 

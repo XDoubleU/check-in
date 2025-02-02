@@ -4,12 +4,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log/slog"
+	"os"
 
 	"check-in/api/internal/config"
 )
 
 func main() {
-	cfg := config.New()
+	cfg := config.New(slog.New(slog.NewTextHandler(os.Stdout, nil)))
 	var username string
 	var password string
 

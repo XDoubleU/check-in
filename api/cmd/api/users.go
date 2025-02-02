@@ -95,7 +95,7 @@ func (app *Application) getPaginatedManagerUsersHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
-	page, err := parse.QueryParam(r, "page", 1, parse.Int64Func(true, false))
+	page, err := parse.QueryParam(r, "page", 1, parse.Int64(true, false))
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
 		return
@@ -133,11 +133,16 @@ func (app *Application) createManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	var createUserDto *dtos.CreateUserDto
+	var createUserDto dtos.CreateUserDto
 
 	err := httptools.ReadJSON(r.Body, &createUserDto)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if v, validationErrors := createUserDto.Validate(); !v {
+		httptools.FailedValidationResponse(w, r, validationErrors)
 		return
 	}
 
@@ -147,7 +152,7 @@ func (app *Application) createManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, createUserDto.ValidationErrors)
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 
@@ -171,7 +176,7 @@ func (app *Application) updateManagerUserHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	var updateUserDto *dtos.UpdateUserDto
+	var updateUserDto dtos.UpdateUserDto
 
 	id, err := parse.URLParam(r, "id", parse.UUID)
 	if err != nil {
@@ -185,6 +190,11 @@ func (app *Application) updateManagerUserHandler(
 		return
 	}
 
+	if v, validationErrors := updateUserDto.Validate(); !v {
+		httptools.FailedValidationResponse(w, r, validationErrors)
+		return
+	}
+
 	user, err := app.services.Users.Update(
 		r.Context(),
 		id,
@@ -192,7 +202,7 @@ func (app *Application) updateManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, updateUserDto.ValidationErrors)
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 

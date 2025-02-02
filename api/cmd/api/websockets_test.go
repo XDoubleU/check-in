@@ -30,11 +30,11 @@ func TestAllLocationsWebSocketCheckIn(t *testing.T) {
 
 		_, err = testApp.services.CheckInsWriter.Create(
 			context.Background(),
-			//nolint:exhaustruct //other fields are optional
-			&dtos.CreateCheckInDto{
+
+			dtos.CreateCheckInDto{
 				SchoolID: school.ID,
 			},
-			fixtures.DefaultUser,
+			testEnv.fixtures.DefaultUser,
 		)
 		require.Nil(t, err)
 	})
@@ -65,10 +65,10 @@ func TestAllLocationsWebSocketCapUpdate(t *testing.T) {
 		newCap := int64(10)
 		_, err := testApp.services.Locations.Update(
 			context.Background(),
-			fixtures.AdminUser,
-			fixtures.DefaultLocation.ID,
+			testEnv.fixtures.AdminUser,
+			testEnv.fixtures.DefaultLocation.ID,
 			//nolint:exhaustruct //other fields are optional
-			&dtos.UpdateLocationDto{
+			dtos.UpdateLocationDto{
 				Capacity: &newCap,
 			},
 		)
@@ -92,7 +92,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
-		NormalizedName: fixtures.DefaultLocation.NormalizedName,
+		NormalizedName: testEnv.fixtures.DefaultLocation.NormalizedName,
 	})
 
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
@@ -101,11 +101,11 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 
 		_, err = testApp.services.CheckInsWriter.Create(
 			context.Background(),
-			//nolint:exhaustruct //other fields are optional
-			&dtos.CreateCheckInDto{
+
+			dtos.CreateCheckInDto{
 				SchoolID: school.ID,
 			},
-			fixtures.DefaultUser,
+			testEnv.fixtures.DefaultUser,
 		)
 		require.Nil(t, err)
 	})
@@ -117,7 +117,7 @@ func TestSingleLocationWebSocketCheckIn(t *testing.T) {
 	assert.Equal(
 		t,
 		locationState.NormalizedName,
-		fixtures.DefaultLocation.NormalizedName,
+		testEnv.fixtures.DefaultLocation.NormalizedName,
 	)
 	assert.Equal(t, locationState.Capacity-1, locationState.Available)
 }
@@ -130,17 +130,17 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 
 	tWeb.SetInitialMessage(dtos.SubscribeMessageDto{
 		Subject:        "single-location",
-		NormalizedName: fixtures.DefaultLocation.NormalizedName,
+		NormalizedName: testEnv.fixtures.DefaultLocation.NormalizedName,
 	})
 
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
 		newCap := int64(10)
 		_, err := testApp.services.Locations.Update(
 			context.Background(),
-			fixtures.AdminUser,
-			fixtures.DefaultLocation.ID,
+			testEnv.fixtures.AdminUser,
+			testEnv.fixtures.DefaultLocation.ID,
 			//nolint:exhaustruct //other fields are optional
-			&dtos.UpdateLocationDto{
+			dtos.UpdateLocationDto{
 				Capacity: &newCap,
 			},
 		)
@@ -154,7 +154,7 @@ func TestSingleLocationWebSocketCapUpdate(t *testing.T) {
 	assert.Equal(
 		t,
 		locationState.NormalizedName,
-		fixtures.DefaultLocation.NormalizedName,
+		testEnv.fixtures.DefaultLocation.NormalizedName,
 	)
 	assert.EqualValues(t, 10, locationState.Capacity)
 }
@@ -173,7 +173,7 @@ func TestStateUpdate(t *testing.T) {
 	tWeb.SetParallelOperation(func(t *testing.T, _ *httptest.Server) {
 		_, err := testApp.services.State.UpdateState(
 			context.Background(),
-			&dtos.StateDto{
+			dtos.StateDto{
 				IsMaintenance: true,
 			},
 		)

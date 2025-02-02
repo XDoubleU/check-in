@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	wstools "github.com/XDoubleU/essentia/pkg/communication/ws"
@@ -25,6 +26,7 @@ type WebSocketService struct {
 }
 
 func NewWebSocketService(
+	logger *slog.Logger,
 	allowedOrigins []string,
 ) *WebSocketService {
 	service := WebSocketService{
@@ -36,6 +38,7 @@ func NewWebSocketService(
 	}
 
 	handler := wstools.CreateWebSocketHandler[dtos.SubscribeMessageDto](
+		logger,
 		1,
 		100, //nolint:mnd //no magic number
 	)

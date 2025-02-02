@@ -235,7 +235,7 @@ func (repo LocationRepository) Create(
 func (repo LocationRepository) Update(
 	ctx context.Context,
 	location models.Location,
-	updateLocationDto *dtos.UpdateLocationDto,
+	updateLocationDto dtos.UpdateLocationDto,
 ) (*models.Location, error) {
 	query := `
 		UPDATE locations

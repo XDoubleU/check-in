@@ -600,19 +600,14 @@ func (service LocationService) GetByName(
 func (service LocationService) Create(
 	ctx context.Context,
 	user *models.User,
-	createLocationDto *dtos.CreateLocationDto,
+	createLocationDto dtos.CreateLocationDto,
 ) (*models.Location, error) {
-	if v := createLocationDto.Validate(); !v.Valid() {
-		return nil, errortools.ErrFailedValidation
-	}
-
 	err := service.checkForConflictsOnCreate(ctx, user, createLocationDto)
 	if err != nil {
 		return nil, err
 	}
 
-	//nolint:exhaustruct //other fields are optional
-	defaultUser, err := service.users.Create(ctx, &dtos.CreateUserDto{
+	defaultUser, err := service.users.Create(ctx, dtos.CreateUserDto{
 		Username: createLocationDto.Username,
 		Password: createLocationDto.Password,
 	}, models.DefaultRole)
@@ -687,7 +682,7 @@ func (service LocationService) Recreate(
 func (service LocationService) checkForConflictsOnCreate(
 	ctx context.Context,
 	user *models.User,
-	createLocationDto *dtos.CreateLocationDto,
+	createLocationDto dtos.CreateLocationDto,
 ) error {
 	existingLocation, _ := service.GetByName(
 		ctx,
@@ -718,12 +713,8 @@ func (service LocationService) Update(
 	ctx context.Context,
 	user *models.User,
 	id string,
-	updateLocationDto *dtos.UpdateLocationDto,
+	updateLocationDto dtos.UpdateLocationDto,
 ) (*models.Location, error) {
-	if v := updateLocationDto.Validate(); !v.Valid() {
-		return nil, errortools.ErrFailedValidation
-	}
-
 	err := service.checkForConflictsOnUpdate(ctx, user, updateLocationDto)
 	if err != nil {
 		return nil, err
@@ -739,14 +730,13 @@ func (service LocationService) Update(
 		return nil, err
 	}
 
-	//nolint:exhaustruct //other fields are optional
-	_, err = service.users.Update(ctx, location.UserID, &dtos.UpdateUserDto{
+	_, err = service.users.Update(ctx, location.UserID, dtos.UpdateUserDto{
 		Username: updateLocationDto.Username,
 		Password: updateLocationDto.Password,
 	}, models.DefaultRole)
 	if err != nil {
 		//nolint:exhaustruct //other fields are optional
-		_, err2 := service.locations.Update(ctx, *location, &dtos.UpdateLocationDto{
+		_, err2 := service.locations.Update(ctx, *location, dtos.UpdateLocationDto{
 			Name:     &oldLocation.Name,
 			Capacity: &oldLocation.Capacity,
 			TimeZone: &oldLocation.TimeZone,
@@ -800,7 +790,7 @@ func (service LocationService) Update(
 func (service LocationService) checkForConflictsOnUpdate(
 	ctx context.Context,
 	user *models.User,
-	updateLocationDto *dtos.UpdateLocationDto,
+	updateLocationDto dtos.UpdateLocationDto,
 ) error {
 	if updateLocationDto.Name != nil {
 		existingLocation, _ := service.GetByName(

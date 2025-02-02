@@ -43,7 +43,7 @@ func (app *Application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 4
 
-	page, err := parse.QueryParam(r, "page", 1, parse.Int64Func(true, false))
+	page, err := parse.QueryParam(r, "page", 1, parse.Int64(true, false))
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
 		return
@@ -78,7 +78,7 @@ func (app *Application) getPaginatedSchoolsHandler(w http.ResponseWriter,
 // @Failure	500			{object}	ErrorDto
 // @Router		/schools [post].
 func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	var schoolDto *dtos.SchoolDto
+	var schoolDto dtos.SchoolDto
 
 	err := httptools.ReadJSON(r.Body, &schoolDto)
 	if err != nil {
@@ -86,9 +86,14 @@ func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	if v, validationErrors := schoolDto.Validate(); !v {
+		httptools.FailedValidationResponse(w, r, validationErrors)
+		return
+	}
+
 	school, err := app.services.Schools.Create(r.Context(), schoolDto)
 	if err != nil {
-		httptools.HandleError(w, r, err, schoolDto.ValidationErrors)
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 
@@ -109,9 +114,9 @@ func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	500			{object}	ErrorDto
 // @Router		/schools/{id} [patch].
 func (app *Application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	var schoolDto *dtos.SchoolDto
+	var schoolDto dtos.SchoolDto
 
-	id, err := parse.URLParam(r, "id", parse.Int64Func(true, false))
+	id, err := parse.URLParam(r, "id", parse.Int64(true, false))
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
 		return
@@ -123,9 +128,14 @@ func (app *Application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	if v, validationErrors := schoolDto.Validate(); !v {
+		httptools.FailedValidationResponse(w, r, validationErrors)
+		return
+	}
+
 	school, err := app.services.Schools.Update(r.Context(), id, schoolDto)
 	if err != nil {
-		httptools.HandleError(w, r, err, schoolDto.ValidationErrors)
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 
@@ -145,7 +155,7 @@ func (app *Application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 // @Failure	500	{object}	ErrorDto
 // @Router		/schools/{id} [delete].
 func (app *Application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := parse.URLParam(r, "id", parse.Int64Func(true, false))
+	id, err := parse.URLParam(r, "id", parse.Int64(true, false))
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
 		return

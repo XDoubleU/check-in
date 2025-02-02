@@ -11,40 +11,29 @@ type PaginatedUsersDto struct {
 } //	@name	PaginatedUsersDto
 
 type CreateUserDto struct {
-	Username         string            `json:"username"`
-	Password         string            `json:"password"`
-	ValidationErrors map[string]string `json:"-"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 } //	@name	CreateUserDto
 
 type UpdateUserDto struct {
-	Username         *string           `json:"username"`
-	Password         *string           `json:"password"`
-	ValidationErrors map[string]string `json:"-"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
 } //	@name	UpdateUserDto
 
-func (dto *CreateUserDto) Validate() *validate.Validator {
+func (dto *CreateUserDto) Validate() (bool, map[string]string) {
 	v := validate.New()
 
-	validate.Check(v, dto.Username, validate.IsNotEmpty, "username")
-	validate.Check(v, dto.Password, validate.IsNotEmpty, "password")
+	validate.Check(v, "username", dto.Username, validate.IsNotEmpty)
+	validate.Check(v, "password", dto.Password, validate.IsNotEmpty)
 
-	dto.ValidationErrors = v.Errors
-
-	return v
+	return v.Valid(), v.Errors()
 }
 
-func (dto *UpdateUserDto) Validate() *validate.Validator {
+func (dto *UpdateUserDto) Validate() (bool, map[string]string) {
 	v := validate.New()
 
-	if dto.Username != nil {
-		validate.Check(v, *dto.Username, validate.IsNotEmpty, "username")
-	}
+	validate.CheckOptional(v, "username", dto.Username, validate.IsNotEmpty)
+	validate.CheckOptional(v, "password", dto.Password, validate.IsNotEmpty)
 
-	if dto.Password != nil {
-		validate.Check(v, *dto.Password, validate.IsNotEmpty, "password")
-	}
-
-	dto.ValidationErrors = v.Errors
-
-	return v
+	return v.Valid(), v.Errors()
 }

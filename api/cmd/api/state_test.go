@@ -17,7 +17,12 @@ func TestGetState(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/state")
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/state",
+	)
 	rs := tReq.Do(t)
 
 	var rsData models.State
@@ -39,12 +44,13 @@ func TestUpdateState(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodPatch,
 		"/state",
 	)
-	tReq.AddCookie(fixtures.Tokens.AdminAccessToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.AdminAccessToken)
 
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -63,6 +69,7 @@ func TestUpdateStateAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
+		test.JSONContentType,
 		http.MethodPatch,
 		"/state",
 	)
@@ -72,12 +79,12 @@ func TestUpdateStateAccess(t *testing.T) {
 	mt.AddTestCase(tReqBase, test.NewCaseResponse(http.StatusUnauthorized, nil, nil))
 
 	tReq2 := tReqBase.Copy()
-	tReq2.AddCookie(fixtures.Tokens.DefaultAccessToken)
+	tReq2.AddCookie(testEnv.fixtures.Tokens.DefaultAccessToken)
 
 	mt.AddTestCase(tReq2, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 
 	tReq3 := tReqBase.Copy()
-	tReq3.AddCookie(fixtures.Tokens.ManagerAccessToken)
+	tReq3.AddCookie(testEnv.fixtures.Tokens.ManagerAccessToken)
 
 	mt.AddTestCase(tReq3, test.NewCaseResponse(http.StatusForbidden, nil, nil))
 

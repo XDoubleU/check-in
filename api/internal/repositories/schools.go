@@ -184,6 +184,33 @@ func (repo SchoolRepository) GetByID(
 	return &school, nil
 }
 
+func (repo SchoolRepository) GetByName(
+	ctx context.Context,
+	name string,
+) (*models.School, error) {
+	query := `
+		SELECT id, read_only
+		FROM schools
+		WHERE name = $1
+	`
+
+	//nolint:exhaustruct //other fields are optional
+	school := models.School{
+		Name: name,
+	}
+
+	err := repo.db.QueryRow(
+		ctx,
+		query,
+		name).Scan(&school.ID, &school.ReadOnly)
+
+	if err != nil {
+		return nil, postgres.PgxErrorToHTTPError(err)
+	}
+
+	return &school, nil
+}
+
 func (repo SchoolRepository) GetByIDWithoutReadOnly(
 	ctx context.Context,
 	id int64,
@@ -239,7 +266,7 @@ func (repo SchoolRepository) Create(
 func (repo SchoolRepository) Update(
 	ctx context.Context,
 	school models.School,
-	schoolDto *dtos.SchoolDto,
+	schoolDto dtos.SchoolDto,
 ) (*models.School, error) {
 	school.Name = schoolDto.Name
 
