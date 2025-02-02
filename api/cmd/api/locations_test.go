@@ -77,7 +77,11 @@ func TestGetCheckInsLocationRangeRawSingle(t *testing.T) {
 	runForAllTimes(t, GetCheckInsLocationRangeRawSingle)
 }
 
-func GetCheckInsLocationRangeRawSingle(t *testing.T, testEnv TestEnv, testApp Application) {
+func GetCheckInsLocationRangeRawSingle(
+	t *testing.T,
+	testEnv TestEnv,
+	testApp Application,
+) {
 	testEnv.createCheckIns(testEnv.fixtures.DefaultLocation, int64(1), 10)
 
 	now := testApp.getTimeNowUTC()
@@ -152,7 +156,11 @@ func TestGetCheckInsLocationRangeRawMultiple(t *testing.T) {
 	runForAllTimes(t, GetCheckInsLocationRangeRawMultiple)
 }
 
-func GetCheckInsLocationRangeRawMultiple(t *testing.T, testEnv TestEnv, testApp Application) {
+func GetCheckInsLocationRangeRawMultiple(
+	t *testing.T,
+	testEnv TestEnv,
+	testApp Application,
+) {
 	location := testEnv.createLocations(1)[0]
 
 	testEnv.createCheckIns(testEnv.fixtures.DefaultLocation, int64(1), 10)
@@ -545,7 +553,11 @@ func TestGetCheckInsLocationDayRawSingle(t *testing.T) {
 	runForAllTimes(t, GetCheckInsLocationDayRawSingle)
 }
 
-func GetCheckInsLocationDayRawSingle(t *testing.T, testEnv TestEnv, testApp Application) {
+func GetCheckInsLocationDayRawSingle(
+	t *testing.T,
+	testEnv TestEnv,
+	testApp Application,
+) {
 	amount := 10
 	testEnv.createCheckIns(testEnv.fixtures.DefaultLocation, int64(1), amount)
 
@@ -599,7 +611,11 @@ func TestGetCheckInsLocationDayRawMultiple(t *testing.T) {
 	runForAllTimes(t, GetCheckInsLocationDayRawMultiple)
 }
 
-func GetCheckInsLocationDayRawMultiple(t *testing.T, testEnv TestEnv, testApp Application) {
+func GetCheckInsLocationDayRawMultiple(
+	t *testing.T,
+	testEnv TestEnv,
+	testApp Application,
+) {
 	location := testEnv.createLocations(1)[0]
 
 	amount := 10

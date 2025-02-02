@@ -46,7 +46,7 @@ type Fixtures struct {
 var cfg config.Config        //nolint:gochecknoglobals //required
 var postgresDB *pgxpool.Pool //nolint:gochecknoglobals //required
 
-var timesToCheck = []shared.LocalNowTimeProvider{
+var timesToCheck = []shared.LocalNowTimeProvider{ //nolint:gochecknoglobals //required
 	time.Now,
 	func() time.Time { return getTimeNow(23, false, "Europe/Brussels") },
 	func() time.Time { return getTimeNow(00, true, "Europe/Brussels") },
@@ -363,7 +363,10 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func runForAllTimes(t *testing.T, testFunc func(t *testing.T, testEnv TestEnv, testApp Application)) {
+func runForAllTimes(
+	t *testing.T,
+	testFunc func(t *testing.T, testEnv TestEnv, testApp Application),
+) {
 	for _, timeNow := range timesToCheck {
 		testEnv, testApp := setupSpecificTimeProvider(timeNow)
 		testFunc(t, testEnv, testApp)
@@ -392,7 +395,9 @@ func getTimeNow(hour int, nextDay bool, tz string) time.Time {
 	)
 }
 
-func setupSpecificTimeProvider(timeProvider shared.LocalNowTimeProvider) (TestEnv, Application) {
+func setupSpecificTimeProvider(
+	timeProvider shared.LocalNowTimeProvider,
+) (TestEnv, Application) {
 	testApp := NewApp(logging.NewNopLogger(), cfg, postgresDB, timeProvider)
 	testEnv := TestEnv{
 		ctx: context.Background(),
