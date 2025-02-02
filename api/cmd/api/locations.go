@@ -85,7 +85,7 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	date, err := parse.RequiredQueryParam(
 		r,
 		"date",
-		parse.DateFunc(constants.DateFormat),
+		parse.Date(constants.DateFormat),
 	)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
@@ -156,7 +156,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 	startDate, err := parse.RequiredQueryParam(
 		r,
 		"startDate",
-		parse.DateFunc(constants.DateFormat),
+		parse.Date(constants.DateFormat),
 	)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
@@ -166,7 +166,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 	endDate, err := parse.RequiredQueryParam(
 		r,
 		"endDate",
-		parse.DateFunc(constants.DateFormat),
+		parse.Date(constants.DateFormat),
 	)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
@@ -311,7 +311,7 @@ func (app *Application) deleteLocationCheckInHandler(
 		return
 	}
 
-	checkInID, err := parse.URLParam(r, "checkInId", parse.Int64Func(true, false))
+	checkInID, err := parse.URLParam(r, "checkInId", parse.Int64(true, false))
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
 		return
@@ -376,7 +376,7 @@ func (app *Application) getPaginatedLocationsHandler(w http.ResponseWriter,
 	r *http.Request) {
 	var pageSize int64 = 3
 
-	page, err := parse.QueryParam(r, "page", 1, parse.Int64Func(true, false))
+	page, err := parse.QueryParam(r, "page", 1, parse.Int64(true, false))
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
 		return
@@ -433,11 +433,16 @@ func (app *Application) getAllLocationsHandler(w http.ResponseWriter,
 // @Failure	500					{object}	ErrorDto
 // @Router		/locations [post].
 func (app *Application) createLocationHandler(w http.ResponseWriter, r *http.Request) {
-	var createLocationDto *dtos.CreateLocationDto
+	var createLocationDto dtos.CreateLocationDto
 
 	err := httptools.ReadJSON(r.Body, &createLocationDto)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if v, validationErrors := createLocationDto.Validate(); !v {
+		httptools.FailedValidationResponse(w, r, validationErrors)
 		return
 	}
 
@@ -448,7 +453,7 @@ func (app *Application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		createLocationDto,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, createLocationDto.ValidationErrors)
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 
@@ -470,7 +475,7 @@ func (app *Application) createLocationHandler(w http.ResponseWriter, r *http.Req
 // @Router		/locations/{id} [patch].
 func (app *Application) updateLocationHandler(w http.ResponseWriter,
 	r *http.Request) {
-	var updateLocationDto *dtos.UpdateLocationDto
+	var updateLocationDto dtos.UpdateLocationDto
 
 	id, err := parse.URLParam(r, "locationId", parse.UUID)
 	if err != nil {
@@ -484,6 +489,11 @@ func (app *Application) updateLocationHandler(w http.ResponseWriter,
 		return
 	}
 
+	if v, validationErrors := updateLocationDto.Validate(); !v {
+		httptools.FailedValidationResponse(w, r, validationErrors)
+		return
+	}
+
 	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 	location, err := app.services.Locations.Update(
 		r.Context(),
@@ -492,7 +502,7 @@ func (app *Application) updateLocationHandler(w http.ResponseWriter,
 		updateLocationDto,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, updateLocationDto.ValidationErrors)
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 

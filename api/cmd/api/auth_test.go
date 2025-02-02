@@ -17,15 +17,19 @@ import (
 func TestSignInUser(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPost,
+		"/auth/signin",
+	)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "Default",
 		Password:   "testpassword",
 		RememberMe: true,
 	}
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -39,24 +43,28 @@ func TestSignInUser(t *testing.T) {
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 	assert.Contains(t, rs.Header.Values("set-cookie")[1], "refreshToken")
 
-	assert.Equal(t, fixtures.DefaultUser.ID, rsData.ID)
-	assert.Equal(t, fixtures.DefaultUser.Username, rsData.Username)
-	assert.Equal(t, fixtures.DefaultUser.Role, rsData.Role)
+	assert.Equal(t, testEnv.fixtures.DefaultUser.ID, rsData.ID)
+	assert.Equal(t, testEnv.fixtures.DefaultUser.Username, rsData.Username)
+	assert.Equal(t, testEnv.fixtures.DefaultUser.Role, rsData.Role)
 	assert.Equal(t, 0, len(rsData.PasswordHash))
 }
 
 func TestSignInUserNoRefresh(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPost,
+		"/auth/signin",
+	)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "Default",
 		Password:   "testpassword",
 		RememberMe: false,
 	}
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -69,24 +77,28 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	assert.Equal(t, 1, len(rs.Header.Values("set-cookie")))
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 
-	assert.Equal(t, fixtures.DefaultUser.ID, rsData.ID)
-	assert.Equal(t, fixtures.DefaultUser.Username, rsData.Username)
-	assert.Equal(t, fixtures.DefaultUser.Role, rsData.Role)
+	assert.Equal(t, testEnv.fixtures.DefaultUser.ID, rsData.ID)
+	assert.Equal(t, testEnv.fixtures.DefaultUser.Username, rsData.Username)
+	assert.Equal(t, testEnv.fixtures.DefaultUser.Role, rsData.Role)
 	assert.Equal(t, 0, len(rsData.PasswordHash))
 }
 
 func TestSignInAdmin(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPost,
+		"/auth/signin",
+	)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "Admin",
 		Password:   "testpassword",
 		RememberMe: true,
 	}
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -99,24 +111,28 @@ func TestSignInAdmin(t *testing.T) {
 	assert.Equal(t, 1, len(rs.Header.Values("set-cookie")))
 	assert.Contains(t, rs.Header.Values("set-cookie")[0], "accessToken")
 
-	assert.Equal(t, fixtures.AdminUser.ID, rsData.ID)
-	assert.Equal(t, fixtures.AdminUser.Username, rsData.Username)
-	assert.Equal(t, fixtures.AdminUser.Role, rsData.Role)
+	assert.Equal(t, testEnv.fixtures.AdminUser.ID, rsData.ID)
+	assert.Equal(t, testEnv.fixtures.AdminUser.Username, rsData.Username)
+	assert.Equal(t, testEnv.fixtures.AdminUser.Role, rsData.Role)
 	assert.Equal(t, 0, len(rsData.PasswordHash))
 }
 
 func TestSignInInexistentUser(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPost,
+		"/auth/signin",
+	)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "inexistentuser",
 		Password:   "testpassword",
 		RememberMe: true,
 	}
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -131,15 +147,19 @@ func TestSignInInexistentUser(t *testing.T) {
 func TestSignInWrongPassword(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPost,
+		"/auth/signin",
+	)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-	//nolint:exhaustruct //other fields are optional
 	data := dtos.SignInDto{
 		Username:   "Default",
 		Password:   "wrongpassword",
 		RememberMe: true,
 	}
-	tReq.SetBody(data)
+	tReq.SetData(data)
 
 	rs := tReq.Do(t)
 
@@ -155,9 +175,14 @@ func TestSignInFailValidation(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodPost, "/auth/signin")
-	//nolint:exhaustruct //other fields are optional
-	tReq.SetBody(dtos.SignInDto{
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodPost,
+		"/auth/signin",
+	)
+
+	tReq.SetData(dtos.SignInDto{
 		Username:   "",
 		Password:   "",
 		RememberMe: true,
@@ -177,11 +202,15 @@ func TestSignInFailValidation(t *testing.T) {
 func TestSignOut(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/auth/signout",
+	)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
-
-	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
-	tReq.AddCookie(fixtures.Tokens.DefaultRefreshToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.DefaultRefreshToken)
 
 	rs := tReq.Do(t)
 
@@ -193,10 +222,14 @@ func TestSignOut(t *testing.T) {
 func TestSignOutNoRefresh(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/auth/signout",
+	)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
-
-	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 
@@ -209,7 +242,12 @@ func TestSignOutNotLoggedIn(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/signout")
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/auth/signout",
+	)
 
 	rs := tReq.Do(t)
 
@@ -219,10 +257,14 @@ func TestSignOutNotLoggedIn(t *testing.T) {
 func TestRefresh(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/auth/refresh",
+	)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
-
-	tReq.AddCookie(fixtures.Tokens.DefaultRefreshToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.DefaultRefreshToken)
 
 	rs := tReq.Do(t)
 
@@ -234,10 +276,14 @@ func TestRefresh(t *testing.T) {
 func TestRefreshReusedToken(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/auth/refresh",
+	)
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
-
-	tReq.AddCookie(fixtures.Tokens.DefaultRefreshToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.DefaultRefreshToken)
 
 	rs1 := tReq.Do(t)
 	rs2 := tReq.Do(t)
@@ -250,9 +296,14 @@ func TestRefreshInvalidToken(t *testing.T) {
 	testEnv, testApp := setup(t)
 	defer testEnv.teardown()
 
-	tReq := test.CreateRequestTester(testApp.routes(), http.MethodGet, "/auth/refresh")
+	tReq := test.CreateRequestTester(
+		testApp.routes(),
+		test.JSONContentType,
+		http.MethodGet,
+		"/auth/refresh",
+	)
 
-	tReq.AddCookie(fixtures.Tokens.DefaultAccessToken)
+	tReq.AddCookie(testEnv.fixtures.Tokens.DefaultAccessToken)
 
 	rs := tReq.Do(t)
 

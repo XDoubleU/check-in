@@ -6,8 +6,7 @@ import (
 )
 
 type CreateCheckInDto struct {
-	SchoolID         int64             `json:"schoolId"`
-	ValidationErrors map[string]string `json:"-"`
+	SchoolID int64 `json:"schoolId"`
 } //	@name	CreateCheckInDto
 
 type CheckInDto struct {
@@ -18,12 +17,10 @@ type CheckInDto struct {
 	CreatedAt  pgtype.Timestamptz `json:"createdAt"  swaggertype:"string"`
 } //	@name	CheckInDto
 
-func (dto *CreateCheckInDto) Validate() *validate.Validator {
+func (dto *CreateCheckInDto) Validate() (bool, map[string]string) {
 	v := validate.New()
 
-	validate.Check(v, dto.SchoolID, validate.IsGreaterThanFunc(int64(0)), "schoolId")
+	validate.Check(v, "schoolId", dto.SchoolID, validate.IsGreaterThan(int64(0)))
 
-	dto.ValidationErrors = v.Errors
-
-	return v
+	return v.Valid(), v.Errors()
 }

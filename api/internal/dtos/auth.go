@@ -3,19 +3,16 @@ package dtos
 import "github.com/XDoubleU/essentia/pkg/validate"
 
 type SignInDto struct {
-	Username         string            `json:"username"`
-	Password         string            `json:"password"`
-	RememberMe       bool              `json:"rememberMe"`
-	ValidationErrors map[string]string `json:"-"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	RememberMe bool   `json:"rememberMe"`
 } //	@name	SignInDto
 
-func (dto *SignInDto) Validate() *validate.Validator {
+func (dto *SignInDto) Validate() (bool, map[string]string) {
 	v := validate.New()
 
-	validate.Check(v, dto.Username, validate.IsNotEmpty, "username")
-	validate.Check(v, dto.Password, validate.IsNotEmpty, "password")
+	validate.Check(v, "username", dto.Username, validate.IsNotEmpty)
+	validate.Check(v, "password", dto.Password, validate.IsNotEmpty)
 
-	dto.ValidationErrors = v.Errors
-
-	return v
+	return v.Valid(), v.Errors()
 }

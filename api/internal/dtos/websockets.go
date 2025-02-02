@@ -52,12 +52,12 @@ func (dto SubscribeMessageDto) Topic() string {
 	return string(dto.Subject)
 }
 
-func (dto SubscribeMessageDto) Validate() *validate.Validator {
+func (dto SubscribeMessageDto) Validate() (bool, map[string]string) {
 	v := validate.New()
 
 	if dto.Subject == SingleLocation {
-		validate.Check(v, dto.NormalizedName, validate.IsNotEmpty, "normalizedName")
+		validate.Check(v, "normalizedName", dto.NormalizedName, validate.IsNotEmpty)
 	}
 
-	return v
+	return v.Valid(), v.Errors()
 }

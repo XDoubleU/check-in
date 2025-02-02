@@ -23,12 +23,12 @@ func (app *Application) routes() http.Handler {
 	if len(app.config.SentryDsn) > 0 {
 		//nolint:exhaustruct //other fields are optional
 		sentryClientOptions = sentry.ClientOptions{
-			Dsn:                app.config.SentryDsn,
-			Environment:        app.config.Env,
-			Release:            app.config.Release,
-			EnableTracing:      true,
-			TracesSampleRate:   app.config.SampleRate,
-			ProfilesSampleRate: app.config.SampleRate,
+			Dsn:              app.config.SentryDsn,
+			Environment:      app.config.Env,
+			Release:          app.config.Release,
+			EnableTracing:    true,
+			TracesSampleRate: app.config.SampleRate,
+			SampleRate:       app.config.SampleRate,
 		}
 	}
 

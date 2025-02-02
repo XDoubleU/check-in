@@ -35,13 +35,9 @@ func (service CheckInWriterService) GetAllSchoolsSortedByLocation(
 
 func (service CheckInWriterService) Create(
 	ctx context.Context,
-	createCheckInDto *dtos.CreateCheckInDto,
+	createCheckInDto dtos.CreateCheckInDto,
 	user *models.User,
 ) (*dtos.CheckInDto, error) {
-	if v := createCheckInDto.Validate(); !v.Valid() {
-		return nil, errortools.ErrFailedValidation
-	}
-
 	location, err := service.locations.GetByUser(ctx, user)
 	if err != nil {
 		return nil, err

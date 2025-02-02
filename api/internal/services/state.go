@@ -89,31 +89,36 @@ func (service *StateService) get(
 }
 
 func (service *StateService) startPolling(ctx context.Context, logger *slog.Logger) {
-	sentry.GoRoutineErrorHandler(ctx, "State Polling", func(ctx context.Context) error {
-		for ctx.Err() != context.Canceled {
-			newState, err := service.get(ctx, false)
-			if err != nil {
-				logger.Error(
-					"something went wrong while fetching current state",
-					logging.ErrAttr(err),
-				)
-				continue
-			}
+	sentry.GoRoutineWrapper(
+		ctx,
+		logger,
+		"State Polling",
+		func(ctx context.Context, logger *slog.Logger) error {
+			for ctx.Err() != context.Canceled {
+				newState, err := service.get(ctx, false)
+				if err != nil {
+					logger.Error(
+						"something went wrong while fetching current state",
+						logging.ErrAttr(err),
+					)
+					continue
+				}
 
-			_, changed := service.Current.update(*newState)
-			if changed {
-				service.websocket.NewAppState(*newState)
-			}
+				_, changed := service.Current.update(*newState)
+				if changed {
+					service.websocket.NewAppState(*newState)
+				}
 
-			time.Sleep(10 * time.Second) //nolint:mnd //no magic number
-		}
-		return nil
-	})
+				time.Sleep(10 * time.Second) //nolint:mnd //no magic number
+			}
+			return nil
+		},
+	)
 }
 
 func (service *StateService) UpdateState(
 	ctx context.Context,
-	stateDto *dtos.StateDto,
+	stateDto dtos.StateDto,
 ) (*models.State, error) {
 	err := service.state.UpdateKey(
 		ctx,

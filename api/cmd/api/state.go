@@ -38,7 +38,7 @@ func (app *Application) getStateHandler(w http.ResponseWriter, r *http.Request) 
 // @Failure	500			{object}	ErrorDto
 // @Router		/state [patch].
 func (app *Application) updateStateHandler(w http.ResponseWriter, r *http.Request) {
-	var stateDto *dtos.StateDto
+	var stateDto dtos.StateDto
 
 	err := httptools.ReadJSON(r.Body, &stateDto)
 	if err != nil {

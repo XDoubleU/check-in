@@ -2,7 +2,7 @@
 package config
 
 import (
-	"fmt"
+	"log/slog"
 
 	"github.com/XDoubleU/essentia/pkg/config"
 )
@@ -20,44 +20,21 @@ type Config struct {
 	Release       string
 }
 
-func New() Config {
+func New(logger *slog.Logger) Config {
 	var cfg Config
 
-	cfg.Env = config.EnvStr("ENV", config.ProdEnv)
-	cfg.Port = config.EnvInt("PORT", 8000)
-	cfg.Throttle = config.EnvBool("THROTTLE", true)
-	cfg.WebURL = config.EnvStr("WEB_URL", "http://localhost:3000")
-	cfg.SentryDsn = config.EnvStr("SENTRY_DSN", "")
-	cfg.SampleRate = config.EnvFloat("SAMPLE_RATE", 1.0)
-	cfg.AccessExpiry = config.EnvStr("ACCESS_EXPIRY", "1h")
-	cfg.RefreshExpiry = config.EnvStr("REFRESH_EXPIRY", "7d")
-	cfg.DBDsn = config.EnvStr("DB_DSN", "postgres://postgres@localhost/postgres")
-	cfg.Release = config.EnvStr("RELEASE", config.DevEnv)
+	parser := config.New(logger)
+
+	cfg.Env = parser.EnvStr("ENV", config.ProdEnv)
+	cfg.Port = parser.EnvInt("PORT", 8000)
+	cfg.Throttle = parser.EnvBool("THROTTLE", true)
+	cfg.WebURL = parser.EnvStr("WEB_URL", "http://localhost:3000")
+	cfg.SentryDsn = parser.EnvStr("SENTRY_DSN", "")
+	cfg.SampleRate = parser.EnvFloat("SAMPLE_RATE", 1.0)
+	cfg.AccessExpiry = parser.EnvStr("ACCESS_EXPIRY", "1h")
+	cfg.RefreshExpiry = parser.EnvStr("REFRESH_EXPIRY", "7d")
+	cfg.DBDsn = parser.EnvStr("DB_DSN", "postgres://postgres@localhost/postgres")
+	cfg.Release = parser.EnvStr("RELEASE", config.DevEnv)
 
 	return cfg
-}
-
-func (cfg Config) String() string {
-	return fmt.Sprintf(`config:
-	cfg.Env: %s
-	cfg.Port: %d
-	cfg.Throttle: %t
-	cfg.WebURL: %s
-	cfg.SentryDsn: %s
-	cfg.SampleRate: %f
-	cfg.AccessExpiry: %s
-	cfg.RefreshExpiry: %s
-	cfg.DBDsn: %s
-	cfg.Release: %s`,
-		cfg.Env,
-		cfg.Port,
-		cfg.Throttle,
-		cfg.WebURL,
-		cfg.SentryDsn,
-		cfg.SampleRate,
-		cfg.AccessExpiry,
-		cfg.RefreshExpiry,
-		cfg.DBDsn,
-		cfg.Release,
-	)
 }

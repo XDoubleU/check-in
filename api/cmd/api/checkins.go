@@ -59,11 +59,16 @@ func (app *Application) getSortedSchoolsHandler(
 // @Failure	500					{object}	ErrorDto
 // @Router		/checkins [post].
 func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Request) {
-	var createCheckInDto *dtos.CreateCheckInDto
+	var createCheckInDto dtos.CreateCheckInDto
 
 	err := httptools.ReadJSON(r.Body, &createCheckInDto)
 	if err != nil {
 		httptools.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if v, validationErrors := createCheckInDto.Validate(); !v {
+		httptools.FailedValidationResponse(w, r, validationErrors)
 		return
 	}
 
@@ -74,7 +79,7 @@ func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		user,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, createCheckInDto.ValidationErrors)
+		httptools.HandleError(w, r, err, nil)
 		return
 	}
 
