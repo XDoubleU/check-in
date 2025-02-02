@@ -7,7 +7,7 @@ toolchain go1.22.4
 require github.com/justinas/alice v1.2.0
 
 require (
-	github.com/XDoubleU/essentia v0.1.6
+	github.com/XDoubleU/essentia v0.1.11
 	github.com/dlclark/regexp2 v1.11.4
 	github.com/getsentry/sentry-go v0.30.0
 	github.com/google/uuid v1.6.0
@@ -23,6 +23,7 @@ require (
 	github.com/coder/websocket v1.8.12 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/goddtriffin/helmet v1.0.2 // indirect
+	github.com/gorilla/schema v1.4.1 // indirect
 	github.com/jackc/pgerrcode v0.0.0-20240316143900-6e2875d9b438 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
