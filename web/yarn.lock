@@ -2318,6 +2318,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nodelib/fs.scandir@npm:4.0.1":
+  version: 4.0.1
+  resolution: "@nodelib/fs.scandir@npm:4.0.1"
+  dependencies:
+    "@nodelib/fs.stat": "npm:4.0.0"
+    run-parallel: "npm:^1.2.0"
+  checksum: 10c0/b5d73e3c705ea3fa88795448d330bf02c214a225475793ccb5e7da88a7067e5eb03197691112f0b3f60367d9d5239293a1dd23bd0192435c98b6efae6461e5b5
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.stat@npm:2.0.5, @nodelib/fs.stat@npm:^2.0.2":
   version: 2.0.5
   resolution: "@nodelib/fs.stat@npm:2.0.5"
@@ -2325,7 +2335,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nodelib/fs.walk@npm:1.2.8, @nodelib/fs.walk@npm:^1.2.3":
+"@nodelib/fs.stat@npm:4.0.0":
+  version: 4.0.0
+  resolution: "@nodelib/fs.stat@npm:4.0.0"
+  checksum: 10c0/f44ff60c76a83484d929d231510c8d9f8a9162674bf63b03149ed25ab944010b4603770d845ac671ddba1c9615f3201e46fc22b782d8d4b28ad4d62f5fd19125
+  languageName: node
+  linkType: hard
+
+"@nodelib/fs.walk@npm:3.0.1":
+  version: 3.0.1
+  resolution: "@nodelib/fs.walk@npm:3.0.1"
+  dependencies:
+    "@nodelib/fs.scandir": "npm:4.0.1"
+    fastq: "npm:^1.15.0"
+  checksum: 10c0/1c14b9bd4d9429fca2c4dd89a07fb7d85421d32bca2c5edf2654afe9600c8137c7785dc055da7ddc8b2a1f194f0987b101706edff408976c6a8808fa0eeb691c
+  languageName: node
+  linkType: hard
+
+"@nodelib/fs.walk@npm:^1.2.3":
   version: 1.2.8
   resolution: "@nodelib/fs.walk@npm:1.2.8"
   dependencies:
@@ -6657,7 +6684,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.15.0, enhanced-resolve@npm:^5.17.1":
+"enhanced-resolve@npm:^5.15.0, enhanced-resolve@npm:^5.18.0":
   version: 5.18.0
   resolution: "enhanced-resolve@npm:5.18.0"
   dependencies:
@@ -7501,7 +7528,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.2.9, fast-glob@npm:^3.3.2":
+"fast-glob@npm:^3.2.9, fast-glob@npm:^3.3.2, fast-glob@npm:^3.3.3":
   version: 3.3.3
   resolution: "fast-glob@npm:3.3.3"
   dependencies:
@@ -7532,6 +7559,15 @@ __metadata:
   version: 3.0.4
   resolution: "fast-uri@npm:3.0.4"
   checksum: 10c0/802969cd9902678026021e8cc2df7cab989bee56a094f17f38b39908ac422b48ed05288042b60f472479c4a4311ba021fc7266de5cfde7ed5ec7538b8b910ada
+  languageName: node
+  linkType: hard
+
+"fastq@npm:^1.15.0":
+  version: 1.19.0
+  resolution: "fastq@npm:1.19.0"
+  dependencies:
+    reusify: "npm:^1.0.4"
+  checksum: 10c0/d6a001638f1574a696660fcbba5300d017760432372c801632c325ca7c16819604841c92fd3ccadcdacec0966ca336363a5ff57bc5f0be335d8ea7ac6087b98f
   languageName: node
   linkType: hard
 
@@ -9741,7 +9777,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jiti@npm:^2.4.0":
+"jiti@npm:^2.4.2":
   version: 2.4.2
   resolution: "jiti@npm:2.4.2"
   bin:
@@ -10038,16 +10074,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knip@npm:5.41.1":
-  version: 5.41.1
-  resolution: "knip@npm:5.41.1"
+"knip@npm:5.43.6":
+  version: 5.43.6
+  resolution: "knip@npm:5.43.6"
   dependencies:
-    "@nodelib/fs.walk": "npm:1.2.8"
+    "@nodelib/fs.walk": "npm:3.0.1"
     "@snyk/github-codeowners": "npm:1.1.0"
     easy-table: "npm:1.2.0"
-    enhanced-resolve: "npm:^5.17.1"
-    fast-glob: "npm:^3.3.2"
-    jiti: "npm:^2.4.0"
+    enhanced-resolve: "npm:^5.18.0"
+    fast-glob: "npm:^3.3.3"
+    jiti: "npm:^2.4.2"
     js-yaml: "npm:^4.1.0"
     minimist: "npm:^1.2.8"
     picocolors: "npm:^1.1.0"
@@ -10064,7 +10100,7 @@ __metadata:
   bin:
     knip: bin/knip.js
     knip-bun: bin/knip-bun.js
-  checksum: 10c0/1a222a5cbba1999bda49d795e290f0e907fb25d91e4fd51cfa8d57b91d0a170acdee36c9a8d5a8872b3558f07e746f85c6e7a04fa196c5d4828f89dd872edd37
+  checksum: 10c0/fb8d2be32c6ac21997c78b77cbf67c1c9bb8e525f9838811b80e6a32b57723c2a1f7cb8a86621bd81c9e28582839732f79b1005628e3bc8991f5848777075630
   languageName: node
   linkType: hard
 
@@ -13238,7 +13274,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"run-parallel@npm:^1.1.9":
+"run-parallel@npm:^1.1.9, run-parallel@npm:^1.2.0":
   version: 1.2.0
   resolution: "run-parallel@npm:1.2.0"
   dependencies:
@@ -15156,7 +15192,7 @@ __metadata:
     jest-preview: "npm:0.3.1"
     jest-websocket-mock: "npm:2.5.0"
     jscpd: "npm:4.0.5"
-    knip: "npm:5.41.1"
+    knip: "npm:5.43.6"
     moment: "npm:2.30.1"
     moment-timezone: "npm:0.5.47"
     next: "npm:15.1.3"
