@@ -3059,9 +3059,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@restart/ui@npm:^1.9.2":
-  version: 1.9.2
-  resolution: "@restart/ui@npm:1.9.2"
+"@restart/ui@npm:^1.9.4":
+  version: 1.9.4
+  resolution: "@restart/ui@npm:1.9.4"
   dependencies:
     "@babel/runtime": "npm:^7.26.0"
     "@popperjs/core": "npm:^2.11.8"
@@ -3075,7 +3075,7 @@ __metadata:
   peerDependencies:
     react: ">=16.14.0"
     react-dom: ">=16.14.0"
-  checksum: 10c0/2c8c6ebbda11ac918ca1d580573897887854dd246e925f2432e95b45d8f77b9c88c9a9d2a9610c536ee5d649afe13c4cd4ed44e52f8cc1f9861af1755c93006b
+  checksum: 10c0/98370e9dc6af55810bd099963799dcbf371fe8518e815ff5066d424ad7ef93517b3fa3baf3d271d175600c40ca4bac06198a6fb85b09c20755af8e45027c51e3
   languageName: node
   linkType: hard
 
@@ -12512,13 +12512,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-bootstrap@npm:2.10.7":
-  version: 2.10.7
-  resolution: "react-bootstrap@npm:2.10.7"
+"react-bootstrap@npm:2.10.9":
+  version: 2.10.9
+  resolution: "react-bootstrap@npm:2.10.9"
   dependencies:
     "@babel/runtime": "npm:^7.24.7"
     "@restart/hooks": "npm:^0.4.9"
-    "@restart/ui": "npm:^1.9.2"
+    "@restart/ui": "npm:^1.9.4"
     "@types/prop-types": "npm:^15.7.12"
     "@types/react-transition-group": "npm:^4.4.6"
     classnames: "npm:^2.3.2"
@@ -12536,7 +12536,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/3b0b447bd0501cb66a9de05313bc840b1cc799d28a912370e1daaea7134749d8df1948a04c08c693f3fc496417cb6ffc3fdd8d651ee21b46f90eebd068018123
+  checksum: 10c0/96a198ee97fc6f8f1cbd68bd97daae3509561fd4613b53a55eeb170d138a8dd78cc336c679fee4adb146427d5cc92cd03256793099431984e8f91fd20210a8c8
   languageName: node
   linkType: hard
 
@@ -15138,7 +15138,7 @@ __metadata:
     prettier: "npm:3.4.2"
     query-string: "npm:9.1.1"
     react: "npm:19.0.0"
-    react-bootstrap: "npm:2.10.7"
+    react-bootstrap: "npm:2.10.9"
     react-dom: "npm:19.0.0"
     react-hook-form: "npm:7.54.2"
     react-spinners: "npm:0.15.0"
