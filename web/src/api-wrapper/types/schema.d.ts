@@ -41,7 +41,7 @@ export type paths = {
       responses: {
         /** OK */
         200: {
-          schema: definitions["CheckInsLocationEntryRaw"][];
+          schema: definitions["CheckInsGraphDto"];
         };
         /** Bad Request */
         400: {
@@ -79,7 +79,7 @@ export type paths = {
       responses: {
         /** OK */
         200: {
-          schema: definitions["CheckInsLocationEntryRaw"][];
+          schema: definitions["CheckInsGraphDto"];
         };
         /** Bad Request */
         400: {
@@ -752,9 +752,10 @@ export type definitions = {
     locationId?: string;
     schoolName?: string;
   };
-  CheckInsLocationEntryRaw: {
-    capacities?: { [key: string]: number };
-    schools?: { [key: string]: number };
+  CheckInsGraphDto: {
+    capacitiesPerLocation?: { [key: string]: number[] };
+    dates?: string[];
+    valuesPerSchool?: { [key: string]: number[] };
   };
   CreateCheckInDto: {
     schoolId?: number;

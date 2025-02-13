@@ -3,7 +3,7 @@ import { type APIResponse } from "./types"
 import { validate as isValidUUID } from "uuid"
 import {
   type CheckIn,
-  type CheckInsLocationEntryRawMap,
+  type CheckInsGraphDto,
   type CreateLocationDto,
   type Location,
   type PaginatedLocationsDto,
@@ -31,7 +31,7 @@ export async function getDataForRangeChart(
   locationIds: string[],
   startDate: Moment,
   endDate: Moment
-): Promise<APIResponse<CheckInsLocationEntryRawMap>> {
+): Promise<APIResponse<CheckInsGraphDto>> {
   if (!areValidUUIDs(locationIds)) {
     return {
       ok: false,
@@ -55,7 +55,7 @@ export async function getDataForRangeChart(
 export async function getDataForDayChart(
   locationIds: string[],
   date: Moment
-): Promise<APIResponse<CheckInsLocationEntryRawMap>> {
+): Promise<APIResponse<CheckInsGraphDto>> {
   if (!areValidUUIDs(locationIds)) {
     return {
       ok: false,

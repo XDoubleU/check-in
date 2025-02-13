@@ -48,7 +48,7 @@ func (app *Application) updateStateHandler(w http.ResponseWriter, r *http.Reques
 
 	state, err := app.services.State.UpdateState(r.Context(), stateDto)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 	}
 
 	err = httptools.WriteJSON(w, http.StatusOK, state, nil)

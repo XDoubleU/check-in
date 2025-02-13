@@ -89,10 +89,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/CheckInsLocationEntryRaw"
-                            }
+                            "$ref": "#/definitions/CheckInsGraphDto"
                         }
                     },
                     "400": {
@@ -166,10 +163,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/CheckInsLocationEntryRaw"
-                            }
+                            "$ref": "#/definitions/CheckInsGraphDto"
                         }
                     },
                     "400": {
@@ -1244,19 +1238,31 @@
                 }
             }
         },
-        "CheckInsLocationEntryRaw": {
+        "CheckInsGraphDto": {
             "type": "object",
             "properties": {
-                "capacities": {
+                "capacitiesPerLocation": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "number"
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     }
                 },
-                "schools": {
+                "dates": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "valuesPerSchool": {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "number"
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     }
                 }
             }

@@ -1,13 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	httptools "github.com/XDoubleU/essentia/pkg/communication/http"
 	"github.com/XDoubleU/essentia/pkg/context"
 	"github.com/XDoubleU/essentia/pkg/parse"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/constants"
 	"check-in/api/internal/dtos"
@@ -62,7 +62,7 @@ func (app *Application) locationsRoutes(mux *http.ServeMux) {
 // @Param		ids			query		[]string	true	"Location IDs"
 // @Param		returnType	query		string		true	"ReturnType ('raw' or 'csv')"
 // @Param		date		query		string		true	"Date (format: 'yyyy-MM-dd')"
-// @Success	200			{object}	[]CheckInsLocationEntryRaw
+// @Success	200			{object}	CheckInsGraphDto
 // @Failure	400			{object}	ErrorDto
 // @Failure	401			{object}	ErrorDto
 // @Failure	404			{object}	ErrorDto
@@ -93,14 +93,14 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 	}
 
 	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
-	checkInEntries, err := app.services.Locations.GetCheckInsEntriesDay(
+	dateStrings, capacities, valueMap, err := app.services.Locations.GetCheckInsEntriesDay(
 		r.Context(),
 		user,
 		ids,
 		date,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -113,11 +113,15 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 		err = httptools.WriteCSV(
 			w,
 			filename,
-			getCSVHeaders(checkInEntries),
-			getCSVData(checkInEntries),
+			getCSVHeaders(valueMap),
+			getCSVData(dateStrings, capacities, valueMap),
 		)
 	} else {
-		err = httptools.WriteJSON(w, http.StatusOK, checkInEntries, nil)
+		err = httptools.WriteJSON(w, http.StatusOK, dtos.CheckInsGraphDto{
+			Dates:                 dateStrings,
+			CapacitiesPerLocation: capacities,
+			ValuesPerSchool:       valueMap,
+		}, nil)
 	}
 
 	if err != nil {
@@ -131,7 +135,7 @@ func (app *Application) getLocationCheckInsDayHandler(w http.ResponseWriter,
 // @Param		returnType	query		string		true	"ReturnType ('raw' or 'csv')"
 // @Param		startDate	query		string		true	"StartDate (format: 'yyyy-MM-dd')"
 // @Param		endDate		query		string		true	"EndDate (format: 'yyyy-MM-dd')"
-// @Success	200			{object}	[]CheckInsLocationEntryRaw
+// @Success	200			{object}	CheckInsGraphDto
 // @Failure	400			{object}	ErrorDto
 // @Failure	401			{object}	ErrorDto
 // @Failure	404			{object}	ErrorDto
@@ -174,7 +178,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 	}
 
 	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
-	checkInEntries, err := app.services.Locations.GetCheckInsEntriesRange(
+	dateStrings, capacities, valueMap, err := app.services.Locations.GetCheckInsEntriesRange(
 		r.Context(),
 		user,
 		ids,
@@ -182,7 +186,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 		endDate,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -195,11 +199,15 @@ func (app *Application) getLocationCheckInsRangeHandler(
 		err = httptools.WriteCSV(
 			w,
 			filename,
-			getCSVHeaders(checkInEntries),
-			getCSVData(checkInEntries),
+			getCSVHeaders(valueMap),
+			getCSVData(dateStrings, capacities, valueMap),
 		)
 	} else {
-		err = httptools.WriteJSON(w, http.StatusOK, checkInEntries, nil)
+		err = httptools.WriteJSON(w, http.StatusOK, dtos.CheckInsGraphDto{
+			Dates:                 dateStrings,
+			CapacitiesPerLocation: capacities,
+			ValuesPerSchool:       valueMap,
+		}, nil)
 	}
 
 	if err != nil {
@@ -208,50 +216,41 @@ func (app *Application) getLocationCheckInsRangeHandler(
 }
 
 func getCSVHeaders(
-	entries *orderedmap.OrderedMap[string, dtos.CheckInsLocationEntryRaw],
+	valueMap map[string][]int,
 ) []string {
 	headers := []string{
 		"datetime",
 		"capacity",
 	}
 
-	if entries.Len() == 0 {
-		return headers
-	}
-
-	singleEntry := entries.Oldest().Value
-	for school := singleEntry.Schools.Oldest(); school != nil; school = school.Next() {
-		headers = append(headers, school.Key)
+	for schoolName := range valueMap {
+		headers = append(headers, schoolName)
 	}
 
 	return headers
 }
 
 func getCSVData(
-	entries *orderedmap.OrderedMap[string, dtos.CheckInsLocationEntryRaw],
+	dateStrings []string,
+	capacities map[string][]int,
+	valuesPerSchool map[string][]int,
 ) [][]string {
 	var output [][]string
 
-	for pair := entries.Oldest(); pair != nil; pair = pair.Next() {
-		var entry []string
+	for i, dateString := range dateStrings {
+		for _, values := range valuesPerSchool {
+			var entry []string
 
-		var totalCapacity int64
-		capacities := pair.Value.Capacities
-		for capacity := capacities.Oldest(); capacity != nil; capacity = capacity.Next() {
-			totalCapacity += capacity.Value
+			var totalCapacity int
+			for _, capacity := range capacities {
+				totalCapacity += capacity[i]
+			}
+
+			entry = append(entry, dateString)
+			entry = append(entry, fmt.Sprintf("%d", totalCapacity))
+			entry = append(entry, strconv.Itoa(values[i]))
+			output = append(output, entry)
 		}
-
-		entry = append(
-			entry,
-			pair.Key,
-		)
-		entry = append(entry, strconv.FormatInt(totalCapacity, 10))
-
-		for school := pair.Value.Schools.Oldest(); school != nil; school = school.Next() {
-			entry = append(entry, strconv.Itoa(school.Value))
-		}
-
-		output = append(output, entry)
 	}
 
 	return output
@@ -281,7 +280,7 @@ func (app *Application) getAllCheckInsTodayHandler(w http.ResponseWriter,
 		app.getTimeNowUTC(),
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -325,7 +324,7 @@ func (app *Application) deleteLocationCheckInHandler(
 		checkInID,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -354,7 +353,7 @@ func (app *Application) getLocationHandler(w http.ResponseWriter, r *http.Reques
 	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 	location, err := app.services.Locations.GetByID(r.Context(), user, id)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -453,7 +452,7 @@ func (app *Application) createLocationHandler(w http.ResponseWriter, r *http.Req
 		createLocationDto,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -502,7 +501,7 @@ func (app *Application) updateLocationHandler(w http.ResponseWriter,
 		updateLocationDto,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -531,7 +530,7 @@ func (app *Application) deleteLocationHandler(w http.ResponseWriter, r *http.Req
 	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
 	location, err := app.services.Locations.Delete(r.Context(), user, id)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 

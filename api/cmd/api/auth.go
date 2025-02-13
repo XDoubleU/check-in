@@ -48,7 +48,7 @@ func (app *Application) signInHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.services.Auth.SignInUser(r.Context(), signInDto)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 

@@ -1,29 +1,28 @@
-import { type CheckInsLocationEntryRawMap } from "api-wrapper/types/apiTypes"
+import { type CheckInsGraphDto } from "api-wrapper/types/apiTypes"
 import { type ChartDataEntry, type ChartData } from "./Shared"
 
 export function extractAllSchools(
-  entries: CheckInsLocationEntryRawMap
+  entries: CheckInsGraphDto
 ): string[] {
-  const key = Object.keys(entries)[0]
-  return Object.keys(entries[key].schools)
+  return Object.keys(entries.valuesPerSchool)
 }
 
 export function convertToChartData(
-  entries: CheckInsLocationEntryRawMap
+  entries: CheckInsGraphDto
 ): ChartData {
   let result: ChartData = []
 
-  for (const [key, value] of Object.entries(entries)) {
+  for (let i = 0; i < entries.dates.length; i++){
     const entry: ChartDataEntry = {
-      datetime: key,
-      capacity: Object.values(value.capacities).reduce(
-        (acc, val) => acc + val,
+      datetime: entries.dates[i],
+      capacity: Object.values(entries.capacitiesPerLocation).reduce(
+        (acc, val) => acc + val[i],
         0
       )
     }
 
-    for (const [schoolKey, schoolValue] of Object.entries(value.schools)) {
-      entry[schoolKey] = schoolValue
+    for (const [schoolKey, schoolValues] of Object.entries(entries.valuesPerSchool)) {
+      entry[schoolKey] = schoolValues[i]
     }
 
     result.push(entry)

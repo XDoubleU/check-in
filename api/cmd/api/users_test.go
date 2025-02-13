@@ -23,7 +23,6 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 	defer testEnv.teardown()
 	tReq1 := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/current-user",
 	)
@@ -31,7 +30,6 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 
 	tReq2 := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/current-user",
 	)
@@ -39,7 +37,6 @@ func TestGetInfoLoggedInUser(t *testing.T) {
 
 	tReq3 := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/current-user",
 	)
@@ -106,7 +103,6 @@ func TestGetInfoLoggedInUserAccess(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/current-user",
 	)
@@ -135,7 +131,6 @@ func TestGetUser(t *testing.T) {
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/users/%s",
 			userID,
@@ -179,7 +174,6 @@ func TestGetUserNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/users/%s",
 		id.String(),
@@ -206,7 +200,6 @@ func TestGetUserNotUUID(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/users/8000",
 	)
@@ -231,7 +224,6 @@ func TestGetUserAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/users/%s",
 		userID,
@@ -260,7 +252,6 @@ func TestGetPaginatedManagerUsersDefaultPage(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/users",
 	)
@@ -300,7 +291,6 @@ func TestGetPaginatedManagerUsersSpecificPage(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/users",
 	)
@@ -344,7 +334,6 @@ func TestGetPaginatedManagerUsersPageFull(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/users",
 	)
@@ -363,7 +352,6 @@ func TestGetPaginatedManagerUsersAccess(t *testing.T) {
 	defer testEnv.teardown()
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/users",
 	)
@@ -390,7 +378,6 @@ func TestCreateManagerUser(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/users",
 	)
@@ -421,7 +408,6 @@ func TestCreateManagerUserUserNameExists(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/users",
 	)
@@ -453,7 +439,6 @@ func TestCreateManagerUserFailValidation(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/users",
 	)
@@ -482,7 +467,6 @@ func TestCreateManagerUserAccess(t *testing.T) {
 	defer testEnv.teardown()
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/users",
 	)
@@ -518,7 +502,6 @@ func TestUpdateManagerUser(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/users/%s",
 		user.ID,
@@ -555,7 +538,6 @@ func TestUpdateManagerUserUserNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/users/%s",
 		user.ID,
@@ -593,7 +575,6 @@ func TestUpdateManagerUserNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/users/%s",
 		id.String(),
@@ -629,7 +610,6 @@ func TestUpdateManagerUserNotUUID(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/users/8000",
 	)
@@ -658,7 +638,6 @@ func TestUpdateManagerUserFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/users/%s",
 		user.ID,
@@ -691,7 +670,6 @@ func TestUpdateManagerUserAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/users/%s",
 		user.ID,
@@ -722,7 +700,6 @@ func TestDeleteManagerUser(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/users/%s",
 		user.ID,
@@ -749,7 +726,6 @@ func TestDeleteManagerUserNotFound(t *testing.T) {
 	id, _ := uuid.NewUUID()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/users/%s",
 		id.String(),
@@ -776,7 +752,6 @@ func TestDeleteManagerUserNotUUID(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/users/8000",
 	)
@@ -801,7 +776,6 @@ func TestDeleteManagerUserAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/users/%s",
 		user.ID,

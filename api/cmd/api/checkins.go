@@ -79,7 +79,7 @@ func (app *Application) createCheckInHandler(w http.ResponseWriter, r *http.Requ
 		user,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 

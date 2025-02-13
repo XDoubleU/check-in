@@ -33,7 +33,6 @@ func TestGetPaginatedSchoolsDefaultPage(t *testing.T) {
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/schools",
 		)
@@ -71,7 +70,6 @@ func TestGetPaginatedSchoolsSpecificPage(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/schools",
 	)
@@ -111,7 +109,6 @@ func TestGetPaginatedSchoolsFull(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/schools",
 	)
@@ -131,7 +128,6 @@ func TestGetPaginatedSchoolsAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/schools",
 	)
@@ -166,7 +162,6 @@ func TestCreateSchool(t *testing.T) {
 
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodPost,
 			"/schools",
 		)
@@ -196,7 +191,6 @@ func TestCreateSchoolNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/schools",
 	)
@@ -225,7 +219,6 @@ func TestCreateSchoolFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/schools",
 	)
@@ -253,7 +246,6 @@ func TestCreateSchoolAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/schools",
 	)
@@ -290,7 +282,6 @@ func TestUpdateSchool(t *testing.T) {
 
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodPatch,
 			"/schools/%d",
 			school.ID,
@@ -324,7 +315,6 @@ func TestUpdateSchoolNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/%d",
 		school.ID,
@@ -358,7 +348,6 @@ func TestUpdateSchoolReadOnly(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/1",
 	)
@@ -391,7 +380,6 @@ func TestUpdateSchoolNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/8000",
 	)
@@ -424,7 +412,6 @@ func TestUpdateSchoolNotInt(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/aaaa",
 	)
@@ -454,7 +441,6 @@ func TestUpdateSchoolFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/%d",
 		school.ID,
@@ -485,7 +471,6 @@ func TestUpdateSchoolAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/schools/%d",
 		school.ID,
@@ -517,7 +502,6 @@ func TestDeleteSchool(t *testing.T) {
 
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodDelete,
 			"/schools/%d",
 			school.ID,
@@ -542,7 +526,6 @@ func TestDeleteSchoolReadOnly(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/schools/1",
 	)
@@ -569,7 +552,6 @@ func TestDeleteSchoolNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/schools/8000",
 	)
@@ -596,7 +578,6 @@ func TestDeleteSchoolNotInt(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/schools/aaaa",
 	)
@@ -625,7 +606,6 @@ func TestDeleteSchoolAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/schools/%d",
 		school.ID,

@@ -73,7 +73,7 @@ func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.services.Locations.GetDefaultUserByUserID(r.Context(), id)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -152,7 +152,7 @@ func (app *Application) createManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -202,7 +202,7 @@ func (app *Application) updateManagerUserHandler(
 		models.ManagerRole,
 	)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -233,7 +233,7 @@ func (app *Application) deleteManagerUserHandler(
 
 	user, err := app.services.Users.Delete(r.Context(), id, models.ManagerRole)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
