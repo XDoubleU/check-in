@@ -19,7 +19,6 @@ func TestGetState(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/state",
 	)
@@ -44,7 +43,6 @@ func TestUpdateState(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/state",
 	)
@@ -69,7 +67,6 @@ func TestUpdateStateAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/state",
 	)

@@ -28,7 +28,6 @@ func TestGetSortedSchoolsOK(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/checkins/schools",
 	)
@@ -51,7 +50,6 @@ func TestGetSortedSchoolsAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/checkins/schools",
 	)
@@ -79,7 +77,6 @@ func TestCreateCheckIn(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/checkins",
 	)
@@ -111,7 +108,6 @@ func TestCreateCheckInAndere(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/checkins",
 	)
@@ -146,7 +142,6 @@ func TestCreateCheckInAboveCap(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/checkins",
 	)
@@ -178,7 +173,6 @@ func TestCreateCheckInSchoolNotFound(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/checkins",
 	)
@@ -211,7 +205,6 @@ func TestCreateCheckInFailValidation(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/checkins",
 	)
@@ -238,7 +231,6 @@ func TestCreateCheckInAccess(t *testing.T) {
 	defer testEnv.teardown()
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/checkins",
 	)

@@ -3,9 +3,7 @@ import { type definitions } from "./schema"
 
 export type CheckIn = DeepRequired<definitions["CheckInDto"]>
 export type CreateCheckInDto = DeepRequired<definitions["CreateCheckInDto"]>
-export type CheckInsLocationEntryRaw = DeepRequired<
-  definitions["CheckInsLocationEntryRaw"]
->
+export type CheckInsGraphDto = DeepRequired<definitions["CheckInsGraphDto"]>
 export type CreateLocationDto = DeepRequired<definitions["CreateLocationDto"]>
 export type CreateUserDto = DeepRequired<definitions["CreateUserDto"]>
 export type ErrorDto = DeepRequired<definitions["ErrorDto"]>
@@ -30,11 +28,6 @@ export type UpdateUserDto = definitions["UpdateUserDto"]
 export type User = PartialBy<DeepRequired<definitions["User"]>, "location">
 
 export type WebSocketSubject = DeepRequired<definitions["WebSocketSubject"]>
-
-export type CheckInsLocationEntryRawMap = Record<
-  string,
-  CheckInsLocationEntryRaw
->
 
 export type State = DeepRequired<definitions["State"]>
 export type StateDto = definitions["StateDto"]

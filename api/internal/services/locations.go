@@ -8,8 +8,8 @@ import (
 
 	"github.com/XDoubleU/essentia/pkg/database"
 	errortools "github.com/XDoubleU/essentia/pkg/errors"
+	"github.com/XDoubleU/essentia/pkg/grapher"
 	timetools "github.com/XDoubleU/essentia/pkg/time"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	"check-in/api/internal/dtos"
 	"check-in/api/internal/models"
@@ -52,7 +52,7 @@ func (service LocationService) GetCheckInsEntriesDay(
 	user *models.User,
 	locationIDs []string,
 	date time.Time,
-) (*orderedmap.OrderedMap[string, dtos.CheckInsLocationEntryRaw], error) {
+) ([]string, map[string][]int, map[string][]int, error) {
 	_, checkIns, err := service.GetAllCheckInsOfDay(
 		ctx,
 		user,
@@ -61,49 +61,23 @@ func (service LocationService) GetCheckInsEntriesDay(
 		date,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 
-	schoolIDNameMap, err := service.schools.SchoolIDNameMap(ctx)
-	if err != nil {
-		return nil, err
-	}
+	g := grapher.New[int](grapher.Cumulative, time.RFC3339)
+	capacitiesGrapher := grapher.New[int](grapher.Normal, time.RFC3339)
 
-	schoolCheckInMap := orderedmap.New[string, int]()
-	for _, schoolName := range schoolIDNameMap {
-		schoolCheckInMap.Set(schoolName, 0)
-	}
-
-	capacities := orderedmap.New[string, int64]()
-
-	lastEntry := dtos.NewCheckInsLocationEntryRaw(
-		capacities,
-		schoolCheckInMap,
-	)
-
-	checkInEntries := orderedmap.New[string, dtos.CheckInsLocationEntryRaw]()
 	for _, checkIn := range checkIns {
-		datetime := shared.GetTimeZoneIndependentValue(checkIn.CreatedAt.Time, "UTC")
+		datetime := timetools.LocationIndependentTime(checkIn.CreatedAt.Time, "UTC")
 
-		schoolName := checkIn.SchoolName
-
-		capacities.Set(checkIn.LocationID, checkIn.Capacity)
-
-		checkInEntry := dtos.NewCheckInsLocationEntryRaw(capacities, lastEntry.Schools)
-
-		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
-		schoolValue++
-		checkInEntry.Schools.Set(schoolName, schoolValue)
-
-		checkInEntries.Set(
-			datetime.Format(time.RFC3339),
-			checkInEntry,
-		)
-
-		lastEntry = checkInEntry.Copy()
+		g.AddPoint(datetime, 1, checkIn.SchoolName)
+		capacitiesGrapher.AddPoint(datetime, int(checkIn.Capacity), checkIn.LocationID)
 	}
 
-	return checkInEntries, nil
+	dateStrings, valueMap := g.ToSlices()
+	_, capacitiesMap := capacitiesGrapher.ToSlices()
+
+	return dateStrings, capacitiesMap, valueMap, nil
 }
 
 func (service LocationService) GetCheckInsEntriesRange(
@@ -112,7 +86,7 @@ func (service LocationService) GetCheckInsEntriesRange(
 	locationIDs []string,
 	startDate time.Time,
 	endDate time.Time,
-) (*orderedmap.OrderedMap[string, dtos.CheckInsLocationEntryRaw], error) {
+) ([]string, map[string][]int, map[string][]int, error) {
 	startDate = timetools.StartOfDay(startDate)
 	endDate = timetools.EndOfDay(endDate)
 
@@ -125,55 +99,42 @@ func (service LocationService) GetCheckInsEntriesRange(
 		endDate,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 
 	schoolIDNameMap, err := service.schools.SchoolIDNameMap(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 
-	schoolCheckInMap := orderedmap.New[string, int]()
-	for _, schoolName := range schoolIDNameMap {
-		schoolCheckInMap.Set(schoolName, 0)
-	}
+	g := grapher.New[int](grapher.CumulativeSameDate, time.RFC3339)
+	capacitiesGrapher := grapher.New[int](grapher.Normal, time.RFC3339)
 
-	checkInEntries := orderedmap.New[string, dtos.CheckInsLocationEntryRaw]()
-	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
-		dVal := timetools.StartOfDay(d)
+	for i := startDate; i.Before(endDate); i = i.AddDate(0, 0, 1) {
+		for _, schoolName := range schoolIDNameMap {
+			g.AddPoint(i, 0, schoolName)
+		}
 
-		checkInEntry := dtos.NewCheckInsLocationEntryRaw(
-			orderedmap.New[string, int64](),
-			schoolCheckInMap,
-		)
-
-		checkInEntries.Set(dVal.Format(time.RFC3339), checkInEntry)
+		for _, locationID := range locationIDs {
+			capacitiesGrapher.AddPoint(i, 0, locationID)
+		}
 	}
 
 	for i := range checkIns {
 		datetime := timetools.StartOfDay(checkIns[i].CreatedAt.Time)
 
-		schoolName := checkIns[i].SchoolName
-
-		checkInEntry, _ := checkInEntries.Get(datetime.Format(time.RFC3339))
-
-		schoolValue, _ := checkInEntry.Schools.Get(schoolName)
-		schoolValue++
-		checkInEntry.Schools.Set(schoolName, schoolValue)
-
-		capacity, present := checkInEntry.Capacities.Get(checkIns[i].LocationID)
-		if !present {
-			capacity = 0
-		}
-
-		if checkIns[i].Capacity > capacity {
-			capacity = checkIns[i].Capacity
-		}
-
-		checkInEntry.Capacities.Set(checkIns[i].LocationID, capacity)
+		g.AddPoint(datetime, 1, checkIns[i].SchoolName)
+		capacitiesGrapher.AddPoint(
+			datetime,
+			int(checkIns[i].Capacity),
+			checkIns[i].LocationID,
+		)
 	}
 
-	return checkInEntries, nil
+	dateStrings, valueMap := g.ToSlices()
+	_, capacitiesMap := capacitiesGrapher.ToSlices()
+
+	return dateStrings, capacitiesMap, valueMap, nil
 }
 
 func (service LocationService) GetAllCheckInsOfDay(
@@ -244,7 +205,7 @@ func (service LocationService) GetAllCheckInsInRange(
 		}
 
 		for _, checkIn := range locationCheckIns {
-			checkIn.CreatedAt.Time = shared.GetTimeZoneIndependentValue(
+			checkIn.CreatedAt.Time = timetools.LocationIndependentTime(
 				checkIn.CreatedAt.Time,
 				"UTC",
 			)

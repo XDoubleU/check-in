@@ -19,7 +19,6 @@ func TestSignInUser(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/auth/signin",
 	)
@@ -54,7 +53,6 @@ func TestSignInUserNoRefresh(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/auth/signin",
 	)
@@ -88,7 +86,6 @@ func TestSignInAdmin(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/auth/signin",
 	)
@@ -122,7 +119,6 @@ func TestSignInInexistentUser(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/auth/signin",
 	)
@@ -149,7 +145,6 @@ func TestSignInWrongPassword(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/auth/signin",
 	)
@@ -177,7 +172,6 @@ func TestSignInFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/auth/signin",
 	)
@@ -204,7 +198,6 @@ func TestSignOut(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/auth/signout",
 	)
@@ -224,7 +217,6 @@ func TestSignOutNoRefresh(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/auth/signout",
 	)
@@ -244,7 +236,6 @@ func TestSignOutNotLoggedIn(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/auth/signout",
 	)
@@ -259,7 +250,6 @@ func TestRefresh(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/auth/refresh",
 	)
@@ -278,7 +268,6 @@ func TestRefreshReusedToken(t *testing.T) {
 	defer testEnv.teardown()
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/auth/refresh",
 	)
@@ -298,7 +287,6 @@ func TestRefreshInvalidToken(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/auth/refresh",
 	)

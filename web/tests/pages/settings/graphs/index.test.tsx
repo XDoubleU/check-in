@@ -24,21 +24,12 @@ describe("Graphs (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          "2023-08-24": {
-            capacities: {
-              locationId: 10
-            },
-            schools: {
-              Andere: 5
-            }
+          dates: ["2023-08-24", "2023-08-25"],
+          capacitiesPerLocation: {
+            locationId: [10, 10]
           },
-          "2023-08-25": {
-            capacities: {
-              locationId: 10
-            },
-            schools: {
-              Andere: 5
-            }
+          valuesPerSchool: {
+            Andere: [5, 5]
           }
         }
       })
@@ -104,13 +95,12 @@ describe("Graphs (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          "2023-08-24": {
-            capacities: {
-              locationId: 10
-            },
-            schools: {
-              Andere: 5
-            }
+          dates: ["2023-08-24"],
+          capacitiesPerLocation: {
+            locationId: [10]
+          },
+          valuesPerSchool: {
+            Andere: [5]
           }
         }
       })
@@ -120,13 +110,12 @@ describe("Graphs (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          "2023-08-24": {
-            capacities: {
-              locationId: 10
-            },
-            schools: {
-              Andere: 5
-            }
+          dates: ["2023-08-24"],
+          capacitiesPerLocation: {
+            locationId: [10]
+          },
+          valuesPerSchool: {
+            Andere: [5]
           }
         }
       })

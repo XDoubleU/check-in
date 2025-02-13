@@ -50,7 +50,6 @@ func YesterdayFullAt(t *testing.T, testEnv TestEnv, testApp Application) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations/%s",
 		testEnv.fixtures.DefaultLocation.ID,
@@ -97,7 +96,6 @@ func GetCheckInsLocationRangeRawSingle(
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/all-locations/checkins/range",
 		)
@@ -112,43 +110,32 @@ func GetCheckInsLocationRangeRawSingle(
 
 		rs := tReq.Do(t)
 
-		var rsData map[string]dtos.CheckInsLocationEntryRaw
+		var rsData dtos.CheckInsGraphDto
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		assert.Equal(t, 0, rsData[startDate.Format(time.RFC3339)].Capacities.Len())
-
-		value, present := rsData[startDate.Format(time.RFC3339)].Schools.Get(
-			"Andere",
-		)
-		assert.Equal(t, 0, value)
-		assert.Equal(t, true, present)
-
-		capacity, _ := rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].Capacities.Get(
-			testEnv.fixtures.DefaultLocation.ID,
-		)
 		assert.Equal(
 			t,
-			testEnv.fixtures.DefaultLocation.Capacity,
-			capacity,
+			0,
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][0],
 		)
+		assert.Equal(t, 0, rsData.ValuesPerSchool["Andere"][0])
 
-		value, present = rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
-			Schools.Get(
-			"Andere",
+		assert.Equal(
+			t,
+			int(testEnv.fixtures.DefaultLocation.Capacity),
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][1],
 		)
-		assert.Equal(t, 10, value)
-		assert.Equal(t, true, present)
+		assert.Equal(t, 10, rsData.ValuesPerSchool["Andere"][1])
 
-		assert.Equal(t, 0, rsData[endDate.Format(time.RFC3339)].Capacities.Len())
-
-		value, present = rsData[endDate.Format(time.RFC3339)].Schools.Get(
-			"Andere",
+		assert.Equal(
+			t,
+			0,
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][2],
 		)
-		assert.Equal(t, 0, value)
-		assert.Equal(t, true, present)
+		assert.Equal(t, 0, rsData.ValuesPerSchool["Andere"][2])
 	}
 }
 
@@ -178,7 +165,6 @@ func GetCheckInsLocationRangeRawMultiple(
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/all-locations/checkins/range",
 		)
@@ -199,54 +185,37 @@ func GetCheckInsLocationRangeRawMultiple(
 
 		rs := tReq.Do(t)
 
-		var rsData map[string]dtos.CheckInsLocationEntryRaw
+		var rsData dtos.CheckInsGraphDto
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		assert.Equal(t, 0, rsData[startDate.Format(time.RFC3339)].Capacities.Len())
-
-		value, present := rsData[startDate.Format(time.RFC3339)].Schools.Get(
-			"Andere",
-		)
-		assert.Equal(t, 0, value)
-		assert.Equal(t, true, present)
-
-		capacity0, _ := rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
-			Capacities.Get(
-			testEnv.fixtures.DefaultLocation.ID,
-		)
-		capacity1, _ := rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
-			Capacities.Get(
-			location.ID,
-		)
 		assert.Equal(
 			t,
-			testEnv.fixtures.DefaultLocation.Capacity,
-			capacity0,
+			0,
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][0],
 		)
+		assert.Equal(t, 0, rsData.ValuesPerSchool["Andere"][0])
 
 		assert.Equal(
 			t,
-			location.Capacity,
-			capacity1,
+			int(testEnv.fixtures.DefaultLocation.Capacity),
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][1],
 		)
-
-		value, present = rsData[startDate.AddDate(0, 0, 1).Format(time.RFC3339)].
-			Schools.Get(
-			"Andere",
+		assert.Equal(
+			t,
+			int(location.Capacity),
+			rsData.CapacitiesPerLocation[location.ID][1],
 		)
-		assert.Equal(t, 20, value)
-		assert.Equal(t, true, present)
+		assert.Equal(t, 20, rsData.ValuesPerSchool["Andere"][1])
 
-		assert.Equal(t, 0, rsData[endDate.Format(time.RFC3339)].Capacities.Len())
-
-		value, present = rsData[endDate.Format(time.RFC3339)].Schools.Get(
-			"Andere",
+		assert.Equal(
+			t,
+			0,
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][2],
 		)
-		assert.Equal(t, 0, value)
-		assert.Equal(t, true, present)
+		assert.Equal(t, 0, rsData.ValuesPerSchool["Andere"][2])
 	}
 }
 
@@ -269,7 +238,6 @@ func TestGetCheckInsLocationRangeCSV(t *testing.T) {
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/all-locations/checkins/range",
 		)
@@ -332,7 +300,6 @@ func TestGetCheckInsLocationRangeNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
@@ -371,7 +338,6 @@ func TestGetCheckInsLocationRangeNotFoundNotOwner(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
@@ -409,7 +375,6 @@ func TestGetCheckInsLocationRangeStartDateMissing(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
@@ -442,7 +407,6 @@ func TestGetCheckInsLocationRangeEndDateMissing(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
@@ -476,7 +440,6 @@ func TestGetCheckInsLocationRangeReturnTypeMissing(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
@@ -508,7 +471,6 @@ func TestGetCheckInsLocationRangeNotUUID(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
@@ -538,7 +500,6 @@ func TestGetCheckInsLocationRangeAccess(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/range",
 	)
@@ -572,7 +533,6 @@ func GetCheckInsLocationDayRawSingle(
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/all-locations/checkins/day",
 		)
@@ -586,23 +546,16 @@ func GetCheckInsLocationDayRawSingle(
 
 		rs := tReq.Do(t)
 
-		var rsData map[string]dtos.CheckInsLocationEntryRaw
+		var rsData dtos.CheckInsGraphDto
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		lastDate := ""
-		for date := range rsData {
-			lastDate = date
-		}
+		//nolint:lll //it is what it is
+		capacity := rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][len(rsData.Dates)-1]
+		value := rsData.ValuesPerSchool["Andere"][len(rsData.Dates)-1]
 
-		capacity, _ := rsData[lastDate].Capacities.Get(
-			testEnv.fixtures.DefaultLocation.ID,
-		)
-		value, present := rsData[lastDate].Schools.Get("Andere")
-
-		assert.Equal(t, int64(20), capacity)
-		assert.Equal(t, true, present)
+		assert.Equal(t, 20, capacity)
 		assert.Equal(t, amount, value)
 	}
 }
@@ -632,7 +585,6 @@ func GetCheckInsLocationDayRawMultiple(
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/all-locations/checkins/day",
 		)
@@ -651,30 +603,22 @@ func GetCheckInsLocationDayRawMultiple(
 
 		rs := tReq.Do(t)
 
-		var rsData map[string]dtos.CheckInsLocationEntryRaw
+		var rsData dtos.CheckInsGraphDto
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		lastDate := ""
-		for date := range rsData {
-			lastDate = date
-		}
+		//nolint:lll //it is what it is
+		capacity0 := rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][len(rsData.Dates)-1]
+		capacity1 := rsData.CapacitiesPerLocation[location.ID][len(rsData.Dates)-1]
+		value := rsData.ValuesPerSchool["Andere"][len(rsData.Dates)-1]
 
-		capacity0, _ := rsData[lastDate].Capacities.Get(
-			testEnv.fixtures.DefaultLocation.ID,
-		)
-		capacity1, _ := rsData[lastDate].Capacities.Get(location.ID)
-
-		value, present := rsData[lastDate].Schools.Get("Andere")
-
-		assert.Equal(t, int64(20), capacity0)
+		assert.Equal(t, 20, capacity0)
 		assert.Equal(
 			t,
-			location.Capacity,
+			int(location.Capacity),
 			capacity1,
 		)
-		assert.Equal(t, true, present)
 		assert.Equal(t, 2*amount, value)
 	}
 }
@@ -697,7 +641,6 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/all-locations/checkins/day",
 		)
@@ -740,7 +683,6 @@ func TestGetCheckInsLocationDayNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
@@ -777,7 +719,6 @@ func TestGetCheckInsLocationDayNotFoundNotOwner(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
@@ -812,7 +753,6 @@ func TestGetCheckInsLocationDateMissing(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
@@ -844,7 +784,6 @@ func TestGetCheckInsLocationReturnTypeMissing(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
@@ -874,7 +813,6 @@ func TestGetCheckInsLocationDayNotUUID(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
@@ -903,7 +841,6 @@ func TestGetCheckInsLocationDayAccess(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations/checkins/day",
 	)
@@ -931,7 +868,6 @@ func GetAllCheckInsToday(t *testing.T, testEnv TestEnv, testApp Application) {
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/locations/%s/checkins",
 			testEnv.fixtures.DefaultLocation.ID,
@@ -964,7 +900,6 @@ func TestGetAllCheckInsTodayNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations/%s/checkins",
 		id.String(),
@@ -994,7 +929,6 @@ func TestGetAllCheckInsTodayNotFoundNotOwner(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations/%s/checkins",
 		location.ID,
@@ -1022,7 +956,6 @@ func TestGetAllCheckInsTodayNotUUID(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations/8000/checkins",
 	)
@@ -1047,7 +980,6 @@ func TestGetCheckInsTodayAccess(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations/%s/checkins",
 		location.ID,
@@ -1077,7 +1009,6 @@ func TestDeleteCheckIn(t *testing.T) {
 		)
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodDelete,
 			"/locations/%s/checkins/%s",
 			testEnv.fixtures.DefaultLocation.ID,
@@ -1111,7 +1042,6 @@ func TestDeleteCheckInLocationNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/locations/%s/checkins/1",
 		id.String(),
@@ -1139,7 +1069,6 @@ func TestDeleteCheckInCheckInNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/locations/%s/checkins/8000",
 		testEnv.fixtures.DefaultLocation.ID,
@@ -1191,7 +1120,6 @@ func TestDeleteCheckInNotToday(t *testing.T) {
 	)
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/locations/%s/checkins/%s",
 		testEnv.fixtures.DefaultLocation.ID,
@@ -1219,7 +1147,6 @@ func TestDeleteCheckInNotUUID(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/locations/800O/checkins/1",
 	)
@@ -1244,7 +1171,6 @@ func TestDeleteCheckInAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/locations/%s/checkins/1",
 		location.ID,
@@ -1276,7 +1202,6 @@ func TestGetPaginatedLocationsDefaultPage(t *testing.T) {
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/locations",
 		)
@@ -1348,7 +1273,6 @@ func TestGetPaginatedLocationsSpecificPage(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations",
 	)
@@ -1411,7 +1335,6 @@ func TestGetPaginatedLocationsPageFull(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations",
 	)
@@ -1431,7 +1354,6 @@ func TestGetPaginatedLocationsAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations",
 	)
@@ -1463,7 +1385,6 @@ func TestGetAllLocations(t *testing.T) {
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/all-locations",
 		)
@@ -1505,7 +1426,6 @@ func TestGetAllLocationsAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/all-locations",
 	)
@@ -1534,7 +1454,6 @@ func TestGetLocation(t *testing.T) {
 	for _, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodGet,
 			"/locations/%s",
 			testEnv.fixtures.DefaultLocation.ID,
@@ -1577,7 +1496,6 @@ func TestGetLocationNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations/%s",
 		id.String(),
@@ -1607,7 +1525,6 @@ func TestGetLocationNotFoundNotOwner(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations/%s",
 		location.ID,
@@ -1635,7 +1552,6 @@ func TestGetLocationNotUUID(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations/8000",
 	)
@@ -1660,7 +1576,6 @@ func TestGetLocationAccess(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodGet,
 		"/locations/%s",
 		location.ID,
@@ -1694,7 +1609,6 @@ func TestCreateLocation(t *testing.T) {
 
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodPost,
 			"/locations",
 		)
@@ -1736,7 +1650,6 @@ func TestCreateLocationNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/locations",
 	)
@@ -1773,7 +1686,6 @@ func TestCreateLocationNormalizedNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/locations",
 	)
@@ -1810,7 +1722,6 @@ func TestCreateLocationUserNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/locations",
 	)
@@ -1839,7 +1750,6 @@ func TestCreateLocationFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/locations",
 	)
@@ -1890,7 +1800,6 @@ func TestCreateLocationAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPost,
 		"/locations",
 	)
@@ -1933,7 +1842,6 @@ func TestUpdateLocation(t *testing.T) {
 
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodPatch,
 			"/locations/%s",
 			location.ID,
@@ -1990,7 +1898,6 @@ func TestUpdateLocationNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/locations/%s",
 		location.ID,
@@ -2037,7 +1944,6 @@ func TestUpdateLocationNormalizedNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/locations/%s",
 		location.ID,
@@ -2081,7 +1987,6 @@ func TestUpdateLocationUserNameExists(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/locations/%s",
 		location.ID,
@@ -2113,7 +2018,6 @@ func TestUpdateLocationFailValidation(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/locations/%s",
 		location.ID,
@@ -2185,7 +2089,6 @@ func TestUpdateLocationNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/locations/%s",
 		id.String(),
@@ -2228,7 +2131,6 @@ func TestUpdateLocationNotFoundNotOwner(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/locations/%s",
 		location.ID,
@@ -2269,7 +2171,6 @@ func TestUpdateLocationNotUUID(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/locations/8000",
 	)
@@ -2296,7 +2197,6 @@ func TestUpdateLocationAccess(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodPatch,
 		"/locations/%s",
 		location.ID,
@@ -2322,7 +2222,6 @@ func TestDeleteLocation(t *testing.T) {
 	for i, user := range users {
 		tReq := test.CreateRequestTester(
 			testApp.routes(),
-			test.JSONContentType,
 			http.MethodDelete,
 			"/locations/%s",
 			locations[i].ID,
@@ -2369,7 +2268,6 @@ func TestDeleteLocationNotFound(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/locations/%s",
 		id.String(),
@@ -2397,7 +2295,6 @@ func TestDeleteLocationNotUUID(t *testing.T) {
 
 	tReq := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/locations/8000",
 	)
@@ -2422,7 +2319,6 @@ func TestDeleteLocationAccess(t *testing.T) {
 
 	tReqBase := test.CreateRequestTester(
 		testApp.routes(),
-		test.JSONContentType,
 		http.MethodDelete,
 		"/locations/%s",
 		location.ID,

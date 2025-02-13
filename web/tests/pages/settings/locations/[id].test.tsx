@@ -35,13 +35,12 @@ describe("LocationDetail (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          "2023-08-24": {
-            capacities: {
-              locationId: 10
-            },
-            schools: {
-              Andere: 5
-            }
+          dates: ["2023-08-24"],
+          capacitiesPerLocation: {
+            locationId: [10]
+          },
+          valuesPerSchool: {
+            Andere: [5]
           }
         }
       })
@@ -85,13 +84,12 @@ describe("LocationDetail (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          "2023-08-24": {
-            capacities: {
-              locationId: 10
-            },
-            schools: {
-              Andere: 5
-            }
+          dates: ["2023-08-24"],
+          capacitiesPerLocation: {
+            locationId: [10]
+          },
+          valuesPerSchool: {
+            Andere: [5]
           }
         }
       })
@@ -146,13 +144,12 @@ describe("LocationDetail (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          "2023-08-24": {
-            capacities: {
-              locationId: 10
-            },
-            schools: {
-              Andere: 5
-            }
+          dates: ["2023-08-24"],
+          capacitiesPerLocation: {
+            locationId: [10]
+          },
+          valuesPerSchool: {
+            Andere: [5]
           }
         }
       })

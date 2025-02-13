@@ -93,7 +93,7 @@ func (app *Application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.Create(r.Context(), schoolDto)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -135,7 +135,7 @@ func (app *Application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.Update(r.Context(), id, schoolDto)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 		return
 	}
 
@@ -163,7 +163,7 @@ func (app *Application) deleteSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 	school, err := app.services.Schools.Delete(r.Context(), id)
 	if err != nil {
-		httptools.HandleError(w, r, err, nil)
+		httptools.HandleError(w, r, err)
 	}
 
 	err = httptools.WriteJSON(w, http.StatusOK, school, nil)
