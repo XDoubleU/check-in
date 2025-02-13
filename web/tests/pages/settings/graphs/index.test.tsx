@@ -24,11 +24,7 @@ describe("Graphs (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          dates: [
-            "2023-08-24",
-            "2023-08-25",
-
-          ],
+          dates: ["2023-08-24", "2023-08-25"],
           capacitiesPerLocation: {
             locationId: [10, 10]
           },
@@ -99,9 +95,7 @@ describe("Graphs (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          dates: [
-            "2023-08-24"
-          ],
+          dates: ["2023-08-24"],
           capacitiesPerLocation: {
             locationId: [10]
           },
@@ -116,9 +110,7 @@ describe("Graphs (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          dates: [
-            "2023-08-24"
-          ],
+          dates: ["2023-08-24"],
           capacitiesPerLocation: {
             locationId: [10]
           },

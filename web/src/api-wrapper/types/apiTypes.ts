@@ -3,9 +3,7 @@ import { type definitions } from "./schema"
 
 export type CheckIn = DeepRequired<definitions["CheckInDto"]>
 export type CreateCheckInDto = DeepRequired<definitions["CreateCheckInDto"]>
-export type CheckInsGraphDto = DeepRequired<
-  definitions["CheckInsGraphDto"]
->
+export type CheckInsGraphDto = DeepRequired<definitions["CheckInsGraphDto"]>
 export type CreateLocationDto = DeepRequired<definitions["CreateLocationDto"]>
 export type CreateUserDto = DeepRequired<definitions["CreateUserDto"]>
 export type ErrorDto = DeepRequired<definitions["ErrorDto"]>

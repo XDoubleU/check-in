@@ -1,18 +1,14 @@
 import { type CheckInsGraphDto } from "api-wrapper/types/apiTypes"
 import { type ChartDataEntry, type ChartData } from "./Shared"
 
-export function extractAllSchools(
-  entries: CheckInsGraphDto
-): string[] {
+export function extractAllSchools(entries: CheckInsGraphDto): string[] {
   return Object.keys(entries.valuesPerSchool)
 }
 
-export function convertToChartData(
-  entries: CheckInsGraphDto
-): ChartData {
+export function convertToChartData(entries: CheckInsGraphDto): ChartData {
   let result: ChartData = []
 
-  for (let i = 0; i < entries.dates.length; i++){
+  for (let i = 0; i < entries.dates.length; i++) {
     const entry: ChartDataEntry = {
       datetime: entries.dates[i],
       capacity: Object.values(entries.capacitiesPerLocation).reduce(
@@ -21,7 +17,9 @@ export function convertToChartData(
       )
     }
 
-    for (const [schoolKey, schoolValues] of Object.entries(entries.valuesPerSchool)) {
+    for (const [schoolKey, schoolValues] of Object.entries(
+      entries.valuesPerSchool
+    )) {
       entry[schoolKey] = schoolValues[i]
     }
 

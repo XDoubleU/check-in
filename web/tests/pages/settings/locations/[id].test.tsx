@@ -35,9 +35,7 @@ describe("LocationDetail (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          dates: [
-            "2023-08-24"
-          ],
+          dates: ["2023-08-24"],
           capacitiesPerLocation: {
             locationId: [10]
           },
@@ -86,9 +84,7 @@ describe("LocationDetail (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          dates: [
-            "2023-08-24"
-          ],
+          dates: ["2023-08-24"],
           capacitiesPerLocation: {
             locationId: [10]
           },
@@ -148,9 +144,7 @@ describe("LocationDetail (page)", () => {
       return Promise.resolve({
         ok: true,
         data: {
-          dates: [
-            "2023-08-24"
-          ],
+          dates: ["2023-08-24"],
           capacitiesPerLocation: {
             locationId: [10]
           },
