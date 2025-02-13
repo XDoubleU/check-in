@@ -178,6 +178,7 @@ func (app *Application) getLocationCheckInsRangeHandler(
 	}
 
 	user := context.GetValue[models.User](r.Context(), constants.UserContextKey)
+	//nolint:lll //it is what it is
 	dateStrings, capacities, valueMap, err := app.services.Locations.GetCheckInsEntriesRange(
 		r.Context(),
 		user,

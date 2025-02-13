@@ -124,7 +124,11 @@ func (service LocationService) GetCheckInsEntriesRange(
 		datetime := timetools.StartOfDay(checkIns[i].CreatedAt.Time)
 
 		g.AddPoint(datetime, 1, checkIns[i].SchoolName)
-		capacitiesGrapher.AddPoint(datetime, int(checkIns[i].Capacity), checkIns[i].LocationID)
+		capacitiesGrapher.AddPoint(
+			datetime,
+			int(checkIns[i].Capacity),
+			checkIns[i].LocationID,
+		)
 	}
 
 	dateStrings, valueMap := g.ToSlices()

@@ -116,7 +116,11 @@ func GetCheckInsLocationRangeRawSingle(
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		assert.Equal(t, "0", rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][0])
+		assert.Equal(
+			t,
+			"0",
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][0],
+		)
 		assert.Equal(t, "0", rsData.ValuesPerSchool["Andere"][0])
 
 		assert.Equal(
@@ -126,7 +130,11 @@ func GetCheckInsLocationRangeRawSingle(
 		)
 		assert.Equal(t, "10", rsData.ValuesPerSchool["Andere"][1])
 
-		assert.Equal(t, "0", rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][2])
+		assert.Equal(
+			t,
+			"0",
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][2],
+		)
 		assert.Equal(t, "0", rsData.ValuesPerSchool["Andere"][2])
 	}
 }
@@ -183,7 +191,11 @@ func GetCheckInsLocationRangeRawMultiple(
 
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
-		assert.Equal(t, "0", rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][0])
+		assert.Equal(
+			t,
+			"0",
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][0],
+		)
 		assert.Equal(t, "0", rsData.ValuesPerSchool["Andere"][0])
 
 		assert.Equal(
@@ -198,7 +210,11 @@ func GetCheckInsLocationRangeRawMultiple(
 		)
 		assert.Equal(t, "20", rsData.ValuesPerSchool["Andere"][1])
 
-		assert.Equal(t, "0", rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][2])
+		assert.Equal(
+			t,
+			"0",
+			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][2],
+		)
 		assert.Equal(t, "0", rsData.ValuesPerSchool["Andere"][2])
 	}
 }
@@ -535,6 +551,7 @@ func GetCheckInsLocationDayRawSingle(
 		require.Nil(t, err)
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
+		//nolint:lll //it is what it is
 		capacity := rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][len(rsData.Dates)-1]
 		value := rsData.ValuesPerSchool["Andere"][len(rsData.Dates)-1]
 
@@ -591,6 +608,7 @@ func GetCheckInsLocationDayRawMultiple(
 		require.Nil(t, err)
 		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
+		//nolint:lll //it is what it is
 		capacity0 := rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][len(rsData.Dates)-1]
 		capacity1 := rsData.CapacitiesPerLocation[location.ID][len(rsData.Dates)-1]
 		value := rsData.ValuesPerSchool["Andere"][len(rsData.Dates)-1]
