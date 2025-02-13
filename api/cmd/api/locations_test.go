@@ -118,24 +118,24 @@ func GetCheckInsLocationRangeRawSingle(
 
 		assert.Equal(
 			t,
-			"0",
+			0,
 			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][0],
 		)
-		assert.Equal(t, "0", rsData.ValuesPerSchool["Andere"][0])
+		assert.Equal(t, 0, rsData.ValuesPerSchool["Andere"][0])
 
 		assert.Equal(
 			t,
-			strconv.Itoa(int(testEnv.fixtures.DefaultLocation.Capacity)),
+			int(testEnv.fixtures.DefaultLocation.Capacity),
 			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][1],
 		)
-		assert.Equal(t, "10", rsData.ValuesPerSchool["Andere"][1])
+		assert.Equal(t, 10, rsData.ValuesPerSchool["Andere"][1])
 
 		assert.Equal(
 			t,
-			"0",
+			0,
 			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][2],
 		)
-		assert.Equal(t, "0", rsData.ValuesPerSchool["Andere"][2])
+		assert.Equal(t, 0, rsData.ValuesPerSchool["Andere"][2])
 	}
 }
 
@@ -193,29 +193,29 @@ func GetCheckInsLocationRangeRawMultiple(
 
 		assert.Equal(
 			t,
-			"0",
+			0,
 			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][0],
 		)
-		assert.Equal(t, "0", rsData.ValuesPerSchool["Andere"][0])
+		assert.Equal(t, 0, rsData.ValuesPerSchool["Andere"][0])
 
 		assert.Equal(
 			t,
-			strconv.Itoa(int(testEnv.fixtures.DefaultLocation.Capacity)),
+			int(testEnv.fixtures.DefaultLocation.Capacity),
 			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][1],
 		)
 		assert.Equal(
 			t,
-			strconv.Itoa(int(location.Capacity)),
+			int(location.Capacity),
 			rsData.CapacitiesPerLocation[location.ID][1],
 		)
-		assert.Equal(t, "20", rsData.ValuesPerSchool["Andere"][1])
+		assert.Equal(t, 20, rsData.ValuesPerSchool["Andere"][1])
 
 		assert.Equal(
 			t,
-			"0",
+			0,
 			rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][2],
 		)
-		assert.Equal(t, "0", rsData.ValuesPerSchool["Andere"][2])
+		assert.Equal(t, 0, rsData.ValuesPerSchool["Andere"][2])
 	}
 }
 
@@ -555,8 +555,8 @@ func GetCheckInsLocationDayRawSingle(
 		capacity := rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][len(rsData.Dates)-1]
 		value := rsData.ValuesPerSchool["Andere"][len(rsData.Dates)-1]
 
-		assert.Equal(t, "20", capacity)
-		assert.Equal(t, strconv.Itoa(amount), value)
+		assert.Equal(t, 20, capacity)
+		assert.Equal(t, amount, value)
 	}
 }
 
@@ -613,13 +613,13 @@ func GetCheckInsLocationDayRawMultiple(
 		capacity1 := rsData.CapacitiesPerLocation[location.ID][len(rsData.Dates)-1]
 		value := rsData.ValuesPerSchool["Andere"][len(rsData.Dates)-1]
 
-		assert.Equal(t, "20", capacity0)
+		assert.Equal(t, 20, capacity0)
 		assert.Equal(
 			t,
-			strconv.Itoa(int(location.Capacity)),
+			int(location.Capacity),
 			capacity1,
 		)
-		assert.Equal(t, strconv.Itoa(2*amount), value)
+		assert.Equal(t, 2*amount, value)
 	}
 }
 
