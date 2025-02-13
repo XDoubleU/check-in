@@ -7,7 +7,7 @@ toolchain go1.22.4
 require github.com/justinas/alice v1.2.0
 
 require (
-	github.com/XDoubleU/essentia v0.2.0
+	github.com/XDoubleU/essentia v0.3.0
 	github.com/dlclark/regexp2 v1.11.4
 	github.com/getsentry/sentry-go v0.31.1
 	github.com/google/uuid v1.6.0
@@ -42,4 +42,3 @@ require (
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 )
-
