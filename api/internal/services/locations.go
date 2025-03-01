@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"slices"
 	"time"
 
@@ -64,12 +65,13 @@ func (service LocationService) GetCheckInsEntriesDay(
 		return nil, nil, nil, err
 	}
 
-	g := grapher.New[int](grapher.Cumulative, time.RFC3339)
-	capacitiesGrapher := grapher.New[int](grapher.Normal, time.RFC3339)
+	g := grapher.New[int](grapher.Cumulative, time.RFC3339, time.Second)
+	capacitiesGrapher := grapher.New[int](grapher.Normal, time.RFC3339, time.Second)
 
 	for _, checkIn := range checkIns {
 		datetime := timetools.LocationIndependentTime(checkIn.CreatedAt.Time, "UTC")
 
+		fmt.Println(datetime)
 		g.AddPoint(datetime, 1, checkIn.SchoolName)
 		capacitiesGrapher.AddPoint(datetime, int(checkIn.Capacity), checkIn.LocationID)
 	}
@@ -107,8 +109,8 @@ func (service LocationService) GetCheckInsEntriesRange(
 		return nil, nil, nil, err
 	}
 
-	g := grapher.New[int](grapher.CumulativeSameDate, time.RFC3339)
-	capacitiesGrapher := grapher.New[int](grapher.Normal, time.RFC3339)
+	g := grapher.New[int](grapher.CumulativeSameDate, time.RFC3339, time.Second)
+	capacitiesGrapher := grapher.New[int](grapher.Normal, time.RFC3339, time.Second)
 
 	for i := startDate; i.Before(endDate); i = i.AddDate(0, 0, 1) {
 		for _, schoolName := range schoolIDNameMap {
