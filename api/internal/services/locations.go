@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 	"slices"
 	"time"
 
@@ -70,8 +69,6 @@ func (service LocationService) GetCheckInsEntriesDay(
 
 	for _, checkIn := range checkIns {
 		datetime := timetools.LocationIndependentTime(checkIn.CreatedAt.Time, "UTC")
-
-		fmt.Println(datetime)
 		g.AddPoint(datetime, 1, checkIn.SchoolName)
 		capacitiesGrapher.AddPoint(datetime, int(checkIn.Capacity), checkIn.LocationID)
 	}
