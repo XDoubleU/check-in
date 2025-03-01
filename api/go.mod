@@ -2,12 +2,12 @@ module check-in/api
 
 go 1.23.0
 
-toolchain go1.24.0
+toolchain go1.23.3
 
 require github.com/justinas/alice v1.2.0
 
 require (
-	github.com/XDoubleU/essentia v0.3.0
+	github.com/XDoubleU/essentia v0.3.4
 	github.com/dlclark/regexp2 v1.11.5
 	github.com/getsentry/sentry-go v0.31.1
 	github.com/google/uuid v1.6.0
@@ -28,7 +28,7 @@ require (
 	github.com/sethvargo/go-retry v0.3.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/time v0.9.0 // indirect
+	golang.org/x/time v0.10.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

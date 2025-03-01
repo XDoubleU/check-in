@@ -111,10 +111,9 @@ func GetCheckInsLocationRangeRawSingle(
 		rs := tReq.Do(t)
 
 		var rsData dtos.CheckInsGraphDto
+		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
-
-		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
 		assert.Equal(
 			t,
@@ -186,10 +185,9 @@ func GetCheckInsLocationRangeRawMultiple(
 		rs := tReq.Do(t)
 
 		var rsData dtos.CheckInsGraphDto
+		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
-
-		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
 		assert.Equal(
 			t,
@@ -547,9 +545,9 @@ func GetCheckInsLocationDayRawSingle(
 		rs := tReq.Do(t)
 
 		var rsData dtos.CheckInsGraphDto
+		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
-		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
 		//nolint:lll //it is what it is
 		capacity := rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][len(rsData.Dates)-1]
@@ -604,9 +602,9 @@ func GetCheckInsLocationDayRawMultiple(
 		rs := tReq.Do(t)
 
 		var rsData dtos.CheckInsGraphDto
+		assert.Equal(t, http.StatusOK, rs.StatusCode)
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
-		assert.Equal(t, http.StatusOK, rs.StatusCode)
 
 		//nolint:lll //it is what it is
 		capacity0 := rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][len(rsData.Dates)-1]

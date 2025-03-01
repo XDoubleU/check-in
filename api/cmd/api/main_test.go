@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"testing"
@@ -398,7 +399,12 @@ func getTimeNow(hour int, nextDay bool, tz string) time.Time {
 func setupSpecificTimeProvider(
 	timeProvider shared.LocalNowTimeProvider,
 ) (TestEnv, Application) {
-	testApp := NewApp(logging.NewNopLogger(), cfg, postgresDB, timeProvider)
+	testApp := NewApp(
+		slog.New(slog.NewTextHandler(os.Stdout, nil)),
+		cfg,
+		postgresDB,
+		timeProvider,
+	)
 	testEnv := TestEnv{
 		ctx: context.Background(),
 		app: *testApp,
