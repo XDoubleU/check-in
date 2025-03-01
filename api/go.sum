@@ -1,5 +1,7 @@
 github.com/XDoubleU/essentia v0.3.3 h1:nWZnmwrZHNKtC38RuuBOYD/Mw197ZWqRyMmCI0Kkakg=
 github.com/XDoubleU/essentia v0.3.3/go.mod h1:v0mihqNIdKBRAJyZ5+Vcps/xn9vn7LApIdyHZoMHY6Q=
+github.com/XDoubleU/essentia v0.3.4 h1:feEC8LnVbQFZxpcnMaJayd1uIymUs1SR26BTxtxRijQ=
+github.com/XDoubleU/essentia v0.3.4/go.mod h1:v0mihqNIdKBRAJyZ5+Vcps/xn9vn7LApIdyHZoMHY6Q=
 github.com/coder/websocket v1.8.12 h1:5bUXkEPPIbewrnkU8LTCLVaxi4N4J8ahufH2vlo4NAo=
 github.com/coder/websocket v1.8.12/go.mod h1:LNVeNrXQZfe5qhS9ALED3uA+l5pPqvwXg3CKoDBB2gs=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
