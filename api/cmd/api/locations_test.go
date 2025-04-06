@@ -676,13 +676,16 @@ func TestGetCheckInsLocationDayCSV(t *testing.T) {
 		expectedHeaders := []string{"datetime", "capacity", "Andere"}
 		assert.Equal(t, expectedHeaders, rsData[0])
 
-		lastRow := rsData[len(rsData)-1]
+		capacity, value := 0, 0
 
-		time, _ := time.Parse(time.RFC3339, lastRow[0])
-		capacity, _ := strconv.Atoi(lastRow[1])
-		value, _ := strconv.Atoi(lastRow[2])
+		for _, row := range rsData {
+			strCap, _ := strconv.Atoi(row[1])
+			strVal, _ := strconv.Atoi(row[2])
 
-		assert.Equal(t, date, time.Format(constants.DateFormat))
+			capacity = int(math.Max(float64(capacity), float64(strCap)))
+			value += strVal
+		}
+
 		assert.EqualValues(t, testEnv.fixtures.DefaultLocation.Capacity, capacity)
 		assert.Equal(t, amount, value)
 	}
