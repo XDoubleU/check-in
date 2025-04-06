@@ -285,8 +285,8 @@ func (service LocationService) DeleteCheckIn(
 	startOfToday := timetools.StartOfDay(today)
 	endOfToday := timetools.EndOfDay(today)
 
-	if !(checkIn.CreatedAt.Time.After(startOfToday) &&
-		checkIn.CreatedAt.Time.Before(endOfToday)) {
+	if checkIn.CreatedAt.Time.After(endOfToday) ||
+		checkIn.CreatedAt.Time.Before(startOfToday) {
 		return nil, errortools.NewBadRequestError(
 			errors.New("checkIn didn't occur today and thus can't be deleted"),
 		)

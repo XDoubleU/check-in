@@ -57,10 +57,10 @@ func (service AuthService) SignInUser(
 }
 
 func (service AuthService) GetCookieName(scope models.Scope) string {
-	switch {
-	case scope == models.AccessScope:
+	switch scope {
+	case models.AccessScope:
 		return "accessToken"
-	case scope == models.RefreshScope:
+	case models.RefreshScope:
 		return "refreshToken"
 	default:
 		panic("invalid scope")
