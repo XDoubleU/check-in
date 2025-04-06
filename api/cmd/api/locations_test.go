@@ -549,9 +549,16 @@ func GetCheckInsLocationDayRawSingle(
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 
+		capacity, value := 0, 0
+
 		//nolint:lll //it is what it is
-		capacity := rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][len(rsData.Dates)-1]
-		value := rsData.ValuesPerSchool["Andere"][len(rsData.Dates)-1]
+		for _, cap := range rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID] {
+			capacity = int(math.Max(float64(capacity), float64(cap)))
+		}
+
+		for _, val := range rsData.ValuesPerSchool["Andere"] {
+			value += val
+		}
 
 		assert.Equal(t, 20, capacity)
 		assert.Equal(t, amount, value)
