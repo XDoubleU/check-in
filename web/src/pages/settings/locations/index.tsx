@@ -101,8 +101,7 @@ export default function LocationListView() {
 
         if (username == null) continue
 
-        if (locationsWithUsernames.data == null)
-          locationsWithUsernames.data = []
+        locationsWithUsernames.data ??= []
 
         locationsWithUsernames.data.push({
           id: location.id,
