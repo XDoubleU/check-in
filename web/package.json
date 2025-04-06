@@ -37,7 +37,7 @@
     "recharts": "2.15.2",
     "sass": "1.85.1",
     "serve": "14.2.4",
-    "typescript": "5.8.2",
+    "typescript": "5.8.3",
     "uglify-js": "3.19.3",
     "uuid": "11.1.0"
   },
