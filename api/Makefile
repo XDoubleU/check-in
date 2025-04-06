@@ -7,7 +7,7 @@ tools/swagger:
 	go install github.com/swaggo/swag/cmd/swag@v1.16.4
 
 tools/db:
-	go install github.com/pressly/goose/v3/cmd/goose@v3.24.1
+	go install github.com/pressly/goose/v3/cmd/goose@v3.24.2
 
 tools/lint: tools/lint/go tools/lint/sql
 
