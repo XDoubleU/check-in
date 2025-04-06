@@ -32,7 +32,7 @@ lint: tools/lint
 	golangci-lint run
 	make lint/sql
 
-lint/fix: tools/swagger
+lint/fix: tools/swagger tools/lint
 	swag fmt
 	golines . -m 88 -w
 	golangci-lint run --fix

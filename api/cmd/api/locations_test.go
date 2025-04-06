@@ -606,10 +606,20 @@ func GetCheckInsLocationDayRawMultiple(
 		err := httptools.ReadJSON(rs.Body, &rsData)
 		require.Nil(t, err)
 
+		capacity0, capacity1, value := 0, 0, 0
+
 		//nolint:lll //it is what it is
-		capacity0 := rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID][len(rsData.Dates)-1]
-		capacity1 := rsData.CapacitiesPerLocation[location.ID][len(rsData.Dates)-1]
-		value := rsData.ValuesPerSchool["Andere"][len(rsData.Dates)-1]
+		for _, cap := range rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID] {
+			capacity0 = int(math.Max(float64(capacity0), float64(cap)))
+		}
+
+		for _, cap := range rsData.CapacitiesPerLocation[location.ID] {
+			capacity1 = int(math.Max(float64(capacity1), float64(cap)))
+		}
+
+		for _, val := range rsData.ValuesPerSchool["Andere"] {
+			value += val
+		}
 
 		assert.Equal(t, 20, capacity0)
 		assert.Equal(
