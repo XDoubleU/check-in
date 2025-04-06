@@ -608,6 +608,7 @@ func GetCheckInsLocationDayRawMultiple(
 
 		capacity0, capacity1, value := 0, 0, 0
 
+		//nolint:lll //it is what it is
 		for _, cap := range rsData.CapacitiesPerLocation[testEnv.fixtures.DefaultLocation.ID] {
 			capacity0 = int(math.Max(float64(capacity0), float64(cap)))
 		}
