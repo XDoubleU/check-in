@@ -85,7 +85,7 @@ function getScript(apiUrl: string, language: string) {
         }
 
         function fill(location){
-            let element = document.getElementById(location.normalizedName);
+            let element = document.getElementById(\`checkin-\${location.normalizedName}\`);
 
             if(element){
                 const capacity = document.createElement("p")
