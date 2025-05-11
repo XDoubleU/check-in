@@ -6,8 +6,8 @@
   customManagers: [
     {
       customType: 'regex',
-      fileMatch: [
-        '^api/Makefile$',
+      managerFilePatterns: [
+        '/^api/Makefile$/',
       ],
       matchStrings: [
         'go install (?<depName>[^@]+)@(?<currentValue>[0-9a-zA-Z.]+)',
@@ -16,8 +16,8 @@
     },
     {
       customType: 'regex',
-      fileMatch: [
-        '^api/go.mod$',
+      managerFilePatterns: [
+        '/^api/go.mod$/',
       ],
       matchStrings: [
         '\\sgo (?<currentValue>.+?)\\s',
