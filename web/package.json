@@ -33,7 +33,7 @@
     "react-bootstrap": "2.10.9",
     "react-dom": "19.1.0",
     "react-hook-form": "7.55.0",
-    "react-spinners": "0.15.0",
+    "react-spinners": "0.17.0",
     "recharts": "2.15.3",
     "sass": "1.88.0",
     "serve": "14.2.4",

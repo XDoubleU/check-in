@@ -13104,13 +13104,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-spinners@npm:0.15.0":
-  version: 0.15.0
-  resolution: "react-spinners@npm:0.15.0"
+"react-spinners@npm:0.17.0":
+  version: 0.17.0
+  resolution: "react-spinners@npm:0.17.0"
   peerDependencies:
     react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/1915902dd231e60b3c7cc056434eea7920fbae49e60271ce5ca362e72f7a89510ced9a65f99a734a6485165ea2012425df50999b1906fec073775f95deb3bc38
+  checksum: 10c0/175107ba7b9ab2954559376ebe12c7561d4856402773b044c74972e9ba3e8c274454910bf23eb21000064e827a269ef4e48e69432a57395a1fa7edd05a428e7c
   languageName: node
   linkType: hard
 
@@ -15851,7 +15851,7 @@ __metadata:
     react-bootstrap: "npm:2.10.9"
     react-dom: "npm:19.1.0"
     react-hook-form: "npm:7.55.0"
-    react-spinners: "npm:0.15.0"
+    react-spinners: "npm:0.17.0"
     recharts: "npm:2.15.3"
     sass: "npm:1.88.0"
     serve: "npm:14.2.4"
