@@ -5493,10 +5493,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bootstrap-icons@npm:1.11.3":
-  version: 1.11.3
-  resolution: "bootstrap-icons@npm:1.11.3"
-  checksum: 10c0/37eefd418c6bbbb304bdff0f2ed527f82c3c6f331d3e3a7c4aa8bbdbaf7118bb86725b024f85e7d738c613d48c7353cd81c09e58e9d8d34c5633960fdec8410b
+"bootstrap-icons@npm:1.13.1":
+  version: 1.13.1
+  resolution: "bootstrap-icons@npm:1.13.1"
+  checksum: 10c0/2c1adeb1796502e67b476ce049c86bc3a7ff7984c61777e056820389a8db5ec6535c12a33f76f3ed52674bca4c01472065a7fbcde6cc384ebb86c2eae51390bd
   languageName: node
   linkType: hard
 
@@ -15871,7 +15871,7 @@ __metadata:
     "@types/uuid": "npm:10.0.0"
     "@typescript-eslint/parser": "npm:8.32.0"
     bootstrap: "npm:5.3.6"
-    bootstrap-icons: "npm:1.11.3"
+    bootstrap-icons: "npm:1.13.1"
     cpx2: "npm:8.0.0"
     cross-env: "npm:7.0.3"
     eslint: "npm:9.26.0"
