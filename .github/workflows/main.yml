@@ -23,6 +23,8 @@ jobs:
     name: API Lint Workflow
     uses: ./.github/workflows/api-lint.yml
     secrets: inherit
+    permissions:
+      contents: read
     if: needs.build.outputs.committed_generated_files == 'false'
     
   web-lint:
@@ -30,6 +32,8 @@ jobs:
     name: Web Lint Workflow
     uses: ./.github/workflows/web-lint.yml
     secrets: inherit
+    permissions:
+      contents: read
     if: needs.build.outputs.committed_generated_files == 'false'
 
   api-test:
@@ -37,6 +41,8 @@ jobs:
     name: API Test Workflow
     uses: ./.github/workflows/api-test.yml
     secrets: inherit
+    permissions:
+      contents: read
     if: needs.build.outputs.committed_generated_files == 'false'
     
   web-test:
@@ -44,5 +50,7 @@ jobs:
     name: Web Test Workflow
     uses: ./.github/workflows/web-test.yml
     secrets: inherit
+    permissions:
+      contents: read
     if: needs.build.outputs.committed_generated_files == 'false'
 
