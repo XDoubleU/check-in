@@ -13667,9 +13667,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:1.88.0":
-  version: 1.88.0
-  resolution: "sass@npm:1.88.0"
+"sass@npm:1.89.1":
+  version: 1.89.1
+  resolution: "sass@npm:1.89.1"
   dependencies:
     "@parcel/watcher": "npm:^2.4.1"
     chokidar: "npm:^4.0.0"
@@ -13680,7 +13680,7 @@ __metadata:
       optional: true
   bin:
     sass: sass.js
-  checksum: 10c0/dcb16dc29116bfa5a90485d24fd8020d2b0d95155bd2e31285901588729343b59fefe44365c5f146b2ba5a9ebadef90b23a7220b902507bdbd91ca2ba0a0b688
+  checksum: 10c0/4406c441f71f5e0ec056345e6091cef51fd1786dac6e5b3eb1e87df464c40b3278219cc51df98309c36794503787ab0fe88fd45f2b0464f22000b68e755883ee
   languageName: node
   linkType: hard
 
@@ -15665,7 +15665,7 @@ __metadata:
     react-hook-form: "npm:7.56.4"
     react-spinners: "npm:0.17.0"
     recharts: "npm:2.15.3"
-    sass: "npm:1.88.0"
+    sass: "npm:1.89.1"
     serve: "npm:14.2.4"
     ts-jest: "npm:29.3.4"
     typescript: "npm:5.8.3"
