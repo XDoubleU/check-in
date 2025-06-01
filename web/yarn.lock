@@ -12871,9 +12871,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-bootstrap@npm:2.10.9":
-  version: 2.10.9
-  resolution: "react-bootstrap@npm:2.10.9"
+"react-bootstrap@npm:2.10.10":
+  version: 2.10.10
+  resolution: "react-bootstrap@npm:2.10.10"
   dependencies:
     "@babel/runtime": "npm:^7.24.7"
     "@restart/hooks": "npm:^0.4.9"
@@ -12895,7 +12895,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/96a198ee97fc6f8f1cbd68bd97daae3509561fd4613b53a55eeb170d138a8dd78cc336c679fee4adb146427d5cc92cd03256793099431984e8f91fd20210a8c8
+  checksum: 10c0/7d515ca782398a267809f0e62b8cb9b94a9c5190c7cdeb974d54365ac445c3280872258722a95ee753f2e124c0354a875e167c17dcb93138cf16c633681925d6
   languageName: node
   linkType: hard
 
@@ -15680,7 +15680,7 @@ __metadata:
     prettier: "npm:3.5.3"
     query-string: "npm:9.1.2"
     react: "npm:19.1.0"
-    react-bootstrap: "npm:2.10.9"
+    react-bootstrap: "npm:2.10.10"
     react-dom: "npm:19.1.0"
     react-hook-form: "npm:7.56.4"
     react-spinners: "npm:0.17.0"
