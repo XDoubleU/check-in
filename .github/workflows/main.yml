@@ -37,6 +37,8 @@ jobs:
     name: API Test Workflow
     uses: ./.github/workflows/api-test.yml
     secrets: inherit
+    permissions:
+      contents: read
     if: needs.build.outputs.committed_generated_files == 'false'
     
   web-test:
