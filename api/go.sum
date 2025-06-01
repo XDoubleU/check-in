@@ -2,6 +2,8 @@ github.com/XDoubleU/essentia v0.3.5 h1:oNtdWvmBttGEaIPbAw8tVHs0WDEvAd25RoS2DrtiV
 github.com/XDoubleU/essentia v0.3.5/go.mod h1:F0Qid4VmGQfv8nblL/1PWJiNR0GKefrnHAV1AY/Lk9E=
 github.com/XDoubleU/essentia v1.0.0 h1:zOZLhBJSLZq5JGzHo7A6JCzefYDiSmmrFmWCc2UHeQk=
 github.com/XDoubleU/essentia v1.0.0/go.mod h1:1HuTUdPqxyhGI+6Lr+N8cRxzGJ3w6Q8MJKoB1lKJBYE=
+github.com/XDoubleU/essentia v1.0.1 h1:mQkGAnWzlzQ1icheWTJ5fV7/tVqnJ4EnFH5ToBTC4c4=
+github.com/XDoubleU/essentia v1.0.1/go.mod h1:dU1IyIOMjg7JBzsS3XnUngOzucQWG5DwZLfM2aE5RzA=
 github.com/coder/websocket v1.8.13 h1:f3QZdXy7uGVz+4uCJy2nTZyM0yTBj8yANEHhqlXZ9FE=
 github.com/coder/websocket v1.8.13/go.mod h1:LNVeNrXQZfe5qhS9ALED3uA+l5pPqvwXg3CKoDBB2gs=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -15,6 +17,8 @@ github.com/getsentry/sentry-go v0.31.1 h1:ELVc0h7gwyhnXHDouXkhqTFSO5oslsRDk0++ey
 github.com/getsentry/sentry-go v0.31.1/go.mod h1:CYNcMMz73YigoHljQRG+qPF+eMq8gG72XcGN/p71BAY=
 github.com/getsentry/sentry-go v0.32.0 h1:YKs+//QmwE3DcYtfKRH8/KyOOF/I6Qnx7qYGNHCGmCY=
 github.com/getsentry/sentry-go v0.32.0/go.mod h1:CYNcMMz73YigoHljQRG+qPF+eMq8gG72XcGN/p71BAY=
+github.com/getsentry/sentry-go v0.33.0 h1:YWyDii0KGVov3xOaamOnF0mjOrqSjBqwv48UEzn7QFg=
+github.com/getsentry/sentry-go v0.33.0/go.mod h1:C55omcY9ChRQIUcVcGcs+Zdy4ZpQGvNJ7JYHIoSWOtE=
 github.com/go-errors/errors v1.4.2 h1:J6MZopCL4uSllY1OfXM374weqZFFItUbrImctkmUxIA=
 github.com/go-errors/errors v1.4.2/go.mod h1:sIVyrIiJhuEF+Pj9Ebtd6P/rEYROXFi3BopGUQ5a5Og=
 github.com/goddtriffin/helmet v1.0.2 h1:iKahg/oRPrDNz6yhE12WL1YoWsd2NJjtCH+zolqxToo=
