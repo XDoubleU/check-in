@@ -1,5 +1,10 @@
 name: Web Test Workflow
 
+permissions:
+  contents: read
+  statuses: write
+  id-token: write
+
 on:    
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
